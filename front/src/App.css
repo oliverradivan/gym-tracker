@@ -1,0 +1,257 @@
+.auth-shell,
+.home-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #07111f 0%, #111827 45%, #1d4ed8 100%);
+  padding: 32px 20px;
+}
+
+.auth-card,
+.welcome-card,
+.schedule-card,
+.stat-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(14px);
+}
+
+.primary-btn,
+.ghost-btn,
+.secondary-btn {
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.18);
+}
+
+.primary-btn:hover,
+.ghost-btn:hover,
+.secondary-btn:hover {
+  box-shadow: 0 12px 26px rgba(59, 130, 246, 0.26);
+}
+
+@media (max-width: 480px) {
+  .auth-shell,
+  .home-shell {
+    padding: 20px 12px;
+  }
+}
+
+.auth-card {
+  width: min(100%, 440px);
+  border-radius: 24px;
+  padding: 32px 28px;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.brand-badge {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.auth-header h1,
+.welcome-card h1,
+.topbar h2,
+.schedule-card h3 {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.auth-header p,
+.welcome-card p,
+.status-message {
+  color: #cbd5e1;
+}
+
+.page-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  background: rgba(15, 23, 42, 0.9);
+  border-radius: 12px;
+  padding: 6px;
+  margin-bottom: 20px;
+}
+
+.page-toggle button,
+.primary-btn,
+.ghost-btn {
+  border: none;
+  border-radius: 10px;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.page-toggle button {
+  background: transparent;
+  color: #cbd5e1;
+  padding: 12px 14px;
+  font-weight: 600;
+}
+
+.page-toggle button.active {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.auth-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.75);
+  color: white;
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.auth-form input:focus {
+  outline: 2px solid rgba(96, 165, 250, 0.6);
+  border-color: transparent;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  padding: 13px 18px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.primary-btn:hover,
+.ghost-btn:hover,
+.page-toggle button:hover {
+  transform: translateY(-1px);
+}
+
+.status-message {
+  margin-top: 18px;
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.home-shell {
+  display: block;
+  padding: 32px 18px;
+}
+
+.topbar {
+  width: min(100%, 1100px);
+  margin: 0 auto 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.eyebrow {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+
+.ghost-btn {
+  background: rgba(148, 163, 184, 0.08);
+  color: white;
+  padding: 11px 18px;
+}
+
+.dashboard-grid {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.welcome-card,
+.schedule-card,
+.stat-card {
+  border-radius: 20px;
+  padding: 24px 22px;
+}
+
+.welcome-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #dbeafe;
+}
+
+.stat-card span {
+  color: #bfdbfe;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.stat-card strong {
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  color: white;
+}
+
+.schedule-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  display: grid;
+  gap: 12px;
+  color: #e2e8f0;
+}
+
+.schedule-card li {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.7);
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    gap: 12px;
+    flex-direction: column;
+  }
+}

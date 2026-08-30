@@ -1,0 +1,241 @@
+.dashboard-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #07111f 0%, #111827 45%, #1d4ed8 100%);
+  padding: 32px 18px;
+}
+
+.topbar {
+  width: min(100%, 1100px);
+  margin: 0 auto 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eyebrow {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+
+.topbar h2,
+.welcome-card h1,
+.schedule-card h3 {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.ghost-btn,
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.ghost-btn {
+  background: rgba(148, 163, 184, 0.08);
+  color: white;
+}
+
+.dashboard-primary-btn {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+}
+
+.dashboard-grid {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.welcome-card,
+.schedule-card,
+.stat-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 20px;
+  padding: 24px 22px;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+}
+
+.welcome-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.welcome-card p,
+.schedule-card li {
+  color: #e2e8f0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #dbeafe;
+}
+
+.stat-card span {
+  color: #bfdbfe;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.stat-card strong {
+  font-size: clamp(1.4rem, 3vw, 2.1rem);
+  color: white;
+}
+
+.today-session-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.today-session-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.today-session-link {
+  color: #dbeafe;
+  text-decoration: none;
+}
+
+.today-session-empty {
+  margin: 12px 0 0;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.exercise-list-card {
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 20px;
+  padding: 24px 22px;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+}
+
+.exercise-list-card h3 {
+  margin-top: 0;
+  color: #f8fafc;
+}
+
+.exercise-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.exercise-item {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(96, 165, 250, 0.12);
+  color: #dbeafe;
+  text-decoration: none;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.exercise-item.push,
+.today-session-item.push {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+}
+
+.exercise-item.pull,
+.today-session-item.pull {
+  background: rgba(59, 130, 246, 0.14);
+  border-color: rgba(96, 165, 250, 0.45);
+  color: #dbeafe;
+}
+
+.exercise-item.leg,
+.today-session-item.leg {
+  background: rgba(250, 204, 21, 0.14);
+  border-color: rgba(250, 204, 21, 0.5);
+  color: #fef3c7;
+}
+
+.today-session-item {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+@media (max-width: 640px) {
+  .dashboard-page {
+    padding: 20px 12px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .topbar-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .ghost-btn,
+  .primary-btn {
+    flex: 1 1 42%;
+    min-width: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .today-session-list li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .exercise-list {
+    gap: 8px;
+  }
+
+  .exercise-item {
+    width: 100%;
+    justify-content: center;
+  }
+}

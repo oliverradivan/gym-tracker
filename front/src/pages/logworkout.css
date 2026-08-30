@@ -1,0 +1,119 @@
+.logworkout-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 18px;
+  background: linear-gradient(135deg, #07111f 0%, #111827 45%, #1d4ed8 100%);
+}
+
+.logworkout-card {
+  width: min(100%, 540px);
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 24px;
+  padding: 32px 28px;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+}
+
+.logworkout-header {
+  margin-bottom: 20px;
+}
+
+.logworkout-header h1 {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.logworkout-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.logworkout-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.logworkout-form input,
+.logworkout-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.75);
+  color: white;
+  padding: 12px 14px;
+  font: inherit;
+}
+
+.logworkout-form textarea {
+  resize: vertical;
+}
+
+.logworkout-form input:focus,
+.logworkout-form textarea:focus {
+  outline: 2px solid rgba(96, 165, 250, 0.6);
+  border-color: transparent;
+}
+
+.logworkout-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 18px;
+  border-radius: 10px;
+  color: white;
+  text-decoration: none;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.eyebrow {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+
+.status-message {
+  margin-top: 16px;
+  color: #bbf7d0;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .logworkout-page {
+    padding: 20px 12px;
+  }
+
+  .logworkout-card {
+    padding: 22px 16px;
+    border-radius: 18px;
+  }
+
+  .logworkout-form {
+    gap: 14px;
+  }
+
+  .logworkout-actions {
+    flex-direction: column;
+  }
+
+  .secondary-btn,
+  .primary-btn {
+    width: 100%;
+  }
+}
+

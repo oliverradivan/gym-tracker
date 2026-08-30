@@ -1,0 +1,163 @@
+.history-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #07111f 0%, #111827 45%, #1d4ed8 100%);
+  padding: 32px 18px;
+}
+
+.history-card {
+  width: min(100%, 1000px);
+  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.history-header h1 {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.eyebrow {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.session-block {
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 18px;
+  padding: 20px;
+}
+
+.session-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.session-header-row h2 {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.session-header-row span {
+  color: #bfdbfe;
+}
+
+.session-entries {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.session-entries li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #e2e8f0;
+}
+
+.history-entry.push {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.history-entry.pull {
+  background: rgba(59, 130, 246, 0.14);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+}
+
+.history-entry.leg {
+  background: rgba(250, 204, 21, 0.12);
+  border: 1px solid rgba(250, 204, 21, 0.45);
+}
+
+.entry-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delete-workout-btn {
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  color: #fecaca;
+  border-radius: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: white;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.status-message {
+  color: #cbd5e1;
+}
+
+@media (max-width: 640px) {
+  .history-page {
+    padding: 20px 12px;
+  }
+
+  .history-card {
+    padding: 18px 14px;
+  }
+
+  .history-header,
+  .session-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .session-entries li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .entry-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .delete-workout-btn,
+  .secondary-btn {
+    width: 100%;
+  }
+}
