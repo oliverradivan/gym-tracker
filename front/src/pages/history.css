@@ -89,18 +89,21 @@
 }
 
 .history-entry.push {
-  background: rgba(17, 17, 17, 0.03);
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(255, 255, 255, 0.9));
+  border: 1px solid rgba(185, 28, 28, 0.28);
+  color: #b91c1c;
 }
 
 .history-entry.pull {
-  background: rgba(17, 17, 17, 0.03);
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(255, 255, 255, 0.9));
+  border: 1px solid rgba(29, 78, 216, 0.28);
+  color: #1d4ed8;
 }
 
 .history-entry.leg {
-  background: rgba(17, 17, 17, 0.03);
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(255, 255, 255, 0.9));
+  border: 1px solid rgba(180, 132, 0, 0.3);
+  color: #b7791f;
 }
 
 .entry-actions {

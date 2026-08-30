@@ -208,23 +208,23 @@
 
 .exercise-item.push,
 .today-session-item.push {
-  background: rgba(17, 17, 17, 0.04);
-  border-color: rgba(17, 17, 17, 0.08);
-  color: #111111;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(255, 255, 255, 0.96));
+  border-color: rgba(185, 28, 28, 0.28);
+  color: #b91c1c;
 }
 
 .exercise-item.pull,
 .today-session-item.pull {
-  background: rgba(17, 17, 17, 0.04);
-  border-color: rgba(17, 17, 17, 0.08);
-  color: #111111;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(255, 255, 255, 0.96));
+  border-color: rgba(29, 78, 216, 0.28);
+  color: #1d4ed8;
 }
 
 .exercise-item.leg,
 .today-session-item.leg {
-  background: rgba(17, 17, 17, 0.04);
-  border-color: rgba(17, 17, 17, 0.08);
-  color: #111111;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(255, 255, 255, 0.96));
+  border-color: rgba(180, 132, 0, 0.3);
+  color: #b7791f;
 }
 
 .today-session-item {

@@ -22,7 +22,7 @@ export function getExerciseCategory(name = '') {
     return 'leg'
   }
 
-  if (/(cable tricep pull down|tricep pull down|single arm tricep pulldown|straight bar tricep pulldown)/i.test(value)) {
+  if (/(cable tricep pull[- ]?down(?:s)?|tricep pull[- ]?down(?:s)?|single arm tricep pulldown(?:s)?|straight bar tricep pulldown(?:s)?)/i.test(value)) {
     return 'push'
   }
 

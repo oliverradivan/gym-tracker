@@ -18,7 +18,7 @@ SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 app = FastAPI(title="Workout Tracker API")
 
-if os.getenv("APP_ENV") == "local" or os.getenv("VITE_API_URL") == "http://localhost:8000":
+if os.getenv("APP_ENV") == "local":
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[

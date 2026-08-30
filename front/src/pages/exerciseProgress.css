@@ -4,6 +4,18 @@
   padding: 32px 18px;
 }
 
+.exercise-progress-page.push {
+  background: linear-gradient(180deg, rgba(254, 242, 242, 0.96), rgba(254, 226, 226, 0.98));
+}
+
+.exercise-progress-page.pull {
+  background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(219, 234, 254, 0.98));
+}
+
+.exercise-progress-page.leg {
+  background: linear-gradient(180deg, rgba(254, 249, 195, 0.96), rgba(253, 230, 138, 0.98));
+}
+
 .exercise-progress-card {
   width: min(100%, 1000px);
   margin: 0 auto;
@@ -14,6 +26,21 @@
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(18px);
   animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.exercise-progress-card.push {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(254, 242, 242, 0.96));
+  border-color: rgba(185, 28, 28, 0.22);
+}
+
+.exercise-progress-card.pull {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(239, 246, 255, 0.96));
+  border-color: rgba(29, 78, 216, 0.22);
+}
+
+.exercise-progress-card.leg {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(254, 249, 195, 0.96));
+  border-color: rgba(180, 132, 0, 0.24);
 }
 
 .exercise-progress-header {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
+import { getExerciseCategory } from '../utils/exerciseCategory'
 import './exerciseProgress.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -60,6 +61,8 @@ function ExerciseProgressPage() {
     fetchData()
   }, [exerciseId, session])
 
+  const category = useMemo(() => getExerciseCategory(exerciseName), [exerciseName])
+
   const chartPoints = useMemo(() => {
     if (!progress.length) return ''
 
@@ -78,9 +81,11 @@ function ExerciseProgressPage() {
       .join(' ')
   }, [progress])
 
+  const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
+
   return (
-    <div className="exercise-progress-page">
-      <div className="exercise-progress-card">
+    <div className={`exercise-progress-page ${category}`}>
+      <div className={`exercise-progress-card ${category}`}>
         <div className="exercise-progress-header">
           <div>
             <p className="eyebrow">Workout Tracker</p>
@@ -100,7 +105,7 @@ function ExerciseProgressPage() {
                 <line x1="15" y1="180" x2="545" y2="180" className="chart-axis" />
                 <line x1="15" y1="20" x2="15" y2="180" className="chart-axis" />
                 {progress.length > 0 && (
-                  <polyline fill="none" stroke="#60a5fa" strokeWidth="3" points={chartPoints} />
+                  <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />
                 )}
               </svg>
             </div>
