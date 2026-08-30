@@ -60,7 +60,7 @@ function DashboardPage() {
     <div className="dashboard-page">
       <header className="topbar">
         <div>
-          <span className="eyebrow">Workout Tracker</span>
+          <span className="eyebrow">Olivers Workout Tracker</span>
           <h2>Dashboard</h2>
         </div>
         <div className="topbar-actions">
