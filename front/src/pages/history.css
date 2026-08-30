@@ -1,17 +1,19 @@
 .history-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #07111f 0%, #111827 45%, #1d4ed8 100%);
+  background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
   padding: 32px 18px;
 }
 
 .history-card {
   width: min(100%, 1000px);
   margin: 0 auto;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 28px;
   padding: 28px;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(18px);
+  animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .history-header {
@@ -24,15 +26,15 @@
 
 .history-header h1 {
   margin: 0;
-  color: #f8fafc;
+  color: #111111;
 }
 
 .eyebrow {
   display: inline-block;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.72rem;
-  color: #93c5fd;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  color: #5f5f61;
   margin-bottom: 8px;
 }
 
@@ -43,8 +45,8 @@
 }
 
 .session-block {
-  background: rgba(15, 23, 42, 0.65);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(17, 17, 17, 0.03);
+  border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: 18px;
   padding: 20px;
 }
@@ -59,11 +61,11 @@
 
 .session-header-row h2 {
   margin: 0;
-  color: #f8fafc;
+  color: #111111;
 }
 
 .session-header-row span {
-  color: #bfdbfe;
+  color: #4d4d4f;
 }
 
 .session-entries {
@@ -79,25 +81,26 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: rgba(30, 41, 59, 0.7);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: 12px;
   padding: 12px 14px;
-  color: #e2e8f0;
+  color: #111111;
 }
 
 .history-entry.push {
-  background: rgba(239, 68, 68, 0.14);
-  border: 1px solid rgba(248, 113, 113, 0.35);
+  background: rgba(17, 17, 17, 0.03);
+  border: 1px solid rgba(17, 17, 17, 0.08);
 }
 
 .history-entry.pull {
-  background: rgba(59, 130, 246, 0.14);
-  border: 1px solid rgba(96, 165, 250, 0.35);
+  background: rgba(17, 17, 17, 0.03);
+  border: 1px solid rgba(17, 17, 17, 0.08);
 }
 
 .history-entry.leg {
-  background: rgba(250, 204, 21, 0.12);
-  border: 1px solid rgba(250, 204, 21, 0.45);
+  background: rgba(17, 17, 17, 0.03);
+  border: 1px solid rgba(17, 17, 17, 0.08);
 }
 
 .entry-actions {
@@ -107,9 +110,9 @@
 }
 
 .delete-workout-btn {
-  background: rgba(239, 68, 68, 0.18);
-  border: 1px solid rgba(248, 113, 113, 0.5);
-  color: #fecaca;
+  background: rgba(17, 17, 17, 0.03);
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  color: #111111;
   border-radius: 8px;
   padding: 7px 12px;
   cursor: pointer;
@@ -120,14 +123,27 @@
   align-items: center;
   justify-content: center;
   padding: 11px 18px;
-  border-radius: 10px;
+  border-radius: 12px;
   text-decoration: none;
-  color: white;
-  background: rgba(148, 163, 184, 0.15);
+  color: #111111;
+  background: rgba(17, 17, 17, 0.03);
+  border: 1px solid rgba(17, 17, 17, 0.08);
 }
 
 .status-message {
-  color: #cbd5e1;
+  color: #4d4d4f;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 640px) {

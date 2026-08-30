@@ -32,7 +32,11 @@ function LoginPage() {
     <div className="auth-shell login-page">
       <div className="auth-card">
         <div className="auth-header">
-          <div className="brand-badge">WT</div>
+          <div className="brand-badge" aria-label="Workout Tracker">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 9.5v5M10.5 7v10M14 9.5v5M17.5 7v10M4.5 10.5h15M4.5 13.5h15" />
+            </svg>
+          </div>
           <h1>Welcome back</h1>
           <p>Use your username and password to continue.</p>
         </div>

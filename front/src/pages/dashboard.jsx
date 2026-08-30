@@ -65,15 +65,35 @@ function DashboardPage() {
         </div>
         <div className="topbar-actions">
           <Link to="/logworkout" className="primary-btn dashboard-primary-btn">
+            <span className="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M5 12h14M12 5v14M7 7.5v9M17 7.5v9" />
+              </svg>
+            </span>
             Log Workout
           </Link>
           <Link to="/history" className="ghost-btn">
+            <span className="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M7 4.5v4h4M7 8.5a7 7 0 1 0 7.5-7.2" />
+              </svg>
+            </span>
             History
           </Link>
           <Link to="/progress" className="ghost-btn">
+            <span className="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M5 18.5V9.5M11 18.5V5.5M17 18.5v-8" />
+              </svg>
+            </span>
             Progress
           </Link>
           <Link to="/login" className="ghost-btn" onClick={handleLogout}>
+            <span className="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M9 7.5V6.8A2.8 2.8 0 0 1 11.8 4h4.4A2.8 2.8 0 0 1 19 6.8v10.4A2.8 2.8 0 0 1 16.2 20h-4.4A2.8 2.8 0 0 1 9 17.2v-.7M15 12H4m0 0 3-3m-3 3 3 3" />
+              </svg>
+            </span>
             Log out
           </Link>
         </div>
@@ -131,6 +151,7 @@ function DashboardPage() {
                   to={`/exercise/${exercise.id}`}
                   className={`exercise-item ${getExerciseCategory(exercise.name)}`}
                 >
+                  <span className="exercise-item-icon" aria-hidden="true" />
                   {exercise.name}
                 </Link>
               ))

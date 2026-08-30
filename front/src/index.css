@@ -12,6 +12,13 @@
   --muted-soft: #7a7a7a;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
   --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.06);
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
   --success: #1f1f1f;
   font-family: 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', sans-serif;
   line-height: 1.5;
@@ -36,9 +43,12 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  padding: 0;
   background:
     radial-gradient(circle at top, rgba(255, 255, 255, 0.94), rgba(245, 245, 247, 0.92) 38%, rgba(232, 232, 234, 0.9) 100%),
     var(--bg);
+  font-size: 16px;
+  letter-spacing: -0.01em;
 }
 
 button,
@@ -46,10 +56,12 @@ input,
 select,
 textarea {
   font: inherit;
+  letter-spacing: -0.01em;
 }
 
 button,
 a {
+  min-height: 44px;
   transition: transform 0.18s ease, box-shadow 0.2s ease, opacity 0.2s ease, border-color 0.2s ease,
     background-color 0.2s ease;
 }
@@ -70,13 +82,51 @@ p {
   margin: 0;
 }
 
+h1 {
+  font-size: clamp(2.1rem, 5vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+button,
+a {
+  font-weight: 600;
+}
+
 @media (max-width: 480px) {
   body {
     min-width: 280px;
+    padding-top: calc(12px + var(--safe-top));
+    padding-bottom: calc(12px + var(--safe-bottom));
   }
 
   button,
   a {
     transition: none;
+  }
+
+  .primary-btn,
+  .ghost-btn,
+  .secondary-btn {
+    min-height: 48px;
   }
 }

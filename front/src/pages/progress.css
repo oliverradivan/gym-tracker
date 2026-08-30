@@ -1,17 +1,19 @@
 .progress-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #07111f 0%, #111827 45%, #1d4ed8 100%);
+  background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
   padding: 32px 18px;
 }
 
 .progress-card {
   width: min(100%, 1000px);
   margin: 0 auto;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 28px;
   padding: 28px;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(18px);
+  animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .progress-header {
@@ -24,15 +26,15 @@
 
 .progress-header h1 {
   margin: 0;
-  color: #f8fafc;
+  color: #111111;
 }
 
 .eyebrow {
   display: inline-block;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.72rem;
-  color: #93c5fd;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  color: #5f5f61;
   margin-bottom: 8px;
 }
 
@@ -41,24 +43,24 @@
   flex-direction: column;
   gap: 8px;
   margin-bottom: 20px;
-  color: #e2e8f0;
+  color: #111111;
   font-weight: 600;
 }
 
 .exercise-select-label select {
   width: 100%;
   box-sizing: border-box;
-  border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  background: rgba(15, 23, 42, 0.75);
-  color: white;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 17, 17, 0.14);
+  background: rgba(255, 255, 255, 0.8);
+  color: #111111;
   padding: 12px 14px;
   font: inherit;
 }
 
 .chart-box {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: 16px;
   padding: 12px;
   margin-bottom: 20px;
@@ -70,25 +72,25 @@
 }
 
 .chart-axis {
-  stroke: rgba(148, 163, 184, 0.6);
+  stroke: rgba(17, 17, 17, 0.28);
   stroke-width: 1;
 }
 
 .progress-table {
   width: 100%;
   border-collapse: collapse;
-  color: #e2e8f0;
+  color: #1a1a1a;
 }
 
 .progress-table th,
 .progress-table td {
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
   text-align: left;
 }
 
 .progress-table thead {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(17, 17, 17, 0.03);
 }
 
 .secondary-btn {
@@ -96,14 +98,27 @@
   align-items: center;
   justify-content: center;
   padding: 11px 18px;
-  border-radius: 10px;
+  border-radius: 12px;
   text-decoration: none;
-  color: white;
-  background: rgba(148, 163, 184, 0.15);
+  color: #111111;
+  background: rgba(17, 17, 17, 0.03);
+  border: 1px solid rgba(17, 17, 17, 0.08);
 }
 
 .status-message {
-  color: #cbd5e1;
+  color: #4d4d4f;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 640px) {

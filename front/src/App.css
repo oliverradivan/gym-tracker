@@ -24,6 +24,8 @@
 .ghost-btn,
 .secondary-btn {
   box-shadow: 0 8px 18px rgba(17, 17, 17, 0.08);
+  letter-spacing: -0.02em;
+  font-size: 0.96rem;
 }
 
 .primary-btn:hover,
@@ -188,8 +190,9 @@
 .eyebrow {
   display: inline-block;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   font-size: 0.7rem;
+  font-weight: 700;
   color: var(--muted-soft);
   margin-bottom: 8px;
 }
@@ -244,6 +247,7 @@
 .stat-card strong {
   font-size: clamp(1.4rem, 3vw, 2.1rem);
   color: var(--text);
+  letter-spacing: -0.05em;
 }
 
 .schedule-card ul {
