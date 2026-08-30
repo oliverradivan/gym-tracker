@@ -50,7 +50,7 @@ function RegisterPage() {
               name="username"
               value={form.username}
               onChange={handleChange}
-              placeholder="Full Name"
+              placeholder="A Funky  Username"
               required
             />
           </label>
