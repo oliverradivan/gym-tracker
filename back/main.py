@@ -3,7 +3,7 @@ import re
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import APIRouter, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from postgrest.exceptions import APIError
 from pydantic import BaseModel
@@ -17,6 +17,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 app = FastAPI(title="Workout Tracker API")
+router = APIRouter(prefix="/api")
 
 if os.getenv("APP_ENV") == "local":
     app.add_middleware(
@@ -206,7 +207,7 @@ def get_authenticated_user(authorization: str | None):
         raise HTTPException(status_code=401, detail=exc.message) from exc
 
 
-@app.get("/health")
+@router.get("/health")
 def health_status():
     return {
         "status": "ok",
@@ -214,7 +215,7 @@ def health_status():
     }
 
 
-@app.post("/auth/register")
+@router.post("/auth/register")
 def register_user(payload: RegisterPayload):
     if supabase is None:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
@@ -291,7 +292,7 @@ def register_user(payload: RegisterPayload):
     }
 
 
-@app.post("/auth/login")
+@router.post("/auth/login")
 def login_user(payload: LoginPayload):
     if supabase is None:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
@@ -342,7 +343,7 @@ def login_user(payload: LoginPayload):
     }
 
 
-@app.get("/profile")
+@router.get("/profile")
 def get_profile(authorization: str | None = Header(default=None)):
     if supabase is None:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
@@ -351,7 +352,7 @@ def get_profile(authorization: str | None = Header(default=None)):
     return {"user": user}
 
 
-@app.get("/exercises")
+@router.get("/exercises")
 def list_exercises(authorization: str | None = Header(default=None)):
     if supabase is None:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
@@ -373,7 +374,7 @@ def list_exercises(authorization: str | None = Header(default=None)):
     return {"exercises": result.data}
 
 
-@app.post("/exercises")
+@router.post("/exercises")
 def create_exercise(
     payload: ExercisePayload,
     authorization: str | None = Header(default=None),
@@ -415,7 +416,7 @@ def create_exercise(
     return {"exercise": created.data[0], "created": True}
 
 
-@app.patch("/exercises/{exercise_id}")
+@router.patch("/exercises/{exercise_id}")
 def update_exercise(
     exercise_id: str,
     payload: ExerciseUpdatePayload,
@@ -448,7 +449,7 @@ def update_exercise(
     return {"exercise": updated.data[0]}
 
 
-@app.delete("/exercises/{exercise_id}")
+@router.delete("/exercises/{exercise_id}")
 def delete_exercise(
     exercise_id: str,
     authorization: str | None = Header(default=None),
@@ -475,7 +476,7 @@ def delete_exercise(
     return {"message": "Exercise deleted successfully."}
 
 
-@app.post("/workout-logs")
+@router.post("/workout-logs")
 def create_workout_log(
     payload: WorkoutLogPayload,
     authorization: str | None = Header(default=None),
@@ -526,7 +527,7 @@ def create_workout_log(
     return {"message": "Workout saved successfully.", "log": created.data[0] if created.data else None}
 
 
-@app.get("/workout-logs")
+@router.get("/workout-logs")
 def get_workout_logs(
     exercise_id: str | None = None,
     authorization: str | None = Header(default=None),
@@ -548,7 +549,7 @@ def get_workout_logs(
     return {"logs": result.data}
 
 
-@app.delete("/workout-logs/{log_id}")
+@router.delete("/workout-logs/{log_id}")
 def delete_workout_log(
     log_id: str,
     authorization: str | None = Header(default=None),
@@ -575,7 +576,7 @@ def delete_workout_log(
     return {"message": "Workout deleted successfully."}
 
 
-@app.get("/workout-sessions")
+@router.get("/workout-sessions")
 def get_workout_sessions(authorization: str | None = Header(default=None)):
     if supabase is None:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
@@ -596,7 +597,7 @@ def get_workout_sessions(authorization: str | None = Header(default=None)):
     return {"sessions": build_session_summary(result.data or [])}
 
 
-@app.get("/workout-logs/progress")
+@router.get("/workout-logs/progress")
 def get_workout_progress(
     exercise_id: str,
     authorization: str | None = Header(default=None),
@@ -619,6 +620,9 @@ def get_workout_progress(
         raise HTTPException(status_code=400, detail=f"Failed to load workout progress: {exc.message}") from exc
 
     return {"progress": build_progress_series(result.data or [])}
+
+
+app.include_router(router)
 
 
 if __name__ == "__main__":
