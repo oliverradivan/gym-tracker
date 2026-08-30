@@ -1,6 +1,6 @@
 .dashboard-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #07111f 0%, #111827 45%, #1d4ed8 100%);
+  background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
   padding: 32px 18px;
 }
 
@@ -16,14 +16,15 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .eyebrow {
   display: inline-block;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.72rem;
-  color: #93c5fd;
+  letter-spacing: 0.14em;
+  font-size: 0.7rem;
+  color: #5f5f61;
   margin-bottom: 8px;
 }
 
@@ -31,7 +32,7 @@
 .welcome-card h1,
 .schedule-card h3 {
   margin: 0;
-  color: #f8fafc;
+  color: #111111;
 }
 
 .ghost-btn,
@@ -40,7 +41,7 @@
   align-items: center;
   justify-content: center;
   padding: 11px 18px;
-  border-radius: 10px;
+  border-radius: 12px;
   text-decoration: none;
   font-weight: 700;
   border: none;
@@ -48,13 +49,14 @@
 }
 
 .ghost-btn {
-  background: rgba(148, 163, 184, 0.08);
-  color: white;
+  background: rgba(17, 17, 17, 0.03);
+  color: #111111;
+  border: 1px solid rgba(17, 17, 17, 0.08);
 }
 
 .dashboard-primary-btn {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  color: white;
+  background: linear-gradient(180deg, #1d1d1d, #0d0d0d);
+  color: #ffffff;
 }
 
 .dashboard-grid {
@@ -66,12 +68,15 @@
 
 .welcome-card,
 .schedule-card,
-.stat-card {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 20px;
+.stat-card,
+.exercise-list-card {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 22px;
   padding: 24px 22px;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(18px);
+  animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .welcome-card {
@@ -82,7 +87,7 @@
 
 .welcome-card p,
 .schedule-card li {
-  color: #e2e8f0;
+  color: #3d3d3d;
 }
 
 .stats-grid {
@@ -95,11 +100,11 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  color: #dbeafe;
+  color: #111111;
 }
 
 .stat-card span {
-  color: #bfdbfe;
+  color: #5f5f61;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.72rem;
@@ -107,7 +112,7 @@
 
 .stat-card strong {
   font-size: clamp(1.4rem, 3vw, 2.1rem);
-  color: white;
+  color: #111111;
 }
 
 .today-session-list {
@@ -123,37 +128,33 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  color: #e2e8f0;
+  color: #1a1a1a;
   font-size: 0.9rem;
-  background: rgba(30, 41, 59, 0.6);
-  border-radius: 10px;
+  background: rgba(17, 17, 17, 0.03);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 12px;
   padding: 8px 10px;
 }
 
 .today-session-link {
-  color: #dbeafe;
+  color: #111111;
   text-decoration: none;
 }
 
 .today-session-empty {
   margin: 12px 0 0;
-  color: #cbd5e1;
+  color: #4d4d4f;
   font-size: 0.9rem;
 }
 
 .exercise-list-card {
   width: min(100%, 1100px);
   margin: 0 auto;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 20px;
-  padding: 24px 22px;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.45);
 }
 
 .exercise-list-card h3 {
   margin-top: 0;
-  color: #f8fafc;
+  color: #111111;
 }
 
 .exercise-list {
@@ -167,35 +168,47 @@
   align-items: center;
   padding: 10px 14px;
   border-radius: 999px;
-  background: rgba(96, 165, 250, 0.12);
-  color: #dbeafe;
+  background: rgba(17, 17, 17, 0.04);
+  color: #111111;
   text-decoration: none;
-  border: 1px solid rgba(96, 165, 250, 0.3);
+  border: 1px solid rgba(17, 17, 17, 0.08);
 }
 
 .exercise-item.push,
 .today-session-item.push {
-  background: rgba(239, 68, 68, 0.14);
-  border-color: rgba(248, 113, 113, 0.45);
-  color: #fecaca;
+  background: rgba(17, 17, 17, 0.04);
+  border-color: rgba(17, 17, 17, 0.08);
+  color: #111111;
 }
 
 .exercise-item.pull,
 .today-session-item.pull {
-  background: rgba(59, 130, 246, 0.14);
-  border-color: rgba(96, 165, 250, 0.45);
-  color: #dbeafe;
+  background: rgba(17, 17, 17, 0.04);
+  border-color: rgba(17, 17, 17, 0.08);
+  color: #111111;
 }
 
 .exercise-item.leg,
 .today-session-item.leg {
-  background: rgba(250, 204, 21, 0.14);
-  border-color: rgba(250, 204, 21, 0.5);
-  color: #fef3c7;
+  background: rgba(17, 17, 17, 0.04);
+  border-color: rgba(17, 17, 17, 0.08);
+  color: #111111;
 }
 
 .today-session-item {
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (max-width: 640px) {
