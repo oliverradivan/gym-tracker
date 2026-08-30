@@ -4,7 +4,7 @@ import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import './dashboard.css'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 function DashboardPage() {
   const { user, handleLogout, session } = useAuth()

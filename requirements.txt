@@ -1,0 +1,4 @@
+fastapi>=0.141.1
+python-dotenv>=1.1.1
+supabase>=2.18.1
+uvicorn>=0.52.4
