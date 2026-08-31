@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
@@ -10,6 +10,8 @@ function DashboardPage() {
   const { user, handleLogout, session } = useAuth()
   const [exercises, setExercises] = useState([])
   const [todaySession, setTodaySession] = useState(null)
+  const [exerciseListInView, setExerciseListInView] = useState(false)
+  const exerciseListRef = useRef(null)
   const username = user?.user_metadata?.username || user?.user_metadata?.full_name || 'Athlete'
   const toLocalDateKey = (date) => {
     const offset = date.getTimezoneOffset() * 60000
@@ -55,6 +57,25 @@ function DashboardPage() {
 
     loadDashboardData()
   }, [session])
+
+  useEffect(() => {
+    const node = exerciseListRef.current
+    if (!node) return
+
+    // Reveal the list once it scrolls into view, then stop watching.
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setExerciseListInView(true)
+          observer.unobserve(entry.target)
+        }
+      },
+      { threshold: 0.15 }
+    )
+
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <div className="dashboard-page">
@@ -141,15 +162,19 @@ function DashboardPage() {
           </article>
         </section>
 
-        <section className="exercise-list-card">
+        <section
+          className={`exercise-list-card${exerciseListInView ? ' in-view' : ''}`}
+          ref={exerciseListRef}
+        >
           <h3>Exercises</h3>
           <div className="exercise-list">
             {exercises.length ? (
-              exercises.map((exercise) => (
+              exercises.map((exercise, index) => (
                 <Link
                   key={exercise.id}
                   to={`/exercise/${exercise.id}`}
                   className={`exercise-item ${getExerciseCategory(exercise.name)}`}
+                  style={{ '--reveal-delay': `${index * 0.06}s` }}
                 >
                   <span className="exercise-item-icon" aria-hidden="true" />
                   {exercise.name}

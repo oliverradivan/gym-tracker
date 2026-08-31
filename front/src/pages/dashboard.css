@@ -195,6 +195,35 @@
   color: #111111;
   text-decoration: none;
   border: 1px solid rgba(17, 17, 17, 0.08);
+  opacity: 0;
+  transform: translateY(16px);
+  animation: exerciseItemReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-play-state: paused;
+  animation-delay: var(--reveal-delay, 0s);
+}
+
+.exercise-list-card.in-view .exercise-item {
+  animation-play-state: running;
+}
+
+@keyframes exerciseItemReveal {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .exercise-item {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .exercise-item-icon {
