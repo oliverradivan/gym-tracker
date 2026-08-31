@@ -363,6 +363,7 @@ def list_exercises(authorization: str | None = Header(default=None)):
         result = (
             supabase.table("exercises")
             .select("*")
+            .order("category")
             .order("name")
             .execute()
         )
