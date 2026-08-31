@@ -85,26 +85,29 @@ function DashboardPage() {
           <h2>Dashboard</h2>
         </div>
         <div className="topbar-actions">
-          <Link to="/logworkout" className="primary-btn dashboard-primary-btn">
-            <span className="nav-icon" aria-hidden="true">
+  <Link to="/logworkout" className="primary-btn dashboard-primary-btn">
+    <span className="nav-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M4 9v6M6.5 6v12M17.5 6v12M20 9v6M6.5 12h11" />
+      </svg>
+    </span>
+    Log Workout
+  </Link>
+  <Link to="/history" className="ghost-btn">
+    <span className="nav-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
+        <path d="M3 3v5h5" />
+        <path d="M12 7v5l4 2" />
+      </svg>
+    </span>
+    History
+  </Link>
+  <Link to="/progress" className="ghost-btn">
+    <span className="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
-                <path d="M5 12h14M12 5v14M7 7.5v9M17 7.5v9" />
-              </svg>
-            </span>
-            Log Workout
-          </Link>
-          <Link to="/history" className="ghost-btn">
-            <span className="nav-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M7 4.5v4h4M7 8.5a7 7 0 1 0 7.5-7.2" />
-              </svg>
-            </span>
-            History
-          </Link>
-          <Link to="/progress" className="ghost-btn">
-            <span className="nav-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M5 18.5V9.5M11 18.5V5.5M17 18.5v-8" />
+                <path d="M4 16.5 9 11l4 4 6.5-7.5" />
+                <path d="M14.5 7h5v5" />
               </svg>
             </span>
             Progress
@@ -125,13 +128,13 @@ function DashboardPage() {
           <p className="eyebrow">Welcome</p>
           <h1>{username}</h1>
           <p>
-            You are signed in as <strong>@{username}</strong> and ready to track your workouts.
+            Let's get those reps in. No Pain, No Gain! Log your workouts and track your progress over time.
           </p>
         </section>
 
         <section className="stats-grid">
           <article className="stat-card">
-            <span>Today's session volume</span>
+            <span>You've moved this much volume today:</span>
             <strong>{todaySession ? Number(todaySession.total_volume).toFixed(1) : '0'}</strong>
             {todaySession && todaySession.entries && todaySession.entries.length > 0 ? (
               <ul className="today-session-list">
@@ -157,7 +160,7 @@ function DashboardPage() {
             <strong>{today}</strong>
           </article>
           <article className="stat-card">
-            <span>Exercises</span>
+            <span>Exercises in our system</span>
             <strong>{exercises.length}</strong>
           </article>
         </section>
@@ -166,7 +169,7 @@ function DashboardPage() {
           className={`exercise-list-card${exerciseListInView ? ' in-view' : ''}`}
           ref={exerciseListRef}
         >
-          <h3>Exercises</h3>
+          <h3>Exercises:</h3>
           <div className="exercise-list">
             {exercises.length ? (
               exercises.map((exercise, index) => (

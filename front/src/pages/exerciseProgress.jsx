@@ -138,7 +138,7 @@ function ExerciseProgressPage() {
             <p className="eyebrow">Workout Tracker</p>
             <h1>{exerciseName}</h1>
           </div>
-          <Link to="/dashboard" className="primary-btn">Back to dashboard</Link>
+          <Link to="/logworkout" className="primary-btn">Log another set</Link>
         </div>
 
         {loading ? (
