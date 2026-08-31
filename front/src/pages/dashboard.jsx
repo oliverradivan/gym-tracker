@@ -85,26 +85,26 @@ function DashboardPage() {
           <h2>Dashboard</h2>
         </div>
         <div className="topbar-actions">
-  <Link to="/logworkout" className="primary-btn dashboard-primary-btn">
-    <span className="nav-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M4 9v6M6.5 6v12M17.5 6v12M20 9v6M6.5 12h11" />
-      </svg>
-    </span>
-    Log Workout
-  </Link>
-  <Link to="/history" className="ghost-btn">
-    <span className="nav-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
-        <path d="M3 3v5h5" />
-        <path d="M12 7v5l4 2" />
-      </svg>
-    </span>
-    History
-  </Link>
-  <Link to="/progress" className="ghost-btn">
-    <span className="nav-icon" aria-hidden="true">
+          <Link to="/logworkout" className="primary-btn dashboard-primary-btn">
+            <span className="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 9v6M6.5 6v12M17.5 6v12M20 9v6M6.5 12h11" />
+              </svg>
+            </span>
+            Log Workout
+          </Link>
+          <Link to="/history" className="ghost-btn">
+            <span className="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
+                <path d="M3 3v5h5" />
+                <path d="M12 7v5l4 2" />
+              </svg>
+            </span>
+            History
+          </Link>
+          <Link to="/progress" className="ghost-btn">
+            <span className="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path d="M4 16.5 9 11l4 4 6.5-7.5" />
                 <path d="M14.5 7h5v5" />
