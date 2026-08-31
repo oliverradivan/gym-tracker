@@ -143,7 +143,7 @@ function LogWorkoutPage() {
               name="exercise_name"
               value={form.exercise_name}
               onChange={handleChange}
-              placeholder="Bench Press"
+              placeholder="Exercise"
             />
           </label>
 
@@ -154,9 +154,9 @@ function LogWorkoutPage() {
               name="weight"
               value={form.weight}
               onChange={handleChange}
-              placeholder="80"
-              min="0"
-              step="0.5"
+              placeholder=""
+              min="1"
+              step="0.1"
               required
             />
           </label>
@@ -168,7 +168,7 @@ function LogWorkoutPage() {
               name="reps"
               value={form.reps}
               onChange={handleChange}
-              placeholder="8"
+              placeholder=""
               min="0.5"
               step="0.5"
               required
