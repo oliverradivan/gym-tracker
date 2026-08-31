@@ -486,7 +486,7 @@ def create_workout_log(
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to save workout log: {exc.message}") from exc
 
-    return {"message": "Workout saved successfully.", "log": created.data[0] if created.data else None}
+    return {"message": "good job gabby!", "log": created.data[0] if created.data else None}
 
 
 @router.get("/workout-logs")
