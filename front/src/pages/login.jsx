@@ -34,8 +34,14 @@ function LoginPage() {
         <div className="auth-header">
           <div className="brand-badge" aria-label="Workout Tracker">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <rect width="24" height="24" fill="#ffffff"/>
-                <path fill="#000000" d="M20.57 14.86 22 13.43 20.57 12 17 15.57 8.43 7 12 3.43 10.57 2 9.14 3.43 7.71 2 5.57 4.14 4.14 2.71 2.71 4.14l1.43 1.43L2 7.71l1.43 1.43L2 10.57 3.43 12 7 8.43 15.57 17 12 20.57 13.43 22l1.43-1.43L16.29 22l2.14-2.14 1.43 1.43 1.43-1.43-1.43-1.43L22 16.29z"/>
+              <rect width="24" height="24" fill="#ffffff"/>
+              <g fill="#000000">
+              <rect x="2" y="9" width="4" height="6" rx="1"/>
+              <rect x="18" y="9" width="4" height="6" rx="1"/>
+              <rect x="6" y="10.5" width="2" height="3" rx="0.5"/>
+              <rect x="16" y="10.5" width="2" height="3" rx="0.5"/>
+              <rect x="7.5" y="11" width="9" height="2" rx="1"/>
+              </g>
             </svg>
           </div>
           <h1>Welcome back</h1>
