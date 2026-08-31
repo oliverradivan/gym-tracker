@@ -14,7 +14,7 @@ export default defineConfig({
         short_name: 'WorkoutTracker',
         description: 'Track workouts, exercises, and progress over time.',
         theme_color: '#000000',
-        background_color: '#ecdede',
+        background_color: '#c9bdbd',
         display: 'standalone',
         start_url: '/',
         icons: [
