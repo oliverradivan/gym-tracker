@@ -169,7 +169,8 @@ function LogWorkoutPage() {
               value={form.reps}
               onChange={handleChange}
               placeholder="8"
-              min="1"
+              min="0.5"
+              step="0.5"
               required
             />
           </label>

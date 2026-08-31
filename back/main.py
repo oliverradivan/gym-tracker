@@ -101,7 +101,7 @@ class WorkoutLogPayload(BaseModel):
     exercise_id: str
     log_date: str
     weight: float
-    reps: int
+    reps: float
 
 
 def normalize_exercise_name(raw_name: str) -> str:
@@ -127,7 +127,7 @@ def build_progress_series(rows):
             continue
 
         weight = float(row.get("weight") or 0)
-        reps = int(row.get("reps") or 0)
+        reps = float(row.get("reps") or 0)
         volume = weight * reps
 
         if date_value not in grouped:

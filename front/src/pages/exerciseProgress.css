@@ -79,8 +79,18 @@
 }
 
 .chart-axis {
-  stroke: rgba(17, 17, 17, 0.28);
+  stroke: #ccc;
   stroke-width: 1;
+}
+
+.chart-tick {
+  stroke: #ccc;
+  stroke-width: 1;
+}
+
+.chart-label {
+  fill: #666;
+  font-family: system-ui, -apple-system, sans-serif;
 }
 
 .history-table-wrap {
