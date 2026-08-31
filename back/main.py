@@ -363,8 +363,6 @@ def list_exercises(authorization: str | None = Header(default=None)):
         result = (
             supabase.table("exercises")
             .select("*")
-            .eq("user_id", user.id)
-            .is_("deleted_at", "null")
             .order("name")
             .execute()
         )
@@ -393,8 +391,6 @@ def create_exercise(
         existing = (
             supabase.table("exercises")
             .select("*")
-            .eq("user_id", user.id)
-            .is_("deleted_at", "null")
             .ilike("name", name)
             .limit(1)
             .execute()
@@ -407,7 +403,7 @@ def create_exercise(
     try:
         created = (
             supabase.table("exercises")
-            .insert({"user_id": user.id, "name": name})
+            .insert({"name": name})
             .execute()
         )
     except APIError as exc:
@@ -427,26 +423,7 @@ def update_exercise(
 
     user = get_authenticated_user(authorization)
 
-    try:
-        name = normalize_exercise_name(payload.name)
-    except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-
-    try:
-        updated = (
-            supabase.table("exercises")
-            .update({"name": name})
-            .eq("id", exercise_id)
-            .eq("user_id", user.id)
-            .execute()
-        )
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to update exercise: {exc.message}") from exc
-
-    if not updated.data:
-        raise HTTPException(status_code=404, detail="Exercise not found.")
-
-    return {"exercise": updated.data[0]}
+    raise HTTPException(status_code=403, detail="Exercise updates are not allowed. Exercises are managed globally.")
 
 
 @router.delete("/exercises/{exercise_id}")
@@ -459,21 +436,7 @@ def delete_exercise(
 
     user = get_authenticated_user(authorization)
 
-    try:
-        deleted = (
-            supabase.table("exercises")
-            .update({"deleted_at": "now()"})
-            .eq("id", exercise_id)
-            .eq("user_id", user.id)
-            .execute()
-        )
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to delete exercise: {exc.message}") from exc
-
-    if not deleted.data:
-        raise HTTPException(status_code=404, detail="Exercise not found.")
-
-    return {"message": "Exercise deleted successfully."}
+    raise HTTPException(status_code=403, detail="Exercise deletions are not allowed. Exercises are managed globally.")
 
 
 @router.post("/workout-logs")
@@ -496,8 +459,6 @@ def create_workout_log(
             supabase.table("exercises")
             .select("id")
             .eq("id", payload.exercise_id)
-            .eq("user_id", user.id)
-            .is_("deleted_at", "null")
             .limit(1)
             .execute()
         )
