@@ -34,13 +34,13 @@ function LoginPage() {
         <div className="auth-header">
           <div className="brand-badge" aria-label="Workout Tracker">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <rect width="24" height="24" fill="#ffffff"/>
-              <g fill="#000000">
-              <rect x="2" y="9" width="4" height="6" rx="1"/>
-              <rect x="18" y="9" width="4" height="6" rx="1"/>
-              <rect x="6" y="10.5" width="2" height="3" rx="0.5"/>
-              <rect x="16" y="10.5" width="2" height="3" rx="0.5"/>
-              <rect x="7.5" y="11" width="9" height="2" rx="1"/>
+              <rect width="24" height="24" rx="6" fill="#fdf6f0"/>
+              <g stroke="#000000" stroke-width="2.2" stroke-linecap="round" transform="rotate(45 12 12)">
+              <line x1="6" y1="12" x2="18" y2="12"/>
+              <line x1="6" y1="9" x2="6" y2="15"/>
+              <line x1="18" y1="9" x2="18" y2="15"/>
+              <line x1="4" y1="10.5" x2="4" y2="13.5"/>
+              <line x1="20" y1="10.5" x2="20" y2="13.5"/>
               </g>
             </svg>
           </div>
