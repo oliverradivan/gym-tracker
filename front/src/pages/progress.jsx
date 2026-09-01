@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
+import { getExerciseCategory } from '../utils/exerciseCategory'
 import './progress.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -88,10 +89,12 @@ function ProgressPage() {
   }, [progress])
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
+  const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
+  const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
 
   return (
-    <div className="progress-page">
-      <div className="progress-card">
+    <div className={`progress-page ${category}`}>
+      <div className={`progress-card ${category}`}>
         <div className="progress-header">
           <div>
             <p className="eyebrow">Workout Tracker</p>
@@ -122,7 +125,7 @@ function ProgressPage() {
                 <line x1="15" y1="180" x2="545" y2="180" className="chart-axis" />
                 <line x1="15" y1="20" x2="15" y2="180" className="chart-axis" />
 
-                <polyline fill="none" stroke="#60a5fa" strokeWidth="3" points={chartPoints} />
+                <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />
               </svg>
             </div>
 
@@ -130,16 +133,18 @@ function ProgressPage() {
               <thead>
                 <tr>
                   <th>Date</th>
-                  <th>Volume</th>
+                  <th>Weight</th>
                   <th>Reps</th>
+                  <th>Volume</th>
                 </tr>
               </thead>
               <tbody>
                 {progress.map((point) => (
                   <tr key={point.date}>
                     <td>{point.date}</td>
+                    <td>{Number(point.weight || 0).toFixed(1)}</td>
+                    <td>{Number(point.reps) % 1 === 0 ? Number(point.reps) : Number(point.reps).toFixed(1)}</td>
                     <td>{Number(point.volume).toFixed(1)}</td>
-                    <td>{point.reps}</td>
                   </tr>
                 ))}
               </tbody>

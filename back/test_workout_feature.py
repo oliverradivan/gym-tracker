@@ -19,8 +19,8 @@ def test_build_progress_series_groups_by_date_and_calculates_volume():
     result = build_progress_series(rows)
 
     assert result == [
-        {"date": "2026-01-01", "volume": 1140, "reps": 13},
-        {"date": "2026-01-03", "volume": 660, "reps": 6},
+        {"date": "2026-01-01", "volume": 1140, "reps": 13, "weight": 180},
+        {"date": "2026-01-03", "volume": 660, "reps": 6, "weight": 110},
     ]
 
 

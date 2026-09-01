@@ -142,10 +142,11 @@ def build_progress_series(rows):
         volume = weight * reps
 
         if date_value not in grouped:
-            grouped[date_value] = {"date": date_value, "volume": 0.0, "reps": 0}
+            grouped[date_value] = {"date": date_value, "volume": 0.0, "reps": 0.0, "weight": 0.0}
 
         grouped[date_value]["volume"] += volume
         grouped[date_value]["reps"] += reps
+        grouped[date_value]["weight"] += weight
 
     result = []
     for date_value in sorted(grouped):
@@ -153,7 +154,21 @@ def build_progress_series(rows):
         volume_value = entry["volume"]
         if float(volume_value).is_integer():
             volume_value = int(volume_value)
-        result.append({"date": entry["date"], "volume": volume_value, "reps": entry["reps"]})
+
+        reps_value = entry["reps"]
+        if float(reps_value).is_integer():
+            reps_value = int(reps_value)
+
+        weight_value = entry["weight"]
+        if float(weight_value).is_integer():
+            weight_value = int(weight_value)
+
+        result.append({
+            "date": entry["date"],
+            "volume": volume_value,
+            "reps": reps_value,
+            "weight": weight_value,
+        })
 
     return result
 

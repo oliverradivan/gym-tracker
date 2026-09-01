@@ -148,7 +148,7 @@ function LogWorkoutPage() {
           </label>
 
           <label>
-            Weight (kg/dials)
+            Weight (kg/notches)
             <input
               type="number"
               name="weight"
