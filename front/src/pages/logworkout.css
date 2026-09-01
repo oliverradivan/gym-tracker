@@ -136,3 +136,51 @@
   }
 }
 
+/* Dark Mode Overrides */
+.dark-mode .logworkout-page {
+  background: linear-gradient(180deg, rgba(10, 10, 8, 0.9), rgba(5, 5, 3, 0.95));
+}
+
+.dark-mode .logworkout-card {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(238, 238, 238, 0.08);
+  box-shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .logworkout-header h1 {
+  color: #eeeeee;
+}
+
+.dark-mode .logworkout-form label {
+  color: #eeeeee;
+}
+
+.dark-mode .logworkout-form input,
+.dark-mode .logworkout-form textarea,
+.dark-mode .logworkout-form select {
+  background: rgba(0, 0, 0, 0.7);
+  color: #eeeeee;
+  border-color: rgba(238, 238, 238, 0.14);
+}
+
+.dark-mode .logworkout-form input:focus,
+.dark-mode .logworkout-form textarea:focus,
+.dark-mode .logworkout-form select:focus {
+  border-color: rgba(238, 238, 238, 0.2);
+  box-shadow: 0 0 0 4px rgba(238, 238, 238, 0.06);
+}
+
+.dark-mode .secondary-btn {
+  color: #eeeeee;
+  background: rgba(238, 238, 238, 0.03);
+  border-color: rgba(238, 238, 238, 0.08);
+}
+
+.dark-mode .eyebrow {
+  color: #858585;
+}
+
+.dark-mode .status-message {
+  color: #b2b2b0;
+}
+

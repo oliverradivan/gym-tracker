@@ -316,3 +316,110 @@
     justify-content: center;
   }
 }
+
+/* Dark Mode Overrides */
+.dark-mode .dashboard-page {
+  background: linear-gradient(180deg, rgba(10, 10, 8, 0.9), rgba(5, 5, 3, 0.95));
+}
+
+.dark-mode .eyebrow {
+  color: #858585;
+}
+
+.dark-mode .topbar h2 {
+  color: #eeeeee;
+}
+
+.dark-mode .ghost-btn {
+  background: rgba(238, 238, 238, 0.03);
+  color: #eeeeee;
+  border-color: rgba(238, 238, 238, 0.08);
+}
+
+.dark-mode .primary-btn {
+  background: linear-gradient(180deg, #e2e2e2, #d2d2d2);
+  color: #000000;
+}
+
+.dark-mode .welcome-card,
+.dark-mode .schedule-card,
+.dark-mode .stat-card,
+.dark-mode .exercise-list-card {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(238, 238, 238, 0.08);
+  box-shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
+}
+
+.dark-mode .welcome-card h1 {
+  color: #eeeeee;
+}
+
+.dark-mode .welcome-card p,
+.dark-mode .schedule-card li {
+  color: #c2c2c2;
+}
+
+.dark-mode .stat-card {
+  color: #eeeeee;
+}
+
+.dark-mode .stat-card span {
+  color: #858585;
+}
+
+.dark-mode .stat-card strong {
+  color: #eeeeee;
+}
+
+.dark-mode .today-session-list li {
+  background: rgba(238, 238, 238, 0.03);
+  border-color: rgba(238, 238, 238, 0.08);
+  color: #e5e5e5;
+}
+
+.dark-mode .today-session-link {
+  color: #eeeeee;
+}
+
+.dark-mode .today-session-empty {
+  color: #b2b2b0;
+}
+
+.dark-mode .exercise-list-card h3 {
+  color: #eeeeee;
+}
+
+.dark-mode .exercise-item {
+  background: rgba(238, 238, 238, 0.04);
+  color: #eeeeee;
+  border-color: rgba(238, 238, 238, 0.08);
+}
+
+.dark-mode .exercise-item-icon {
+  box-shadow: 0 0 0 3px rgba(238, 238, 238, 0.04);
+}
+
+.dark-mode .exercise-item.push,
+.dark-mode .today-session-item.push {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(0, 0, 0, 0.7));
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ff8787;
+}
+
+.dark-mode .exercise-item.pull,
+.dark-mode .today-session-item.pull {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(0, 0, 0, 0.7));
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #60a5fa;
+}
+
+.dark-mode .exercise-item.leg,
+.dark-mode .today-session-item.leg {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.25), rgba(0, 0, 0, 0.7));
+  border-color: rgba(250, 204, 21, 0.4);
+  color: #fcd34d;
+}
+
+.dark-mode .today-session-item {
+  border-color: rgba(238, 238, 238, 0.08);
+}

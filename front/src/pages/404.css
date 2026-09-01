@@ -74,3 +74,30 @@
     width: 100%;
   }
 }
+
+/* Dark Mode Overrides */
+.dark-mode .not-found-page {
+  background: linear-gradient(180deg, rgba(10, 10, 8, 0.9), rgba(5, 5, 3, 0.95));
+}
+
+.dark-mode .not-found-card {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(238, 238, 238, 0.08);
+  box-shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
+  color: #eeeeee;
+}
+
+.dark-mode .not-found-card h1,
+.dark-mode .not-found-card h2 {
+  color: #eeeeee;
+}
+
+.dark-mode .not-found-card p {
+  color: #b2b2b0;
+}
+
+.dark-mode .not-found-card .primary-btn {
+  background: linear-gradient(180deg, #e2e2e2, #d2d2d2);
+  color: #000000;
+  box-shadow: 0 8px 18px rgba(238, 238, 238, 0.08);
+}
