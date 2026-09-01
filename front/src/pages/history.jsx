@@ -85,7 +85,7 @@ function HistoryPage() {
                 <ul className="session-entries">
                   {sessionItem.entries.map((entry, index) => (
                     <li key={`${sessionItem.date}-${entry.log_id || index}`} className={`history-entry ${getExerciseCategory(entry.exercise_name)}`}>
-                      <span>{entry.exercise_name}</span>
+                      <Link to={`/exercise/${entry.exercise_id}`} className="exercise-link">{entry.exercise_name}</Link>
                       <span>{entry.weight} kg × {entry.reps} reps</span>
                       <div className="entry-actions">
                         <strong>{Number(entry.volume).toFixed(1)}</strong>
