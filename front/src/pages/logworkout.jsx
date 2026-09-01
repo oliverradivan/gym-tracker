@@ -148,14 +148,14 @@ function LogWorkoutPage() {
           </label>
 
           <label>
-            Weight
+            Weight (kg/dials)
             <input
               type="number"
               name="weight"
               value={form.weight}
               onChange={handleChange}
               placeholder=""
-              min="1"
+              min="0"
               step="0.05"
               required
             />
