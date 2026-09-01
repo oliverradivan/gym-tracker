@@ -20,6 +20,15 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --success: #1f1f1f;
+  
+  /* Settings page vars */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f7;
+  --text-primary: #111111;
+  --text-secondary: #4d4d4f;
+  --border-color: rgba(17, 17, 17, 0.08);
+  --primary-color: #66bb6a;
+  
   font-family: 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -29,6 +38,37 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark mode */
+:root.dark-mode {
+  --bg: #1a1a1a;
+  --bg-elevated: #242424;
+  --bg-soft: rgba(255, 255, 255, 0.1);
+  --bg-strong: #ffffff;
+  --panel: rgba(255, 255, 255, 0.05);
+  --panel-strong: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --text: #e5e5e5;
+  --muted: #a0a0a0;
+  --muted-soft: #7a7a7a;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
+  
+  /* Settings page vars */
+  --bg-primary: #242424;
+  --bg-secondary: #1a1a1a;
+  --text-primary: #e5e5e5;
+  --text-secondary: #a0a0a0;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --primary-color: #66bb6a;
+}
+
+:root.dark-mode body {
+  background:
+    radial-gradient(circle at top, rgba(30, 30, 30, 0.94), rgba(26, 26, 26, 0.92) 38%, rgba(20, 20, 20, 0.9) 100%),
+    var(--bg);
 }
 
 * {

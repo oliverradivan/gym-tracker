@@ -112,6 +112,15 @@ function DashboardPage() {
             </span>
             Progress
           </Link>
+          <Link to="/settings" className="ghost-btn">
+            <span className="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="1" />
+                <path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24" />
+              </svg>
+            </span>
+            Settings
+          </Link>
           <Link to="/login" className="ghost-btn" onClick={handleLogout}>
             <span className="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">

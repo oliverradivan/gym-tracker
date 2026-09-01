@@ -88,6 +88,17 @@ class WorkoutPayload(BaseModel):
     workout_date: str
     notes: str | None = None
 
+class UpdateUsernamePayload(BaseModel):
+    username: str
+
+
+class UpdatePasswordPayload(BaseModel):
+    current_password: str
+    new_password: str
+
+
+class DeleteAccountPayload(BaseModel):
+    password: str
 
 class ExercisePayload(BaseModel):
     name: str
@@ -350,6 +361,130 @@ def get_profile(authorization: str | None = Header(default=None)):
 
     user = get_authenticated_user(authorization)
     return {"user": user}
+
+
+@router.patch("/profile/username")
+def update_username(
+    payload: UpdateUsernamePayload,
+    authorization: str | None = Header(default=None),
+):
+    if supabase is None:
+        raise HTTPException(status_code=500, detail="Supabase is not configured.")
+
+    user = get_authenticated_user(authorization)
+
+    try:
+        new_username = normalize_username(payload.username)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    # Check if username already exists
+    try:
+        existing_user = (
+            supabase.table("profiles")
+            .select("username")
+            .eq("username", new_username)
+            .neq("id", user.id)
+            .limit(1)
+            .execute()
+        )
+        if existing_user.data:
+            raise HTTPException(status_code=409, detail="Username already exists.")
+    except APIError as exc:
+        raise HTTPException(status_code=400, detail=f"Database error: {exc.message}") from exc
+
+    # Update username in profiles table
+    try:
+        supabase.table("profiles").update(
+            {"username": new_username}
+        ).eq("id", user.id).execute()
+    except APIError as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to update username: {exc.message}") from exc
+
+    # Update user metadata in auth
+    try:
+        auth_client = get_auth_client()
+        auth_client.auth.update_user(
+            user.session.access_token if hasattr(user, 'session') else None,
+            {"user_metadata": {"username": new_username, "full_name": new_username}},
+        )
+    except Exception as exc:
+        # Log but don't fail if auth metadata update fails
+        print(f"Warning: Failed to update auth metadata: {exc}")
+
+    return {"message": "Username updated successfully", "username": new_username}
+
+
+@router.patch("/profile/password")
+def update_password(
+    payload: UpdatePasswordPayload,
+    authorization: str | None = Header(default=None),
+):
+    if supabase is None:
+        raise HTTPException(status_code=500, detail="Supabase is not configured.")
+
+    user = get_authenticated_user(authorization)
+
+    if len(payload.new_password or "") < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters long.")
+
+    # Verify current password by attempting login
+    user_email = user.email
+    try:
+        auth_client = get_auth_client()
+        # Try to sign in with current password to verify it
+        auth_client.auth.sign_in_with_password(
+            {"email": user_email, "password": payload.current_password}
+        )
+    except AuthApiError as exc:
+        raise HTTPException(status_code=401, detail="Current password is incorrect.") from exc
+
+    # Update password
+    try:
+        auth_client = get_auth_client()
+        auth_client.auth.update_user(
+            {"password": payload.new_password},
+        )
+    except AuthApiError as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to update password: {exc.message}") from exc
+
+    return {"message": "Password updated successfully"}
+
+
+@router.delete("/profile")
+def delete_account(
+    payload: DeleteAccountPayload,
+    authorization: str | None = Header(default=None),
+):
+    if supabase is None:
+        raise HTTPException(status_code=500, detail="Supabase is not configured.")
+
+    user = get_authenticated_user(authorization)
+
+    # Verify password
+    user_email = user.email
+    try:
+        auth_client = get_auth_client()
+        auth_client.auth.sign_in_with_password(
+            {"email": user_email, "password": payload.password}
+        )
+    except AuthApiError as exc:
+        raise HTTPException(status_code=401, detail="Password is incorrect.") from exc
+
+    # Delete profile from profiles table
+    try:
+        supabase.table("profiles").delete().eq("id", user.id).execute()
+    except APIError as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to delete profile: {exc.message}") from exc
+
+    # Delete user from auth (admin operation using service role key)
+    try:
+        supabase.auth.admin.delete_user(user.id)
+    except Exception as exc:
+        # Log but continue - user data is already deleted from profiles
+        print(f"Warning: Failed to delete auth user: {exc}")
+
+    return {"message": "Account deleted successfully"}
 
 
 @router.get("/exercises")

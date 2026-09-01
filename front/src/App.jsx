@@ -6,8 +6,10 @@ import LogWorkoutPage from './pages/logworkout'
 import HistoryPage from './pages/history'
 import ProgressPage from './pages/progress'
 import ExerciseProgressPage from './pages/exerciseProgress'
+import SettingsPage from './pages/settings'
 import NotFoundPage from './pages/404'
 import { AuthProvider, useAuth } from './context/authContext'
+import { ThemeProvider } from './context/themeContext'
 import './App.css'
 
 function AppRoutes() {
@@ -38,6 +40,10 @@ function AppRoutes() {
           path="/exercise/:exerciseId"
           element={user ? <ExerciseProgressPage /> : <Navigate to="/login" replace />}
         />
+        <Route
+          path="/settings"
+          element={user ? <SettingsPage /> : <Navigate to="/login" replace />}
+        />
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
@@ -47,9 +53,11 @@ function AppRoutes() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppRoutes />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
