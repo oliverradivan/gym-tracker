@@ -156,7 +156,7 @@ function LogWorkoutPage() {
               onChange={handleChange}
               placeholder=""
               min="1"
-              step="0.1"
+              step="0.05"
               required
             />
           </label>
