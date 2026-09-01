@@ -181,6 +181,8 @@
   position: relative;
   width: 56px;
   height: 32px;
+  min-width: 56px;
+  min-height: 32px;
   background: var(--border-color);
   border: none;
   border-radius: 16px;

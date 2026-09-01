@@ -20,7 +20,7 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-left: env(safe-area-inset-left, 0px);
   --success: #1f1f1f;
-  
+
   /* Settings page vars */
   --bg-primary: #ffffff;
   --bg-secondary: #f5f5f7;
@@ -28,7 +28,7 @@
   --text-secondary: #4d4d4f;
   --border-color: rgba(17, 17, 17, 0.08);
   --primary-color: #66bb6a;
-  
+
   font-family: 'SF Pro Display', 'SF Pro Text', 'Inter', 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -55,7 +55,7 @@
   --muted-soft: #858585;
   --shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
   --shadow-soft: 0 12px 30px rgba(255, 255, 255, 0.06);
-  
+
   /* Settings page vars */
   --bg-primary: #000000;
   --bg-secondary: #0a0a08;
