@@ -87,6 +87,27 @@ function ProgressPage() {
       .join(' ')
   }, [progress])
 
+  const yAxisLabels = useMemo(() => {
+    if (!progress.length) return []
+
+    const maxValue = Math.max(...progress.map((point) => Number(point.volume || 0)), 1)
+    const height = 220
+    const labels = []
+
+    // Generate 5 labels (0%, 25%, 50%, 75%, 100%)
+    for (let i = 0; i <= 4; i++) {
+      const percentage = i / 4
+      const value = maxValue * percentage
+      const y = height - 20 - percentage * (height - 40)
+      labels.push({
+        text: value.toFixed(0),
+        y: y + 4, // Adjust for text baseline
+      })
+    }
+
+    return labels
+  }, [progress])
+
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
 
   return (
@@ -121,6 +142,17 @@ function ProgressPage() {
               <svg viewBox="0 0 560 220" className="volume-chart" role="img" aria-label={`${selectedExercise.name} volume chart`}>
                 <line x1="15" y1="180" x2="545" y2="180" className="chart-axis" />
                 <line x1="15" y1="20" x2="15" y2="180" className="chart-axis" />
+                
+                {/* Y-axis labels */}
+                {yAxisLabels.map((label, idx) => (
+                  <g key={`y-label-${idx}`}>
+                    <text x="8" y={label.y} className="chart-label" textAnchor="end">
+                      {label.text}
+                    </text>
+                    <line x1="10" y1={label.y - 4} x2="15" y2={label.y - 4} className="chart-tick" />
+                  </g>
+                ))}
+                
                 <polyline fill="none" stroke="#60a5fa" strokeWidth="3" points={chartPoints} />
               </svg>
             </div>

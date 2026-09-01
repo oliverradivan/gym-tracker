@@ -76,6 +76,17 @@
   stroke-width: 1;
 }
 
+.chart-label {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  fill: #666;
+}
+
+.chart-tick {
+  stroke: rgba(17, 17, 17, 0.28);
+  stroke-width: 1;
+}
+
 .progress-table {
   width: 100%;
   border-collapse: collapse;
@@ -189,6 +200,14 @@
 }
 
 .dark-mode .chart-axis {
+  stroke: rgba(238, 238, 238, 0.28);
+}
+
+.dark-mode .chart-label {
+  fill: #b2b2b0;
+}
+
+.dark-mode .chart-tick {
   stroke: rgba(238, 238, 238, 0.28);
 }
 

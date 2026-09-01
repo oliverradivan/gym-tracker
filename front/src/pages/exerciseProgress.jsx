@@ -92,6 +92,27 @@ function ExerciseProgressPage() {
       .join(' ')
   }, [progress])
 
+  const yAxisLabels = useMemo(() => {
+    if (!progress.length) return []
+
+    const maxVolume = Math.max(...progress.map((point) => Number(point.volume || 0)), 1)
+    const height = 220
+    const labels = []
+
+    // Generate 5 labels (0%, 25%, 50%, 75%, 100%)
+    for (let i = 0; i <= 4; i++) {
+      const percentage = i / 4
+      const value = maxVolume * percentage
+      const y = height - 20 - percentage * (height - 40)
+      labels.push({
+        text: value.toFixed(0),
+        y: y + 4, // Adjust for text baseline
+      })
+    }
+
+    return labels
+  }, [progress])
+
   // Generate date labels for x-axis
   const dateLabels = useMemo(() => {
     if (!progress.length) return []
@@ -156,6 +177,16 @@ function ExerciseProgressPage() {
                 
                 {/* Y-axis label */}
                 <text x="5" y="15" fontSize="12" textAnchor="end" className="chart-label">Volume</text>
+                
+                {/* Y-axis labels (values) */}
+                {yAxisLabels.map((label, idx) => (
+                  <g key={`y-label-${idx}`}>
+                    <text x="8" y={label.y + 80} fontSize="11" textAnchor="end" className="chart-label">
+                      {label.text}
+                    </text>
+                    <line x1="10" y1={label.y + 76} x2="15" y2={label.y + 76} className="chart-tick" />
+                  </g>
+                ))}
                 
                 {/* X-axis labels (dates) */}
                 {dateLabels.map((label, idx) => (
