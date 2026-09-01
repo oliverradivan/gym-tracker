@@ -1,9 +1,10 @@
 import os
 import re
+import time
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, FastAPI, Header, HTTPException
+from fastapi import APIRouter, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from postgrest.exceptions import APIError
 from pydantic import BaseModel
@@ -42,6 +43,34 @@ if os.getenv("APP_ENV") == "local":
 supabase: Optional[Client] = None
 if SUPABASE_URL and SUPABASE_KEY:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+RATE_LIMIT_BUCKETS: dict[str, list[float]] = {}
+
+
+def check_rate_limit(identifier: str, max_requests: int = 5, window_seconds: int = 60) -> None:
+    now = time.time()
+    bucket = RATE_LIMIT_BUCKETS.setdefault(identifier, [])
+    bucket[:] = [timestamp for timestamp in bucket if now - timestamp < window_seconds]
+
+    if len(bucket) >= max_requests:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many requests. Please wait a moment and try again.",
+        )
+
+    bucket.append(now)
+
+
+def get_client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        return forwarded_for.split(",", 1)[0].strip() or "unknown"
+
+    real_ip = request.headers.get("x-real-ip")
+    if real_ip:
+        return real_ip.strip() or "unknown"
+
+    return request.client.host if request.client else "unknown"
 
 
 def get_auth_client() -> Client:
@@ -242,9 +271,15 @@ def health_status():
 
 
 @router.post("/auth/register")
-def register_user(payload: RegisterPayload):
+def register_user(payload: RegisterPayload, request: Request):
     if supabase is None:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
+
+    client_ip = get_client_ip(request)
+    email_key = (payload.email or "").strip().lower()
+    check_rate_limit(f"auth:register:{client_ip}", max_requests=5, window_seconds=60)
+    if email_key:
+        check_rate_limit(f"auth:register:{email_key}", max_requests=3, window_seconds=3600)
 
     try:
         username = normalize_username(payload.username)
@@ -319,9 +354,12 @@ def register_user(payload: RegisterPayload):
 
 
 @router.post("/auth/login")
-def login_user(payload: LoginPayload):
+def login_user(payload: LoginPayload, request: Request):
     if supabase is None:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
+
+    client_ip = get_client_ip(request)
+    check_rate_limit(f"auth:login:{client_ip}", max_requests=5, window_seconds=60)
 
     target_email = (payload.email or "").strip()
 
@@ -341,10 +379,9 @@ def login_user(payload: LoginPayload):
                 .limit(1)
                 .execute()
             )
-            if profile.data:
-                target_email = profile.data[0]["email"]
-            else:
-                raise HTTPException(status_code=404, detail="User not found.")
+            if not profile.data:
+                raise HTTPException(status_code=401, detail="Invalid email or password.")
+            target_email = profile.data[0]["email"]
         except APIError as exc:
             raise HTTPException(status_code=400, detail=exc.message) from exc
 
@@ -360,7 +397,7 @@ def login_user(payload: LoginPayload):
             {"email": target_email, "password": payload.password}
         )
     except AuthApiError as exc:
-        raise HTTPException(status_code=exc.status or 400, detail=exc.message) from exc
+        raise HTTPException(status_code=401, detail="Invalid email or password.") from exc
 
     return {
         "message": "Login successful.",
@@ -486,18 +523,50 @@ def delete_account(
     except AuthApiError as exc:
         raise HTTPException(status_code=401, detail="Password is incorrect.") from exc
 
-    # Delete profile from profiles table
+    profile_snapshot = None
+    try:
+        existing_profile = (
+            supabase.table("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .limit(1)
+            .execute()
+        )
+        if existing_profile.data:
+            profile_snapshot = existing_profile.data[0]
+    except APIError as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to load profile: {exc.message}") from exc
+
     try:
         supabase.table("profiles").delete().eq("id", user.id).execute()
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to delete profile: {exc.message}") from exc
 
-    # Delete user from auth (admin operation using service role key)
+    # Delete user from auth (admin operation using service role key). If the auth
+    # deletion fails after we already removed the profile row, restore the profile
+    # so the user data is not lost unexpectedly.
     try:
         supabase.auth.admin.delete_user(user.id)
     except Exception as exc:
-        # Log but continue - user data is already deleted from profiles
-        print(f"Warning: Failed to delete auth user: {exc}")
+        if profile_snapshot:
+            try:
+                supabase.table("profiles").upsert(profile_snapshot, on_conflict="id").execute()
+            except APIError as restore_exc:
+                raise HTTPException(
+                    status_code=500,
+                    detail=(
+                        "Failed to delete account: auth deletion failed and profile recovery also failed. "
+                        f"Original error: {exc}. Recovery error: {restore_exc.message}"
+                    ),
+                ) from exc
+
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Failed to delete account: auth deletion failed and the profile was restored. "
+                f"Original error: {exc}"
+            ),
+        ) from exc
 
     return {"message": "Account deleted successfully"}
 

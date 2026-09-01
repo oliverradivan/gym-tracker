@@ -199,7 +199,7 @@ function SettingsPage() {
             className={`settings-tab danger ${activeTab === 'danger' ? 'active' : ''}`}
             onClick={() => setActiveTab('danger')}
           >
-            <span className="tab-icon">⚠️</span> Danger Zone
+            <span className="tab-icon">🚨</span> Danger Zone
           </button>
         </div>
 
