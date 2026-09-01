@@ -2,9 +2,17 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useTheme } from '../context/themeContext'
+import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle } from 'lucide-react'
 import './settings.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
+
+const TABS = [
+  { id: 'appearance', label: 'Appearance', icon: Palette },
+  { id: 'account', label: 'Account', icon: User },
+  { id: 'security', label: 'Security', icon: Lock },
+  { id: 'danger', label: 'Danger Zone', icon: ShieldAlert, danger: true },
+]
 
 function SettingsPage() {
   const navigate = useNavigate()
@@ -13,7 +21,6 @@ function SettingsPage() {
 
   // State for forms
   const [activeTab, setActiveTab] = useState('appearance')
-  const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
@@ -34,6 +41,20 @@ function SettingsPage() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const currentUsername = user?.user_metadata?.username || 'User'
+
+  // Switching tabs clears any leftover success/error banner from the
+  // previous tab so it can't show up somewhere it no longer applies.
+  const selectTab = (tabId) => {
+    setActiveTab(tabId)
+    setMessage('')
+    setError('')
+  }
+
+  const resetDeleteForm = () => {
+    setShowDeleteConfirm(false)
+    setDeletePassword('')
+    setDeleteConfirm('')
+  }
 
   const handleUpdateUsername = async (e) => {
     e.preventDefault()
@@ -176,36 +197,33 @@ function SettingsPage() {
       </header>
 
       <div className="settings-container">
-        <div className="settings-sidebar">
-          <button
-            className={`settings-tab ${activeTab === 'appearance' ? 'active' : ''}`}
-            onClick={() => setActiveTab('appearance')}
-          >
-            <span className="tab-icon">🎨</span> Appearance
-          </button>
-          <button
-            className={`settings-tab ${activeTab === 'account' ? 'active' : ''}`}
-            onClick={() => setActiveTab('account')}
-          >
-            <span className="tab-icon">👤</span> Account
-          </button>
-          <button
-            className={`settings-tab ${activeTab === 'security' ? 'active' : ''}`}
-            onClick={() => setActiveTab('security')}
-          >
-            <span className="tab-icon">🔒</span> Security
-          </button>
-          <button
-            className={`settings-tab danger ${activeTab === 'danger' ? 'active' : ''}`}
-            onClick={() => setActiveTab('danger')}
-          >
-            <span className="tab-icon">🚨</span> Danger Zone
-          </button>
-        </div>
+        <nav className="settings-sidebar">
+          {TABS.map(({ id, label, icon: Icon, danger }) => (
+            <button
+              key={id}
+              className={`settings-tab ${danger ? 'danger' : ''} ${activeTab === id ? 'active' : ''}`}
+              onClick={() => selectTab(id)}
+              aria-current={activeTab === id ? 'page' : undefined}
+            >
+              <Icon className="tab-icon" size={16} aria-hidden="true" />
+              {label}
+            </button>
+          ))}
+        </nav>
 
         <div className="settings-content">
-          {message && <div className="success-message">{message}</div>}
-          {error && <div className="error-message">{error}</div>}
+          {message && (
+            <div className="success-message" role="status">
+              <CheckCircle2 size={16} aria-hidden="true" />
+              <span>{message}</span>
+            </div>
+          )}
+          {error && (
+            <div className="error-message" role="alert">
+              <AlertCircle size={16} aria-hidden="true" />
+              <span>{error}</span>
+            </div>
+          )}
 
           {/* Appearance Tab */}
           {activeTab === 'appearance' && (
@@ -314,7 +332,10 @@ function SettingsPage() {
           {/* Danger Zone Tab */}
           {activeTab === 'danger' && (
             <section className="settings-section danger-zone">
-              <h3>⚠️ Danger Zone</h3>
+              <h3>
+                <ShieldAlert size={18} aria-hidden="true" style={{ verticalAlign: 'text-bottom', marginRight: 8 }} />
+                Danger Zone
+              </h3>
               <div className="danger-item">
                 <div>
                   <h4>Delete Account</h4>
@@ -324,7 +345,7 @@ function SettingsPage() {
                 </div>
                 <button
                   className="danger-btn"
-                  onClick={() => setShowDeleteConfirm(!showDeleteConfirm)}
+                  onClick={() => (showDeleteConfirm ? resetDeleteForm() : setShowDeleteConfirm(true))}
                   disabled={deleteLoading}
                 >
                   {showDeleteConfirm ? 'Cancel' : 'Delete Account'}
@@ -334,8 +355,11 @@ function SettingsPage() {
               {showDeleteConfirm && (
                 <form onSubmit={handleDeleteAccount} className="delete-confirmation">
                   <div className="warning-box">
-                    ⚠️ This will permanently delete your account and all your workout data. This
-                    cannot be undone.
+                    <AlertCircle size={16} aria-hidden="true" />
+                    <span>
+                      This will permanently delete your account and all your workout data. This
+                      cannot be undone.
+                    </span>
                   </div>
                   <div className="form-group">
                     <label htmlFor="delete-password">Confirm with your password</label>
@@ -365,11 +389,7 @@ function SettingsPage() {
                     <button
                       type="button"
                       className="ghost-btn"
-                      onClick={() => {
-                        setShowDeleteConfirm(false)
-                        setDeletePassword('')
-                        setDeleteConfirm('')
-                      }}
+                      onClick={resetDeleteForm}
                       disabled={deleteLoading}
                     >
                       Cancel
