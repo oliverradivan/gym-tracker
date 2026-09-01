@@ -42,32 +42,32 @@
 
 /* Dark mode */
 :root.dark-mode {
-  --bg: #1a1a1a;
-  --bg-elevated: #242424;
-  --bg-soft: rgba(255, 255, 255, 0.1);
-  --bg-strong: #ffffff;
-  --panel: rgba(255, 255, 255, 0.05);
-  --panel-strong: rgba(255, 255, 255, 0.1);
-  --border: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.15);
-  --text: #e5e5e5;
-  --muted: #a0a0a0;
-  --muted-soft: #7a7a7a;
-  --shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
-  --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.3);
+  --bg: #0a0a08;
+  --bg-elevated: #000000;
+  --bg-soft: rgba(0, 0, 0, 0.72);
+  --bg-strong: #eeeeee;
+  --panel: rgba(0, 0, 0, 0.7);
+  --panel-strong: rgba(0, 0, 0, 0.88);
+  --border: rgba(238, 238, 238, 0.08);
+  --border-strong: rgba(238, 238, 238, 0.14);
+  --text: #eeeeee;
+  --muted: #b2b2b0;
+  --muted-soft: #858585;
+  --shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
+  --shadow-soft: 0 12px 30px rgba(255, 255, 255, 0.06);
   
   /* Settings page vars */
-  --bg-primary: #242424;
-  --bg-secondary: #1a1a1a;
-  --text-primary: #e5e5e5;
-  --text-secondary: #a0a0a0;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --bg-primary: #000000;
+  --bg-secondary: #0a0a08;
+  --text-primary: #eeeeee;
+  --text-secondary: #b2b2b0;
+  --border-color: rgba(238, 238, 238, 0.08);
   --primary-color: #66bb6a;
 }
 
 :root.dark-mode body {
   background:
-    radial-gradient(circle at top, rgba(30, 30, 30, 0.94), rgba(26, 26, 26, 0.92) 38%, rgba(20, 20, 20, 0.9) 100%),
+    radial-gradient(circle at top, rgba(10, 10, 8, 0.94), rgba(5, 5, 3, 0.92) 38%, rgba(0, 0, 0, 0.9) 100%),
     var(--bg);
 }
 
