@@ -157,6 +157,11 @@
   border-top-style: dashed;
 }
 
+.forecast-connector {
+  stroke: #64748b;
+  stroke-width: 3;
+}
+
 .chart-axis {
   stroke: rgba(17, 17, 17, 0.28);
   stroke-width: 1;
@@ -381,6 +386,10 @@
 
 .dark-mode .forecast-line {
   border-top-color: #94a3b8;
+}
+
+.dark-mode .forecast-connector {
+  stroke: #94a3b8;
 }
 
 .dark-mode .chart-axis {

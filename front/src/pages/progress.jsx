@@ -181,7 +181,7 @@ function ProgressPage() {
       .map((point, index) => {
         const x = leftPad + (index / Math.max(totalPoints - 1, 1)) * plotWidth
         const normalized = Number(point.volume) / chartMaxValue
-        const y = height - 20 - normalized * (height - 40)
+        const y = 180 - normalized * 160
         return `${x},${y}`
       })
       .join(' ')
@@ -199,13 +199,13 @@ function ProgressPage() {
     const lastActualIndex = progress.length - 1
     const lastActualX = leftPad + (lastActualIndex / Math.max(totalPoints - 1, 1)) * plotWidth
     const lastActualValue = Number(progress[lastActualIndex].volume || 0)
-    const lastActualY = height - 20 - (lastActualValue / chartMaxValue) * (height - 40)
+    const lastActualY = 180 - (lastActualValue / chartMaxValue) * 160
 
     const forecastPoints = predictions
       .map((point, index) => {
         const x = leftPad + ((progress.length + index) / Math.max(totalPoints - 1, 1)) * plotWidth
         const normalized = Number(point.value) / chartMaxValue
-        const y = height - 20 - normalized * (height - 40)
+        const y = 180 - normalized * 160
         return `${x},${y}`
       })
       .join(' ')
@@ -219,6 +219,13 @@ function ProgressPage() {
   const totalChartPoints = Math.max(chartPointCount, 2)
   const chartPlotWidth = chartWidth - 60
   const chartX = (index) => 30 + (index / Math.max(totalChartPoints - 1, 1)) * chartPlotWidth
+  const chartY = (value) => 180 - (Number(value || 0) / chartMaxValue) * 160
+  const lastActualPoint = progress.length > 0
+    ? { x: chartX(progress.length - 1), y: chartY(progress[progress.length - 1].volume) }
+    : null
+  const firstPredictionPoint = predictions.length > 0
+    ? { x: chartX(progress.length), y: chartY(predictions[0].value) }
+    : null
   const chartDateLabels = [
     { index: 0, date: progress[0]?.date },
     ...(progress.length > 1 ? [{ index: progress.length - 1, date: progress[progress.length - 1]?.date }] : []),
@@ -280,13 +287,24 @@ function ProgressPage() {
 
                 {/* Predicted future points - dashed line */}
                 {predictionEnabled && predictions.length > 0 && (
-                  <polyline
-                    fill="none"
-                    stroke="#64748b"
-                    strokeWidth="3"
-                    strokeDasharray="8, 6"
-                    points={predictedPoints}
-                  />
+                  <>
+                    {lastActualPoint && firstPredictionPoint && (
+                      <line
+                        x1={lastActualPoint.x}
+                        y1={lastActualPoint.y}
+                        x2={firstPredictionPoint.x}
+                        y2={firstPredictionPoint.y}
+                        className="forecast-connector"
+                      />
+                    )}
+                    <polyline
+                      fill="none"
+                      stroke="#64748b"
+                      strokeWidth="3"
+                      strokeDasharray="8, 6"
+                      points={predictedPoints}
+                    />
+                  </>
                 )}
                 </svg>
               </div>
@@ -320,7 +338,7 @@ function ProgressPage() {
                 </div>
                 {isPredicting && <p className="status-message">Generating forecast...</p>}
                 {!predictionEnabled && (
-                  <p className="status-message">Predictions are disabled in settings.</p>
+                  <p className="status-message"></p>
                 )}
                 {predictionError && <p className="status-message error-message">{predictionError}</p>}
               </div>
