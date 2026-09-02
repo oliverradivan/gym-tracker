@@ -1,10 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import './exerciseProgress.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
+const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
+const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
+const millisecondsPerDay = 24 * 60 * 60 * 1000
+
+const formatDisplayDate = (date) => {
+  const [year, month, day] = String(date || '').slice(0, 10).split('-')
+  return year && month && day ? `${day}/${month}/${year}` : String(date || '')
+}
+const formatChartValue = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })
+const chartTimestamp = (date) => Date.parse(`${date}T00:00:00Z`)
 
 function ExerciseProgressPage() {
   const { exerciseId } = useParams()
@@ -14,6 +24,23 @@ function ExerciseProgressPage() {
   const [exerciseName, setExerciseName] = useState('Exercise')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [predictions, setPredictions] = useState([])
+  const [isPredicting, setIsPredicting] = useState(false)
+  const [predictionError, setPredictionError] = useState('')
+  const [predictionEnabled] = useState(() => {
+    try {
+      return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
+    } catch {
+      return true
+    }
+  })
+  const [graphScrollable] = useState(() => {
+    try {
+      return localStorage.getItem(GRAPH_SCROLL_SETTING_KEY) === 'true'
+    } catch {
+      return false
+    }
+  })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,72 +88,87 @@ function ExerciseProgressPage() {
     fetchData()
   }, [exerciseId, session])
 
+  useEffect(() => {
+    let mounted = true
+
+    const loadPredictions = async () => {
+      if (!predictionEnabled || progress.length < 2 || !session?.access_token) return
+
+      setIsPredicting(true)
+      setPredictionError('')
+      try {
+        const response = await fetch(`${API_URL}/predictions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            points: progress.map((point) => ({ date: point.date, volume: point.volume })),
+            periods: 7,
+          }),
+        })
+        const result = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(result.detail || 'Failed to generate predictions.')
+        if (mounted) setPredictions(result.predictions || [])
+      } catch (predictionLoadError) {
+        if (mounted) setPredictionError(predictionLoadError.message || 'Failed to generate predictions.')
+      } finally {
+        if (mounted) setIsPredicting(false)
+      }
+    }
+
+    loadPredictions()
+    return () => { mounted = false }
+  }, [predictionEnabled, progress, session])
+
   const category = useMemo(() => getExerciseCategory(exerciseName), [exerciseName])
+
+  const chartDates = [
+    ...progress.map((point) => point.date),
+    ...(predictionEnabled ? predictions.map((point) => point.date) : []),
+  ].filter(Boolean)
+  const chartStartTimestamp = chartTimestamp(chartDates[0])
+  const chartEndTimestamp = chartTimestamp(chartDates[chartDates.length - 1])
+  const chartSpanDays = Math.max(1, (chartEndTimestamp - chartStartTimestamp) / millisecondsPerDay)
+  const chartWidth = graphScrollable ? Math.max(720, chartSpanDays * 10 + 60) : 720
+  const chartPlotWidth = chartWidth - 60
+  const chartXForDate = useCallback(
+    (date) => 30 + (((chartTimestamp(date) - chartStartTimestamp) / millisecondsPerDay) / chartSpanDays) * chartPlotWidth,
+    [chartPlotWidth, chartSpanDays, chartStartTimestamp],
+  )
+  const chartMaxValue = Math.max(
+    ...progress.map((point) => Number(point.volume || 0)),
+    ...predictions.map((point) => Number(point.value || 0)),
+    1,
+  )
+  const chartY = useCallback(
+    (value) => 180 - (Number(value || 0) / chartMaxValue) * 160,
+    [chartMaxValue],
+  )
 
   const chartPoints = useMemo(() => {
     if (!progress.length) return ''
 
-    const width = 560
-    const height = 220
-    const maxVolume = Math.max(...progress.map((point) => Number(point.volume || 0)), 1)
-    const minVolume = 0
-
-    // Calculate date range for x-axis
-    const dates = progress.map((p) => new Date(p.date).getTime())
-    const minDate = Math.min(...dates)
-    const maxDate = Math.max(...dates)
-    const dateRange = maxDate - minDate || 1
-
     return progress
       .map((point) => {
-        // X position based on date
-        const pointDate = new Date(point.date).getTime()
-        const xNormalized = (pointDate - minDate) / dateRange
-        const x = xNormalized * (width - 30) + 15
-
-        // Y position based on volume
-        const normalized = (Number(point.volume) - minVolume) / Math.max(maxVolume - minVolume, 1)
-        const y = height - 20 - normalized * (height - 40)
-        return `${x},${y}`
+        return `${chartXForDate(point.date)},${chartY(point.volume)}`
       })
       .join(' ')
-  }, [progress])
+  }, [chartXForDate, chartY, progress])
 
-  // Generate date labels for x-axis
-  const dateLabels = useMemo(() => {
-    if (!progress.length) return []
+  const predictedPoints = useMemo(() => {
+    if (!predictionEnabled || !predictions.length || !progress.length) return ''
+    const lastActual = progress[progress.length - 1]
+    return `${chartXForDate(lastActual.date)},${chartY(lastActual.volume)} ${predictions.map((point) => `${chartXForDate(point.date)},${chartY(point.value)}`).join(' ')}`
+  }, [chartXForDate, chartY, predictionEnabled, predictions, progress])
+  const lastActual = progress[progress.length - 1]
+  const firstPrediction = predictions[0]
 
-    const width = 560
-    const dates = progress.map((p) => new Date(p.date).getTime())
-    const minDate = Math.min(...dates)
-    const maxDate = Math.max(...dates)
-    const dateRange = maxDate - minDate || 1
-
-    // Show up to 3 date labels
-    const labelPositions = []
-    const step = Math.ceil(progress.length / 3)
-
-    for (let i = 0; i < progress.length; i += step) {
-      const point = progress[i]
-      const pointDate = new Date(point.date).getTime()
-      const xNormalized = (pointDate - minDate) / dateRange
-      const x = xNormalized * (width - 30) + 15
-      labelPositions.push({ x, date: point.date })
-    }
-
-    // Always add the last date
-    if (progress.length > 0) {
-      const lastPoint = progress[progress.length - 1]
-      const pointDate = new Date(lastPoint.date).getTime()
-      const xNormalized = (pointDate - minDate) / dateRange
-      const x = xNormalized * (width - 30) + 15
-      if (!labelPositions.some((l) => Math.abs(l.x - x) < 30)) {
-        labelPositions.push({ x, date: lastPoint.date })
-      }
-    }
-
-    return labelPositions
-  }, [progress])
+  const chartDateLabels = [
+    ...progress.map((point) => ({ date: point.date })),
+    ...(predictionEnabled ? predictions.map((point) => ({ date: point.date })) : []),
+  ]
 
   const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
 
@@ -148,29 +190,54 @@ function ExerciseProgressPage() {
         ) : (
           <>
             <div className="chart-box">
-              <svg viewBox="0 0 560 240" className="volume-chart" role="img" aria-label={`${exerciseName} volume chart`}>
-                {/* Y-axis */}
-                <line x1="15" y1="20" x2="15" y2="200" className="chart-axis" />
-                {/* X-axis */}
-                <line x1="15" y1="200" x2="545" y2="200" className="chart-axis" />
-                
-                <text x="5" y="15" fontSize="12" textAnchor="end" className="chart-label">Volume</text>
+              <div className="chart-scroll">
+                <svg viewBox={`0 0 ${chartWidth} 240`} style={{ width: `${chartWidth}px` }} className="volume-chart" role="img" aria-label={`${exerciseName} volume chart`}>
+                  {[0, 0.5, 1].map((ratio) => {
+                    const y = 200 - ratio * 160
+                    return (
+                      <g key={ratio}>
+                        <line x1="30" y1={y} x2={chartWidth - 30} y2={y} className="chart-grid-line" />
+                        <text x="24" y={y + 4} textAnchor="end" className="chart-axis-label">
+                          {formatChartValue(chartMaxValue * ratio)}
+                        </text>
+                      </g>
+                    )
+                  })}
+                  <line x1="30" y1="200" x2={chartWidth - 30} y2="200" className="chart-axis" />
+                  <line x1="30" y1="40" x2="30" y2="200" className="chart-axis" />
 
-                {/* X-axis labels (dates) */}
-                {dateLabels.map((label, idx) => (
-                  <g key={idx}>
-                    <line x1={label.x} y1="198" x2={label.x} y2="202" className="chart-tick" />
-                    <text x={label.x} y="220" fontSize="11" textAnchor="middle" className="chart-label">
-                      {new Date(label.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                    </text>
-                  </g>
-                ))}
-                
-                {/* Chart line */}
-                {progress.length > 0 && (
-                  <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />
-                )}
-              </svg>
+                  {chartDateLabels.map((label) => (
+                    <g key={label.date}>
+                      <line x1={chartXForDate(label.date)} y1="198" x2={chartXForDate(label.date)} y2="202" className="chart-tick" />
+                      <text x={chartXForDate(label.date)} y="225" textAnchor="start" transform={`rotate(-45 ${chartXForDate(label.date)} 225)`} className="chart-axis-label">
+                        {formatDisplayDate(label.date)}
+                      </text>
+                    </g>
+                  ))}
+
+                  {progress.length > 0 && <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />}
+                  {predictionEnabled && predictions.length > 0 && (
+                    <>
+                      <line
+                        x1={chartXForDate(lastActual.date)}
+                        y1={chartY(lastActual.volume)}
+                        x2={chartXForDate(firstPrediction.date)}
+                        y2={chartY(firstPrediction.value)}
+                        className="forecast-connector"
+                      />
+                      <polyline fill="none" stroke="#64748b" strokeWidth="3" strokeDasharray="8, 6" points={predictedPoints} />
+                    </>
+                  )}
+                </svg>
+              </div>
+              <div className="chart-footer">
+                <div className="chart-legend">
+                  <span className="legend-item"><span className="legend-line actual-line" />Actual volume</span>
+                  {predictionEnabled && predictions.length > 0 && <span className="legend-item"><span className="legend-line forecast-line" />Forecast</span>}
+                </div>
+                {isPredicting && <p className="status-message">Generating forecast...</p>}
+                {predictionError && <p className="status-message error-message">{predictionError}</p>}
+              </div>
             </div>
 
             <div className="history-table-wrap">
@@ -188,7 +255,7 @@ function ExerciseProgressPage() {
                   {logs.length ? (
                     logs.map((entry) => (
                       <tr key={entry.id}>
-                        <td>{entry.log_date}</td>
+                        <td>{formatDisplayDate(entry.log_date)}</td>
                         <td>{Number(entry.weight).toFixed(1)}</td>
                         <td>{Number(entry.reps) % 1 === 0 ? Math.floor(entry.reps) : Number(entry.reps).toFixed(1)}</td>
                         <td>{(Number(entry.weight) * Number(entry.reps)).toFixed(1)}</td>

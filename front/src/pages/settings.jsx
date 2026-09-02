@@ -328,7 +328,7 @@ function SettingsPage() {
           {/* Forecasting Tab */}
           {activeTab === 'forecasting' && (
             <section className="settings-section">
-              <h3>Forecasting</h3>
+              <h3>Graph settings</h3>
               <div className="setting-item">
                 <div className="setting-label">
                   <label>Enable prediction overlays</label>

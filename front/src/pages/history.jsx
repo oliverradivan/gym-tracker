@@ -33,7 +33,34 @@ function HistoryPage() {
   }
 
   useEffect(() => {
-    loadSessions()
+    let active = true
+
+    const fetchSessions = async () => {
+      if (!session?.access_token) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/workout-sessions`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+
+        if (!response.ok) {
+          throw new Error('Unable to load workout history.')
+        }
+
+        const result = await response.json()
+        if (active) setSessions(result.sessions || [])
+      } catch (error) {
+        console.error(error)
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+
+    fetchSessions()
+    return () => { active = false }
   }, [session])
 
   const handleDeleteWorkout = async (logId) => {

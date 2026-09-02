@@ -1,27 +1,30 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from 'react'
 
 const ThemeContext = createContext(null)
+const getSavedTheme = () => {
+  try {
+    return localStorage.getItem('theme') || 'light'
+  } catch {
+    return 'light'
+  }
+}
+
+const applyTheme = (themeName) => {
+  const root = document.documentElement
+  if (themeName === 'dark') {
+    root.classList.add('dark-mode')
+  } else {
+    root.classList.remove('dark-mode')
+  }
+}
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('light')
-  const [isLoading, setIsLoading] = useState(true)
+  const [theme, setTheme] = useState(getSavedTheme)
 
-  // Load theme from localStorage on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light'
-    setTheme(savedTheme)
-    applyTheme(savedTheme)
-    setIsLoading(false)
-  }, [])
-
-  const applyTheme = (themeName) => {
-    const root = document.documentElement
-    if (themeName === 'dark') {
-      root.classList.add('dark-mode')
-    } else {
-      root.classList.remove('dark-mode')
-    }
-  }
+    applyTheme(theme)
+  }, [theme])
 
   const toggleTheme = () => {
     const newTheme = theme === 'light' ? 'dark' : 'light'
@@ -31,7 +34,7 @@ export function ThemeProvider({ children }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, isLoading }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isLoading: false }}>
       {children}
     </ThemeContext.Provider>
   )

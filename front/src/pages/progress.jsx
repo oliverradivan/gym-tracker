@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
@@ -8,7 +8,10 @@ const API_URL = import.meta.env.VITE_API_URL || '/api'
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 
-const formatChartDate = (date) => String(date || '').slice(5)
+const formatDisplayDate = (date) => {
+  const [year, month, day] = String(date || '').slice(0, 10).split('-')
+  return year && month && day ? `${day}/${month}/${year}` : String(date || '')
+}
 const formatChartValue = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })
 const chartTimestamp = (date) => Date.parse(`${date}T00:00:00Z`)
 const millisecondsPerDay = 24 * 60 * 60 * 1000
@@ -22,28 +25,20 @@ function ProgressPage() {
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
   const [predictionError, setPredictionError] = useState('')
-  const [graphScrollable, setGraphScrollable] = useState(() => {
+  const [graphScrollable] = useState(() => {
     try {
       return localStorage.getItem(GRAPH_SCROLL_SETTING_KEY) === 'true'
     } catch {
       return false
     }
   })
-  const [predictionEnabled, setPredictionEnabled] = useState(() => {
+  const [predictionEnabled] = useState(() => {
     try {
       return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
     } catch {
       return true
     }
   })
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(PREDICTION_SETTING_KEY, String(predictionEnabled))
-    } catch {
-      // Ignore storage issues in restricted environments.
-    }
-  }, [predictionEnabled])
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -170,11 +165,11 @@ function ProgressPage() {
   const chartSpanDays = Math.max(1, (chartEndTimestamp - chartStartTimestamp) / millisecondsPerDay)
   const chartWidth = graphScrollable ? Math.max(720, chartSpanDays * 10 + 60) : 720
   const chartPlotWidth = chartWidth - 60
-  const chartXForDate = (date) => {
+  const chartXForDate = useCallback((date) => {
     const timestamp = chartTimestamp(date)
     const elapsedDays = (timestamp - chartStartTimestamp) / millisecondsPerDay
     return 30 + (elapsedDays / chartSpanDays) * chartPlotWidth
-  }
+  }, [chartPlotWidth, chartSpanDays, chartStartTimestamp])
 
   const chartMaxValue = useMemo(
     () => Math.max(
@@ -196,7 +191,7 @@ function ProgressPage() {
         return `${x},${y}`
       })
       .join(' ')
-  }, [chartMaxValue, chartSpanDays, chartStartTimestamp, chartWidth, chartXForDate, predictionEnabled, predictions, progress])
+  }, [chartMaxValue, chartXForDate, progress])
 
   // Compute chart points for predicted future values
   const predictedPoints = useMemo(() => {
@@ -216,7 +211,7 @@ function ProgressPage() {
       .join(' ')
 
     return `${lastActualX},${lastActualY} ${forecastPoints}`
-  }, [chartMaxValue, chartSpanDays, chartStartTimestamp, chartWidth, chartXForDate, predictionEnabled, predictions, progress])
+  }, [chartMaxValue, chartXForDate, predictionEnabled, predictions, progress])
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
@@ -229,9 +224,8 @@ function ProgressPage() {
     ? { x: chartXForDate(predictions[0].date), y: chartY(predictions[0].value) }
     : null
   const chartDateLabels = [
-    { date: progress[0]?.date },
-    ...(progress.length > 1 ? [{ date: progress[progress.length - 1]?.date }] : []),
-    ...(predictions.length > 0 ? [{ date: predictions[predictions.length - 1]?.date }] : []),
+    ...progress.map((point) => ({ date: point.date })),
+    ...(predictionEnabled ? predictions.map((point) => ({ date: point.date })) : []),
   ]
 
   return (
@@ -280,8 +274,8 @@ function ProgressPage() {
                 <line x1="30" y1="20" x2="30" y2="180" className="chart-axis" />
 
                 {chartDateLabels.map((label) => (
-                  <text key={label.date} x={chartXForDate(label.date)} y="205" textAnchor="middle" className="chart-axis-label">
-                    {formatChartDate(label.date)}
+                  <text key={label.date} x={chartXForDate(label.date)} y="205" textAnchor="start" transform={`rotate(-45 ${chartXForDate(label.date)} 205)`} className="chart-axis-label">
+                    {formatDisplayDate(label.date)}
                   </text>
                 ))}
 
@@ -343,7 +337,7 @@ function ProgressPage() {
               <tbody>
                 {progress.map((point) => (
                   <tr key={point.date}>
-                    <td>{point.date}</td>
+                    <td>{formatDisplayDate(point.date)}</td>
                     <td>{Number(point.weight || 0).toFixed(1)}</td>
                     <td>{Number(point.reps) % 1 === 0 ? Number(point.reps) : Number(point.reps).toFixed(1)}</td>
                     <td>{Number(point.volume).toFixed(1)}</td>

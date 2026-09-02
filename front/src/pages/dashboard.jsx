@@ -56,7 +56,7 @@ function DashboardPage() {
     }
 
     loadDashboardData()
-  }, [session])
+  }, [session, todayKey])
 
   useEffect(() => {
     const node = exerciseListRef.current
