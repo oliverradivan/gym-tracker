@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
-from main import RATE_LIMIT_BUCKETS, DeleteAccountPayload, check_rate_limit, delete_account, normalize_username
+from main import RATE_LIMIT_BUCKETS, DeleteAccountPayload, check_rate_limit, delete_account, get_auth_client, normalize_username
 
 
 class DummyProfileTable:
@@ -106,3 +106,11 @@ def test_check_rate_limit_blocks_excessive_auth_attempts():
 
     with pytest.raises(HTTPException, match="Too many requests"):
         check_rate_limit("test-user:127.0.0.1", max_requests=3, window_seconds=60)
+
+
+def test_get_auth_client_requires_supabase_env(monkeypatch):
+    monkeypatch.delenv("SUPABASE_URL", raising=False)
+    monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
+
+    with pytest.raises(HTTPException, match="Supabase is not configured"):
+        get_auth_client()

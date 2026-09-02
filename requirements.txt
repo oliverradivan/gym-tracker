@@ -2,3 +2,6 @@ fastapi>=0.141.1
 python-dotenv>=1.1.1
 supabase>=2.18.1
 uvicorn>=0.52.4
+python-dateutil>=2.9.0
+pandas>=2.2.0
+prophet>=0.2.2

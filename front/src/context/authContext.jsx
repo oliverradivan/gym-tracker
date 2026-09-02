@@ -27,10 +27,19 @@ export function AuthProvider({ children }) {
         body: JSON.stringify(payload),
       })
 
-      const result = await response.json()
+      const rawText = await response.text()
+      let result = {}
+
+      if (rawText) {
+        try {
+          result = JSON.parse(rawText)
+        } catch {
+          result = { detail: rawText }
+        }
+      }
 
       if (!response.ok) {
-        throw new Error(result.detail || 'Authentication failed.')
+        throw new Error(result.detail || result.message || 'Authentication failed.')
       }
 
       if (form.email) {

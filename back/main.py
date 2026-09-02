@@ -93,6 +93,9 @@ def get_auth_client() -> Client:
     contaminated by a user's JWT - which is what was causing the RLS
     violation on profile inserts.
     """
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        raise HTTPException(status_code=500, detail="Supabase is not configured.")
+
     return create_client(SUPABASE_URL, SUPABASE_KEY)
 
 
