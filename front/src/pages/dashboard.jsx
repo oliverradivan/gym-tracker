@@ -198,8 +198,9 @@ function DashboardPage() {
           </div>
         </section>
       </main>
-      <h3>your reward</h3>
+      <h3>your reward:</h3>
       <img src="/G&O_1589.jpg" alt="us" className="dashboard-image" />
+      <h1>love you ❤️</h1>
     </div>
   )
 }
