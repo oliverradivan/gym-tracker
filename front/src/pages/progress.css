@@ -105,21 +105,6 @@
   padding-bottom: 4px;
 }
 
-.chart-width-control {
-  display: grid;
-  grid-template-columns: auto minmax(120px, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 6px 0;
-  color: #4d4d4f;
-  font-size: 0.78rem;
-}
-
-.chart-width-control input {
-  width: 100%;
-  accent-color: #475569;
-}
-
 .chart-footer {
   display: flex;
   align-items: center;
@@ -291,15 +276,6 @@
     height: 200px;
   }
 
-  .chart-width-control {
-    grid-template-columns: 1fr auto;
-  }
-
-  .chart-width-control input {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-
   .progress-table {
     display: block;
     overflow-x: auto;
@@ -373,10 +349,6 @@
 }
 
 .dark-mode .chart-legend {
-  color: #b2b2b0;
-}
-
-.dark-mode .chart-width-control {
   color: #b2b2b0;
 }
 

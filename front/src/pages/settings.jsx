@@ -7,6 +7,7 @@ import './settings.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
+const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 
 const TABS = [
   { id: 'appearance', label: 'Appearance', icon: Palette },
@@ -48,6 +49,13 @@ function SettingsPage() {
       return true
     }
   })
+  const [graphScrollable, setGraphScrollable] = useState(() => {
+    try {
+      return localStorage.getItem(GRAPH_SCROLL_SETTING_KEY) === 'true'
+    } catch {
+      return false
+    }
+  })
 
   useEffect(() => {
     try {
@@ -56,6 +64,14 @@ function SettingsPage() {
       // Ignore storage issues in restricted environments.
     }
   }, [predictionEnabled])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(GRAPH_SCROLL_SETTING_KEY, String(graphScrollable))
+    } catch {
+      // Ignore storage issues in restricted environments.
+    }
+  }, [graphScrollable])
 
   const currentUsername = user?.user_metadata?.username || 'User'
 
@@ -334,6 +350,28 @@ function SettingsPage() {
                   <label>Current state</label>
                 </div>
                 <p className="current-value">{predictionEnabled ? 'Enabled' : 'Disabled'}</p>
+              </div>
+              <div className="setting-item">
+                <div className="setting-label">
+                  <label>Use scrollable graph</label>
+                  <p className="setting-description">
+                    Expand the graph and scroll horizontally when viewing many workouts.
+                  </p>
+                </div>
+                <button
+                  className={`theme-toggle ${graphScrollable ? 'dark' : ''}`}
+                  onClick={() => setGraphScrollable((prev) => !prev)}
+                  aria-label="Toggle scrollable graph"
+                >
+                  <span className="toggle-track" />
+                  <span className="toggle-thumb" />
+                </button>
+              </div>
+              <div className="setting-item">
+                <div className="setting-label">
+                  <label>Graph view</label>
+                </div>
+                <p className="current-value">{graphScrollable ? 'Scrollable' : 'Compressed'}</p>
               </div>
             </section>
           )}

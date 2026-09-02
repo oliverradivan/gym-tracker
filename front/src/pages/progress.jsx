@@ -6,9 +6,12 @@ import './progress.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
+const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 
 const formatChartDate = (date) => String(date || '').slice(5)
 const formatChartValue = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })
+const chartTimestamp = (date) => Date.parse(`${date}T00:00:00Z`)
+const millisecondsPerDay = 24 * 60 * 60 * 1000
 
 function ProgressPage() {
   const { session } = useAuth()
@@ -19,7 +22,13 @@ function ProgressPage() {
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
   const [predictionError, setPredictionError] = useState('')
-  const [chartWidth, setChartWidth] = useState(720)
+  const [graphScrollable, setGraphScrollable] = useState(() => {
+    try {
+      return localStorage.getItem(GRAPH_SCROLL_SETTING_KEY) === 'true'
+    } catch {
+      return false
+    }
+  })
   const [predictionEnabled, setPredictionEnabled] = useState(() => {
     try {
       return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
@@ -152,12 +161,20 @@ function ProgressPage() {
     return () => { mounted = false }
   }, [predictionEnabled, selectedExerciseId, progress, session])
 
-  const chartPointCount = progress.length + (predictionEnabled ? predictions.length : 0)
-  const maxChartWidth = Math.max(720, chartPointCount * 70)
-
-  useEffect(() => {
-    setChartWidth(maxChartWidth)
-  }, [maxChartWidth])
+  const chartDates = [
+    ...progress.map((point) => point.date),
+    ...(predictionEnabled ? predictions.map((point) => point.date) : []),
+  ].filter(Boolean)
+  const chartStartTimestamp = chartTimestamp(chartDates[0])
+  const chartEndTimestamp = chartTimestamp(chartDates[chartDates.length - 1])
+  const chartSpanDays = Math.max(1, (chartEndTimestamp - chartStartTimestamp) / millisecondsPerDay)
+  const chartWidth = graphScrollable ? Math.max(720, chartSpanDays * 10 + 60) : 720
+  const chartPlotWidth = chartWidth - 60
+  const chartXForDate = (date) => {
+    const timestamp = chartTimestamp(date)
+    const elapsedDays = (timestamp - chartStartTimestamp) / millisecondsPerDay
+    return 30 + (elapsedDays / chartSpanDays) * chartPlotWidth
+  }
 
   const chartMaxValue = useMemo(
     () => Math.max(
@@ -171,39 +188,27 @@ function ProgressPage() {
   const chartPoints = useMemo(() => {
     if (!progress.length) return ''
 
-    const height = 220
-    const leftPad = 30
-    const rightPad = 30
-    const plotWidth = chartWidth - leftPad - rightPad
-    const totalPoints = Math.max(progress.length + (predictionEnabled ? predictions.length : 0), 2)
-
     return progress
-      .map((point, index) => {
-        const x = leftPad + (index / Math.max(totalPoints - 1, 1)) * plotWidth
+      .map((point) => {
+        const x = chartXForDate(point.date)
         const normalized = Number(point.volume) / chartMaxValue
         const y = 180 - normalized * 160
         return `${x},${y}`
       })
       .join(' ')
-  }, [chartMaxValue, chartWidth, predictionEnabled, predictions, progress])
+  }, [chartMaxValue, chartSpanDays, chartStartTimestamp, chartWidth, chartXForDate, predictionEnabled, predictions, progress])
 
   // Compute chart points for predicted future values
   const predictedPoints = useMemo(() => {
     if (!predictionEnabled || !predictions.length || !progress.length) return ''
 
-    const height = 220
-    const leftPad = 30
-    const rightPad = 30
-    const plotWidth = chartWidth - leftPad - rightPad
-    const totalPoints = Math.max(progress.length + predictions.length, 2)
-    const lastActualIndex = progress.length - 1
-    const lastActualX = leftPad + (lastActualIndex / Math.max(totalPoints - 1, 1)) * plotWidth
+    const lastActualX = chartXForDate(progress[progress.length - 1].date)
     const lastActualValue = Number(progress[lastActualIndex].volume || 0)
     const lastActualY = 180 - (lastActualValue / chartMaxValue) * 160
 
     const forecastPoints = predictions
-      .map((point, index) => {
-        const x = leftPad + ((progress.length + index) / Math.max(totalPoints - 1, 1)) * plotWidth
+      .map((point) => {
+        const x = chartXForDate(point.date)
         const normalized = Number(point.value) / chartMaxValue
         const y = 180 - normalized * 160
         return `${x},${y}`
@@ -211,25 +216,22 @@ function ProgressPage() {
       .join(' ')
 
     return `${lastActualX},${lastActualY} ${forecastPoints}`
-  }, [chartMaxValue, chartWidth, predictionEnabled, predictions, progress])
+  }, [chartMaxValue, chartSpanDays, chartStartTimestamp, chartWidth, chartXForDate, predictionEnabled, predictions, progress])
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
   const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
-  const totalChartPoints = Math.max(chartPointCount, 2)
-  const chartPlotWidth = chartWidth - 60
-  const chartX = (index) => 30 + (index / Math.max(totalChartPoints - 1, 1)) * chartPlotWidth
   const chartY = (value) => 180 - (Number(value || 0) / chartMaxValue) * 160
   const lastActualPoint = progress.length > 0
-    ? { x: chartX(progress.length - 1), y: chartY(progress[progress.length - 1].volume) }
+    ? { x: chartXForDate(progress[progress.length - 1].date), y: chartY(progress[progress.length - 1].volume) }
     : null
   const firstPredictionPoint = predictions.length > 0
-    ? { x: chartX(progress.length), y: chartY(predictions[0].value) }
+    ? { x: chartXForDate(predictions[0].date), y: chartY(predictions[0].value) }
     : null
   const chartDateLabels = [
-    { index: 0, date: progress[0]?.date },
-    ...(progress.length > 1 ? [{ index: progress.length - 1, date: progress[progress.length - 1]?.date }] : []),
-    ...(predictions.length > 0 ? [{ index: progress.length + predictions.length - 1, date: predictions[predictions.length - 1]?.date }] : []),
+    { date: progress[0]?.date },
+    ...(progress.length > 1 ? [{ date: progress[progress.length - 1]?.date }] : []),
+    ...(predictions.length > 0 ? [{ date: predictions[predictions.length - 1]?.date }] : []),
   ]
 
   return (
@@ -278,7 +280,7 @@ function ProgressPage() {
                 <line x1="30" y1="20" x2="30" y2="180" className="chart-axis" />
 
                 {chartDateLabels.map((label) => (
-                  <text key={`${label.index}-${label.date}`} x={chartX(label.index)} y="205" textAnchor="middle" className="chart-axis-label">
+                  <text key={label.date} x={chartXForDate(label.date)} y="205" textAnchor="middle" className="chart-axis-label">
                     {formatChartDate(label.date)}
                   </text>
                 ))}
@@ -308,21 +310,6 @@ function ProgressPage() {
                 )}
                 </svg>
               </div>
-              {maxChartWidth > 720 && (
-                <label className="chart-width-control">
-                  <span>Chart width</span>
-                  <input
-                    type="range"
-                    min="720"
-                    max={maxChartWidth}
-                    step="10"
-                    value={chartWidth}
-                    onChange={(event) => setChartWidth(Number(event.target.value))}
-                    aria-label="Adjust chart width"
-                  />
-                  <span>{chartWidth >= maxChartWidth ? 'Expanded' : 'Compressed'}</span>
-                </label>
-              )}
               <div className="chart-footer">
                 <div className="chart-legend" aria-label="Chart legend">
                   <span className="legend-item">
