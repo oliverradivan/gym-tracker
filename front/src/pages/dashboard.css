@@ -426,8 +426,8 @@
 
 
 dashboard-image {
-  width: 100%;
-  max-width: 600px;
+  width: 10%;
+  max-width: 60px;
   height: auto;
   display: block;
   margin: 20px auto;
