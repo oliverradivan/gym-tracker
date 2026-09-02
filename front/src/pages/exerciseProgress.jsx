@@ -40,7 +40,10 @@ function ExerciseProgressPage() {
   })
   const [graphScrollable] = useState(() => {
     try {
-      return localStorage.getItem(GRAPH_SCROLL_SETTING_KEY) === 'true'
+      const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
+      return savedPreference === null
+        ? window.matchMedia('(max-width: 640px)').matches
+        : savedPreference === 'true'
     } catch {
       return false
     }
