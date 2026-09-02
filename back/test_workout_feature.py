@@ -1,6 +1,6 @@
 import pytest
 
-from main import build_progress_series, build_session_summary, normalize_exercise_name
+from main import build_forecast, build_progress_series, build_session_summary, normalize_exercise_name
 
 
 def test_normalize_exercise_name_trims_and_cleans():
@@ -47,3 +47,18 @@ def test_build_session_summary_groups_by_date_and_sums_volume():
             {"log_id": "b1", "exercise_id": "ex-2", "exercise_name": "Squat", "weight": 70, "reps": 10, "volume": 700},
         ]},
     ]
+
+
+def test_build_forecast_projects_a_simple_trend():
+    points = [
+        {"date": "2026-01-01", "volume": 100},
+        {"date": "2026-01-02", "volume": 130},
+        {"date": "2026-01-03", "volume": 160},
+    ]
+
+    result = build_forecast(points, periods=2)
+
+    assert len(result) == 2
+    assert result[0]["date"] == "2026-01-04"
+    assert result[0]["value"] > 0
+    assert result[1]["date"] == "2026-01-05"

@@ -63,6 +63,11 @@ function SettingsPage() {
       return
     }
 
+    if (!session?.access_token) {
+      setError('Your session has expired. Please log in again.')
+      return
+    }
+
     setUsernameLoading(true)
     setError('')
     setMessage('')
@@ -77,10 +82,18 @@ function SettingsPage() {
         body: JSON.stringify({ username: newUsername }),
       })
 
-      const result = await response.json()
+      const rawText = await response.text()
+      let result = {}
+      if (rawText) {
+        try {
+          result = JSON.parse(rawText)
+        } catch {
+          result = { detail: rawText }
+        }
+      }
 
       if (!response.ok) {
-        throw new Error(result.detail || 'Failed to update username')
+        throw new Error(result.detail || result.message || 'Failed to update username')
       }
 
       setMessage('Username updated successfully')
@@ -97,6 +110,11 @@ function SettingsPage() {
     e.preventDefault()
     setError('')
     setMessage('')
+
+    if (!session?.access_token) {
+      setError('Your session has expired. Please log in again.')
+      return
+    }
 
     if (!currentPassword || !newPassword || !confirmPassword) {
       setError('All fields are required')
@@ -128,10 +146,18 @@ function SettingsPage() {
         }),
       })
 
-      const result = await response.json()
+      const rawText = await response.text()
+      let result = {}
+      if (rawText) {
+        try {
+          result = JSON.parse(rawText)
+        } catch {
+          result = { detail: rawText }
+        }
+      }
 
       if (!response.ok) {
-        throw new Error(result.detail || 'Failed to update password')
+        throw new Error(result.detail || result.message || 'Failed to update password')
       }
 
       setMessage('Password updated successfully')
@@ -150,6 +176,11 @@ function SettingsPage() {
     setError('')
     setMessage('')
 
+    if (!session?.access_token) {
+      setError('Your session has expired. Please log in again.')
+      return
+    }
+
     if (deleteConfirm !== 'DELETE') {
       setError('Please type "DELETE" to confirm')
       return
@@ -167,9 +198,18 @@ function SettingsPage() {
         body: JSON.stringify({ password: deletePassword }),
       })
 
+      const rawText = await response.text()
+      let result = {}
+      if (rawText) {
+        try {
+          result = JSON.parse(rawText)
+        } catch {
+          result = { detail: rawText }
+        }
+      }
+
       if (!response.ok) {
-        const result = await response.json()
-        throw new Error(result.detail || 'Failed to delete account')
+        throw new Error(result.detail || result.message || 'Failed to delete account')
       }
 
       setMessage('Account deleted. Logging out...')

@@ -12,8 +12,6 @@ from fastapi import APIRouter, FastAPI, Body, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from postgrest.exceptions import APIError
 from pydantic import BaseModel
-from prophet import Prophet
-import pandas as pd
 from supabase import Client, create_client
 from supabase_auth.errors import AuthApiError
 
@@ -24,9 +22,11 @@ class PredictionsPayload(BaseModel):
 
 load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-# Always use SERVICE_ROLE_KEY (or the new sb_secret_ key) on backend to bypass RLS policies safely
-SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+def get_supabase_config() -> tuple[str | None, str | None]:
+    return os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+
+
+SUPABASE_URL, SUPABASE_KEY = get_supabase_config()
 
 app = FastAPI(title="Workout Tracker API")
 router = APIRouter(prefix="/api")
@@ -52,8 +52,9 @@ if os.getenv("APP_ENV") == "local":
 # header with that user's low-privilege token on every later call - causing
 # RLS to kick in on a client you thought was admin/service-role.
 supabase: Optional[Client] = None
-if SUPABASE_URL and SUPABASE_KEY:
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+_supabase_url, _supabase_key = get_supabase_config()
+if _supabase_url and _supabase_key:
+    supabase = create_client(_supabase_url, _supabase_key)
 
 RATE_LIMIT_BUCKETS: dict[str, list[float]] = {}
 
@@ -93,10 +94,11 @@ def get_auth_client() -> Client:
     contaminated by a user's JWT - which is what was causing the RLS
     violation on profile inserts.
     """
-    if not SUPABASE_URL or not SUPABASE_KEY:
+    supabase_url, supabase_key = get_supabase_config()
+    if not supabase_url or not supabase_key:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
 
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
+    return create_client(supabase_url, supabase_key)
 
 
 def normalize_username(raw_username: str) -> str:
@@ -262,6 +264,34 @@ def build_session_summary(rows):
         })
 
     return result
+
+
+def build_forecast(points: list[dict], periods: int = 7) -> list[dict]:
+    if not points:
+        return []
+
+    sorted_points = sorted(points, key=lambda item: str(item.get("date", "")))
+    values = [float(point.get("volume", 0) or 0) for point in sorted_points]
+    if len(values) < 2:
+        return []
+
+    slope = (values[-1] - values[0]) / max(len(values) - 1, 1)
+    start_date = datetime.strptime(str(sorted_points[-1].get("date")), "%Y-%m-%d")
+    forecast = []
+
+    for offset in range(1, max(1, periods) + 1):
+        projected = values[-1] + (slope * offset)
+        next_date = start_date + timedelta(days=offset)
+        forecast.append(
+            {
+                "date": next_date.strftime("%Y-%m-%d"),
+                "value": round(projected, 2),
+                "lower": round(max(projected * 0.9, 0), 2),
+                "upper": round(projected * 1.1, 2),
+            }
+        )
+
+    return forecast
 
 
 def get_authenticated_user(authorization: str | None):
@@ -835,47 +865,7 @@ def create_predictions(
         )
 
     periods = max(1, payload.periods)
-
-    # Prepare data for Prophet
-    # Prophet needs a DataFrame with 'ds' (datetime) and 'y' (value) columns
-    df = pd.DataFrame(points_sorted)
-    df["ds"] = df["date"].apply(
-        lambda x: dateutil_parser.isoparse(str(x)) if isinstance(x, str) else x
-    )
-    df = df.rename(columns={"volume": "y"})[["ds", "y"]]
-
-    # Fit Prophet model
-    model = Prophet(
-        growth="linear",
-        yearly_seasonality="auto",
-        weekly_seasonality="auto",
-        daily_seasonality="auto",
-    )
-    model.add_country_holidays(country_name="US")  # Could make configurable later
-    model.fit(df)
-
-    # Make future predictions
-    future = model.make_future_dataframe(periods=periods, freq="D")
-    forecast = model.predict(future)
-
-    # Get only the future predicted points (not the historical fit)
-    # The forecast DataFrame has: ds, yhat, yhat_lower, yhat_upper
-    # We need only the periods after the historical data
-    historical_len = len(df)
-    forecast_future = forecast.iloc[historical_len : historical_len + periods]
-
-    # Format results
-    predictions = []
-    for _, row in forecast_future.iterrows():
-        predictions.append(
-            {
-                "date": row["ds"].strftime("%Y-%m-%d"),
-                "value": round(float(row["yhat"]), 2),
-                "lower": round(float(row["yhat_lower"]), 2),
-                "upper": round(float(row["yhat_upper"]), 2),
-            }
-        )
-
+    predictions = build_forecast(points, periods=periods)
     return {"predictions": predictions}
 
 
