@@ -198,6 +198,8 @@ function DashboardPage() {
           </div>
         </section>
       </main>
+      <h3>your reward</h3>
+      <img src="../public/G&O_1589.jpg" alt="us" className="dashboard-image" />
     </div>
   )
 }
