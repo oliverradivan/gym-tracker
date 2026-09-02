@@ -80,9 +80,13 @@
 
 .chart-scroll {
   width: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
   padding-bottom: 4px;
+}
+
+.chart-scroll.is-scrollable {
+  overflow-x: auto;
 }
 
 .chart-axis {

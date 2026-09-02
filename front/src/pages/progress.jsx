@@ -12,6 +12,10 @@ const formatDisplayDate = (date) => {
   const [year, month, day] = String(date || '').slice(0, 10).split('-')
   return year && month && day ? `${day}/${month}/${year}` : String(date || '')
 }
+const formatChartDate = (date) => {
+  const [year, month, day] = String(date || '').slice(0, 10).split('-')
+  return year && month && day ? `${day}/${month}` : String(date || '')
+}
 const formatChartValue = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })
 const chartTimestamp = (date) => Date.parse(`${date}T00:00:00Z`)
 const millisecondsPerDay = 24 * 60 * 60 * 1000
@@ -127,7 +131,8 @@ function ProgressPage() {
               date: point.date,
               volume: point.volume,
             })),
-            periods: 7,
+            periods: 5,
+            interval_days: 7,
           }),
         })
 
@@ -257,8 +262,8 @@ function ProgressPage() {
         ) : (
           <>
             <div className="chart-box">
-              <div className="chart-scroll">
-                <svg viewBox={`0 0 ${chartWidth} 220`} style={{ width: `${chartWidth}px` }} className="volume-chart" role="img" aria-label={`${selectedExercise.name} volume chart`}>
+              <div className={`chart-scroll ${graphScrollable ? 'is-scrollable' : 'is-compressed'}`}>
+                <svg viewBox={`0 0 ${chartWidth} 220`} style={{ width: graphScrollable ? `${chartWidth}px` : '100%' }} className="volume-chart" role="img" aria-label={`${selectedExercise.name} volume chart`}>
                 {[0, 0.5, 1].map((ratio) => {
                   const y = 180 - ratio * 160
                   return (
@@ -275,11 +280,14 @@ function ProgressPage() {
 
                 {chartDateLabels.map((label) => (
                   <text key={label.date} x={chartXForDate(label.date)} y="205" textAnchor="start" transform={`rotate(-45 ${chartXForDate(label.date)} 205)`} className="chart-axis-label">
-                    {formatDisplayDate(label.date)}
+                    {formatChartDate(label.date)}
                   </text>
                 ))}
 
                 <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />
+                {progress.map((point) => (
+                  <circle key={`actual-${point.date}`} cx={chartXForDate(point.date)} cy={chartY(point.volume)} r="4" fill={chartStroke} />
+                ))}
 
                 {/* Predicted future points - dashed line */}
                 {predictionEnabled && predictions.length > 0 && (
@@ -300,6 +308,9 @@ function ProgressPage() {
                       strokeDasharray="8, 6"
                       points={predictedPoints}
                     />
+                    {predictions.map((point) => (
+                      <circle key={`forecast-${point.date}`} cx={chartXForDate(point.date)} cy={chartY(point.value)} r="4" fill="#64748b" />
+                    ))}
                   </>
                 )}
                 </svg>

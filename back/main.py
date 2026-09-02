@@ -19,6 +19,7 @@ from supabase_auth.errors import AuthApiError
 class PredictionsPayload(BaseModel):
     points: list[dict[str, str | float | int]]
     periods: int = 7
+    interval_days: int = 1
 
 load_dotenv()
 
@@ -266,7 +267,7 @@ def build_session_summary(rows):
     return result
 
 
-def build_forecast(points: list[dict], periods: int = 7) -> list[dict]:
+def build_forecast(points: list[dict], periods: int = 7, interval_days: int = 1) -> list[dict]:
     if not points:
         return []
 
@@ -297,7 +298,7 @@ def build_forecast(points: list[dict], periods: int = 7) -> list[dict]:
 
     for offset in range(1, max(1, periods) + 1):
         projected = values[-1] + (slope * offset)
-        next_date = start_date + timedelta(days=offset)
+        next_date = start_date + timedelta(days=offset * max(1, interval_days))
         forecast.append(
             {
                 "date": next_date.strftime("%Y-%m-%d"),
@@ -881,7 +882,8 @@ def create_predictions(
         )
 
     periods = max(1, payload.periods)
-    predictions = build_forecast(points, periods=periods)
+    interval_days = max(1, payload.interval_days)
+    predictions = build_forecast(points, periods=periods, interval_days=interval_days)
     return {"predictions": predictions}
 
 

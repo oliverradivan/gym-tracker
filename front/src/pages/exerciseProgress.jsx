@@ -13,6 +13,10 @@ const formatDisplayDate = (date) => {
   const [year, month, day] = String(date || '').slice(0, 10).split('-')
   return year && month && day ? `${day}/${month}/${year}` : String(date || '')
 }
+const formatChartDate = (date) => {
+  const [year, month, day] = String(date || '').slice(0, 10).split('-')
+  return year && month && day ? `${day}/${month}` : String(date || '')
+}
 const formatChartValue = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })
 const chartTimestamp = (date) => Date.parse(`${date}T00:00:00Z`)
 
@@ -92,7 +96,11 @@ function ExerciseProgressPage() {
     let mounted = true
 
     const loadPredictions = async () => {
-      if (!predictionEnabled || progress.length < 2 || !session?.access_token) return
+      if (!predictionEnabled || progress.length < 2 || !session?.access_token) {
+        setPredictions([])
+        setPredictionError('')
+        return
+      }
 
       setIsPredicting(true)
       setPredictionError('')
@@ -105,7 +113,8 @@ function ExerciseProgressPage() {
           },
           body: JSON.stringify({
             points: progress.map((point) => ({ date: point.date, volume: point.volume })),
-            periods: 7,
+            periods: 5,
+            interval_days: 7,
           }),
         })
         const result = await response.json().catch(() => ({}))
@@ -143,7 +152,7 @@ function ExerciseProgressPage() {
     1,
   )
   const chartY = useCallback(
-    (value) => 180 - (Number(value || 0) / chartMaxValue) * 160,
+    (value) => 200 - (Number(value || 0) / chartMaxValue) * 160,
     [chartMaxValue],
   )
 
@@ -190,8 +199,8 @@ function ExerciseProgressPage() {
         ) : (
           <>
             <div className="chart-box">
-              <div className="chart-scroll">
-                <svg viewBox={`0 0 ${chartWidth} 240`} style={{ width: `${chartWidth}px` }} className="volume-chart" role="img" aria-label={`${exerciseName} volume chart`}>
+              <div className={`chart-scroll ${graphScrollable ? 'is-scrollable' : 'is-compressed'}`}>
+                <svg viewBox={`0 0 ${chartWidth} 240`} style={{ width: graphScrollable ? `${chartWidth}px` : '100%' }} className="volume-chart" role="img" aria-label={`${exerciseName} volume chart`}>
                   {[0, 0.5, 1].map((ratio) => {
                     const y = 200 - ratio * 160
                     return (
@@ -210,12 +219,15 @@ function ExerciseProgressPage() {
                     <g key={label.date}>
                       <line x1={chartXForDate(label.date)} y1="198" x2={chartXForDate(label.date)} y2="202" className="chart-tick" />
                       <text x={chartXForDate(label.date)} y="225" textAnchor="start" transform={`rotate(-45 ${chartXForDate(label.date)} 225)`} className="chart-axis-label">
-                        {formatDisplayDate(label.date)}
+                        {formatChartDate(label.date)}
                       </text>
                     </g>
                   ))}
 
                   {progress.length > 0 && <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />}
+                  {progress.map((point) => (
+                    <circle key={`actual-${point.date}`} cx={chartXForDate(point.date)} cy={chartY(point.volume)} r="4" fill={chartStroke} />
+                  ))}
                   {predictionEnabled && predictions.length > 0 && (
                     <>
                       <line
@@ -226,6 +238,9 @@ function ExerciseProgressPage() {
                         className="forecast-connector"
                       />
                       <polyline fill="none" stroke="#64748b" strokeWidth="3" strokeDasharray="8, 6" points={predictedPoints} />
+                      {predictions.map((point) => (
+                        <circle key={`forecast-${point.date}`} cx={chartXForDate(point.date)} cy={chartY(point.value)} r="4" fill="#64748b" />
+                      ))}
                     </>
                   )}
                 </svg>
