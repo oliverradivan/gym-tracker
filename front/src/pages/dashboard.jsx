@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import './dashboard.css'
+import reward from '../public/G&O_1589.jpg'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 
@@ -199,7 +200,7 @@ function DashboardPage() {
         </section>
       </main>
       <h3>your reward</h3>
-      <img src="G&O_1589.jpg" alt="us" className="dashboard-image" />
+      <img src={reward} alt="us" className="dashboard-image" />
     </div>
   )
 }
