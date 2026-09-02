@@ -423,3 +423,13 @@
 .dark-mode .today-session-item {
   border-color: rgba(238, 238, 238, 0.08);
 }
+
+
+dashboard-image {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  display: block;
+  margin: 20px auto;
+  border-radius: 12px;
+}
