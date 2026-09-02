@@ -5,6 +5,7 @@ import { getExerciseCategory } from '../utils/exerciseCategory'
 import './progress.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
+const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 
 function ProgressPage() {
   const { session } = useAuth()
@@ -15,6 +16,21 @@ function ProgressPage() {
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
   const [predictionError, setPredictionError] = useState('')
+  const [predictionEnabled, setPredictionEnabled] = useState(() => {
+    try {
+      return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
+    } catch {
+      return true
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PREDICTION_SETTING_KEY, String(predictionEnabled))
+    } catch {
+      // Ignore storage issues in restricted environments.
+    }
+  }, [predictionEnabled])
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -79,7 +95,7 @@ function ProgressPage() {
     let mounted = true
 
     const loadPredictions = async () => {
-      if (!selectedExerciseId || progress.length < 2) {
+      if (!predictionEnabled || !selectedExerciseId || progress.length < 2) {
         if (mounted) {
           setPredictions([])
           setPredictionError('')
@@ -108,7 +124,7 @@ function ProgressPage() {
         })
 
         if (!response.ok) {
-          const errorData = await response.json()
+          const errorData = await response.json().catch(() => ({}))
           throw new Error(errorData.detail || 'Failed to generate predictions.')
         }
 
@@ -130,24 +146,28 @@ function ProgressPage() {
 
     loadPredictions()
     return () => { mounted = false }
-  }, [selectedExerciseId, progress, session])
+  }, [predictionEnabled, selectedExerciseId, progress, session])
 
   const chartPoints = useMemo(() => {
     if (!progress.length) return ''
 
-    const width = 560
+    const width = 720
     const height = 220
+    const leftPad = 30
+    const rightPad = 30
+    const plotWidth = width - leftPad - rightPad
     const maxValue = Math.max(...progress.map((point) => Number(point.volume || 0)), 1)
+    const totalPoints = Math.max(progress.length + (predictionEnabled ? predictions.length : 0), 2)
 
     return progress
       .map((point, index) => {
-        const x = (index / Math.max(progress.length - 1, 1)) * (width - 30) + 15
+        const x = leftPad + (index / Math.max(totalPoints - 1, 1)) * plotWidth
         const normalized = Number(point.volume) / maxValue
         const y = height - 20 - normalized * (height - 40)
         return `${x},${y}`
       })
       .join(' ')
-  }, [progress])
+  }, [predictionEnabled, predictions, progress])
 
   const maxValue = useMemo(
     () => Math.max(
@@ -160,29 +180,24 @@ function ProgressPage() {
 
   // Compute chart points for predicted future values
   const predictedPoints = useMemo(() => {
-    if (!predictions.length || !progress.length) return ''
+    if (!predictionEnabled || !predictions.length || !progress.length) return ''
 
-    const width = 560
+    const width = 720
     const height = 220
+    const leftPad = 30
+    const rightPad = 30
+    const plotWidth = width - leftPad - rightPad
+    const totalPoints = Math.max(progress.length + predictions.length, 2)
 
-    // Start x position after the last actual data point
-    const lastActualIndex = progress.length - 1
-    const startX =
-      (lastActualIndex / Math.max(progress.length - 1, 1)) * (width - 30) + 15
-    const endX = width - 15 // margin on the right
-
-    // Spread predicted points evenly from end of actual data to right edge
     return predictions
       .map((point, index) => {
-        const x =
-          startX +
-          (index / Math.max(predictions.length - 1, 1)) * (endX - startX)
+        const x = leftPad + ((progress.length + index) / Math.max(totalPoints - 1, 1)) * plotWidth
         const normalized = Number(point.value) / maxValue
         const y = height - 20 - normalized * (height - 40)
         return `${x},${y}`
       })
       .join(' ')
-  }, [maxValue, predictions, progress])
+  }, [maxValue, predictionEnabled, predictions, progress])
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
@@ -217,14 +232,14 @@ function ProgressPage() {
         ) : (
           <>
             <div className="chart-box">
-              <svg viewBox="0 0 560 220" className="volume-chart" role="img" aria-label={`${selectedExercise.name} volume chart`}>
-                <line x1="15" y1="180" x2="545" y2="180" className="chart-axis" />
-                <line x1="15" y1="20" x2="15" y2="180" className="chart-axis" />
+              <svg viewBox="0 0 720 220" className="volume-chart" role="img" aria-label={`${selectedExercise.name} volume chart`}>
+                <line x1="30" y1="180" x2="690" y2="180" className="chart-axis" />
+                <line x1="30" y1="20" x2="30" y2="180" className="chart-axis" />
 
                 <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />
 
                 {/* Predicted future points - dashed line */}
-                {predictions.length > 0 && (
+                {predictionEnabled && predictions.length > 0 && (
                   <polyline
                     fill="none"
                     stroke="#64748b"
@@ -234,15 +249,20 @@ function ProgressPage() {
                   />
                 )}
 
-                {/* Predict toggle button */}
-                {predictions.length === 0 && !isPredicting && (
+                {predictionEnabled && predictions.length === 0 && !isPredicting && progress.length >= 2 && (
                   <button
-                    onClick={() => setIsPredicting(true)}
+                    onClick={() => setPredictionEnabled(true)}
                     className="predict-toggle"
                     disabled={progress.length < 2}
-                    title="Generate AI forecast for this exercise">
+                    title="Generate forecast for this exercise">
                     Predict
                   </button>
+                )}
+
+                {!predictionEnabled && (
+                  <text x="360" y="100" textAnchor="middle" className="chart-label">
+                    Predictions are disabled in settings
+                  </text>
                 )}
 
                 {predictionError && (

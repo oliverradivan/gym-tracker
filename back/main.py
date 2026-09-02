@@ -275,7 +275,23 @@ def build_forecast(points: list[dict], periods: int = 7) -> list[dict]:
     if len(values) < 2:
         return []
 
-    slope = (values[-1] - values[0]) / max(len(values) - 1, 1)
+    baseline_slope = (values[-1] - values[0]) / max(len(values) - 1, 1)
+
+    if len(values) >= 3:
+        recent_window = values[-3:]
+        recent_slope = (recent_window[-1] - recent_window[0]) / max(len(recent_window) - 1, 1)
+    else:
+        recent_slope = baseline_slope
+
+    # Smooth the trend and cap growth so a single large session does not create an
+    # unrealistic jump for the entire forecast window.
+    slope = (baseline_slope * 0.4) + (recent_slope * 0.6)
+    growth_cap = 0.08 * max(abs(values[-1]), 1.0)
+    if slope > 0:
+        slope = min(slope, growth_cap)
+    elif slope < 0:
+        slope = max(slope, -growth_cap)
+
     start_date = datetime.strptime(str(sorted_points[-1].get("date")), "%Y-%m-%d")
     forecast = []
 

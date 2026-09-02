@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useTheme } from '../context/themeContext'
-import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
 import './settings.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
+const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 
 const TABS = [
   { id: 'appearance', label: 'Appearance', icon: Palette },
+  { id: 'forecasting', label: 'Forecasting', icon: Sparkles },
   { id: 'account', label: 'Account', icon: User },
   { id: 'security', label: 'Security', icon: Lock },
   { id: 'danger', label: 'Danger Zone', icon: ShieldAlert, danger: true },
@@ -39,6 +41,21 @@ function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [predictionEnabled, setPredictionEnabled] = useState(() => {
+    try {
+      return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
+    } catch {
+      return true
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PREDICTION_SETTING_KEY, String(predictionEnabled))
+    } catch {
+      // Ignore storage issues in restricted environments.
+    }
+  }, [predictionEnabled])
 
   const currentUsername = user?.user_metadata?.username || 'User'
 
@@ -288,6 +305,35 @@ function SettingsPage() {
                   <label>Current Theme</label>
                 </div>
                 <p className="current-value">{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</p>
+              </div>
+            </section>
+          )}
+
+          {/* Forecasting Tab */}
+          {activeTab === 'forecasting' && (
+            <section className="settings-section">
+              <h3>Forecasting</h3>
+              <div className="setting-item">
+                <div className="setting-label">
+                  <label>Enable prediction overlays</label>
+                  <p className="setting-description">
+                    Show forecasted volume on the progress graph.
+                  </p>
+                </div>
+                <button
+                  className={`theme-toggle ${predictionEnabled ? 'dark' : ''}`}
+                  onClick={() => setPredictionEnabled((prev) => !prev)}
+                  aria-label="Toggle prediction overlays"
+                >
+                  <span className="toggle-track" />
+                  <span className="toggle-thumb" />
+                </button>
+              </div>
+              <div className="setting-item">
+                <div className="setting-label">
+                  <label>Current state</label>
+                </div>
+                <p className="current-value">{predictionEnabled ? 'Enabled' : 'Disabled'}</p>
               </div>
             </section>
           )}

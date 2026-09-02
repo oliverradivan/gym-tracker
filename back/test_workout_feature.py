@@ -62,3 +62,17 @@ def test_build_forecast_projects_a_simple_trend():
     assert result[0]["date"] == "2026-01-04"
     assert result[0]["value"] > 0
     assert result[1]["date"] == "2026-01-05"
+
+
+def test_build_forecast_avoids_overreacting_to_a_single_big_jump():
+    points = [
+        {"date": "2026-01-01", "volume": 100},
+        {"date": "2026-01-02", "volume": 100},
+        {"date": "2026-01-03", "volume": 100},
+        {"date": "2026-01-04", "volume": 160},
+    ]
+
+    result = build_forecast(points, periods=2)
+
+    assert result[0]["value"] <= 175
+    assert result[1]["value"] <= 190
