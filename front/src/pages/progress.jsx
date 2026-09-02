@@ -12,6 +12,9 @@ function ProgressPage() {
   const [selectedExerciseId, setSelectedExerciseId] = useState('')
   const [progress, setProgress] = useState([])
   const [loading, setLoading] = useState(true)
+  const [predictions, setPredictions] = useState([])
+  const [isPredicting, setIsPredicting] = useState(false)
+  const [predictionError, setPredictionError] = useState('')
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -71,6 +74,64 @@ function ProgressPage() {
     loadProgress()
   }, [selectedExerciseId, session])
 
+  // Load predictions when progress data changes (not on isPredicting changes)
+  useEffect(() => {
+    let mounted = true
+
+    const loadPredictions = async () => {
+      if (!selectedExerciseId || progress.length < 2) {
+        if (mounted) {
+          setPredictions([])
+          setPredictionError('')
+          setIsPredicting(false)
+        }
+        return
+      }
+
+      setIsPredicting(true)
+      setPredictionError('')
+
+      try {
+        const response = await fetch(`${API_URL}/predictions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({
+            points: progress.map((point) => ({
+              date: point.date,
+              volume: point.volume,
+            })),
+            periods: 7,
+          }),
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json()
+          throw new Error(errorData.detail || 'Failed to generate predictions.')
+        }
+
+        const result = await response.json()
+        if (mounted) {
+          setPredictions(result.predictions || [])
+        }
+      } catch (error) {
+        console.error(error)
+        if (mounted) {
+          setPredictionError(error.message || 'Failed to generate predictions.')
+        }
+      } finally {
+        if (mounted) {
+          setIsPredicting(false)
+        }
+      }
+    }
+
+    loadPredictions()
+    return () => { mounted = false }
+  }, [selectedExerciseId, progress, session])
+
   const chartPoints = useMemo(() => {
     if (!progress.length) return ''
 
@@ -87,6 +148,41 @@ function ProgressPage() {
       })
       .join(' ')
   }, [progress])
+
+  const maxValue = useMemo(
+    () => Math.max(
+      ...progress.map((point) => Number(point.volume || 0)),
+      ...predictions.map((point) => Number(point.value || 0)),
+      1,
+    ),
+    [progress, predictions],
+  )
+
+  // Compute chart points for predicted future values
+  const predictedPoints = useMemo(() => {
+    if (!predictions.length || !progress.length) return ''
+
+    const width = 560
+    const height = 220
+
+    // Start x position after the last actual data point
+    const lastActualIndex = progress.length - 1
+    const startX =
+      (lastActualIndex / Math.max(progress.length - 1, 1)) * (width - 30) + 15
+    const endX = width - 15 // margin on the right
+
+    // Spread predicted points evenly from end of actual data to right edge
+    return predictions
+      .map((point, index) => {
+        const x =
+          startX +
+          (index / Math.max(predictions.length - 1, 1)) * (endX - startX)
+        const normalized = Number(point.value) / maxValue
+        const y = height - 20 - normalized * (height - 40)
+        return `${x},${y}`
+      })
+      .join(' ')
+  }, [maxValue, predictions, progress])
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
@@ -126,6 +222,34 @@ function ProgressPage() {
                 <line x1="15" y1="20" x2="15" y2="180" className="chart-axis" />
 
                 <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />
+
+                {/* Predicted future points - dashed line */}
+                {predictions.length > 0 && (
+                  <polyline
+                    fill="none"
+                    stroke="#64748b"
+                    strokeWidth="2"
+                    strokeDasharray="5, 3"
+                    points={predictedPoints}
+                  />
+                )}
+
+                {/* Predict toggle button */}
+                {predictions.length === 0 && !isPredicting && (
+                  <button
+                    onClick={() => setIsPredicting(true)}
+                    className="predict-toggle"
+                    disabled={progress.length < 2}
+                    title="Generate AI forecast for this exercise">
+                    Predict
+                  </button>
+                )}
+
+                {predictionError && (
+                  <p className="status-message error-message">
+                    {predictionError}
+                  </p>
+                )}
               </svg>
             </div>
 

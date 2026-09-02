@@ -1,15 +1,26 @@
 import os
 import re
 import time
-from typing import Optional
+from typing import Optional, List
+
+from datetime import datetime, timedelta
+
+from dateutil import parser as dateutil_parser
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, FastAPI, Header, HTTPException, Request
+from fastapi import APIRouter, FastAPI, Body, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from postgrest.exceptions import APIError
 from pydantic import BaseModel
+from prophet import Prophet
+import pandas as pd
 from supabase import Client, create_client
 from supabase_auth.errors import AuthApiError
+
+
+class PredictionsPayload(BaseModel):
+    points: list[dict[str, str | float | int]]
+    periods: int = 7
 
 load_dotenv()
 
@@ -801,6 +812,68 @@ def get_workout_progress(
         raise HTTPException(status_code=400, detail=f"Failed to load workout progress: {exc.message}") from exc
 
     return {"progress": build_progress_series(result.data or [])}
+
+
+@router.post("/predictions")
+def create_predictions(
+    payload: PredictionsPayload,
+    authorization: str | None = Header(default=None),
+):
+    if supabase is None:
+        raise HTTPException(status_code=500, detail="Supabase is not configured.")
+
+    user = get_authenticated_user(authorization)
+
+    points: list[dict] = payload.points
+    if not points or len(points) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="Not enough data points for forecasting. Minimum 2 data points required.",
+        )
+
+    periods = max(1, payload.periods)
+
+    # Prepare data for Prophet
+    # Prophet needs a DataFrame with 'ds' (datetime) and 'y' (value) columns
+    df = pd.DataFrame(points_sorted)
+    df["ds"] = df["date"].apply(
+        lambda x: dateutil_parser.isoparse(str(x)) if isinstance(x, str) else x
+    )
+    df = df.rename(columns={"volume": "y"})[["ds", "y"]]
+
+    # Fit Prophet model
+    model = Prophet(
+        growth="linear",
+        yearly_seasonality="auto",
+        weekly_seasonality="auto",
+        daily_seasonality="auto",
+    )
+    model.add_country_holidays(country_name="US")  # Could make configurable later
+    model.fit(df)
+
+    # Make future predictions
+    future = model.make_future_dataframe(periods=periods, freq="D")
+    forecast = model.predict(future)
+
+    # Get only the future predicted points (not the historical fit)
+    # The forecast DataFrame has: ds, yhat, yhat_lower, yhat_upper
+    # We need only the periods after the historical data
+    historical_len = len(df)
+    forecast_future = forecast.iloc[historical_len : historical_len + periods]
+
+    # Format results
+    predictions = []
+    for _, row in forecast_future.iterrows():
+        predictions.append(
+            {
+                "date": row["ds"].strftime("%Y-%m-%d"),
+                "value": round(float(row["yhat"]), 2),
+                "lower": round(float(row["yhat_lower"]), 2),
+                "upper": round(float(row["yhat_upper"]), 2),
+            }
+        )
+
+    return {"predictions": predictions}
 
 
 app.include_router(router)

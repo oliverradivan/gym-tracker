@@ -143,8 +143,42 @@
   border: 1px solid rgba(17, 17, 17, 0.08);
 }
 
+.predict-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 17, 17, 0.14);
+  background: rgba(17, 17, 17, 0.03);
+  color: #111111;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 8px;
+}
+
+.predict-toggle:hover:not(:disabled) {
+  background: rgba(17, 17, 17, 0.08);
+}
+
+.predict-toggle:active:not(:disabled) {
+  background: rgba(17, 17, 17, 0.12);
+}
+
+.predict-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .status-message {
   color: #4d4d4f;
+}
+
+.error-message {
+  color: #dc2626;
+  margin-top: 8px;
+  font-size: 0.875rem;
 }
 
 @keyframes floatIn {
