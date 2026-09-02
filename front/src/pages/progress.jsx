@@ -203,7 +203,7 @@ function ProgressPage() {
     if (!predictionEnabled || !predictions.length || !progress.length) return ''
 
     const lastActualX = chartXForDate(progress[progress.length - 1].date)
-    const lastActualValue = Number(progress[lastActualIndex].volume || 0)
+      const lastActualValue = Number(progress[progress.length - 1].volume || 0)
     const lastActualY = 180 - (lastActualValue / chartMaxValue) * 160
 
     const forecastPoints = predictions
