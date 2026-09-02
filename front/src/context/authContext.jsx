@@ -1,13 +1,37 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, useContext, useMemo, useState, useEffect } from 'react'
 
 const AuthContext = createContext(null)
 const API_URL = import.meta.env.VITE_API_URL || '/api'
+const AUTH_STORAGE_KEY = 'workout-tracker-auth'
 
 export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
-  const [user, setUser] = useState(null)
-  const [session, setSession] = useState(null)
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem(AUTH_STORAGE_KEY)
+      return saved ? JSON.parse(saved).user || null : null
+    } catch {
+      return null
+    }
+  })
+  const [session, setSession] = useState(() => {
+    try {
+      const saved = localStorage.getItem(AUTH_STORAGE_KEY)
+      return saved ? JSON.parse(saved).session || null : null
+    } catch {
+      return null
+    }
+  })
+
+  useEffect(() => {
+    if (user || session) {
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ user, session }))
+      return
+    }
+
+    localStorage.removeItem(AUTH_STORAGE_KEY)
+  }, [user, session])
 
   const handleAuth = async (form) => {
     setLoading(true)
@@ -62,6 +86,7 @@ export function AuthProvider({ children }) {
   const handleLogout = () => {
     setUser(null)
     setSession(null)
+    localStorage.removeItem(AUTH_STORAGE_KEY)
     setMessage('')
   }
 
