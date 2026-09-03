@@ -115,6 +115,7 @@ function ExerciseProgressPage() {
             Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
+            exercise_id: exerciseId,
             points: progress.map((point) => ({ date: point.date, volume: point.volume })),
             periods: 5,
             interval_days: 7,

@@ -85,6 +85,39 @@
   font: inherit;
 }
 
+.metric-toggle {
+  display: inline-flex;
+  margin-bottom: 12px;
+  border: 1px solid rgba(17, 17, 17, 0.14);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.metric-toggle button {
+  border: 0;
+  border-right: 1px solid rgba(17, 17, 17, 0.1);
+  background: transparent;
+  color: #4d4d4f;
+  padding: 9px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.metric-toggle button:last-child {
+  border-right: 0;
+}
+
+.metric-toggle button:hover {
+  background: rgba(17, 17, 17, 0.06);
+}
+
+.metric-toggle button.active {
+  background: #111111;
+  color: #ffffff;
+}
+
 .chart-box {
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(17, 17, 17, 0.08);
@@ -166,6 +199,13 @@
   fill: #5f5f61;
   font-family: system-ui, -apple-system, sans-serif;
   font-size: 9px;
+}
+
+.chart-axis-title {
+  fill: #5f5f61;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 9px;
+  font-weight: 600;
 }
 
 .chart-label {

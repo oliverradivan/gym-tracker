@@ -7,6 +7,11 @@ import './progress.css'
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
+const METRICS = {
+  volume: { label: 'Volume', axisLabel: 'Volume' },
+  weight: { label: 'Weight', axisLabel: 'Weight (kg)' },
+  reps: { label: 'Reps', axisLabel: 'Reps' },
+}
 
 const formatDisplayDate = (date) => {
   const [year, month, day] = String(date || '').slice(0, 10).split('-')
@@ -25,6 +30,7 @@ function ProgressPage() {
   const [exercises, setExercises] = useState([])
   const [selectedExerciseId, setSelectedExerciseId] = useState('')
   const [progress, setProgress] = useState([])
+  const [selectedMetric, setSelectedMetric] = useState('volume')
   const [loading, setLoading] = useState(true)
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
@@ -130,6 +136,7 @@ function ProgressPage() {
             Authorization: `Bearer ${session?.access_token}`,
           },
           body: JSON.stringify({
+            exercise_id: selectedExerciseId,
             points: progress.map((point) => ({
               date: point.date,
               volume: point.volume,
@@ -164,9 +171,11 @@ function ProgressPage() {
     return () => { mounted = false }
   }, [predictionEnabled, selectedExerciseId, progress, session])
 
+  const metric = METRICS[selectedMetric]
+  const showForecast = selectedMetric === 'volume' && predictionEnabled
   const chartDates = [
     ...progress.map((point) => point.date),
-    ...(predictionEnabled ? predictions.map((point) => point.date) : []),
+    ...(showForecast ? predictions.map((point) => point.date) : []),
   ].filter(Boolean)
   const chartStartTimestamp = chartTimestamp(chartDates[0])
   const chartEndTimestamp = chartTimestamp(chartDates[chartDates.length - 1])
@@ -181,11 +190,11 @@ function ProgressPage() {
 
   const chartMaxValue = useMemo(
     () => Math.max(
-      ...progress.map((point) => Number(point.volume || 0)),
-      ...predictions.map((point) => Number(point.value || 0)),
+      ...progress.map((point) => Number(point[selectedMetric] || 0)),
+      ...(showForecast ? predictions.map((point) => Number(point.value || 0)) : []),
       1,
     ),
-    [progress, predictions],
+    [progress, predictions, selectedMetric, showForecast],
   )
 
   const chartPoints = useMemo(() => {
@@ -194,19 +203,19 @@ function ProgressPage() {
     return progress
       .map((point) => {
         const x = chartXForDate(point.date)
-        const normalized = Number(point.volume) / chartMaxValue
+        const normalized = Number(point[selectedMetric]) / chartMaxValue
         const y = 180 - normalized * 160
         return `${x},${y}`
       })
       .join(' ')
-  }, [chartMaxValue, chartXForDate, progress])
+  }, [chartMaxValue, chartXForDate, progress, selectedMetric])
 
   // Compute chart points for predicted future values
   const predictedPoints = useMemo(() => {
-    if (!predictionEnabled || !predictions.length || !progress.length) return ''
+    if (!showForecast || !predictions.length || !progress.length) return ''
 
     const lastActualX = chartXForDate(progress[progress.length - 1].date)
-      const lastActualValue = Number(progress[progress.length - 1].volume || 0)
+      const lastActualValue = Number(progress[progress.length - 1][selectedMetric] || 0)
     const lastActualY = 180 - (lastActualValue / chartMaxValue) * 160
 
     const forecastPoints = predictions
@@ -219,21 +228,21 @@ function ProgressPage() {
       .join(' ')
 
     return `${lastActualX},${lastActualY} ${forecastPoints}`
-  }, [chartMaxValue, chartXForDate, predictionEnabled, predictions, progress])
+  }, [chartMaxValue, chartXForDate, predictions, progress, selectedMetric, showForecast])
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
   const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
   const chartY = (value) => 180 - (Number(value || 0) / chartMaxValue) * 160
   const lastActualPoint = progress.length > 0
-    ? { x: chartXForDate(progress[progress.length - 1].date), y: chartY(progress[progress.length - 1].volume) }
+    ? { x: chartXForDate(progress[progress.length - 1].date), y: chartY(progress[progress.length - 1][selectedMetric]) }
     : null
   const firstPredictionPoint = predictions.length > 0
     ? { x: chartXForDate(predictions[0].date), y: chartY(predictions[0].value) }
     : null
   const chartDateLabels = [
     ...progress.map((point) => ({ date: point.date })),
-    ...(predictionEnabled ? predictions.map((point) => ({ date: point.date })) : []),
+    ...(showForecast ? predictions.map((point) => ({ date: point.date })) : []),
   ]
 
   return (
@@ -264,9 +273,25 @@ function ProgressPage() {
           <p className="status-message">No progress data yet for {selectedExercise.name}.</p>
         ) : (
           <>
+            <div className="metric-toggle" role="group" aria-label="Chart metric">
+              {Object.entries(METRICS).map(([value, details]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={selectedMetric === value ? 'active' : ''}
+                  aria-pressed={selectedMetric === value}
+                  onClick={() => setSelectedMetric(value)}
+                >
+                  {details.label}
+                </button>
+              ))}
+            </div>
             <div className="chart-box">
               <div className={`chart-scroll ${graphScrollable ? 'is-scrollable' : 'is-compressed'}`}>
-                <svg viewBox={`0 0 ${chartWidth} 220`} style={{ width: graphScrollable ? `${chartWidth}px` : '100%' }} className="volume-chart" role="img" aria-label={`${selectedExercise.name} volume chart`}>
+                <svg viewBox={`0 0 ${chartWidth} 220`} style={{ width: graphScrollable ? `${chartWidth}px` : '100%' }} className="volume-chart" role="img" aria-label={`${selectedExercise.name} ${metric.label.toLowerCase()} chart`}>
+                <text x="10" y="100" textAnchor="middle" transform="rotate(-90 10 100)" className="chart-axis-title">
+                  {metric.axisLabel}
+                </text>
                 {[0, 0.5, 1].map((ratio) => {
                   const y = 180 - ratio * 160
                   return (
@@ -289,11 +314,11 @@ function ProgressPage() {
 
                 <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />
                 {progress.map((point) => (
-                  <circle key={`actual-${point.date}`} cx={chartXForDate(point.date)} cy={chartY(point.volume)} r="4" fill={chartStroke} />
+                  <circle key={`actual-${point.date}`} cx={chartXForDate(point.date)} cy={chartY(point[selectedMetric])} r="4" fill={chartStroke} />
                 ))}
 
                 {/* Predicted future points - dashed line */}
-                {predictionEnabled && predictions.length > 0 && (
+                {showForecast && predictions.length > 0 && (
                   <>
                     {lastActualPoint && firstPredictionPoint && (
                       <line
@@ -332,9 +357,9 @@ function ProgressPage() {
                 <div className="chart-legend" aria-label="Chart legend">
                   <span className="legend-item">
                     <span className="legend-line actual-line" />
-                    Actual volume
+                    Actual {metric.label.toLowerCase()}
                   </span>
-                  {predictionEnabled && predictions.length > 0 && (
+                  {showForecast && predictions.length > 0 && (
                     <span className="legend-item">
                       <span className="legend-line forecast-line" />
                       Forecast

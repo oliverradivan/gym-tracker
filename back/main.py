@@ -20,6 +20,68 @@ class PredictionsPayload(BaseModel):
     points: list[dict[str, str | float | int]]
     periods: int = 7
     interval_days: int = 1
+    exercise_id: str | None = None
+    category: str | None = None
+
+
+COMPOUND_NOVICE_K = 0.45
+ISOLATION_NOVICE_K = 0.45
+COMPOUND_EXPERIENCED_K = 0.12
+ISOLATION_EXPERIENCED_K = 0.20
+MIN_CONFIDENCE_BAND = 0.10
+MAX_CONFIDENCE_BAND = 0.30
+CONFIDENCE_BAND_FULL_CONFIDENCE_POINTS = 20
+CONFIDENCE_BAND_WIDENING_PER_OFFSET = 0.01
+NOVICE_WINDOW_SESSIONS = 8
+NOVICE_TRANSITION_SESSIONS = 4
+LINEAR_FORECAST_SLOPE_SCALE = 1.0
+EXERCISE_MOVEMENT_CATEGORIES = {
+    "bench press": "compound",
+    "smith bench press": "compound",
+    "machine bench press": "compound",
+    "machine push press": "compound",
+    "dumbbell bench press": "compound",
+    "dumbbell shoulder press": "compound",
+    "machine shoulder press": "compound",
+    "cable machine shoulder press": "compound",
+    "pull ups": "compound",
+    "assisted pull ups": "compound",
+    "lat pull down (wide)": "compound",
+    "lat pull down (narrow)": "compound",
+    "cable row (narrow)": "compound",
+    "cable row (wide)": "compound",
+    "machine row": "compound",
+    "shrugs": "compound",
+    "leg press": "compound",
+    "reverse leg press": "compound",
+    "cable tricep pulldowns": "isolation",
+    "delt cable flys": "isolation",
+    "delt machine flys": "isolation",
+    "bicep curls": "isolation",
+    "machine bicep curls": "isolation",
+    "rear delts": "isolation",
+    "leg extensions": "isolation",
+    "bed hamstring curl": "isolation",
+    "manchester hamstring curl": "isolation",
+    "inside leg": "isolation",
+    "outside leg": "isolation",
+    "sitting calf raises": "isolation",
+    "crunch machine": "isolation",
+    "crunches": "isolation",
+}
+
+
+def get_confidence_band_pct(history_points: int, forecast_offset: int = 1) -> float:
+    history_ratio = min(
+        max(history_points - 2, 0)
+        / max(CONFIDENCE_BAND_FULL_CONFIDENCE_POINTS - 2, 1),
+        1.0,
+    )
+    history_band = MAX_CONFIDENCE_BAND - (
+        (MAX_CONFIDENCE_BAND - MIN_CONFIDENCE_BAND) * history_ratio
+    )
+    forecast_widening = max(forecast_offset - 1, 0) * CONFIDENCE_BAND_WIDENING_PER_OFFSET
+    return min(MAX_CONFIDENCE_BAND, history_band + forecast_widening)
 
 load_dotenv()
 
@@ -268,7 +330,12 @@ def build_session_summary(rows):
 
 
 # Fit the full history, then use exponential gains; k flattens sooner as data volume grows.
-def build_forecast(points: list[dict], periods: int = 7, interval_days: int = 1) -> list[dict]:
+def build_forecast(
+    points: list[dict],
+    periods: int = 7,
+    interval_days: int = 1,
+    category: str = "compound",
+) -> list[dict]:
     if not points:
         return []
 
@@ -283,16 +350,36 @@ def build_forecast(points: list[dict], periods: int = 7, interval_days: int = 1)
     # as more history makes the athlete's progression look more established.
     max_gain_scale = 0.5
     FALLBACK_GROWTH_RATE = 0.05
-    novice_k = 0.45
-    experienced_k = 0.12
+    novice_k = (
+        ISOLATION_NOVICE_K
+        if category == "isolation"
+        else COMPOUND_NOVICE_K
+    )
+    experienced_k = (
+        ISOLATION_EXPERIENCED_K
+        if category == "isolation"
+        else COMPOUND_EXPERIENCED_K
+    )
     history_for_experienced_k = 30
 
-    x_mean = (len(values) - 1) / 2
-    y_mean = sum(values) / len(values)
-    denominator = sum((index - x_mean) ** 2 for index in range(len(values)))
+    RECENT_DATA_DECAY_RATE = 0.9
+    # Higher decay rates keep weighting more even; lower rates surface genuine
+    # shifts like injury recovery or a program change faster without letting a
+    # single bad session dominate like the old "last 3 points" approach.
+    weights = [
+        RECENT_DATA_DECAY_RATE ** (len(values) - 1 - index)
+        for index in range(len(values))
+    ]
+    weight_sum = sum(weights)
+    x_mean = sum(weight * index for index, weight in enumerate(weights)) / weight_sum
+    y_mean = sum(weight * value for weight, value in zip(weights, values)) / weight_sum
+    denominator = sum(
+        weight * (index - x_mean) ** 2
+        for index, weight in enumerate(weights)
+    )
     regression_slope = sum(
-        (index - x_mean) * (value - y_mean)
-        for index, value in enumerate(values)
+        weight * (index - x_mean) * (value - y_mean)
+        for index, (weight, value) in enumerate(zip(weights, values))
     ) / denominator
     if regression_slope <= 0:
         # When regression_slope <= 0, sparse history gets assumed novice progression.
@@ -307,14 +394,36 @@ def build_forecast(points: list[dict], periods: int = 7, interval_days: int = 1)
     forecast = []
 
     for offset in range(1, max(1, periods) + 1):
-        projected = values[-1] + (max_gain * (1 - math.exp(-k * offset)))
+        exponential_projected = values[-1] + (max_gain * (1 - math.exp(-k * offset)))
+        if regression_slope > 0:
+            transition_end = NOVICE_WINDOW_SESSIONS + NOVICE_TRANSITION_SESSIONS
+            linear_weight = max(
+                0.0,
+                min(
+                    1.0,
+                    (transition_end - len(values)) / NOVICE_TRANSITION_SESSIONS,
+                ),
+            )
+            linear_slope = (
+                max_gain / max(len(values) - 1, 1)
+            ) * LINEAR_FORECAST_SLOPE_SCALE
+            linear_projected = values[-1] + (
+                linear_slope * offset
+            )
+            projected = (
+                (linear_weight * linear_projected)
+                + ((1 - linear_weight) * exponential_projected)
+            )
+        else:
+            projected = exponential_projected
         next_date = start_date + timedelta(days=offset * max(1, interval_days))
+        confidence_band_pct = get_confidence_band_pct(len(values), offset)
         forecast.append(
             {
                 "date": next_date.strftime("%Y-%m-%d"),
                 "value": round(projected, 2),
-                "lower": round(max(projected * 0.9, 0), 2),
-                "upper": round(projected * 1.1, 2),
+                "lower": round(max(projected * (1 - confidence_band_pct), 0), 2),
+                "upper": round(projected * (1 + confidence_band_pct), 2),
             }
         )
 
@@ -893,7 +1002,28 @@ def create_predictions(
 
     periods = max(1, payload.periods)
     interval_days = max(1, payload.interval_days)
-    predictions = build_forecast(points, periods=periods, interval_days=interval_days)
+    category = payload.category
+    if payload.exercise_id:
+        try:
+            exercise_result = (
+                supabase.table("exercises")
+                .select("name")
+                .eq("id", payload.exercise_id)
+                .limit(1)
+                .execute()
+            )
+        except APIError as exc:
+            raise HTTPException(status_code=400, detail=f"Failed to load exercise: {exc.message}") from exc
+
+        exercise_name = (exercise_result.data[0].get("name") if exercise_result.data else "") or ""
+        category = EXERCISE_MOVEMENT_CATEGORIES.get(exercise_name.strip().lower(), category)
+
+    predictions = build_forecast(
+        points,
+        periods=periods,
+        interval_days=interval_days,
+        category=category or "compound",
+    )
     return {"predictions": predictions}
 
 
