@@ -312,7 +312,17 @@ function ProgressPage() {
                       points={predictedPoints}
                     />
                     {predictions.map((point) => (
-                      <circle key={`forecast-${point.date}`} cx={chartXForDate(point.date)} cy={chartY(point.value)} r="4" fill="#64748b" />
+                      <g key={`forecast-${point.date}`}>
+                        <circle cx={chartXForDate(point.date)} cy={chartY(point.value)} r="4" fill="#64748b" />
+                        <text
+                          x={chartXForDate(point.date)}
+                          y={chartY(point.value) - 10}
+                          textAnchor="middle"
+                          className="chart-label"
+                        >
+                          {formatChartValue(point.value)}
+                        </text>
+                      </g>
                     ))}
                   </>
                 )}

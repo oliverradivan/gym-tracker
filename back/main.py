@@ -282,6 +282,7 @@ def build_forecast(points: list[dict], periods: int = 7, interval_days: int = 1)
     # Tune the curve here: k controls how quickly gains flatten, and scales down
     # as more history makes the athlete's progression look more established.
     max_gain_scale = 0.5
+    FALLBACK_GROWTH_RATE = 0.05
     novice_k = 0.45
     experienced_k = 0.12
     history_for_experienced_k = 30
@@ -293,8 +294,12 @@ def build_forecast(points: list[dict], periods: int = 7, interval_days: int = 1)
         (index - x_mean) * (value - y_mean)
         for index, value in enumerate(values)
     ) / denominator
-    slope = max(regression_slope, 0.0)
-    max_gain = slope * max(len(values) - 1, 1) * max_gain_scale
+    if regression_slope <= 0:
+        # When regression_slope <= 0, sparse history gets assumed novice progression.
+        max_gain = max(1.0, values[-1] * FALLBACK_GROWTH_RATE)
+    else:
+        slope = regression_slope
+        max_gain = slope * max(len(values) - 1, 1) * max_gain_scale
     history_ratio = min((len(values) - 2) / max(history_for_experienced_k - 2, 1), 1.0)
     k = novice_k - ((novice_k - experienced_k) * history_ratio)
 
