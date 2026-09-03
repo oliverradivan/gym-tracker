@@ -267,6 +267,7 @@ def build_session_summary(rows):
     return result
 
 
+# Fit the full history, then use exponential gains; k flattens sooner as data volume grows.
 def build_forecast(points: list[dict], periods: int = 7, interval_days: int = 1) -> list[dict]:
     if not points:
         return []
@@ -276,28 +277,32 @@ def build_forecast(points: list[dict], periods: int = 7, interval_days: int = 1)
     if len(values) < 2:
         return []
 
-    baseline_slope = (values[-1] - values[0]) / max(len(values) - 1, 1)
+    import math
 
-    if len(values) >= 3:
-        recent_window = values[-3:]
-        recent_slope = (recent_window[-1] - recent_window[0]) / max(len(recent_window) - 1, 1)
-    else:
-        recent_slope = baseline_slope
+    # Tune the curve here: k controls how quickly gains flatten, and scales down
+    # as more history makes the athlete's progression look more established.
+    max_gain_scale = 0.5
+    novice_k = 0.45
+    experienced_k = 0.12
+    history_for_experienced_k = 30
 
-    # Smooth the trend and cap growth so a single large session does not create an
-    # unrealistic jump for the entire forecast window.
-    slope = (baseline_slope * 0.4) + (recent_slope * 0.6)
-    growth_cap = 0.08 * max(abs(values[-1]), 1.0)
-    if slope > 0:
-        slope = min(slope, growth_cap)
-    elif slope < 0:
-        slope = max(slope, -growth_cap)
+    x_mean = (len(values) - 1) / 2
+    y_mean = sum(values) / len(values)
+    denominator = sum((index - x_mean) ** 2 for index in range(len(values)))
+    regression_slope = sum(
+        (index - x_mean) * (value - y_mean)
+        for index, value in enumerate(values)
+    ) / denominator
+    slope = max(regression_slope, 0.0)
+    max_gain = slope * max(len(values) - 1, 1) * max_gain_scale
+    history_ratio = min((len(values) - 2) / max(history_for_experienced_k - 2, 1), 1.0)
+    k = novice_k - ((novice_k - experienced_k) * history_ratio)
 
     start_date = datetime.strptime(str(sorted_points[-1].get("date")), "%Y-%m-%d")
     forecast = []
 
     for offset in range(1, max(1, periods) + 1):
-        projected = values[-1] + (slope * offset)
+        projected = values[-1] + (max_gain * (1 - math.exp(-k * offset)))
         next_date = start_date + timedelta(days=offset * max(1, interval_days))
         forecast.append(
             {
