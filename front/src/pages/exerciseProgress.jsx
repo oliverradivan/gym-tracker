@@ -133,7 +133,7 @@ function ExerciseProgressPage() {
 
     loadPredictions()
     return () => { mounted = false }
-  }, [predictionEnabled, progress, session])
+  }, [predictionEnabled, progress, session, exerciseId])
 
   const category = useMemo(() => getExerciseCategory(exerciseName), [exerciseName])
 

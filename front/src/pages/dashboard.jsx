@@ -51,7 +51,7 @@ function DashboardPage() {
           setTodaySession(matchingTodaySession || null)
         }
       } catch (error) {
-        console.error('Failed to load dashboard data', error)
+        // Dashboard data load error handled silently; user sees no workout data.
       }
     }
 
@@ -198,9 +198,6 @@ function DashboardPage() {
           </div>
         </section>
       </main>
-      <h3>your reward:</h3>
-      <img src="/G&O_1589.jpg" alt="us" className="dashboard-image" />
-      <h1>love you ❤️</h1>
     </div>
   )
 }

@@ -640,9 +640,8 @@ def update_username(
             user.session.access_token if hasattr(user, 'session') else None,
             {"user_metadata": {"username": new_username, "full_name": new_username}},
         )
-    except Exception as exc:
-        # Log but don't fail if auth metadata update fails
-        print(f"Warning: Failed to update auth metadata: {exc}")
+    except Exception:
+        pass
 
     return {"message": "Username updated successfully", "username": new_username}
 

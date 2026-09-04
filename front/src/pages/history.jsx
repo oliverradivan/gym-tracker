@@ -26,7 +26,7 @@ function HistoryPage() {
       const result = await response.json()
       setSessions(result.sessions || [])
     } catch (error) {
-      console.error(error)
+      // History load error handled silently.
     } finally {
       setLoading(false)
     }
@@ -53,7 +53,7 @@ function HistoryPage() {
         const result = await response.json()
         if (active) setSessions(result.sessions || [])
       } catch (error) {
-        console.error(error)
+        // History load error handled silently.
       } finally {
         if (active) setLoading(false)
       }
@@ -80,7 +80,6 @@ function HistoryPage() {
 
       await loadSessions()
     } catch (error) {
-      console.error(error)
       window.alert(error.message || 'Failed to delete workout.')
     }
   }
