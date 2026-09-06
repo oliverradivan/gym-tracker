@@ -1,29 +1,25 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
+import { LineChart, Line } from '@/components/charts/line-chart'
+import { Grid } from '@/components/charts/grid'
+import { XAxis } from '@/components/charts/x-axis'
+import { ChartTooltip } from '@/components/charts/tooltip/chart-tooltip'
 import './progress.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
-const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 const METRICS = {
-  volume: { label: 'Volume', axisLabel: 'Volume' },
-  weight: { label: 'Weight', axisLabel: 'Weight (kg)' },
-  reps: { label: 'Reps', axisLabel: 'Reps' },
+  volume: { label: 'Volume' },
+  weight: { label: 'Weight' },
+  reps: { label: 'Reps' },
 }
 
 const formatDisplayDate = (date) => {
   const [year, month, day] = String(date || '').slice(0, 10).split('-')
   return year && month && day ? `${day}/${month}/${year}` : String(date || '')
 }
-const formatChartDate = (date) => {
-  const [year, month, day] = String(date || '').slice(0, 10).split('-')
-  return year && month && day ? `${day}/${month}` : String(date || '')
-}
-const formatChartValue = (value) => Number(value || 0).toLocaleString(undefined, { maximumFractionDigits: 1 })
-const chartTimestamp = (date) => Date.parse(`${date}T00:00:00Z`)
-const millisecondsPerDay = 24 * 60 * 60 * 1000
 
 function ProgressPage() {
   const { session } = useAuth()
@@ -35,16 +31,6 @@ function ProgressPage() {
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
   const [predictionError, setPredictionError] = useState('')
-  const [graphScrollable] = useState(() => {
-    try {
-      const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
-      return savedPreference === null
-        ? window.matchMedia('(max-width: 640px)').matches
-        : savedPreference === 'true'
-    } catch {
-      return false
-    }
-  })
   const [predictionEnabled] = useState(() => {
     try {
       return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
@@ -111,7 +97,6 @@ function ProgressPage() {
     loadProgress()
   }, [selectedExerciseId, session])
 
-  // Load predictions when progress data changes (not on isPredicting changes)
   useEffect(() => {
     let mounted = true
 
@@ -171,79 +156,29 @@ function ProgressPage() {
     return () => { mounted = false }
   }, [predictionEnabled, selectedExerciseId, progress, session])
 
-  const metric = METRICS[selectedMetric]
-  const showForecast = selectedMetric === 'volume' && predictionEnabled
-  const chartDates = [
-    ...progress.map((point) => point.date),
-    ...(showForecast ? predictions.map((point) => point.date) : []),
-  ].filter(Boolean)
-  const chartStartTimestamp = chartTimestamp(chartDates[0])
-  const chartEndTimestamp = chartTimestamp(chartDates[chartDates.length - 1])
-  const chartSpanDays = Math.max(1, (chartEndTimestamp - chartStartTimestamp) / millisecondsPerDay)
-  const chartWidth = graphScrollable ? Math.max(720, chartSpanDays * 10 + 60) : 720
-  const chartPlotWidth = chartWidth - 60
-  const chartXForDate = useCallback((date) => {
-    const timestamp = chartTimestamp(date)
-    const elapsedDays = (timestamp - chartStartTimestamp) / millisecondsPerDay
-    return 30 + (elapsedDays / chartSpanDays) * chartPlotWidth
-  }, [chartPlotWidth, chartSpanDays, chartStartTimestamp])
-
-  const chartMaxValue = useMemo(
-    () => Math.max(
-      ...progress.map((point) => Number(point[selectedMetric] || 0)),
-      ...(showForecast ? predictions.map((point) => Number(point.value || 0)) : []),
-      1,
-    ),
-    [progress, predictions, selectedMetric, showForecast],
-  )
-
-  const chartPoints = useMemo(() => {
-    if (!progress.length) return ''
-
-    return progress
-      .map((point) => {
-        const x = chartXForDate(point.date)
-        const normalized = Number(point[selectedMetric]) / chartMaxValue
-        const y = 180 - normalized * 160
-        return `${x},${y}`
-      })
-      .join(' ')
-  }, [chartMaxValue, chartXForDate, progress, selectedMetric])
-
-  // Compute chart points for predicted future values
-  const predictedPoints = useMemo(() => {
-    if (!showForecast || !predictions.length || !progress.length) return ''
-
-    const lastActualX = chartXForDate(progress[progress.length - 1].date)
-      const lastActualValue = Number(progress[progress.length - 1][selectedMetric] || 0)
-    const lastActualY = 180 - (lastActualValue / chartMaxValue) * 160
-
-    const forecastPoints = predictions
-      .map((point) => {
-        const x = chartXForDate(point.date)
-        const normalized = Number(point.value) / chartMaxValue
-        const y = 180 - normalized * 160
-        return `${x},${y}`
-      })
-      .join(' ')
-
-    return `${lastActualX},${lastActualY} ${forecastPoints}`
-  }, [chartMaxValue, chartXForDate, predictions, progress, selectedMetric, showForecast])
-
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
   const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
-  const chartY = (value) => 180 - (Number(value || 0) / chartMaxValue) * 160
-  const lastActualPoint = progress.length > 0
-    ? { x: chartXForDate(progress[progress.length - 1].date), y: chartY(progress[progress.length - 1][selectedMetric]) }
-    : null
-  const firstPredictionPoint = predictions.length > 0
-    ? { x: chartXForDate(predictions[0].date), y: chartY(predictions[0].value) }
-    : null
-  const chartDateLabels = [
-    ...progress.map((point) => ({ date: point.date })),
-    ...(showForecast ? predictions.map((point) => ({ date: point.date })) : []),
-  ]
+
+  const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
+
+  const chartData = useMemo(() => {
+    const actual = progress.map((point) => ({
+      date: new Date(`${point.date}T00:00:00Z`),
+      volume: Number(point.volume || 0),
+      weight: Number(point.weight || 0),
+      reps: Number(point.reps || 0),
+    }))
+    if (!showForecast) return actual
+    const forecast = predictions.map((point) => ({
+      date: new Date(`${point.date}T00:00:00Z`),
+      volume: Number(point.value || 0),
+    }))
+    return [...actual, ...forecast]
+  }, [progress, predictions, showForecast])
+
+  // Solid through the last real data point, dashed through the forecast tail.
+  const dashFromIndex = showForecast && progress.length > 0 ? progress.length - 1 : undefined
 
   return (
     <div className={`progress-page ${category}`}>
@@ -287,79 +222,19 @@ function ProgressPage() {
               ))}
             </div>
             <div className="chart-box">
-              <div className={`chart-scroll ${graphScrollable ? 'is-scrollable' : 'is-compressed'}`}>
-                <svg viewBox={`0 0 ${chartWidth} 220`} style={{ width: graphScrollable ? `${chartWidth}px` : '100%' }} className="volume-chart" role="img" aria-label={`${selectedExercise.name} ${metric.label.toLowerCase()} chart`}>
-                <text x="10" y="100" textAnchor="middle" transform="rotate(-90 10 100)" className="chart-axis-title">
-                  {metric.axisLabel}
-                </text>
-                {[0, 0.5, 1].map((ratio) => {
-                  const y = 180 - ratio * 160
-                  return (
-                    <g key={ratio}>
-                      <line x1="30" y1={y} x2={chartWidth - 30} y2={y} className="chart-grid-line" />
-                      <text x="24" y={y + 4} textAnchor="end" className="chart-axis-label">
-                        {formatChartValue(chartMaxValue * ratio)}
-                      </text>
-                    </g>
-                  )
-                })}
-                <line x1="30" y1="180" x2={chartWidth - 30} y2="180" className="chart-axis" />
-                <line x1="30" y1="20" x2="30" y2="180" className="chart-axis" />
-
-                {chartDateLabels.map((label) => (
-                  <text key={label.date} x={chartXForDate(label.date)} y="205" textAnchor="start" transform={`rotate(-45 ${chartXForDate(label.date)} 205)`} className="chart-axis-label">
-                    {formatChartDate(label.date)}
-                  </text>
-                ))}
-
-                <polyline fill="none" stroke={chartStroke} strokeWidth="3" points={chartPoints} />
-                {progress.map((point) => (
-                  <circle key={`actual-${point.date}`} cx={chartXForDate(point.date)} cy={chartY(point[selectedMetric])} r="4" fill={chartStroke} />
-                ))}
-
-                {/* Predicted future points - dashed line */}
-                {showForecast && predictions.length > 0 && (
-                  <>
-                    {lastActualPoint && firstPredictionPoint && (
-                      <line
-                        x1={lastActualPoint.x}
-                        y1={lastActualPoint.y}
-                        x2={firstPredictionPoint.x}
-                        y2={firstPredictionPoint.y}
-                        className="forecast-connector"
-                      />
-                    )}
-                    <polyline
-                      fill="none"
-                      stroke="#64748b"
-                      strokeWidth="3"
-                      strokeDasharray="8, 6"
-                      points={predictedPoints}
-                    />
-                    {predictions.map((point) => (
-                      <g key={`forecast-${point.date}`}>
-                        <circle cx={chartXForDate(point.date)} cy={chartY(point.value)} r="4" fill="#64748b" />
-                        <text
-                          x={chartXForDate(point.date)}
-                          y={chartY(point.value) - 10}
-                          textAnchor="middle"
-                          className="chart-label"
-                        >
-                          {formatChartValue(point.value)}
-                        </text>
-                      </g>
-                    ))}
-                  </>
-                )}
-                </svg>
-              </div>
+              <LineChart data={chartData} xDataKey="date">
+                <Grid horizontal />
+                <Line dataKey={selectedMetric} stroke={chartStroke} dashFromIndex={dashFromIndex} />
+                <XAxis />
+                <ChartTooltip />
+              </LineChart>
               <div className="chart-footer">
                 <div className="chart-legend" aria-label="Chart legend">
                   <span className="legend-item">
                     <span className="legend-line actual-line" />
-                    Actual {metric.label.toLowerCase()}
+                    Actual {METRICS[selectedMetric].label.toLowerCase()}
                   </span>
-                  {showForecast && predictions.length > 0 && (
+                  {showForecast && (
                     <span className="legend-item">
                       <span className="legend-line forecast-line" />
                       Forecast
@@ -367,9 +242,6 @@ function ProgressPage() {
                   )}
                 </div>
                 {isPredicting && <p className="status-message">Generating forecast...</p>}
-                {!predictionEnabled && (
-                  <p className="status-message"></p>
-                )}
                 {predictionError && <p className="status-message error-message">{predictionError}</p>}
               </div>
             </div>
