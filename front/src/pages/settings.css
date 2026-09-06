@@ -13,8 +13,8 @@
   --danger-border: rgba(179, 65, 58, 0.35);
 }
 
-.dark-mode.settings-page,
-.dark-mode .settings-page {
+.dark.settings-page,
+.dark .settings-page {
   --danger-color: #e0847c;
   --danger-color-hover: #c96a62;
   --danger-tint: rgba(224, 132, 124, 0.08);
@@ -142,13 +142,13 @@
 }
 
 /* Dark mode adjustments for messages */
-.dark-mode .success-message {
+.dark .success-message {
   background: rgba(129, 199, 132, 0.1);
   color: #81c784;
   border-color: rgba(129, 199, 132, 0.3);
 }
 
-.dark-mode .error-message {
+.dark .error-message {
   background: var(--danger-tint-strong);
   color: var(--danger-color);
   border-color: var(--danger-border);
