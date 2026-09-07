@@ -256,6 +256,7 @@ function ProgressPage() {
                     stroke="var(--chart-3)"
                     strokeWidth={2}
                     strokeDasharray="6,4"
+                    showMarkers={true}
                   />
                 )}
                 <YAxis />

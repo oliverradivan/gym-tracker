@@ -1,9 +1,10 @@
 "use client";;
 import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
-import { useCallback, useId, useMemo } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import { useChartStable, useYScale } from "./chart-context";
 import { buildHorizontalTangentBezierPath } from "./projection-utils";
+import { SeriesMarkers } from "./series-markers";
 
 function resolveVisibleEndX(endX, innerWidth, endpointRadius, strokeWidth) {
   const edgePadding = endpointRadius + strokeWidth * 0.5 + 1;
@@ -52,7 +53,8 @@ export function ProjectionLine({
   showEndMarker,
   showEndpoints,
   endpointRadius = 5,
-  className
+  className,
+  showMarkers = false
 }) {
   const { xScale, chartPhase, innerWidth } = useChartStable();
   const yScale = useYScale(yAxisId);
@@ -163,6 +165,15 @@ export function ProjectionLine({
         linearPath,
         strokeProps,
       })}
+      {showMarkers && (
+        <SeriesMarkers
+          dataKey="value"
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+          fill={stroke}
+          radius={2}
+        />
+      )}
     </g>
   );
 }

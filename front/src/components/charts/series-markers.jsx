@@ -18,7 +18,7 @@ export function SeriesMarkers({
   ringGap = 2,
   outlineWidth = 0,
   outlineColor,
-  radius = 5,
+  radius = 2,
   animate = true,
   fadeOnHover = true,
   inactiveOpacity = 0.5,
