@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { curveLinear, curveNatural } from '@visx/curve'
+import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import { LineChart, Line } from '@/components/charts/line-chart'
@@ -56,7 +56,7 @@ function ProgressPage() {
     }
   })
 
-  const [graphScrollable, setGraphScrollable] = useState(() => {
+  const [graphScrollable] = useState(() => {
     try {
       const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
       const mobileMatch = window.matchMedia('(max-width: 640px)').matches

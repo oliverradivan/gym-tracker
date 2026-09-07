@@ -1,7 +1,7 @@
 "use client";;
 import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
-import { useCallback, useId, useMemo, useState } from "react";
+import { useCallback, useId, useMemo } from "react";
 import { useChartHover, useChartStable, useYScale } from "./chart-context";
 import { buildHorizontalTangentBezierPath } from "./projection-utils";
 import { SeriesMarkers } from "./series-markers";

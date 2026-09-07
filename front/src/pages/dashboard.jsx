@@ -50,7 +50,7 @@ function DashboardPage() {
           const matchingTodaySession = sessions.find((sessionItem) => sessionItem.date === todayKey)
           setTodaySession(matchingTodaySession || null)
         }
-      } catch (error) {
+      } catch {
         // Dashboard data load error handled silently; user sees no workout data.
       }
     }

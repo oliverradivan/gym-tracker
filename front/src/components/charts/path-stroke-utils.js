@@ -47,7 +47,7 @@ export function usePathStrokeMetrics(pathRef, deps) {
         ? prev
         : { pathD: d, pathLength: len }
     );
-  }, deps);
+  }, [pathRef, ...deps]);
 
   return metrics;
 }

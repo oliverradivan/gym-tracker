@@ -25,7 +25,7 @@ function HistoryPage() {
 
       const result = await response.json()
       setSessions(result.sessions || [])
-    } catch (error) {
+    } catch {
       // History load error handled silently.
     } finally {
       setLoading(false)
@@ -52,7 +52,7 @@ function HistoryPage() {
 
         const result = await response.json()
         if (active) setSessions(result.sessions || [])
-      } catch (error) {
+      } catch {
         // History load error handled silently.
       } finally {
         if (active) setLoading(false)
