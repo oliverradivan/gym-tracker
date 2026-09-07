@@ -56,35 +56,31 @@ function ProgressPage() {
     }
   })
 
-  const [graphScrollable] = useState(() => {
+  const [graphScrollable, setGraphScrollable] = useState(() => {
     try {
       const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
-      const mobileMatch = window.matchMedia('(max-width: 640px)').matches
-      return mobileMatch
-        ? savedPreference === null
-          ? true
-          : savedPreference === 'true'
-        : false
+      return savedPreference === null ? true : savedPreference === 'true'
     } catch {
-      return false
+      return true
     }
   })
 
+  // Listen for preference changes from other tabs/pages
   useEffect(() => {
-    try {
-      localStorage.setItem(PREDICTION_SETTING_KEY, String(predictionEnabled))
-    } catch {
-      // Ignore storage issues in restricted environments.
+    const syncScrollSetting = () => {
+      try {
+        const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
+        if (savedPreference !== null) {
+          setGraphScrollable(savedPreference === 'true')
+        }
+      } catch {
+        // Ignore storage access errors
+      }
     }
-  }, [predictionEnabled])
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(GRAPH_SCROLL_SETTING_KEY, String(graphScrollable))
-    } catch {
-      // Ignore storage issues in restricted environments.
-    }
-  }, [graphScrollable])
+    window.addEventListener('storage', syncScrollSetting)
+    return () => window.removeEventListener('storage', syncScrollSetting)
+  }, [])
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -232,6 +228,40 @@ function ProgressPage() {
     ]
   }, [showForecast, predictions, chartData])
 
+  const renderChart = () => (
+    <LineChart
+      data={chartData}
+      xDataKey="date"
+      animationDuration={1800}
+      animationEasing="cubic-bezier(0.42, 0, 1, 1)"
+      key={selectedMetric}
+    >
+      <Grid horizontal vertical />
+      <Line
+        dataKey="actualValue"
+        stroke={chartStroke}
+        curve={curveLinear}
+        fadeEdges
+        showHighlight={true}
+        showMarkers
+      />
+      {showForecast && predictions.length > 0 && (
+        <ProjectionLine
+          data={forecastData}
+          curveKind="linear"
+          showEndMarker={false}
+          stroke="var(--chart-3)"
+          strokeWidth={2}
+          strokeDasharray="6,4"
+          showMarkers={true}
+        />
+      )}
+      <YAxis />
+      <XAxis numTicks={progress.length} />
+      <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric].label, value: point.value ?? point.actualValue ?? 0, color: 'var(--chart-3)' }]} />
+    </LineChart>
+  )
+
   return (
     <div className={`progress-page ${category}`}>
       <div className={`progress-card ${category}`}>
@@ -275,73 +305,13 @@ function ProgressPage() {
             </div>
             <div className="chart-box">
               {isMobile && graphScrollable ? (
-                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
-                  <div style={{ minWidth: `${Math.max(600, progress.length * 20)}px` }}>
-                    <LineChart
-                      data={chartData}
-                      xDataKey="date"
-                      animationDuration={1800}
-                      animationEasing="cubic-bezier(0.42, 0, 1, 1)"
-                      key={selectedMetric}
-                    >
-                      <Grid horizontal vertical />
-                      <Line
-                        dataKey="actualValue"
-                        stroke={chartStroke}
-                        curve={curveLinear}
-                        fadeEdges
-                        showHighlight={true}
-                        showMarkers
-                      />
-                      {showForecast && predictions.length > 0 && (
-                        <ProjectionLine
-                          data={forecastData}
-                          curveKind="linear"
-                          showEndMarker={false}
-                          stroke="var(--chart-3)"
-                          strokeWidth={2}
-                          strokeDasharray="6,4"
-                          showMarkers={true}
-                        />
-                      )}
-                      <YAxis />
-                      <XAxis numTicks={progress.length} />
-                      <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric].label, value: point.value ?? point.actualValue ?? 0, color: 'var(--chart-3)' }]} />
-                    </LineChart>
+                <div className="chart-scroll-wrapper">
+                  <div style={{ minWidth: `${Math.max(600, progress.length * 28)}px` }}>
+                    {renderChart()}
                   </div>
                 </div>
               ) : (
-                <LineChart
-                  data={chartData}
-                  xDataKey="date"
-                  animationDuration={1800}
-                  animationEasing="cubic-bezier(0.42, 0, 1, 1)"
-                  key={selectedMetric}
-                >
-                  <Grid horizontal vertical />
-                  <Line
-                    dataKey="actualValue"
-                    stroke={chartStroke}
-                    curve={curveLinear}
-                    fadeEdges
-                    showHighlight={true}
-                    showMarkers
-                  />
-                  {showForecast && predictions.length > 0 && (
-                    <ProjectionLine
-                      data={forecastData}
-                      curveKind="linear"
-                      showEndMarker={false}
-                      stroke="var(--chart-3)"
-                      strokeWidth={2}
-                      strokeDasharray="6,4"
-                      showMarkers={true}
-                    />
-                  )}
-                  <YAxis />
-                  <XAxis numTicks={progress.length} />
-                  <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric].label, value: point.value ?? point.actualValue ?? 0, color: 'var(--chart-3)' }]} />
-                </LineChart>
+                renderChart()
               )}
               <div className="chart-footer">
                 <div className="chart-legend" aria-label="Chart legend">

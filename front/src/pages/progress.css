@@ -119,6 +119,7 @@
 }
 
 .chart-box {
+  width: 100%;
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: 16px;
@@ -451,40 +452,18 @@
   color: #b2b2b0;
 }
 
-/* ===== Scrollable graph mode additions ===== */
+/* ===== Scrollable graph mode ===== */
 
 .chart-scroll-wrapper {
   overflow-x: auto;
   width: 100%;
   -webkit-overflow-scrolling: touch;
-}
-
-.chart-scroll-wrapper > div {
-  min-width: 600px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--chart-3) transparent;
 }
 
 .chart-scroll-wrapper .visx-tooltip-container {
   pointer-events: none;
-}
-
-/* Ensures the chart has a minimum sensible width on desktop,
-   but is fluid on mobile – the JSX now handles min-width via inline styles
-   only when needed, not via global CSS rules. */
-
-.chart-box {
-  /* no longer sets global min-width; responsiveness is managed per-mode in JSX */
-}
-
-
-/* Ensure chart scales to 100% width in non-scrollable mode */
-.chart-box {
-  width: 100%;
-}
-
-/* Improve touch scrolling on mobile */
-.chart-scroll-wrapper {
-  scrollbar-width: thin;
-  scrollbar-color: var(--chart-3) transparent;
 }
 
 .chart-scroll-wrapper::-webkit-scrollbar {
@@ -496,10 +475,4 @@
 .chart-scroll-wrapper::-webkit-scrollbar-thumb {
   background-color: var(--chart-3);
   border-radius: 3px;
-}
-
-/* Override inline width from JSX to allow responsive scaling */
-.chart-scroll-wrapper > div {
-  width: auto !important;
-  min-width: 0 !important;
 }
