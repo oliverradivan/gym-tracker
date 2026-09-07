@@ -238,6 +238,7 @@ function ProgressPage() {
                 xDataKey="date"
                 animationDuration={1800}
                 animationEasing="cubic-bezier(0.42, 0, 1, 1)"
+                key={selectedMetric}
               >
                 <Grid horizontal vertical />
                 <Line
