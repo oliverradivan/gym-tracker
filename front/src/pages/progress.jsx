@@ -13,6 +13,7 @@ import './progress.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
+const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 const METRICS = {
   volume: { label: 'Volume' },
   weight: { label: 'Weight' },
@@ -42,6 +43,32 @@ function ProgressPage() {
       return true
     }
   })
+  const [graphScrollable, setGraphScrollable] = useState(() => {
+    try {
+      const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
+      return savedPreference === null
+        ? window.matchMedia('(max-width: 640px)').matches
+        : savedPreference === 'true'
+    } catch {
+      return false
+    }
+  })
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(PREDICTION_SETTING_KEY, String(predictionEnabled))
+    } catch {
+      // Ignore storage issues in restricted environments.
+    }
+  }, [predictionEnabled])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(GRAPH_SCROLL_SETTING_KEY, String(graphScrollable))
+    } catch {
+      // Ignore storage issues in restricted environments.
+    }
+  }, [graphScrollable])
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -233,37 +260,77 @@ function ProgressPage() {
               ))}
             </div>
             <div className="chart-box">
-              <LineChart
-                data={chartData}
-                xDataKey="date"
-                animationDuration={1800}
-                animationEasing="cubic-bezier(0.42, 0, 1, 1)"
-                key={selectedMetric}
-              >
-                <Grid horizontal vertical />
-                <Line
-                  dataKey="actualValue"
-                  stroke={chartStroke}
-                  curve={curveLinear}
-                  fadeEdges
-                  showHighlight={true}
-                  showMarkers
-                />
-                {showForecast && predictions.length > 0 && (
-                  <ProjectionLine
-                    data={forecastData}
-                    curveKind="linear"
-                    showEndMarker={false}
-                    stroke="var(--chart-3)"
-                    strokeWidth={2}
-                    strokeDasharray="6,4"
-                    showMarkers={true}
+              {/* Scrollable mode: fixed width per point + horizontal scroll */}
+              {graphScrollable ? (
+                <div className="chart-scroll-wrapper" style={{ width: progress.length * 20 + 'px', overflowX: 'auto' }}>
+                  <LineChart
+                    data={chartData}
+                    xDataKey="date"
+                    animationDuration={1800}
+                    animationEasing="cubic-bezier(0.42, 0, 1, 1)"
+                    key={selectedMetric}
+                    width={progress.length * 20}
+                  >
+                    <Grid horizontal vertical />
+                    <Line
+                      dataKey="actualValue"
+                      stroke={chartStroke}
+                      curve={curveLinear}
+                      fadeEdges
+                      showHighlight={true}
+                      showMarkers
+                    />
+                    {showForecast && predictions.length > 0 && (
+                      <ProjectionLine
+                        data={forecastData}
+                        curveKind="linear"
+                        showEndMarker={false}
+                        stroke="var(--chart-3)"
+                        strokeWidth={2}
+                        strokeDasharray="6,4"
+                        showMarkers={true}
+                      />
+                    )}
+                    <YAxis />
+                    <XAxis numTicks={progress.length} />
+                    <ChartTooltip />
+                  </LineChart>
+                </div>
+              ) : (
+                /* Regular responsive mode: let chart fit viewport, with min-width to prevent squishing */
+                <LineChart
+                  data={chartData}
+                  xDataKey="date"
+                  animationDuration={1800}
+                  animationEasing="cubic-bezier(0.42, 0, 1, 1)"
+                  key={selectedMetric}
+                  style={{ minWidth: '400px' }}
+                >
+                  <Grid horizontal vertical />
+                  <Line
+                    dataKey="actualValue"
+                    stroke={chartStroke}
+                    curve={curveLinear}
+                    fadeEdges
+                    showHighlight={true}
+                    showMarkers
                   />
-                )}
-                <YAxis />
-                <XAxis numTicks={progress.length} />
-                <ChartTooltip />
-              </LineChart>
+                  {showForecast && predictions.length > 0 && (
+                    <ProjectionLine
+                      data={forecastData}
+                      curveKind="linear"
+                      showEndMarker={false}
+                      stroke="var(--chart-3)"
+                      strokeWidth={2}
+                      strokeDasharray="6,4"
+                      showMarkers={true}
+                    />
+                  )}
+                  <YAxis />
+                  <XAxis numTicks={progress.length} />
+                  <ChartTooltip />
+                </LineChart>
+              )}
               <div className="chart-footer">
                 <div className="chart-legend" aria-label="Chart legend">
                   <span className="legend-item">
