@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { curveLinear, curveNatural } from '@visx/curve'
+import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import { LineChart, Line } from '@/components/charts/line-chart'
@@ -93,9 +93,9 @@ function ProgressPage() {
 
         const urlExercise = items.find((item) => String(item.id) === exerciseId)
         if (urlExercise) {
-          setSelectedExerciseId(urlExercise.id)
+          setSelectedExerciseId(String(urlExercise.id))
         } else if (items[0]) {
-          setSelectedExerciseId(items[0].id)
+          setSelectedExerciseId(String(items[0].id))
         }
       } catch (error) {
         console.error(error)
@@ -194,7 +194,7 @@ function ProgressPage() {
     return () => { mounted = false }
   }, [predictionEnabled, selectedExerciseId, progress, session])
 
-  const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
+  const selectedExercise = exercises.find((exercise) => String(exercise.id) === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
   const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
 
@@ -264,12 +264,9 @@ function ProgressPage() {
               ))}
             </div>
             <div className="chart-box">
-              {/* Determine if we're on mobile */}
-              const isMobile = window.matchMedia('(max-width: 640px)').matches
-
               {/* Scrollable mode: only on mobile, fixed width per point + horizontal scroll */}
-              {isMobile && graphScrollable ? (
-                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', '-webkit-overflow-scrolling': 'touch' }}>
+              {graphScrollable ? (
+                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                   <div style={{ width: progress.length * 20 + 'px' }}>
                     <LineChart
                       data={chartData}
@@ -312,7 +309,6 @@ function ProgressPage() {
                   animationDuration={1800}
                   animationEasing="cubic-bezier(0.42, 0, 1, 1)"
                   key={selectedMetric}
-                  /* Do NOT set minWidth inline; let CSS handle responsiveness */
                 >
                   <Grid horizontal vertical />
                   <Line
