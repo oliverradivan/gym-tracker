@@ -125,7 +125,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
       // Actual data points have the original shape with dataKey properties.
       const isForecast = tooltipData.pointType === "forecast";
       let displayLabel = line.dataKey;
-      let displayValue: number | string;
+      let displayValue;
 
       if (isForecast) {
         // Forecast point: value is stored directly on the point
