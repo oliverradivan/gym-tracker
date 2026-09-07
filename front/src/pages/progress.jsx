@@ -36,17 +36,6 @@ function ProgressPage() {
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
   const [predictionError, setPredictionError] = useState('')
-  const [isMobile, setIsMobile] = useState(false)
-
-  // Track responsive screen width
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 640px)')
-    setIsMobile(mediaQuery.matches)
-
-    const handler = (e) => setIsMobile(e.matches)
-    mediaQuery.addEventListener('change', handler)
-    return () => mediaQuery.removeEventListener('change', handler)
-  }, [])
 
   const [predictionEnabled] = useState(() => {
     try {
@@ -228,6 +217,9 @@ function ProgressPage() {
     ]
   }, [showForecast, predictions, chartData])
 
+  // Total points rendered includes forecast points if active
+  const totalPoints = progress.length + (showForecast ? predictions.length : 0)
+
   const renderChart = () => (
     <LineChart
       data={chartData}
@@ -257,7 +249,7 @@ function ProgressPage() {
         />
       )}
       <YAxis />
-      <XAxis numTicks={progress.length} />
+      <XAxis numTicks={totalPoints} />
       <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric].label, value: point.value ?? point.actualValue ?? 0, color: 'var(--chart-3)' }]} />
     </LineChart>
   )
@@ -304,9 +296,9 @@ function ProgressPage() {
               ))}
             </div>
             <div className="chart-box">
-              {isMobile && graphScrollable ? (
+              {graphScrollable ? (
                 <div className="chart-scroll-wrapper">
-                  <div style={{ minWidth: `${Math.max(600, progress.length * 28)}px` }}>
+                  <div style={{ minWidth: `${Math.max(800, totalPoints * 45)}px`, height: '260px' }}>
                     {renderChart()}
                   </div>
                 </div>
