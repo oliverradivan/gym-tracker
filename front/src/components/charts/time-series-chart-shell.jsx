@@ -363,6 +363,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     xScale,
     yScale,
     yScales,
+    projectionConfigs,
   });
 
   const defsChildren = [];

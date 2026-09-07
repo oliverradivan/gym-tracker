@@ -118,11 +118,33 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
     }
 
     // Default: generate rows from registered lines
-    return lines.map((line) => ({
-      color: line.stroke,
-      label: line.dataKey,
-      value: (tooltipData.point[line.dataKey]) ?? 0,
-    }));
+    // Distinguish forecast points from actual ones by adding a "type" distinction
+    // in the label/styling.
+    return lines.map((line) => {
+      // Forecast points from buildCombinedData have shape { date, value, type: "forecast" }
+      // Actual data points have the original shape with dataKey properties.
+      const isForecast = tooltipData.pointType === "forecast";
+      let displayLabel = line.dataKey;
+      let displayValue: number | string;
+
+      if (isForecast) {
+        // Forecast point: value is stored directly on the point
+        displayValue = tooltipData.point.value != null ? tooltipData.point.value : 0;
+        displayLabel = `Forecast: ${line.dataKey}`;
+      } else {
+        // Actual point: look up value by dataKey
+        const value = tooltipData.point[line.dataKey];
+        displayValue = value != null ? value : 0;
+      }
+
+      return {
+        color: line.stroke,
+        label: displayLabel,
+        value: displayValue,
+        // Add a hint for the tooltip renderer to use muted styling for forecast
+        isForecast: isForecast,
+      };
+    });
   }, [tooltipData, lines, rowsRenderer]);
 
   const resolveDotColor = useMemo(() => {

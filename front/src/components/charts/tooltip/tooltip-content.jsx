@@ -1,4 +1,5 @@
 "use client";;
+
 import { intFmt } from "../chart-formatters";
 
 export function TooltipContent({
@@ -15,25 +16,35 @@ export function TooltipContent({
           </div>
         )}
         <div className="space-y-1.5">
-          {rows.map((row) => (
-            <div
-              className="flex items-center justify-between gap-4"
-              key={`${row.label}-${row.color}`}
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: row.color }}
-                />
-                <span className="text-chart-tooltip-muted text-sm">
-                  {row.label}
+          {rows.map((row) => {
+            const rowClassName = row.isForecast
+              ? "text-chart-tooltip-muted"
+              : "text-chart-tooltip-foreground";
+            const valueStyle = row.isForecast
+              ? { opacity: 0.7 }
+              : undefined;
+
+            return (
+              <div
+                className="flex items-center justify-between gap-4"
+                key={`${row.label}-${row.color}`}
+                style={row.isForecast ? { opacity: 0.7 } : undefined}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: row.color }}
+                  />
+                  <span className={rowClassName}>
+                    {row.label}
+                  </span>
+                </div>
+                <span className="font-medium text-chart-tooltip-foreground text-sm tabular-nums">
+                  {typeof row.value === "number" ? intFmt(row.value) : row.value}
                 </span>
               </div>
-              <span className="font-medium text-chart-tooltip-foreground text-sm tabular-nums">
-                {typeof row.value === "number" ? intFmt(row.value) : row.value}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {children && (
