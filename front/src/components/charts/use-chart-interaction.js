@@ -439,13 +439,21 @@ function buildCombinedData(actualData, projectionConfigs, xAccessor) {
     return null;
   }
 
-  // Sort forecast points by date
-  forecastPoints.sort((a, b) => a.date.getTime() - b.date.getTime());
+  // Deduplicate forecast points against actual points by date timestamp
+  const actualDates = new Set(actualPoints.map((d) => xAccessor(d).getTime()));
+  const uniqueForecastPoints = forecastPoints.filter(
+    (fp) => !actualDates.has(fp.date.getTime())
+  );
 
-  // Combine: actual points first, then forecast points
-  // We preserve the original actual data objects as-is (they already have
-  // the shape expected by xAccessor), and add type: "actual" to forecast points.
-  const combined = [...actualPoints, ...forecastPoints];
+  if (uniqueForecastPoints.length === 0) {
+    return null;
+  }
+
+  // Sort unique forecast points by date
+  uniqueForecastPoints.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  // Combine: actual points first, then unique forecast points
+  const combined = [...actualPoints, ...uniqueForecastPoints];
 
   return combined;
 }

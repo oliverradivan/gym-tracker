@@ -171,7 +171,7 @@ export function ProjectionLine({
       })}
       {showMarkers && (
         <SeriesMarkers
-          data={data}
+          data={data.length > 1 ? data.slice(1) : data}
           dataKey="value"
           stroke={stroke}
           strokeWidth={strokeWidth}
