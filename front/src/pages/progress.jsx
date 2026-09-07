@@ -235,6 +235,7 @@ function ProgressPage() {
       animationDuration={1800}
       animationEasing="cubic-bezier(0.42, 0, 1, 1)"
       key={selectedMetric}
+      style={{ touchAction: isMobile && graphScrollable ? 'pan-x' : 'none' }}
     >
       <Grid horizontal vertical />
       <Line
