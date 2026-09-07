@@ -275,8 +275,8 @@ function ProgressPage() {
             </div>
             <div className="chart-box">
               {isMobile && graphScrollable ? (
-                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                  <div style={{ width: `${progress.length * 20}px` }}>
+                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
+                  <div style={{ minWidth: `${Math.max(600, progress.length * 20)}px` }}>
                     <LineChart
                       data={chartData}
                       xDataKey="date"
@@ -306,7 +306,7 @@ function ProgressPage() {
                       )}
                       <YAxis />
                       <XAxis numTicks={progress.length} />
-                      <ChartTooltip />
+                      <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric].label, value: point.value ?? point.actualValue ?? 0, color: 'var(--chart-3)' }]} />
                     </LineChart>
                   </div>
                 </div>
@@ -340,7 +340,7 @@ function ProgressPage() {
                   )}
                   <YAxis />
                   <XAxis numTicks={progress.length} />
-                  <ChartTooltip />
+                  <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric].label, value: point.value ?? point.actualValue ?? 0, color: 'var(--chart-3)' }]} />
                 </LineChart>
               )}
               <div className="chart-footer">

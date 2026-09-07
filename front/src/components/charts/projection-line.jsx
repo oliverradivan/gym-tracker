@@ -2,7 +2,7 @@
 import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
 import { useCallback, useId, useMemo, useState } from "react";
-import { useChartStable, useYScale } from "./chart-context";
+import { useChartHover, useChartStable, useYScale } from "./chart-context";
 import { buildHorizontalTangentBezierPath } from "./projection-utils";
 import { SeriesMarkers } from "./series-markers";
 
@@ -57,6 +57,7 @@ export function ProjectionLine({
   showMarkers = false
 }) {
   const { xScale, chartPhase, innerWidth } = useChartStable();
+  const { setTooltipData } = useChartHover();
   const yScale = useYScale(yAxisId);
   const gradientId = useId().replace(/:/g, "");
   const showMarker = showEndMarker ?? showEndpoints ?? true;
@@ -70,6 +71,9 @@ export function ProjectionLine({
     (point) => yScale(point.value) ?? 0,
     [yScale]
   );
+  const handlePointClick = useCallback((point, index) => {
+    setTooltipData({ point, index, x: getX(point), yPositions: { value: getY(point) } });
+  }, [getX, getY, setTooltipData]);
 
   const startPoint = data[0];
   const endPoint = data.at(-1);
@@ -167,11 +171,13 @@ export function ProjectionLine({
       })}
       {showMarkers && (
         <SeriesMarkers
+          data={data}
           dataKey="value"
           stroke={stroke}
           strokeWidth={strokeWidth}
           fill={stroke}
           radius={2}
+          onPointClick={handlePointClick}
         />
       )}
     </g>

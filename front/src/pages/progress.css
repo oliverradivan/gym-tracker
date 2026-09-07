@@ -455,7 +455,12 @@
 
 .chart-scroll-wrapper {
   overflow-x: auto;
+  width: 100%;
   -webkit-overflow-scrolling: touch;
+}
+
+.chart-scroll-wrapper > div {
+  min-width: 600px;
 }
 
 .chart-scroll-wrapper .visx-tooltip-container {
@@ -465,9 +470,11 @@
 /* Ensures the chart has a minimum sensible width on desktop,
    but is fluid on mobile – the JSX now handles min-width via inline styles
    only when needed, not via global CSS rules. */
+
 .chart-box {
   /* no longer sets global min-width; responsiveness is managed per-mode in JSX */
 }
+
 
 /* Ensure chart scales to 100% width in non-scrollable mode */
 .chart-box {

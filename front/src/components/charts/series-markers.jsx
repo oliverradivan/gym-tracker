@@ -11,7 +11,9 @@ import { useChartLegendHover } from "./chart-legend-hover";
 import { getSeriesMarkerVisualExtent, SeriesPointMarker, StaticSeriesPointMarker } from "./series-point-marker";
 
 export function SeriesMarkers({
+  data: markerData,
   dataKey,
+  onPointClick,
   fill,
   stroke,
   strokeWidth = 2,
@@ -30,7 +32,7 @@ export function SeriesMarkers({
   // <SeriesMarkersDimWrapper> / <SeriesMarkersActiveHighlight> components, so
   // mouse motion does not re-render the full point grid.
   const {
-    data,
+    data: chartData,
     xScale,
     innerWidth,
     enterTransition,
@@ -40,6 +42,7 @@ export function SeriesMarkers({
     xAccessor,
     lines,
   } = useChartStable();
+  const data = markerData ?? chartData;
 
   const seriesIndex = useMemo(() => {
     const index = lines.findIndex((line) => line.dataKey === dataKey);
@@ -149,12 +152,13 @@ export function SeriesMarkers({
   // Stable base layer — its children come from the parent and stay
   // referentially identical when the dim wrapper re-renders for hover.
   const baseMarkers = points.map((point) => (
-    <StaticSeriesPointMarker
-      cx={point.cx}
-      cy={point.cy}
+    <g
       key={`${dataKey}-${point.index}`}
-      {...markerStyle}
-    />
+      onClick={() => onPointClick?.(data[point.index], point.index)}
+      onTouchStart={() => onPointClick?.(data[point.index], point.index)}
+    >
+      <StaticSeriesPointMarker cx={point.cx} cy={point.cy} {...markerStyle} />
+    </g>
   ));
   const activeScale = showActiveHighlight ? 1.35 : 1;
 
