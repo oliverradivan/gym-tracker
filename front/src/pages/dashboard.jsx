@@ -150,7 +150,7 @@ function DashboardPage() {
                 {todaySession.entries.map((entry, index) => (
                   <li key={`${entry.exercise_name}-${index}`} className={`today-session-item ${getExerciseCategory(entry.exercise_name)}`}>
                     {entry.exercise_id ? (
-                      <Link to={`/exercise/${entry.exercise_id}`} className="today-session-link">
+                      <Link to={`/progress/${entry.exercise_id}`} className="today-session-link">
                         <span>{entry.exercise_name}</span>
                       </Link>
                     ) : (
@@ -184,7 +184,7 @@ function DashboardPage() {
               exercises.map((exercise, index) => (
                 <Link
                   key={exercise.id}
-                  to={`/exercise/${exercise.id}`}
+                  to={`/progress/${exercise.id}`}
                   className={`exercise-item ${getExerciseCategory(exercise.name)}`}
                   style={{ '--reveal-delay': `${index * 0.06}s` }}
                 >

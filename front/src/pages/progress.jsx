@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
+import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import { LineChart, Line } from '@/components/charts/line-chart'
 import { Grid } from '@/components/charts/grid'
 import { XAxis } from '@/components/charts/x-axis'
+import YAxis from '@/components/charts/y-axis'
 import { ChartTooltip } from '@/components/charts/tooltip/chart-tooltip'
 import './progress.css'
 
@@ -23,6 +25,7 @@ const formatDisplayDate = (date) => {
 
 function ProgressPage() {
   const { session } = useAuth()
+  const { exerciseId } = useParams()
   const [exercises, setExercises] = useState([])
   const [selectedExerciseId, setSelectedExerciseId] = useState('')
   const [progress, setProgress] = useState([])
@@ -56,7 +59,10 @@ function ProgressPage() {
         const items = result.exercises || []
         setExercises(items)
 
-        if (items[0]) {
+        const urlExercise = items.find((item) => String(item.id) === exerciseId)
+        if (urlExercise) {
+          setSelectedExerciseId(urlExercise.id)
+        } else if (items[0]) {
           setSelectedExerciseId(items[0].id)
         }
       } catch (error) {
@@ -65,7 +71,7 @@ function ProgressPage() {
     }
 
     loadExercises()
-  }, [session])
+  }, [exerciseId, session])
 
   useEffect(() => {
     const loadProgress = async () => {
@@ -165,20 +171,20 @@ function ProgressPage() {
   const chartData = useMemo(() => {
     const actual = progress.map((point) => ({
       date: new Date(`${point.date}T00:00:00Z`),
-      volume: Number(point.volume || 0),
-      weight: Number(point.weight || 0),
-      reps: Number(point.reps || 0),
+      actualValue: Number(point[selectedMetric] || 0),
     }))
     if (!showForecast) return actual
+
+    const lastActual = actual.at(-1)
+    const actualWithConnection = lastActual
+      ? [...actual.slice(0, -1), { ...lastActual, forecastValue: lastActual.actualValue }]
+      : actual
     const forecast = predictions.map((point) => ({
       date: new Date(`${point.date}T00:00:00Z`),
-      volume: Number(point.value || 0),
+      forecastValue: Number(point.value || 0),
     }))
-    return [...actual, ...forecast]
-  }, [progress, predictions, showForecast])
-
-  // Solid through the last real data point, dashed through the forecast tail.
-  const dashFromIndex = showForecast && progress.length > 0 ? progress.length - 1 : undefined
+    return [...actualWithConnection, ...forecast]
+  }, [progress, predictions, selectedMetric, showForecast])
 
   return (
     <div className={`progress-page ${category}`}>
@@ -224,7 +230,16 @@ function ProgressPage() {
             <div className="chart-box">
               <LineChart data={chartData} xDataKey="date">
                 <Grid horizontal />
-                <Line dataKey={selectedMetric} stroke={chartStroke} dashFromIndex={dashFromIndex} />
+                <Line dataKey="actualValue" stroke={chartStroke} curve={curveLinear} showMarkers />
+                {showForecast && (
+                  <Line
+                    dataKey="forecastValue"
+                    stroke={chartStroke}
+                    curve={curveLinear}
+                    dashFromIndex={0}
+                  />
+                )}
+                <YAxis />
                 <XAxis />
                 <ChartTooltip />
               </LineChart>
