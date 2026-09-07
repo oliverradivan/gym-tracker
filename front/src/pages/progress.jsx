@@ -43,20 +43,33 @@ function ProgressPage() {
       return true
     }
   })
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia('(max-width: 640px)').matches
+  })
   const [graphScrollable, setGraphScrollable] = useState(() => {
     try {
       const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
       // Only apply scrollable preference on mobile; on desktop always default to false
-      const isMobile = window.matchMedia('(max-width: 640px)').matches
-      return isMobile
+      const isMobileDevice = typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches
+      return isMobileDevice
         ? savedPreference === null
-          ? true  // default ON on mobile if no saved preference
+          ? true // default ON on mobile if no saved preference
           : savedPreference === 'true'
-        : false  // always OFF on desktop
+        : false // always OFF on desktop
     } catch {
       return false
     }
   })
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)')
+    const updateIsMobile = (event) => setIsMobile(event.matches)
+
+    setIsMobile(mediaQuery.matches)
+    mediaQuery.addEventListener('change', updateIsMobile)
+    return () => mediaQuery.removeEventListener('change', updateIsMobile)
+  }, [])
 
   useEffect(() => {
     try {
@@ -199,6 +212,7 @@ function ProgressPage() {
   const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
 
   const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
+  const isScrollable = isMobile && graphScrollable
 
   const chartData = useMemo(() => {
     return progress.map((point) => ({
@@ -263,17 +277,19 @@ function ProgressPage() {
                 </button>
               ))}
             </div>
-            <div className="chart-box">
+
+            <div className={`chart-box ${isScrollable ? 'is-scrollable' : 'is-static'}`}>
               {/* Scrollable mode: only on mobile, fixed width per point + horizontal scroll */}
-              {graphScrollable ? (
+              {isScrollable ? (
                 <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                  <div style={{ width: progress.length * 20 + 'px' }}>
+                  <div style={{ width: `${progress.length * 20}px` }}>
                     <LineChart
                       data={chartData}
                       xDataKey="date"
                       animationDuration={1800}
                       animationEasing="cubic-bezier(0.42, 0, 1, 1)"
                       key={selectedMetric}
+                      width={progress.length * 20}
                     >
                       <Grid horizontal vertical />
                       <Line
@@ -335,6 +351,7 @@ function ProgressPage() {
                   <ChartTooltip />
                 </LineChart>
               )}
+
               <div className="chart-footer">
                 <div className="chart-legend" aria-label="Chart legend">
                   <span className="legend-item">
