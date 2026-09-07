@@ -469,9 +469,9 @@
   /* no longer sets global min-width; responsiveness is managed per-mode in JSX */
 }
 
-/* When in scrollable mode (mobile only), the wrapper handles width */
-.chart-scroll-wrapper > div {
-  width: auto;
+/* Ensure chart scales to 100% width in non-scrollable mode */
+.chart-box {
+  width: 100%;
 }
 
 /* Improve touch scrolling on mobile */
@@ -489,4 +489,10 @@
 .chart-scroll-wrapper::-webkit-scrollbar-thumb {
   background-color: var(--chart-3);
   border-radius: 3px;
+}
+
+/* Override inline width from JSX to allow responsive scaling */
+.chart-scroll-wrapper > div {
+  width: auto !important;
+  min-width: 0 !important;
 }
