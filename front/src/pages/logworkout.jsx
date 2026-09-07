@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
+import { getExerciseCategoryColor } from '../utils/exerciseCategory'
 import './logworkout.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -140,10 +141,15 @@ function LogWorkoutPage() {
               name="exercise_id"
               value={form.exercise_id}
               onChange={handleChange}
+              style={{ borderColor: getExerciseCategoryColor(form.exercise_name || '') }}
             >
               <option value="">Select an exercise</option>
               {exerciseOptions.map((exercise) => (
-                <option key={exercise.id} value={exercise.id}>
+                <option
+                  key={exercise.id}
+                  value={exercise.id}
+                  style={{ color: getExerciseCategoryColor(exercise.name), fontWeight: 500 }}
+                >
                   {exercise.name}
                 </option>
               ))}

@@ -40,3 +40,15 @@ export function getExerciseCategory(name = '') {
 
   return 'general'
 }
+
+export const CATEGORY_COLORS = {
+  leg: '#b7791f',
+  push: '#b91c1c',
+  pull: '#1d4ed8',
+  general: '#6b7280',
+}
+
+export function getExerciseCategoryColor(name = '') {
+  const category = getExerciseCategory(name)
+  return CATEGORY_COLORS[category] || CATEGORY_COLORS.general
+}

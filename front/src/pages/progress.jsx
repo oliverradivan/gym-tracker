@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
-import { getExerciseCategory } from '../utils/exerciseCategory'
+import { getExerciseCategoryColor } from '../utils/exerciseCategory'
 import { LineChart, Line } from '@/components/charts/line-chart'
 import { Grid } from '@/components/charts/grid'
 import { XAxis } from '@/components/charts/x-axis'
@@ -205,7 +205,7 @@ function ProgressPage() {
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
-  const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
+  const chartStroke = getExerciseCategoryColor(selectedExercise?.name || '')
 
   const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
 
