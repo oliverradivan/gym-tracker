@@ -178,11 +178,18 @@ function ProgressPage() {
 
   const forecastData = useMemo(() => {
     if (!showForecast || predictions.length === 0) return []
-    return predictions.map((point) => ({
-      date: new Date(`${point.date}T00:00:00Z`),
-      value: Number(point.value || 0),
-    }))
-  }, [showForecast, predictions])
+    // Prepend the last actual data point so the forecast line starts
+    // exactly where the actual volume line ends — no gap between them.
+    const lastActual = chartData.at(-1)
+    if (!lastActual) return []
+    return [
+      { date: lastActual.date, value: lastActual.actualValue },
+      ...predictions.map((point) => ({
+        date: new Date(`${point.date}T00:00:00Z`),
+        value: Number(point.value || 0),
+      })),
+    ]
+  }, [showForecast, predictions, chartData])
 
   return (
     <div className={`progress-page ${category}`}>
@@ -236,9 +243,10 @@ function ProgressPage() {
                 <Line
                   dataKey="actualValue"
                   stroke={chartStroke}
-                  curve={curveNatural}
+                  curve={curveLinear}
                   fadeEdges
                   showHighlight={true}
+                  showMarkers
                 />
                 {showForecast && predictions.length > 0 && (
                   <ProjectionLine
