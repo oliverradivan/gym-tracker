@@ -3,7 +3,7 @@ import os
 from supabase import create_client
 
 EXERCISES = [
-    # Push exercises (chest, shoulders, triceps)
+    # Push exercises
     {"name": "Bench Press", "category": "Push"},
     {"name": "Smith Bench Press", "category": "Push"},
     {"name": "Machine Bench Press", "category": "Push"},
@@ -16,7 +16,7 @@ EXERCISES = [
     {"name": "Delt Cable Flys", "category": "Push"},
     {"name": "Delt Machine Flys", "category": "Push"},
     
-    # Pull exercises (back, biceps)
+    # Pull exercises
     {"name": "Pull Ups", "category": "Pull"},
     {"name": "Assisted Pull Ups", "category": "Pull"},
     {"name": "Lat Pull Down (Wide)", "category": "Pull"},
@@ -29,7 +29,7 @@ EXERCISES = [
     {"name": "Rear Delts", "category": "Pull"},
     {"name": "Shrugs", "category": "Pull"},
     
-    # Leg exercises (quads, hamstrings, calves, core)
+    # Leg exercises
     {"name": "Leg Extensions", "category": "Leg"},
     {"name": "Leg Press", "category": "Leg"},
     {"name": "Reverse Leg Press", "category": "Leg"},
@@ -38,8 +38,8 @@ EXERCISES = [
     {"name": "Inside Leg", "category": "Leg"},
     {"name": "Outside Leg", "category": "Leg"},
     {"name": "Sitting Calf Raises", "category": "Leg"},
-    {"name": "Crunch Machine", "category": "General"},
-    {"name": "Crunches", "category": "General"},
+    {"name": "Crunch Machine", "category": "Leg"},
+    {"name": "Crunches", "category": "Leg"},
 ]
 
 
