@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { curveLinear } from '@visx/curve'
+import { curveLinear, curveNatural } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import { LineChart, Line } from '@/components/charts/line-chart'
@@ -43,33 +43,20 @@ function ProgressPage() {
       return true
     }
   })
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window === 'undefined') return false
-    return window.matchMedia('(max-width: 640px)').matches
-  })
   const [graphScrollable, setGraphScrollable] = useState(() => {
     try {
       const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
       // Only apply scrollable preference on mobile; on desktop always default to false
-      const isMobileDevice = typeof window !== 'undefined' && window.matchMedia('(max-width: 640px)').matches
-      return isMobileDevice
+      const isMobile = window.matchMedia('(max-width: 640px)').matches
+      return isMobile
         ? savedPreference === null
-          ? true // default ON on mobile if no saved preference
+          ? true  // default ON on mobile if no saved preference
           : savedPreference === 'true'
-        : false // always OFF on desktop
+        : false  // always OFF on desktop
     } catch {
       return false
     }
   })
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 640px)')
-    const updateIsMobile = (event) => setIsMobile(event.matches)
-
-    setIsMobile(mediaQuery.matches)
-    mediaQuery.addEventListener('change', updateIsMobile)
-    return () => mediaQuery.removeEventListener('change', updateIsMobile)
-  }, [])
 
   useEffect(() => {
     try {
@@ -106,9 +93,9 @@ function ProgressPage() {
 
         const urlExercise = items.find((item) => String(item.id) === exerciseId)
         if (urlExercise) {
-          setSelectedExerciseId(String(urlExercise.id))
+          setSelectedExerciseId(urlExercise.id)
         } else if (items[0]) {
-          setSelectedExerciseId(String(items[0].id))
+          setSelectedExerciseId(items[0].id)
         }
       } catch (error) {
         console.error(error)
@@ -207,12 +194,11 @@ function ProgressPage() {
     return () => { mounted = false }
   }, [predictionEnabled, selectedExerciseId, progress, session])
 
-  const selectedExercise = exercises.find((exercise) => String(exercise.id) === selectedExerciseId)
+  const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
   const chartStroke = category === 'push' ? '#b91c1c' : category === 'pull' ? '#1d4ed8' : category === 'leg' ? '#b7791f' : '#111111'
 
   const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
-  const isScrollable = isMobile && graphScrollable
 
   const chartData = useMemo(() => {
     return progress.map((point) => ({
@@ -277,19 +263,20 @@ function ProgressPage() {
                 </button>
               ))}
             </div>
+            <div className="chart-box">
+              {/* Determine if we're on mobile */}
+              const isMobile = window.matchMedia('(max-width: 640px)').matches
 
-            <div className={`chart-box ${isScrollable ? 'is-scrollable' : 'is-static'}`}>
               {/* Scrollable mode: only on mobile, fixed width per point + horizontal scroll */}
-              {isScrollable ? (
-                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-                  <div style={{ width: `${progress.length * 20}px` }}>
+              {isMobile && graphScrollable ? (
+                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', '-webkit-overflow-scrolling': 'touch' }}>
+                  <div style={{ width: progress.length * 20 + 'px' }}>
                     <LineChart
                       data={chartData}
                       xDataKey="date"
                       animationDuration={1800}
                       animationEasing="cubic-bezier(0.42, 0, 1, 1)"
                       key={selectedMetric}
-                      width={progress.length * 20}
                     >
                       <Grid horizontal vertical />
                       <Line
@@ -325,6 +312,7 @@ function ProgressPage() {
                   animationDuration={1800}
                   animationEasing="cubic-bezier(0.42, 0, 1, 1)"
                   key={selectedMetric}
+                  /* Do NOT set minWidth inline; let CSS handle responsiveness */
                 >
                   <Grid horizontal vertical />
                   <Line
@@ -351,7 +339,6 @@ function ProgressPage() {
                   <ChartTooltip />
                 </LineChart>
               )}
-
               <div className="chart-footer">
                 <div className="chart-legend" aria-label="Chart legend">
                   <span className="legend-item">
