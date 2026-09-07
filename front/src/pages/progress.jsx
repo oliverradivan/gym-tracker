@@ -306,7 +306,7 @@ function ProgressPage() {
             <div className="chart-box">
               {isMobile && graphScrollable ? (
                 <div className="chart-scroll-wrapper">
-                  <div style={{ minWidth: `${Math.max(600, progress.length * 28)}px` }}>
+                  <div style={{ minWidth: `${Math.max(800, progress.length * 45)}px`, height: '400px' }}>
                     {renderChart()}
                   </div>
                 </div>
