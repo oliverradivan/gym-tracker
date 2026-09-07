@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { curveLinear } from '@visx/curve'
+import { curveLinear, curveNatural } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import { LineChart, Line } from '@/components/charts/line-chart'
@@ -169,22 +169,19 @@ function ProgressPage() {
   const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
 
   const chartData = useMemo(() => {
-    const actual = progress.map((point) => ({
+    return progress.map((point) => ({
       date: new Date(`${point.date}T00:00:00Z`),
       actualValue: Number(point[selectedMetric] || 0),
     }))
-    if (!showForecast) return actual
+  }, [progress, selectedMetric])
 
-    const lastActual = actual.at(-1)
-    const actualWithConnection = lastActual
-      ? [...actual.slice(0, -1), { ...lastActual, forecastValue: lastActual.actualValue }]
-      : actual
-    const forecast = predictions.map((point) => ({
+  const forecastData = useMemo(() => {
+    if (!showForecast || predictions.length === 0) return []
+    return predictions.map((point) => ({
       date: new Date(`${point.date}T00:00:00Z`),
-      forecastValue: Number(point.value || 0),
+      value: Number(point.value || 0),
     }))
-    return [...actualWithConnection, ...forecast]
-  }, [progress, predictions, selectedMetric, showForecast])
+  }, [showForecast, predictions])
 
   return (
     <div className={`progress-page ${category}`}>
@@ -228,19 +225,32 @@ function ProgressPage() {
               ))}
             </div>
             <div className="chart-box">
-              <LineChart data={chartData} xDataKey="date">
-                <Grid horizontal />
-                <Line dataKey="actualValue" stroke={chartStroke} curve={curveLinear} showMarkers />
-                {showForecast && (
-                  <Line
-                    dataKey="forecastValue"
-                    stroke={chartStroke}
-                    curve={curveLinear}
-                    dashFromIndex={0}
+              <LineChart
+                data={chartData}
+                xDataKey="date"
+                animationDuration={1800}
+                animationEasing="cubic-bezier(0.42, 0, 1, 1)"
+              >
+                <Grid horizontal vertical />
+                <Line
+                  dataKey="actualValue"
+                  stroke={chartStroke}
+                  curve={curveNatural}
+                  fadeEdges
+                  showHighlight={true}
+                />
+                {showForecast && predictions.length > 0 && (
+                  <ProjectionLine
+                    data={forecastData}
+                    curveKind="linear"
+                    showEndMarker={false}
+                    stroke="var(--chart-3)"
+                    strokeWidth={2}
+                    strokeDasharray="6,4"
                   />
                 )}
                 <YAxis />
-                <XAxis />
+                <XAxis numTicks={progress.length} />
                 <ChartTooltip />
               </LineChart>
               <div className="chart-footer">
