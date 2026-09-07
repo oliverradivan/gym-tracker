@@ -36,6 +36,18 @@ function ProgressPage() {
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
   const [predictionError, setPredictionError] = useState('')
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Track responsive screen width
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 640px)')
+    setIsMobile(mediaQuery.matches)
+
+    const handler = (e) => setIsMobile(e.matches)
+    mediaQuery.addEventListener('change', handler)
+    return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+
   const [predictionEnabled] = useState(() => {
     try {
       return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
@@ -43,16 +55,16 @@ function ProgressPage() {
       return true
     }
   })
+
   const [graphScrollable, setGraphScrollable] = useState(() => {
     try {
       const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
-      // Only apply scrollable preference on mobile; on desktop always default to false
-      const isMobile = window.matchMedia('(max-width: 640px)').matches
-      return isMobile
+      const mobileMatch = window.matchMedia('(max-width: 640px)').matches
+      return mobileMatch
         ? savedPreference === null
-          ? true  // default ON on mobile if no saved preference
+          ? true
           : savedPreference === 'true'
-        : false  // always OFF on desktop
+        : false
     } catch {
       return false
     }
@@ -209,8 +221,6 @@ function ProgressPage() {
 
   const forecastData = useMemo(() => {
     if (!showForecast || predictions.length === 0) return []
-    // Prepend the last actual data point so the forecast line starts
-    // exactly where the actual volume line ends — no gap between them.
     const lastActual = chartData.at(-1)
     if (!lastActual) return []
     return [
@@ -264,13 +274,9 @@ function ProgressPage() {
               ))}
             </div>
             <div className="chart-box">
-              {/* Determine if we're on mobile */}
-              const isMobile = window.matchMedia('(max-width: 640px)').matches
-
-              {/* Scrollable mode: only on mobile, fixed width per point + horizontal scroll */}
               {isMobile && graphScrollable ? (
-                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', '-webkit-overflow-scrolling': 'touch' }}>
-                  <div style={{ width: progress.length * 20 + 'px' }}>
+                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                  <div style={{ width: `${progress.length * 20}px` }}>
                     <LineChart
                       data={chartData}
                       xDataKey="date"
@@ -305,14 +311,12 @@ function ProgressPage() {
                   </div>
                 </div>
               ) : (
-                /* Regular responsive mode: let chart fit viewport, never squish below mobile-safe width */
                 <LineChart
                   data={chartData}
                   xDataKey="date"
                   animationDuration={1800}
                   animationEasing="cubic-bezier(0.42, 0, 1, 1)"
                   key={selectedMetric}
-                  /* Do NOT set minWidth inline; let CSS handle responsiveness */
                 >
                   <Grid horizontal vertical />
                   <Line
