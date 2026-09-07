@@ -46,9 +46,13 @@ function ProgressPage() {
   const [graphScrollable, setGraphScrollable] = useState(() => {
     try {
       const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
-      return savedPreference === null
-        ? window.matchMedia('(max-width: 640px)').matches
-        : savedPreference === 'true'
+      // Only apply scrollable preference on mobile; on desktop always default to false
+      const isMobile = window.matchMedia('(max-width: 640px)').matches
+      return isMobile
+        ? savedPreference === null
+          ? true  // default ON on mobile if no saved preference
+          : savedPreference === 'true'
+        : false  // always OFF on desktop
     } catch {
       return false
     }
@@ -260,51 +264,55 @@ function ProgressPage() {
               ))}
             </div>
             <div className="chart-box">
-              {/* Scrollable mode: fixed width per point + horizontal scroll */}
-              {graphScrollable ? (
-                <div className="chart-scroll-wrapper" style={{ width: progress.length * 20 + 'px', overflowX: 'auto' }}>
-                  <LineChart
-                    data={chartData}
-                    xDataKey="date"
-                    animationDuration={1800}
-                    animationEasing="cubic-bezier(0.42, 0, 1, 1)"
-                    key={selectedMetric}
-                    width={progress.length * 20}
-                  >
-                    <Grid horizontal vertical />
-                    <Line
-                      dataKey="actualValue"
-                      stroke={chartStroke}
-                      curve={curveLinear}
-                      fadeEdges
-                      showHighlight={true}
-                      showMarkers
-                    />
-                    {showForecast && predictions.length > 0 && (
-                      <ProjectionLine
-                        data={forecastData}
-                        curveKind="linear"
-                        showEndMarker={false}
-                        stroke="var(--chart-3)"
-                        strokeWidth={2}
-                        strokeDasharray="6,4"
-                        showMarkers={true}
+              {/* Determine if we're on mobile */
+              const isMobile = window.matchMedia('(max-width: 640px)').matches
+
+              {/* Scrollable mode: only on mobile, fixed width per point + horizontal scroll */}
+              {isMobile && graphScrollable ? (
+                <div className="chart-scroll-wrapper" style={{ overflowX: 'auto', '-webkit-overflow-scrolling': 'touch' }}>
+                  <div style={{ width: progress.length * 20 + 'px' }}>
+                    <LineChart
+                      data={chartData}
+                      xDataKey="date"
+                      animationDuration={1800}
+                      animationEasing="cubic-bezier(0.42, 0, 1, 1)"
+                      key={selectedMetric}
+                    >
+                      <Grid horizontal vertical />
+                      <Line
+                        dataKey="actualValue"
+                        stroke={chartStroke}
+                        curve={curveLinear}
+                        fadeEdges
+                        showHighlight={true}
+                        showMarkers
                       />
-                    )}
-                    <YAxis />
-                    <XAxis numTicks={progress.length} />
-                    <ChartTooltip />
-                  </LineChart>
+                      {showForecast && predictions.length > 0 && (
+                        <ProjectionLine
+                          data={forecastData}
+                          curveKind="linear"
+                          showEndMarker={false}
+                          stroke="var(--chart-3)"
+                          strokeWidth={2}
+                          strokeDasharray="6,4"
+                          showMarkers={true}
+                        />
+                      )}
+                      <YAxis />
+                      <XAxis numTicks={progress.length} />
+                      <ChartTooltip />
+                    </LineChart>
+                  </div>
                 </div>
               ) : (
-                /* Regular responsive mode: let chart fit viewport, with min-width to prevent squishing */
+                /* Regular responsive mode: let chart fit viewport, never squish below mobile-safe width */
                 <LineChart
                   data={chartData}
                   xDataKey="date"
                   animationDuration={1800}
                   animationEasing="cubic-bezier(0.42, 0, 1, 1)"
                   key={selectedMetric}
-                  style={{ minWidth: '400px' }}
+                  /* Do NOT set minWidth inline; let CSS handle responsiveness */
                 >
                   <Grid horizontal vertical />
                   <Line

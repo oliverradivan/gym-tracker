@@ -462,16 +462,16 @@
   pointer-events: none;
 }
 
-/* Prevent mobile squishing - minimum chart width */
-.chart-box > * {
-  min-width: 400px;
+/* Ensures the chart has a minimum sensible width on desktop,
+   but is fluid on mobile – the JSX now handles min-width via inline styles
+   only when needed, not via global CSS rules. */
+.chart-box {
+  /* no longer sets global min-width; responsiveness is managed per-mode in JSX */
 }
 
-/* When scrollable is active, ensure the chart maintains readability */
-@media (max-width: 640px) {
-  .chart-box > * {
-    min-width: 100%; /* Full width on very narrow screens */
-  }
+/* When in scrollable mode (mobile only), the wrapper handles width */
+.chart-scroll-wrapper > div {
+  width: auto;
 }
 
 /* Improve touch scrolling on mobile */
