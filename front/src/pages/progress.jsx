@@ -264,7 +264,7 @@ function ProgressPage() {
               ))}
             </div>
             <div className="chart-box">
-              {/* Determine if we're on mobile */
+              {/* Determine if we're on mobile */}
               const isMobile = window.matchMedia('(max-width: 640px)').matches
 
               {/* Scrollable mode: only on mobile, fixed width per point + horizontal scroll */}
