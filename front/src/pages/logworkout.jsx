@@ -141,7 +141,7 @@ function LogWorkoutPage() {
               name="exercise_id"
               value={form.exercise_id}
               onChange={handleChange}
-              className={form.exercise_name ? `select-${getExerciseCategoryColor(form.exercise_name || '')}` : ''}
+              className={form.exercise_name ? `select-${getExerciseCategory(form.exercise_name || '')}` : ''}
             >
               <option value="">Select an exercise</option>
               {exerciseOptions.map((exercise) => (

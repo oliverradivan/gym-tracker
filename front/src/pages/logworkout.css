@@ -1,3 +1,41 @@
+/* Options in the dropdown list */
+.option-leg {
+  background-color: #fef3e2;
+  color: #b7791f;
+}
+
+.option-push {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.option-pull {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.option-general {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* The select box itself, once an exercise is chosen */
+.select-leg {
+  border-color: #b7791f;
+}
+
+.select-push {
+  border-color: #b91c1c;
+}
+
+.select-pull {
+  border-color: #1d4ed8;
+}
+
+.select-general {
+  border-color: #6b7280;
+}
+
 .logworkout-page {
   min-height: 100vh;
   display: flex;
