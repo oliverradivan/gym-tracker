@@ -55,6 +55,42 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.logworkout-form select.select-leg,
+.logworkout-form select.select-leg .option-leg {
+  border-color: rgba(180, 132, 0, 0.5);
+}
+
+.logworkout-form select.select-leg .option-leg {
+  color: #b7791f;
+}
+
+.logworkout-form select.select-pull,
+.logworkout-form select.select-pull .option-pull {
+  border-color: rgba(29, 78, 216, 0.5);
+}
+
+.logworkout-form select.select-pull .option-pull {
+  color: #1d4ed8;
+}
+
+.logworkout-form select.select-push,
+.logworkout-form select.select-push .option-push {
+  border-color: rgba(185, 28, 28, 0.5);
+}
+
+.logworkout-form select.select-push .option-push {
+  color: #b91c1c;
+}
+
+.logworkout-form select.select-general,
+.logworkout-form select.select-general .option-general {
+  border-color: rgba(107, 114, 128, 0.5);
+}
+
+.logworkout-form select.select-general .option-general {
+  color: #6b7280;
+}
+
 .logworkout-form textarea {
   resize: vertical;
 }

@@ -277,9 +277,19 @@ function ProgressPage() {
 
         <label className="exercise-select-label">
           Exercise
-          <select value={selectedExerciseId} onChange={(event) => setSelectedExerciseId(event.target.value)}>
+          <select
+            value={selectedExerciseId}
+            onChange={(event) => setSelectedExerciseId(event.target.value)}
+            className={`select-${getExerciseCategory(selectedExercise?.name || '')}`}
+          >
             {exercises.map((exercise) => (
-              <option key={exercise.id} value={exercise.id}>{exercise.name}</option>
+              <option
+                key={exercise.id}
+                value={exercise.id}
+                className={`option-${getExerciseCategory(exercise.name)}`}
+              >
+                {exercise.name}
+              </option>
             ))}
           </select>
         </label>

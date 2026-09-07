@@ -85,6 +85,53 @@
   font: inherit;
 }
 
+.exercise-select-label select.select-leg,
+.exercise-select-label select.select-leg .option-leg {
+  border-color: rgba(180, 132, 0, 0.5);
+}
+
+.exercise-select-label select.select-leg .option-leg {
+  color: #b7791f;
+}
+
+.exercise-select-label select.select-pull,
+.exercise-select-label select.select-pull .option-pull {
+  border-color: rgba(29, 78, 216, 0.5);
+}
+
+.exercise-select-label select.select-pull .option-pull {
+  color: #1d4ed8;
+}
+
+.exercise-select-label select.select-push,
+.exercise-select-label select.select-push .option-push {
+  border-color: rgba(185, 28, 28, 0.5);
+}
+
+.exercise-select-label select.select-push .option-push {
+  color: #b91c1c;
+}
+
+.exercise-select-label select.select-general,
+.exercise-select-label select.select-general .option-general {
+  border-color: rgba(107, 114, 128, 0.5);
+}
+
+.exercise-select-label select.select-general .option-general {
+  color: #6b7280;
+}
+
+.exercise-select-label select {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 17, 17, 0.14);
+  background: rgba(255, 255, 255, 0.8);
+  color: #111111;
+  padding: 12px 14px;
+  font: inherit;
+}
+
 .metric-toggle {
   display: inline-flex;
   margin-bottom: 12px;
