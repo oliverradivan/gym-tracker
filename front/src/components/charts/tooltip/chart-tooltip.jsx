@@ -9,7 +9,7 @@ import { DateTicker } from "./date-ticker";
 import { TooltipBox } from "./tooltip-box";
 import { TooltipContent } from "./tooltip-content";
 import { TooltipDot } from "./tooltip-dot";
-import { TooltipIndicator } from "./tooltip-indicator";
+import { HorizontalTooltipIndicator, TooltipIndicator } from "./tooltip-indicator";
 
 const ChartTooltipInner = memo(function ChartTooltipInner({
   showDatePill = true,
@@ -216,6 +216,20 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
               visible={visible}
               width="line"
               x={x}
+            />
+            <HorizontalTooltipIndicator
+              animate={!discreteInteraction}
+              colorEdge={indicatorColor}
+              colorMid={indicatorColor}
+              fadeEdges={
+                indicatorDasharray ? "none" : (indicatorFadeEdges ?? "both")
+              }
+              fadeLength={indicatorFadeLength}
+              springConfig={springConfig}
+              strokeDasharray={indicatorDasharray}
+              visible={visible}
+              width={innerWidth}
+              y={firstLineY}
             />
           </g>
         </svg>

@@ -126,7 +126,7 @@ export function useChartInteraction(
       // falling back to the default yScale. This ensures the on-chart marker
       // dot appears at the correct vertical position when hovering over
       // the forecast line.
-      if (tooltipData.pointType === "forecast") {
+      if (pointType === "forecast") {
         // Find the projection config that matches the first line's yAxisId,
         // or use the default scale.
         let forecastAxisId = DEFAULT_Y_AXIS_ID;

@@ -3,6 +3,8 @@ export function getExerciseCategory(name = '') {
 
   const explicitLeg = [
     'bed hamstring curl',
+    'crunch machine',
+    'crunches',
     'leg press',
     'manchester hamstring curl',
     'reverse leg press',

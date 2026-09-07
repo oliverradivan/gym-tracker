@@ -159,4 +159,84 @@ function TooltipIndicatorInner({
 
 TooltipIndicator.displayName = "TooltipIndicator";
 
+export function HorizontalTooltipIndicator(props) {
+  if (!props.visible || props.y == null) {
+    return null;
+  }
+  return <HorizontalTooltipIndicatorInner {...props} />;
+}
+
+function HorizontalTooltipIndicatorInner({
+  y,
+  visible,
+  width,
+  colorEdge = chartCssVars.crosshair,
+  colorMid = chartCssVars.crosshair,
+  animate = true,
+  springConfig,
+  strokeDasharray
+}) {
+  const { tooltipSpring } = useChartConfig();
+  const effectiveSpring = springConfig ?? tooltipSpring;
+
+  const animatedY = useSpring(y, effectiveSpring);
+
+  if (animate) {
+    animatedY.set(y);
+  }
+
+  useEffect(() => {
+    animatedY.set(y);
+  }, [animatedY, y, visible]);
+
+  const indicatorFill = colorMid || colorEdge;
+  const dashed = Boolean(strokeDasharray);
+
+  if (dashed) {
+    return animate ? (
+      <motion.line
+        stroke={indicatorFill}
+        strokeDasharray={strokeDasharray}
+        strokeWidth={1}
+        x1={0}
+        x2={width}
+        y1={animatedY}
+        y2={animatedY}
+      />
+    ) : (
+      <line
+        stroke={indicatorFill}
+        strokeDasharray={strokeDasharray}
+        strokeWidth={1}
+        x1={0}
+        x2={width}
+        y1={y}
+        y2={y}
+      />
+    );
+  }
+
+  return animate ? (
+    <motion.line
+      stroke={indicatorFill}
+      strokeWidth={1}
+      x1={0}
+      x2={width}
+      y1={animatedY}
+      y2={animatedY}
+    />
+  ) : (
+    <line
+      stroke={indicatorFill}
+      strokeWidth={1}
+      x1={0}
+      x2={width}
+      y1={y}
+      y2={y}
+    />
+  );
+}
+
+HorizontalTooltipIndicator.displayName = "HorizontalTooltipIndicator";
+
 export default TooltipIndicator;
