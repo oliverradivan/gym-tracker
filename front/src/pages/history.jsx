@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
@@ -19,48 +19,38 @@ function HistoryPage() {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
 
-      if (!response.ok) {
-        throw new Error('Unable to load workout history.')
+      if (response.ok) {
+        const result = await response.json()
+        setSessions(result.sessions || [])
       }
-
-      const result = await response.json()
-      setSessions(result.sessions || [])
     } catch {
       // History load error handled silently.
-    } finally {
-      setLoading(false)
     }
   }
 
   useEffect(() => {
     let active = true
 
-    const fetchSessions = async () => {
-      if (!session?.access_token) {
-        setLoading(false)
-        return
-      }
-
-      try {
-        const response = await fetch(`${API_URL}/workout-sessions`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        })
-
-        if (!response.ok) {
-          throw new Error('Unable to load workout history.')
-        }
-
-        const result = await response.json()
-        if (active) setSessions(result.sessions || [])
-      } catch {
-        // History load error handled silently.
-      } finally {
-        if (active) setLoading(false)
-      }
+    if (!session?.access_token) {
+      setLoading(false)
+      return
     }
 
-    fetchSessions()
-    return () => { active = false }
+    fetch(`${API_URL}/workout-sessions`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => {
+        if (active) setSessions(data.sessions || [])
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+
+    return () => {
+      active = false
+    }
   }, [session])
 
   const handleDeleteWorkout = async (logId) => {

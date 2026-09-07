@@ -36,13 +36,14 @@ function ProgressPage() {
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
   const [predictionError, setPredictionError] = useState('')
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return window.matchMedia('(max-width: 640px)').matches
+  })
 
   // Track responsive screen width
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 640px)')
-    setIsMobile(mediaQuery.matches)
-
     const handler = (e) => setIsMobile(e.matches)
     mediaQuery.addEventListener('change', handler)
     return () => mediaQuery.removeEventListener('change', handler)

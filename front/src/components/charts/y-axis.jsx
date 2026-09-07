@@ -49,14 +49,13 @@ function resolveTickLabelColor(tickY, axisId, yScale, referenceAreas) {
 
 export function YAxis(props) {
   const { containerRef } = useChartStable();
-  const [mounted, setMounted] = useState(false);
+  const [container, setContainer] = useState(null);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setContainer(containerRef.current);
+  }, [containerRef]);
 
-  const container = containerRef.current;
-  if (!(mounted && container)) {
+  if (!container) {
     return null;
   }
 

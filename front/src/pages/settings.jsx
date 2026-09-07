@@ -19,7 +19,7 @@ const TABS = [
 
 function SettingsPage() {
   const navigate = useNavigate()
-  const { user, session, handleLogout } = useAuth()
+  const { user, session, setUser, handleLogout } = useAuth()
   const { theme, toggleTheme } = useTheme()
 
   // State for forms
@@ -133,8 +133,14 @@ function SettingsPage() {
       }
 
       setMessage('Username updated successfully')
+      setUser((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          user_metadata: { ...prev.user_metadata, username: newUsername, full_name: newUsername },
+        }
+      })
       setNewUsername('')
-      // In a real app, you'd update the auth context here
     } catch (err) {
       setError(err.message)
     } finally {

@@ -31,7 +31,7 @@ def test_normalize_exercise_name_rejects_empty_value():
 
 def test_build_session_summary_groups_by_date_and_sums_volume():
     rows = [
-        {"id": "a1", "exercise_id": "ex-1", "log_date": "2026-01-03", "weight": 100, "reps": 5, "exercises": {"name": "Bench Press"}},
+        {"id": "a1", "exercise_id": "ex-1", "log_date": "2026-01-03", "weight": 100, "reps": 5.5, "exercises": {"name": "Bench Press"}},
         {"id": "a2", "exercise_id": "ex-1", "log_date": "2026-01-03", "weight": 80, "reps": 8, "exercises": {"name": "Bench Press"}},
         {"id": "b1", "exercise_id": "ex-2", "log_date": "2026-01-01", "weight": 70, "reps": 10, "exercises": {"name": "Squat"}},
     ]
@@ -39,8 +39,8 @@ def test_build_session_summary_groups_by_date_and_sums_volume():
     result = build_session_summary(rows)
 
     assert result == [
-        {"date": "2026-01-03", "total_volume": 1140, "entries": [
-            {"log_id": "a1", "exercise_id": "ex-1", "exercise_name": "Bench Press", "weight": 100, "reps": 5, "volume": 500},
+        {"date": "2026-01-03", "total_volume": 1190, "entries": [
+            {"log_id": "a1", "exercise_id": "ex-1", "exercise_name": "Bench Press", "weight": 100, "reps": 5.5, "volume": 550},
             {"log_id": "a2", "exercise_id": "ex-1", "exercise_name": "Bench Press", "weight": 80, "reps": 8, "volume": 640},
         ]},
         {"date": "2026-01-01", "total_volume": 700, "entries": [

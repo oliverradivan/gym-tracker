@@ -23,7 +23,7 @@ function RegisterPage() {
     event.preventDefault()
     setMessage('')
 
-    const result = await handleAuth(form)
+    const result = await handleAuth(form, 'register')
     if (result?.success) {
       navigate('/login')
     }

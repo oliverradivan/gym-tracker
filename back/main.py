@@ -293,9 +293,11 @@ def build_session_summary(rows):
         if not exercise_name:
             exercise_name = "Unknown Exercise"
 
-        weight = float(row.get("weight") or 0)
-        reps = int(row.get("reps") or 0)
-        volume = weight * reps
+        weight_val = float(row.get("weight") or 0)
+        reps_val = float(row.get("reps") or 0)
+        weight = int(weight_val) if weight_val.is_integer() else weight_val
+        reps = int(reps_val) if reps_val.is_integer() else reps_val
+        volume = weight_val * reps_val
         log_id = row.get("id")
         exercise_id = row.get("exercise_id")
 
@@ -633,11 +635,10 @@ def update_username(
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to update username: {exc.message}") from exc
 
-    # Update user metadata in auth
+    # Update user metadata in auth via admin client
     try:
-        auth_client = get_auth_client()
-        auth_client.auth.update_user(
-            user.session.access_token if hasattr(user, 'session') else None,
+        supabase.auth.admin.update_user_by_id(
+            user.id,
             {"user_metadata": {"username": new_username, "full_name": new_username}},
         )
     except Exception:
@@ -670,14 +671,14 @@ def update_password(
     except AuthApiError as exc:
         raise HTTPException(status_code=401, detail="Current password is incorrect.") from exc
 
-    # Update password
+    # Update password using admin API
     try:
-        auth_client = get_auth_client()
-        auth_client.auth.update_user(
+        supabase.auth.admin.update_user_by_id(
+            user.id,
             {"password": payload.new_password},
         )
-    except AuthApiError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to update password: {exc.message}") from exc
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to update password: {exc}") from exc
 
     return {"message": "Password updated successfully"}
 

@@ -114,3 +114,35 @@ def test_get_auth_client_requires_supabase_env(monkeypatch):
 
     with pytest.raises(HTTPException, match="Supabase is not configured"):
         get_auth_client()
+
+
+def test_update_password_uses_admin_api(monkeypatch):
+    from main import UpdatePasswordPayload, update_password
+
+    admin_updated = {}
+
+    class DummyAdmin:
+        def update_user_by_id(self, user_id, attributes):
+            admin_updated[user_id] = attributes
+
+    class DummySupabase:
+        def __init__(self):
+            self.auth = SimpleNamespace(admin=DummyAdmin())
+
+    monkeypatch.setattr("main.supabase", DummySupabase())
+    monkeypatch.setattr(
+        "main.get_authenticated_user",
+        lambda authorization: SimpleNamespace(id="user-123", email="alex@example.com"),
+    )
+    monkeypatch.setattr(
+        "main.get_auth_client",
+        lambda: SimpleNamespace(auth=SimpleNamespace(sign_in_with_password=lambda payload: object())),
+    )
+
+    res = update_password(
+        UpdatePasswordPayload(current_password="old", new_password="newpassword123"),
+        authorization="Bearer token",
+    )
+
+    assert res == {"message": "Password updated successfully"}
+    assert admin_updated["user-123"] == {"password": "newpassword123"}

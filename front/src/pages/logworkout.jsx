@@ -5,12 +5,18 @@ import './logworkout.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 
+const getTodayKey = () => {
+  const date = new Date()
+  const offset = date.getTimezoneOffset() * 60000
+  return new Date(date.getTime() - offset).toISOString().slice(0, 10)
+}
+
 const initialForm = {
   exercise_id: '',
   exercise_name: '',
   weight: '',
   reps: '',
-  date: '',
+  date: getTodayKey(),
 }
 
 function LogWorkoutPage() {
@@ -43,7 +49,15 @@ function LogWorkoutPage() {
 
   const handleChange = (event) => {
     const { name, value } = event.target
-    setForm((prev) => ({ ...prev, [name]: value }))
+    setForm((prev) => {
+      const updated = { ...prev, [name]: value }
+      if (name === 'exercise_id' && value) {
+        updated.exercise_name = ''
+      } else if (name === 'exercise_name' && value) {
+        updated.exercise_id = ''
+      }
+      return updated
+    })
   }
 
   const handleSubmit = async (event) => {

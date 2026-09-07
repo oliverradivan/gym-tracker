@@ -38,8 +38,8 @@ EXERCISES = [
     {"name": "Inside Leg", "category": "Leg"},
     {"name": "Outside Leg", "category": "Leg"},
     {"name": "Sitting Calf Raises", "category": "Leg"},
-    {"name": "Crunch Machine", "category": "Leg"},
-    {"name": "Crunches", "category": "Leg"},
+    {"name": "Crunch Machine", "category": "General"},
+    {"name": "Crunches", "category": "General"},
 ]
 
 

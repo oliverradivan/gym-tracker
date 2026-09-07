@@ -22,7 +22,7 @@ function LoginPage() {
     event.preventDefault()
     setMessage('')
 
-    const result = await handleAuth(form)
+    const result = await handleAuth(form, 'login')
     if (result?.success) {
       navigate('/dashboard')
     }

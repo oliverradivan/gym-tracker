@@ -34,18 +34,18 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(AUTH_STORAGE_KEY)
   }, [user, session])
 
-  const handleAuth = async (form) => {
+  const handleAuth = async (form, mode) => {
     setLoading(true)
     setMessage('')
 
     try {
+      const endpoint = mode || (form.email ? 'register' : 'login')
       const payload = {
-        username: form.username.trim(),
+        username: form.username?.trim(),
         email: form.email?.trim(),
         password: form.password,
       }
 
-      const endpoint = form.email ? 'register' : 'login'
       const response = await fetch(`${API_URL}/auth/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -67,7 +67,7 @@ export function AuthProvider({ children }) {
         throw new Error(result.detail || result.message || 'Authentication failed.')
       }
 
-      if (form.email) {
+      if (endpoint === 'register') {
         setMessage(`Account created for @${result.username}. You can now log in.`)
         return { success: true }
       }
