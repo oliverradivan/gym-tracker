@@ -10,6 +10,7 @@ function HistoryPage() {
   const { session } = useAuth()
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState('')
 
   const loadSessions = async () => {
     if (!session?.access_token) return
@@ -54,7 +55,10 @@ function HistoryPage() {
   }, [session])
 
   const handleDeleteWorkout = async (logId) => {
-    if (!logId || !session?.access_token) return
+    if (!logId || !session?.access_token) {
+      setMessage('Unable to delete — missing workout ID or session.')
+      return
+    }
 
     try {
       const response = await fetch(`${API_URL}/workout-logs/${logId}`, {
@@ -69,8 +73,9 @@ function HistoryPage() {
       }
 
       await loadSessions()
+      setMessage('Workout deleted successfully.')
     } catch (error) {
-      window.alert(error.message || 'Failed to delete workout.')
+      setMessage(error.message || 'Failed to delete workout.')
     }
   }
 
@@ -84,6 +89,8 @@ function HistoryPage() {
           </div>
           <Link to="/dashboard" className="secondary-btn">Back to dashboard</Link>
         </div>
+
+        {message && <p className="status-message">{message}</p>}
 
         {loading ? (
           <p className="status-message">Loading workouts...</p>
@@ -100,7 +107,7 @@ function HistoryPage() {
 
                 <ul className="session-entries">
                   {sessionItem.entries.map((entry, index) => (
-                    <li key={`${sessionItem.date}-${entry.log_id || index}`} className={`history-entry ${getExerciseCategory(entry.exercise_name)}`}>
+                    <li key={entry.log_id ?? entry.exercise_id ?? `${sessionItem.date}-${index}`} className={`history-entry ${getExerciseCategory(entry.exercise_name)}`}>
                       <Link to={`/progress/${entry.exercise_id}`} className="exercise-link">{entry.exercise_name}</Link>
                       <span>{entry.weight} kg × {entry.reps} reps</span>
                       <div className="entry-actions">

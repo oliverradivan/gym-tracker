@@ -2,7 +2,7 @@
 import { localPoint } from "@visx/event";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
-import { normalizeYAxisId } from "./y-axis-scales";
+import { DEFAULT_Y_AXIS_ID, normalizeYAxisId } from "./y-axis-scales";
 import { projectionDateExtents, projectionValueExtents } from "./projection-utils";
 
 export function useChartInteraction(

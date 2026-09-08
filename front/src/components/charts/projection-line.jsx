@@ -40,6 +40,7 @@ function renderProjectionStroke({
 
 export function ProjectionLine({
   data,
+  dataKey = "value",
   yAxisId,
   stroke = "var(--chart-3)",
   strokeStyle = "solid",
@@ -72,8 +73,8 @@ export function ProjectionLine({
     [yScale]
   );
   const handlePointClick = useCallback((point, index) => {
-    setTooltipData({ point, index, x: getX(point), yPositions: { value: getY(point) } });
-  }, [getX, getY, setTooltipData]);
+    setTooltipData({ point, index, x: getX(point), yPositions: { [dataKey]: getY(point) } });
+  }, [dataKey, getX, getY, setTooltipData]);
 
   const startPoint = data[0];
   const endPoint = data.at(-1);

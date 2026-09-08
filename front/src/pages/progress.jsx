@@ -211,7 +211,7 @@ function ProgressPage() {
 
   const chartData = useMemo(() => {
     return progress.map((point) => ({
-      date: new Date(`${point.date}T00:00:00Z`),
+      date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
       actualValue: Number(point[selectedMetric] || 0),
     }))
   }, [progress, selectedMetric])
@@ -223,7 +223,7 @@ function ProgressPage() {
     return [
       { date: lastActual.date, value: lastActual.actualValue },
       ...predictions.map((point) => ({
-        date: new Date(`${point.date}T00:00:00Z`),
+        date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
         value: Number(point.value || 0),
       })),
     ]
@@ -297,7 +297,7 @@ function ProgressPage() {
         {loading ? (
           <p className="status-message">Loading progress...</p>
         ) : !selectedExercise ? (
-          <p className="status-message">No exercise selected.</p>
+          <p className="status-message">Select an exercise from the dropdown to view progress.</p>
         ) : progress.length === 0 ? (
           <p className="status-message">No progress data yet for {selectedExercise.name}.</p>
         ) : (
@@ -357,7 +357,7 @@ function ProgressPage() {
                   <tr key={point.date}>
                     <td>{formatDisplayDate(point.date)}</td>
                     <td>{Number(point.weight || 0).toFixed(1)}</td>
-                    <td>{Number(point.reps) % 1 === 0 ? Number(point.reps) : Number(point.reps).toFixed(1)}</td>
+                    <td>{(Number(point.reps) || 0) % 1 === 0 ? Number(point.reps) || 0 : (Number(point.reps) || 0).toFixed(1)}</td>
                     <td>{Number(point.volume).toFixed(1)}</td>
                   </tr>
                 ))}

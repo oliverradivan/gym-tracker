@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useTheme } from '../context/themeContext'
-import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
+import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle, Sparkles, Eye, EyeOff } from 'lucide-react'
 import './settings.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -26,6 +26,12 @@ function SettingsPage() {
   const [activeTab, setActiveTab] = useState('appearance')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+
+  // Password visibility state
+  const [showPassword, setShowPassword] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // Username form
   const [newUsername, setNewUsername] = useState('')
@@ -96,6 +102,16 @@ function SettingsPage() {
     e.preventDefault()
     if (!newUsername.trim()) {
       setError('Username cannot be empty')
+      return
+    }
+
+    if (newUsername.length < 3 || newUsername.length > 24) {
+      setError('Username must be 3-24 characters')
+      return
+    }
+
+    if (!/^[a-zA-Z0-9]+$/.test(newUsername)) {
+      setError('Username must be alphanumeric')
       return
     }
 
@@ -364,7 +380,10 @@ function SettingsPage() {
                 <div className="setting-label">
                   <label>Use scrollable graph</label>
                   <p className="setting-description">
-                    Expand the graph and scroll horizontally when viewing many workouts.
+                    Enable horizontal scrolling to view all workout data points.
+                  </p>
+                  <p className="small-text">
+                    {graphScrollable ? 'Scrollable — drag to navigate' : 'Compressed — all data visible'}
                   </p>
                 </div>
                 <button
@@ -393,7 +412,7 @@ function SettingsPage() {
                 <div className="setting-label">
                   <label>Current Username</label>
                 </div>
-                <p className="current-value">@{currentUsername}</p>
+                <p className="current-value">{currentUsername}</p>
               </div>
 
               <form onSubmit={handleUpdateUsername} className="settings-form">
@@ -426,34 +445,61 @@ function SettingsPage() {
                   <label htmlFor="current-password">Current Password</label>
                   <input
                     id="current-password"
-                    type="password"
+                    type={showCurrentPassword ? 'text' : 'password'}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Enter your current password"
                     disabled={passwordLoading}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword((prev) => !prev)}
+                    className="password-visibility-btn"
+                    aria-label="Show current password"
+                    style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280', marginLeft: 8 }}
+                  >
+                    {showCurrentPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+                  </button>
                 </div>
                 <div className="form-group">
                   <label htmlFor="new-password">New Password</label>
                   <input
                     id="new-password"
-                    type="password"
+                    type={showNewPassword ? 'text' : 'password'}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password"
                     disabled={passwordLoading}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPassword((prev) => !prev)}
+                    className="password-visibility-btn"
+                    aria-label="Show new password"
+                    style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280', marginLeft: 8 }}
+                  >
+                    {showNewPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+                  </button>
                 </div>
                 <div className="form-group">
                   <label htmlFor="confirm-password">Confirm New Password</label>
                   <input
                     id="confirm-password"
-                    type="password"
+                    type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm new password"
                     disabled={passwordLoading}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="password-visibility-btn"
+                    aria-label="Show confirm password"
+                    style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280', marginLeft: 8 }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+                  </button>
                 </div>
                 <button type="submit" className="primary-btn" disabled={passwordLoading}>
                   {passwordLoading ? 'Updating...' : 'Update Password'}

@@ -17,7 +17,6 @@ function DashboardPage() {
     const offset = date.getTimezoneOffset() * 60000
     return new Date(date.getTime() - offset).toISOString().slice(0, 10)
   }
-  const todayKey = toLocalDateKey(new Date())
   const today = new Date().toLocaleDateString(undefined, {
     weekday: 'long',
     month: 'short',
@@ -30,6 +29,7 @@ function DashboardPage() {
       if (!session?.access_token) return
 
       try {
+        const todayKey = toLocalDateKey(new Date())
         const [exercisesResponse, sessionsResponse] = await Promise.all([
           fetch(`${API_URL}/exercises`, {
             headers: { Authorization: `Bearer ${session.access_token}` },
@@ -56,7 +56,7 @@ function DashboardPage() {
     }
 
     loadDashboardData()
-  }, [session, todayKey])
+  }, [session])
 
   useEffect(() => {
     const node = exerciseListRef.current

@@ -20,7 +20,7 @@ const applyTheme = (themeName) => {
 }
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(getSavedTheme)
+  const [theme, setTheme] = useState(() => getSavedTheme)
 
   useEffect(() => {
     applyTheme(theme)

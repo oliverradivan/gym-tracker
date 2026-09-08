@@ -2,12 +2,15 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import './register.css'
+import { Eye, EyeOff } from 'lucide-react'
 
 const initialForm = {
   username: '',
   email: '',
   password: '',
 }
+
+const [showPassword, setShowPassword] = useState(false)
 
 function RegisterPage() {
   const [form, setForm] = useState(initialForm)
@@ -70,13 +73,16 @@ function RegisterPage() {
           <label>
             Password
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               name="password"
               value={form.password}
               onChange={handleChange}
               placeholder="At least 6 characters"
               required
             />
+            <div className="password-toggle" onClick={() => setShowPassword((prev) => !prev)} style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}>
+              {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+            </div>
           </label>
 
           <button type="submit" className="primary-btn" disabled={loading}>
