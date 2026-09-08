@@ -201,8 +201,8 @@ function DashboardPage() {
             )}
           </article>
           <article className="stat-card">
-            <span>Today</span>
-            <strong>{today}</strong>
+            <span>Workouts logged:</span>
+            <strong>{workouts.length}</strong>
           </article>
           <article className="stat-card">
             <span>Exercises in our system</span>
