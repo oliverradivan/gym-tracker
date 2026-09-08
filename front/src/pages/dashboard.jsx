@@ -25,6 +25,30 @@ function DashboardPage() {
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleCreateExercise = async (e) => {
+    e.preventDefault()
+    if (!form.exercise_name.trim() || !session?.access_token) return
+
+    try {
+      const response = await fetch(`${API_URL}/exercises`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ name: form.exercise_name.trim() }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setExercises((prev) => [...prev, data.exercise || data])
+        setForm(initialForm)
+      }
+    } catch (err) {
+      console.error('Failed to create exercise:', err)
+    }
+  }
+
   const toLocalDateKey = (date) => {
     const offset = date.getTimezoneOffset() * 60000
     return new Date(date.getTime() - offset).toISOString().slice(0, 10)
@@ -208,14 +232,14 @@ function DashboardPage() {
               <p>No exercises yet. Create one from the workout logger.</p>
             )}
           </div>
-
         </section>
-                <section className="create-exercise-card">
-                <h3>Create New Exercise</h3>
-                <form onSubmit={handleCreateExercise} className="create-exercise-form">
-                <div className="input-group">
-                <label htmlFor="exercise_name">Exercise Name</label>
-                <input
+
+        <section className="create-exercise-card">
+          <h3>Create New Exercise</h3>
+          <form onSubmit={handleCreateExercise} className="create-exercise-form">
+            <div className="input-group">
+              <label htmlFor="exercise_name">Exercise Name</label>
+              <input
                 id="exercise_name"
                 type="text"
                 name="exercise_name"
@@ -223,13 +247,13 @@ function DashboardPage() {
                 onChange={handleChange}
                 placeholder="e.g. Incline Bench Press"
                 required
-                />
-                </div>
-                <button type="submit" className="primary-btn">
-                Add Exercise
-                </button>
-                </form>
-                </section>
+              />
+            </div>
+            <button type="submit" className="primary-btn">
+              Add Exercise
+            </button>
+          </form>
+        </section>
       </main>
     </div>
   )
