@@ -9,10 +9,9 @@ const initialForm = {
   password: '',
 }
 
-const [showPassword, setShowPassword] = useState(false)
-
 function LoginPage() {
   const [form, setForm] = useState(initialForm)
+  const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const { handleAuth, loading, message, setMessage } = useAuth()
 
