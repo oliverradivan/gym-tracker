@@ -317,6 +317,88 @@
   }
 }
 
+/* Card Container */
+.create-exercise-card {
+  background: #1e1e24; /* Adjust to match your theme card background */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-exercise-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Form & Input Layout */
+.create-exercise-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #a0a0ab;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Styled Input Field */
+.input-group input[type="text"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background-color: #121215;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-group input[type="text"]::placeholder {
+  color: #62626c;
+}
+
+.input-group input[type="text"]:focus {
+  border-color: #6366f1; /* Accent color matching your app theme */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Button Alignment */
+.create-exercise-form .primary-btn {
+  align-self: flex-start;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Inline Layout Variant for Desktop (Optional) */
+@media (min-width: 640px) {
+  .create-exercise-form {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .input-group {
+    flex: 1;
+  }
+}
+
 /* Dark Mode Overrides */
 .dark .dashboard-page {
   background: linear-gradient(180deg, rgba(10, 10, 8, 0.9), rgba(5, 5, 3, 0.95));
@@ -425,11 +507,16 @@
 }
 
 
-.dashboard-image {
-  width: 100%;
-  max-width: 600px;
-  height: auto;
-  display: block;
-  margin: 20px auto;
-  border-radius: 12px;
+.dark .create-exercise-card {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(238, 238, 238, 0.08);
+  box-shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
+}
+
+.dark .create-exercise-card h3 {
+  color: #eeeeee;
+}
+
+.dark .input-group label {
+  color: #858585;
 }

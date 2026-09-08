@@ -208,17 +208,28 @@ function DashboardPage() {
               <p>No exercises yet. Create one from the workout logger.</p>
             )}
           </div>
-          <label>
-            Or create new exercise
-            <input
-              type="text"
-              name="exercise_name"
-              value={form.exercise_name}
-              onChange={handleChange}
-              placeholder="Exercise"
-            />
-          </label>
+
         </section>
+                <section className="create-exercise-card">
+                <h3>Create New Exercise</h3>
+                <form onSubmit={handleCreateExercise} className="create-exercise-form">
+                <div className="input-group">
+                <label htmlFor="exercise_name">Exercise Name</label>
+                <input
+                id="exercise_name"
+                type="text"
+                name="exercise_name"
+                value={form.exercise_name}
+                onChange={handleChange}
+                placeholder="e.g. Incline Bench Press"
+                required
+                />
+                </div>
+                <button type="submit" className="primary-btn">
+                Add Exercise
+                </button>
+                </form>
+                </section>
       </main>
     </div>
   )
