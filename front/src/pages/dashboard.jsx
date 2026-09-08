@@ -196,6 +196,16 @@ function DashboardPage() {
               <p>No exercises yet. Create one from the workout logger.</p>
             )}
           </div>
+           <label>
+            Or create new exercise
+            <input
+              type="text"
+              name="exercise_name"
+              value={form.exercise_name}
+              onChange={handleChange}
+              placeholder="Exercise"
+            />
+          </label>
         </section>
       </main>
     </div>
