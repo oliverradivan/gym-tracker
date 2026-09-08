@@ -73,7 +73,8 @@ function LogWorkoutPage() {
     })
   }
 
-  const handleSelectExercise = (exercise) => {
+  const handleSelectExercise = (event, exercise) => {
+    event.stopPropagation()
     setForm((prev) => ({ ...prev, exercise_id: exercise.id, exercise_name: '' }))
     setDropdownOpen(false)
   }
@@ -176,7 +177,7 @@ function LogWorkoutPage() {
                       role="option"
                       aria-selected={exercise.id === form.exercise_id}
                       className={`custom-select-option option-${getExerciseCategory(exercise.name)} ${exercise.id === form.exercise_id ? 'selected' : ''}`}
-                      onClick={() => handleSelectExercise(exercise)}
+                      onClick={(event) => handleSelectExercise(event, exercise)}
                     >
                       {exercise.name}
                     </li>
