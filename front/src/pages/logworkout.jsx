@@ -188,17 +188,6 @@ function LogWorkoutPage() {
           </span>
 
           <label>
-            Or create new exercise
-            <input
-              type="text"
-              name="exercise_name"
-              value={form.exercise_name}
-              onChange={handleChange}
-              placeholder="Exercise"
-            />
-          </label>
-
-          <label>
             Weight (kg/notches)
             <input
               type="number"
