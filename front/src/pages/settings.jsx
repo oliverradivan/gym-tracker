@@ -553,14 +553,14 @@ function SettingsPage() {
                   </div>
                   <div className="form-group">
                     <label htmlFor="delete-confirm">
-                      Type <strong>DELETE</strong> to confirm
+                      Type <strong>DELETE TO CONFIRM</strong> to confirm
                     </label>
                     <input
                       id="delete-confirm"
                       type="text"
                       value={deleteConfirm}
                       onChange={(e) => setDeleteConfirm(e.target.value.toUpperCase())}
-                      placeholder="DELETE"
+                      placeholder="TYPE DELETE TO CONFIRM"
                       disabled={deleteLoading}
                     />
                   </div>

@@ -260,7 +260,7 @@ function ProgressPage() {
       )}
       <YAxis />
       <XAxis numTicks={progress.length} />
-      <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric].label, value: point.value ?? point.actualValue ?? 0, color: 'var(--chart-3)' }]} />
+      <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric]?.label || 'Unknown', value: point.value ?? point.actualValue ?? 0, color: 'var(--chart-3)' }]} />
     </LineChart>
   )
 
@@ -309,6 +309,7 @@ function ProgressPage() {
                   type="button"
                   className={selectedMetric === value ? 'active' : ''}
                   aria-pressed={selectedMetric === value}
+                  aria-label={selectedMetric === value ? `Selected: ${details.label} metric` : `Select ${details.label} metric`}
                   onClick={() => setSelectedMetric(value)}
                 >
                   {details.label}
