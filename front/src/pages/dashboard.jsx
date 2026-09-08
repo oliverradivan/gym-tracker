@@ -7,6 +7,7 @@ import './dashboard.css'
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 function DashboardPage() {
+  const [form, setForm] = useState(initialForm)
   const { user, handleLogout, session } = useAuth()
   const [exercises, setExercises] = useState([])
   const [todaySession, setTodaySession] = useState(null)
