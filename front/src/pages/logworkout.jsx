@@ -155,7 +155,7 @@ function LogWorkoutPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="logworkout-form">
-          <label>
+          <span>
             Exercise
             <div className="custom-select" ref={dropdownRef}>
               <button
@@ -185,7 +185,7 @@ function LogWorkoutPage() {
                 </ul>
               )}
             </div>
-          </label>
+          </span>
 
           <label>
             Or create new exercise
