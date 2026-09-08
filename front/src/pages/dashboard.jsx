@@ -6,6 +6,10 @@ import './dashboard.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
 
+const initialForm = {
+  exercise_name: '',
+}
+
 function DashboardPage() {
   const [form, setForm] = useState(initialForm)
   const { user, handleLogout, session } = useAuth()
@@ -13,11 +17,19 @@ function DashboardPage() {
   const [todaySession, setTodaySession] = useState(null)
   const [exerciseListInView, setExerciseListInView] = useState(false)
   const exerciseListRef = useRef(null)
+
   const username = user?.user_metadata?.username || user?.user_metadata?.full_name || 'Athlete'
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
   const toLocalDateKey = (date) => {
     const offset = date.getTimezoneOffset() * 60000
     return new Date(date.getTime() - offset).toISOString().slice(0, 10)
   }
+
   const today = new Date().toLocaleDateString(undefined, {
     weekday: 'long',
     month: 'short',
@@ -52,7 +64,7 @@ function DashboardPage() {
           setTodaySession(matchingTodaySession || null)
         }
       } catch {
-        // Dashboard data load error handled silently; user sees no workout data.
+        // Dashboard data load error handled silently
       }
     }
 
@@ -63,7 +75,6 @@ function DashboardPage() {
     const node = exerciseListRef.current
     if (!node) return
 
-    // Reveal the list once it scrolls into view, then stop watching.
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -149,7 +160,7 @@ function DashboardPage() {
             {todaySession && todaySession.entries && todaySession.entries.length > 0 ? (
               <ul className="today-session-list">
                 {todaySession.entries.map((entry, index) => (
-                  <li key={`${entry.exercise_name}-${index}`} className={`today-session-item ${getExerciseCategory(entry.exercise_name)}`}>
+                  <li key={`${entry.exercise_name}-${index}`} className={`today-session-item ${getExerciseCategory(entry.exercise_name || '')}`}>
                     {entry.exercise_id ? (
                       <Link to={`/progress/${entry.exercise_id}`} className="today-session-link">
                         <span>{entry.exercise_name}</span>
@@ -186,7 +197,7 @@ function DashboardPage() {
                 <Link
                   key={exercise.id}
                   to={`/progress/${exercise.id}`}
-                  className={`exercise-item ${getExerciseCategory(exercise.name)}`}
+                  className={`exercise-item ${getExerciseCategory(exercise.name || '')}`}
                   style={{ '--reveal-delay': `${index * 0.06}s` }}
                 >
                   <span className="exercise-item-icon" aria-hidden="true" />
@@ -197,7 +208,7 @@ function DashboardPage() {
               <p>No exercises yet. Create one from the workout logger.</p>
             )}
           </div>
-           <label>
+          <label>
             Or create new exercise
             <input
               type="text"
