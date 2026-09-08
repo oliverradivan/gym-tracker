@@ -13,8 +13,10 @@ const initialForm = {
 function DashboardPage() {
   const [form, setForm] = useState(initialForm)
   const { user, handleLogout, session } = useAuth()
+  
   const [exercises, setExercises] = useState([])
   const [todaySession, setTodaySession] = useState(null)
+  const [totalDaysExercised, setTotalDaysExercised] = useState(0)
   const [exerciseListInView, setExerciseListInView] = useState(false)
   const exerciseListRef = useRef(null)
 
@@ -54,13 +56,6 @@ function DashboardPage() {
     return new Date(date.getTime() - offset).toISOString().slice(0, 10)
   }
 
-  const today = new Date().toLocaleDateString(undefined, {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-
   useEffect(() => {
     const loadDashboardData = async () => {
       if (!session?.access_token) return
@@ -84,6 +79,11 @@ function DashboardPage() {
         if (sessionsResponse.ok) {
           const sessionsResult = await sessionsResponse.json()
           const sessions = sessionsResult.sessions || []
+
+          // Collect unique session dates to calculate total days exercised
+          const uniqueDays = new Set(sessions.map((sessionItem) => sessionItem.date))
+          setTotalDaysExercised(uniqueDays.size)
+
           const matchingTodaySession = sessions.find((sessionItem) => sessionItem.date === todayKey)
           setTodaySession(matchingTodaySession || null)
         }
@@ -201,8 +201,8 @@ function DashboardPage() {
             )}
           </article>
           <article className="stat-card">
-            <span>Workouts logged:</span>
-            <strong>{workouts.length}</strong>
+            <span>Days logged:</span>
+            <strong>{totalDaysExercised}</strong>
           </article>
           <article className="stat-card">
             <span>Exercises in our system</span>
