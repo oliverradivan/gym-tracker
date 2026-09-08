@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
-import { getExerciseCategory, getExerciseCategoryColor } from '../utils/exerciseCategory'
+import { getExerciseCategory } from '../utils/exerciseCategory'
 import './logworkout.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -24,6 +24,8 @@ function LogWorkoutPage() {
   const [form, setForm] = useState(initialForm)
   const [exerciseOptions, setExerciseOptions] = useState([])
   const [message, setMessage] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef(null)
   const navigate = useNavigate()
   const { session, setMessage: setGlobalMessage } = useAuth()
 
@@ -48,18 +50,35 @@ function LogWorkoutPage() {
     loadExercises()
   }, [session])
 
+  // Close the custom dropdown when clicking outside of it.
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleChange = (event) => {
     const { name, value } = event.target
     setForm((prev) => {
       const updated = { ...prev, [name]: value }
-      if (name === 'exercise_id' && value) {
-        updated.exercise_name = ''
-      } else if (name === 'exercise_name' && value) {
+      if (name === 'exercise_name' && value) {
         updated.exercise_id = ''
       }
       return updated
     })
   }
+
+  const handleSelectExercise = (exercise) => {
+    setForm((prev) => ({ ...prev, exercise_id: exercise.id, exercise_name: '' }))
+    setDropdownOpen(false)
+  }
+
+  const selectedExercise = exerciseOptions.find((exercise) => exercise.id === form.exercise_id)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
@@ -137,23 +156,34 @@ function LogWorkoutPage() {
         <form onSubmit={handleSubmit} className="logworkout-form">
           <label>
             Exercise
-            <select
-              name="exercise_id"
-              value={form.exercise_id}
-              onChange={handleChange}
-              className={form.exercise_name ? `select-${getExerciseCategory(form.exercise_name || '')}` : ''}
-            >
-              <option value="">Select an exercise</option>
-              {exerciseOptions.map((exercise) => (
-                <option
-                  key={exercise.id}
-                  value={exercise.id}
-                  className={`option-${getExerciseCategory(exercise.name)}`}
-                >
-                  {exercise.name}
-                </option>
-              ))}
-            </select>
+            <div className="custom-select" ref={dropdownRef}>
+              <button
+                type="button"
+                className={`custom-select-trigger ${selectedExercise ? `select-${getExerciseCategory(selectedExercise.name)}` : ''}`}
+                onClick={() => setDropdownOpen((prev) => !prev)}
+              >
+                <span>{selectedExercise ? selectedExercise.name : 'Select an exercise'}</span>
+                <span className={`custom-select-arrow ${dropdownOpen ? 'open' : ''}`} aria-hidden="true">
+                  ▾
+                </span>
+              </button>
+
+              {dropdownOpen && (
+                <ul className="custom-select-list" role="listbox">
+                  {exerciseOptions.map((exercise) => (
+                    <li
+                      key={exercise.id}
+                      role="option"
+                      aria-selected={exercise.id === form.exercise_id}
+                      className={`custom-select-option option-${getExerciseCategory(exercise.name)} ${exercise.id === form.exercise_id ? 'selected' : ''}`}
+                      onClick={() => handleSelectExercise(exercise)}
+                    >
+                      {exercise.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </label>
 
           <label>
