@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
@@ -113,6 +113,18 @@ function DashboardPage() {
     return () => observer.disconnect()
   }, [])
 
+  // Sort exercises by category (push/pull/leg/etc.) so newly created
+  // exercises always land next to others in the same color group,
+  // regardless of what order the API returns them in.
+  const sortedExercises = useMemo(() => {
+    return [...exercises].sort((a, b) => {
+      const catA = getExerciseCategory(a.name || '')
+      const catB = getExerciseCategory(b.name || '')
+      if (catA !== catB) return catA.localeCompare(catB)
+      return (a.name || '').localeCompare(b.name || '')
+    })
+  }, [exercises])
+
   return (
     <div className="dashboard-page">
       <header className="topbar">
@@ -216,8 +228,8 @@ function DashboardPage() {
         >
           <h3>Exercises:</h3>
           <div className="exercise-list">
-            {exercises.length ? (
-              exercises.map((exercise, index) => (
+            {sortedExercises.length ? (
+              sortedExercises.map((exercise, index) => (
                 <Link
                   key={exercise.id}
                   to={`/progress/${exercise.id}`}
