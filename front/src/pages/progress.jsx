@@ -250,6 +250,7 @@ function ProgressPage() {
       {showForecast && predictions.length > 0 && (
         <ProjectionLine
           data={forecastData}
+          dataKey="value"
           curveKind="linear"
           showEndMarker={false}
           stroke="var(--chart-3)"
@@ -258,7 +259,7 @@ function ProgressPage() {
           showMarkers={true}
         />
       )}
-      <YAxis />
+      <YAxis showHoverIndicator={true} />
       <XAxis tickMode="interval" intervalDays={4} />
       <ChartTooltip
         backgroundColor="var(--tooltip-bg)"
