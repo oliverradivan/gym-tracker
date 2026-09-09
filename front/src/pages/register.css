@@ -62,6 +62,13 @@
   font-weight: 600;
 }
 
+/* Wrapper inside label to position the toggle inside input */
+.auth-form label > div {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .auth-form input {
   width: 100%;
   box-sizing: border-box;
@@ -73,10 +80,26 @@
   font: inherit;
 }
 
+/* Reserve space on the right for password input specifically */
+.auth-form input[name="password"] {
+  padding-right: 40px;
+}
+
 .auth-form input:focus {
   outline: none;
   border-color: rgba(17, 17, 17, 0.2);
   box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06);
+}
+
+/* Toggle eye button positioned on the inner right edge */
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: opacity 0.15s ease;
 }
 
 .primary-btn {
