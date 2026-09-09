@@ -195,6 +195,7 @@
   font-weight: 700;
   color: var(--muted-soft);
   margin-bottom: 8px;
+  color: #000000;
 }
 
 .ghost-btn {
