@@ -15,7 +15,7 @@
   --border: oklch(0.922 0 0);
   --border-strong: rgba(17, 17, 17, 0.14);
   --text: #111111;
-  --muted: oklch(0.97 0 0);
+  --muted: oklch(0% 0 0);
   --muted-soft: #7a7a7a;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
   --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.06);
