@@ -172,6 +172,11 @@
   border-radius: 16px;
   padding: 12px;
   margin-bottom: 20px;
+  --tooltip-bg: rgba(255, 255, 255, 0.97);
+}
+
+.dark .chart-box {
+  --tooltip-bg: rgba(32, 32, 30, 0.97);
 }
 
 .volume-chart {

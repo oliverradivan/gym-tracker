@@ -238,7 +238,7 @@ function ProgressPage() {
       key={selectedMetric}
       style={{ touchAction: isMobile && graphScrollable ? 'pan-x' : 'none' }}
     >
-      <Grid horizontal vertical />
+      <Grid horizontal vertical intervalDays={4} />
       <Line
         dataKey="actualValue"
         stroke={chartStroke}
@@ -259,8 +259,11 @@ function ProgressPage() {
         />
       )}
       <YAxis />
-      <XAxis numTicks={progress.length} />
-      <ChartTooltip rows={(point) => [{ label: METRICS[selectedMetric]?.label || 'Unknown', value: point.value ?? point.actualValue ?? 0, color: chartStroke }]} />
+      <XAxis tickMode="interval" intervalDays={4} />
+      <ChartTooltip
+        backgroundColor="var(--tooltip-bg)"
+        rows={(point) => [{ label: METRICS[selectedMetric]?.label || 'Unknown', value: point.value ?? point.actualValue ?? 0, color: chartStroke }]}
+      />
     </LineChart>
   )
 
