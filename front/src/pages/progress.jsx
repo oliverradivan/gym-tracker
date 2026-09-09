@@ -41,7 +41,6 @@ function ProgressPage() {
     return window.matchMedia('(max-width: 640px)').matches
   })
 
-  // Track responsive screen width
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 640px)')
     const handler = (e) => setIsMobile(e.matches)
@@ -66,7 +65,6 @@ function ProgressPage() {
     }
   })
 
-  // Listen for preference changes from other tabs/pages
   useEffect(() => {
     const syncScrollSetting = () => {
       try {
@@ -213,6 +211,7 @@ function ProgressPage() {
     return progress.map((point) => ({
       date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
       actualValue: Number(point[selectedMetric] || 0),
+      value: Number(point[selectedMetric] || 0),
     }))
   }, [progress, selectedMetric])
 
@@ -229,9 +228,16 @@ function ProgressPage() {
     ]
   }, [showForecast, predictions, chartData])
 
+  // Combine actual and forecast points so LineChart knows the full X-axis range and date lookup index
+  const combinedChartData = useMemo(() => {
+    if (!showForecast || forecastData.length === 0) return chartData
+    const forecastOnly = forecastData.slice(1) // exclude overlapping start point
+    return [...chartData, ...forecastOnly]
+  }, [chartData, forecastData, showForecast])
+
   const renderChart = () => (
     <LineChart
-      data={chartData}
+      data={combinedChartData}
       xDataKey="date"
       animationDuration={1800}
       animationEasing="cubic-bezier(0.42, 0, 1, 1)"
@@ -240,6 +246,7 @@ function ProgressPage() {
     >
       <Grid horizontal vertical intervalDays={4} />
       <Line
+        data={chartData}
         dataKey="actualValue"
         stroke={chartStroke}
         curve={curveLinear}

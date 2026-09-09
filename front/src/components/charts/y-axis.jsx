@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { memo, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useChart, useChartStable, useYScale } from "./chart-context";
@@ -77,22 +77,17 @@ const YAxisInner = memo(function YAxisInner({
   const isLeft = orientation === "left";
   const axisId = normalizeYAxisId(yAxisId);
 
-  // Lines registered on this axis, so we know which field(s) on the hovered
-  // point hold this axis's value (e.g. "actualValue" for the real series,
-  // "value" for a forecast/projection point).
   const axisLines = useMemo(
     () => lines.filter((line) => normalizeYAxisId(line.yAxisId) === axisId),
     [lines, axisId]
   );
 
-  // Mirrors XAxis's hovered-date label: a floating value pill that tracks
-  // the crosshair on the y-axis, so hovering shows both the date (x-axis)
-  // and the value (y-axis) of the point under the cursor.
   const hoveredEntry = useMemo(() => {
     if (!(showHoverValue && tooltipData)) {
       return null;
     }
 
+    // 1. Check registered lines
     for (const line of axisLines) {
       const y = tooltipData.yPositions?.[line.dataKey];
       const rawValue = tooltipData.point?.[line.dataKey];
@@ -101,16 +96,20 @@ const YAxisInner = memo(function YAxisInner({
       }
     }
 
-    // Fallback for point shapes that don't match any registered dataKey
-    // (e.g. a forecast point exposing a bare `.value`).
-    const fallbackY = Object.values(tooltipData.yPositions ?? {})[0];
-    const fallbackValue = tooltipData.point?.value;
-    if (fallbackY != null && Number.isFinite(fallbackY) && fallbackValue != null) {
-      return { y: fallbackY, label: formatLabel(fallbackValue, formatLargeNumbers, formatValue) };
+    // 2. Check fallback point keys (value, actualValue) and derive Y using yScale if yPositions is absent
+    const point = tooltipData.point;
+    if (point) {
+      const rawValue = point.value ?? point.actualValue;
+      if (rawValue != null) {
+        const fallbackY = Object.values(tooltipData.yPositions ?? {})[0] ?? yScale(rawValue);
+        if (fallbackY != null && Number.isFinite(fallbackY)) {
+          return { y: fallbackY, label: formatLabel(rawValue, formatLargeNumbers, formatValue) };
+        }
+      }
     }
 
     return null;
-  }, [showHoverValue, tooltipData, axisLines, formatLargeNumbers, formatValue]);
+  }, [showHoverValue, tooltipData, axisLines, formatLargeNumbers, formatValue, yScale]);
 
   const ticks = useMemo(() => {
     const tickValues = yScale.ticks(resolveYAxisTickCount(numTicks));
@@ -189,7 +188,7 @@ const YAxisInner = memo(function YAxisInner({
                 : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),
             }}
           >
-            <span className="text-chart-foreground text-xs font-semibold">
+            <span className="bg-[var(--tooltip-bg)] text-chart-foreground text-xs font-semibold px-1.5 py-0.5 rounded shadow-sm">
               {hoveredEntry.label}
             </span>
           </div>
