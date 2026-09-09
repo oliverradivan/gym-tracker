@@ -31,6 +31,8 @@ function LoginPage() {
   }
 
   return (
+    <div>
+      <h1 className="auth-title">My Workout Tracker 🥳</h1>
     <div className="auth-shell login-page">
       <div className="auth-card">
         <div className="auth-header">
@@ -88,6 +90,7 @@ function LoginPage() {
 
         {message && <p className="status-message">{message}</p>}
       </div>
+    </div>
     </div>
   )
 }
