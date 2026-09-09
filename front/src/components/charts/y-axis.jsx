@@ -1,7 +1,7 @@
-"use client";
+"use client";;
 import { memo, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { useChart, useChartStable, useYScale } from "./chart-context";
+import { useChartStable, useYScale } from "./chart-context";
 import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 import { resolveReferenceDataRange } from "./reference-area-geometry";
@@ -68,48 +68,12 @@ const YAxisInner = memo(function YAxisInner({
   numTicks = Y_AXIS_DEFAULT_TICK_COUNT,
   formatLargeNumbers = true,
   formatValue,
-  showHoverValue = true,
-  tickerHalfHeight = 12,
   container
 }) {
-  const { margin, referenceAreas, lines, tooltipData } = useChart();
+  const { margin, referenceAreas } = useChartStable();
   const yScale = useYScale(yAxisId);
   const isLeft = orientation === "left";
   const axisId = normalizeYAxisId(yAxisId);
-
-  const axisLines = useMemo(
-    () => lines.filter((line) => normalizeYAxisId(line.yAxisId) === axisId),
-    [lines, axisId]
-  );
-
-  const hoveredEntry = useMemo(() => {
-    if (!(showHoverValue && tooltipData)) {
-      return null;
-    }
-
-    // 1. Check registered lines
-    for (const line of axisLines) {
-      const y = tooltipData.yPositions?.[line.dataKey];
-      const rawValue = tooltipData.point?.[line.dataKey];
-      if (y != null && Number.isFinite(y) && rawValue != null) {
-        return { y, label: formatLabel(rawValue, formatLargeNumbers, formatValue) };
-      }
-    }
-
-    // 2. Check fallback point keys (value, actualValue) and derive Y using yScale if yPositions is absent
-    const point = tooltipData.point;
-    if (point) {
-      const rawValue = point.value ?? point.actualValue;
-      if (rawValue != null) {
-        const fallbackY = Object.values(tooltipData.yPositions ?? {})[0] ?? yScale(rawValue);
-        if (fallbackY != null && Number.isFinite(fallbackY)) {
-          return { y: fallbackY, label: formatLabel(rawValue, formatLargeNumbers, formatValue) };
-        }
-      }
-    }
-
-    return null;
-  }, [showHoverValue, tooltipData, axisLines, formatLargeNumbers, formatValue, yScale]);
 
   const ticks = useMemo(() => {
     const tickValues = yScale.ticks(resolveYAxisTickCount(numTicks));
@@ -147,52 +111,27 @@ const YAxisInner = memo(function YAxisInner({
             : { right: 0, width: margin.right }
         }
       >
-        {ticks.map((tick) => {
-          const distance = hoveredEntry
-            ? Math.abs(tick.y - margin.top - hoveredEntry.y)
-            : Number.POSITIVE_INFINITY;
-          const opacity = distance < tickerHalfHeight ? 0 : 1;
-
-          return (
-            <div
-              className="absolute flex items-center"
-              key={tick.value}
-              style={{
-                top: tick.y,
-                transform: "translateY(-50%)",
-                opacity,
-                transition: `top ${Y_AXIS_POSITION_TWEEN_MS}ms cubic-bezier(${LINE_LOADING_PULSE_EASE.join(", ")}), opacity 0.15s ease-in-out`,
-                ...(isLeft
-                  ? { right: 0, justifyContent: "flex-end", paddingRight: 8 }
-                  : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),
-              }}
-            >
-              <span
-                className="text-chart-label text-xs"
-                style={tick.labelColor ? { color: tick.labelColor } : undefined}
-              >
-                {tick.label}
-              </span>
-            </div>
-          );
-        })}
-
-        {hoveredEntry && (
+        {ticks.map((tick) => (
           <div
             className="absolute flex items-center"
+            key={tick.value}
             style={{
-              top: hoveredEntry.y + margin.top,
+              top: tick.y,
               transform: "translateY(-50%)",
+              transition: `top ${Y_AXIS_POSITION_TWEEN_MS}ms cubic-bezier(${LINE_LOADING_PULSE_EASE.join(", ")})`,
               ...(isLeft
                 ? { right: 0, justifyContent: "flex-end", paddingRight: 8 }
                 : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),
             }}
           >
-            <span className="bg-[var(--tooltip-bg)] text-chart-foreground text-xs font-semibold px-1.5 py-0.5 rounded shadow-sm">
-              {hoveredEntry.label}
+            <span
+              className="text-chart-label text-xs"
+              style={tick.labelColor ? { color: tick.labelColor } : undefined}
+            >
+              {tick.label}
             </span>
           </div>
-        )}
+        ))}
       </div>
     </div>,
     container

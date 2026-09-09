@@ -68,12 +68,10 @@ export function ProjectionLine({
     (point) => xScale(point.date) ?? 0,
     [xScale]
   );
-
   const getY = useCallback(
-    (point) => yScale(point[dataKey] ?? point.value ?? point.actualValue) ?? 0,
+    (point) => yScale(point[dataKey]) ?? 0,
     [yScale, dataKey]
   );
-
   const handlePointClick = useCallback((point, index) => {
     setTooltipData({ point, index, x: getX(point), yPositions: { [dataKey]: getY(point) } });
   }, [dataKey, getX, getY, setTooltipData]);
