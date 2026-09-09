@@ -57,7 +57,7 @@ function LoginPage() {
                 name="username"
                 value={form.username}
                 onChange={handleChange}
-                placeholder="your username"
+                placeholder="Your username"
                 required
               />
             </label>
