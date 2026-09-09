@@ -26,6 +26,7 @@ function LogWorkoutPage() {
   const [message, setMessage] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
+  const dateInputRef = useRef(null)
   const navigate = useNavigate()
   const { session, setMessage: setGlobalMessage } = useAuth()
 
@@ -77,6 +78,26 @@ function LogWorkoutPage() {
     event.stopPropagation()
     setForm((prev) => ({ ...prev, exercise_id: exercise.id, exercise_name: '' }))
     setDropdownOpen(false)
+  }
+
+  // Opens the native date picker on the hidden <input type="date">.
+  // showPicker() is Chrome/Edge; fall back to focus()+click() for browsers
+  // (Firefox, older Safari) that don't support it.
+  const openDatePicker = () => {
+    const input = dateInputRef.current
+    if (!input) return
+    if (typeof input.showPicker === 'function') {
+      input.showPicker()
+    } else {
+      input.focus()
+      input.click()
+    }
+  }
+
+  const formatDisplayDate = (isoDate) => {
+    if (!isoDate) return ''
+    const [year, month, day] = isoDate.split('-')
+    return `${day}/${month}/${year}`
   }
 
   const selectedExercise = exerciseOptions.find((exercise) => exercise.id === form.exercise_id)
@@ -215,27 +236,33 @@ function LogWorkoutPage() {
             />
           </label>
 
-         <label style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-       <line x1="16" y1="2" x2="16" y2="6"></line>
-        <line x1="8" y1="2" x2="8" y2="6"></line>
-      <line x1="3" y1="10" x2="21" y2="10"></line>
-      </svg>
-  
-       <input
-        type="date"
-        name="date"
-        value={form.date}
-        onChange={handleChange}
-          required
-          style={{
-            opacity: 0,
-          width: 0,
-            height: 0,
-          pointerEvents: 'none'
-          }}
-          />
+          <label>
+            Date
+            <div className="date-picker-field" onClick={openDatePicker}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <input
+                type="text"
+                value={formatDisplayDate(form.date)}
+                readOnly
+                placeholder="Select a date"
+                className="date-display-input"
+              />
+              <input
+                ref={dateInputRef}
+                type="date"
+                name="date"
+                value={form.date}
+                onChange={handleChange}
+                required
+                className="date-native-input"
+                tabIndex={-1}
+              />
+            </div>
           </label>
 
           <div className="logworkout-actions">

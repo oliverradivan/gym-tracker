@@ -210,6 +210,65 @@
   text-align: center;
 }
 
+/* Date picker field */
+.date-picker-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  border: 1px solid rgba(17, 17, 17, 0.14);
+  background: rgba(255, 255, 255, 0.8);
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.date-picker-field:focus-within {
+  border-color: rgba(17, 17, 17, 0.2);
+  box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06);
+}
+
+.date-picker-field svg {
+  flex-shrink: 0;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.date-display-input {
+  flex: 1;
+  width: auto;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  color: #111111;
+  cursor: pointer;
+}
+
+.date-display-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.date-display-input::placeholder {
+  color: #8e8e93;
+}
+
+/* Real <input type="date"> stays functionally present (so showPicker()/
+   focus()+click() both work across browsers) but is invisible, sized to
+   fill the field so Firefox/Safari's click-to-open fallback still works. */
+.date-native-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  border: none;
+  padding: 0;
+}
+
 @keyframes floatIn {
   from {
     opacity: 0;
@@ -310,4 +369,26 @@
 
 .dark .status-message {
   color: #b2b2b0;
+}
+
+.dark .date-picker-field {
+  background: rgba(0, 0, 0, 0.7);
+  border-color: rgba(238, 238, 238, 0.14);
+}
+
+.dark .date-picker-field:focus-within {
+  border-color: rgba(238, 238, 238, 0.2);
+  box-shadow: 0 0 0 4px rgba(238, 238, 238, 0.06);
+}
+
+.dark .date-picker-field svg {
+  color: #b2b2b0;
+}
+
+.dark .date-display-input {
+  color: #eeeeee;
+}
+
+.dark .date-display-input::placeholder {
+  color: #666666;
 }
