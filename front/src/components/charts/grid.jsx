@@ -1,8 +1,9 @@
 "use client";;
 import { GridColumns, GridRows } from "@visx/grid";
 import { motion } from "motion/react";
-import { useId } from "react";
+import { useId, useMemo } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
+import { buildIntervalTicks } from "./interval-ticks";
 import { useGridShimmer } from "./use-grid-shimmer";
 import {
   isLoadingChromePhase,
@@ -54,6 +55,7 @@ export function Grid({
   fadeVertical = false,
   hideHorizontalEdgeLines = false,
   hideVerticalEdgeLines = false,
+  intervalDays,
   yAxisId,
   shimmer = false,
   shimmerStroke = DEFAULT_SHIMMER_STROKE,
@@ -92,8 +94,28 @@ export function Grid({
     rowTickValues,
     yScale,
   });
+
+  // Fixed-interval mode (e.g. every 4 days): use the exact same tick
+  // generator as `<XAxis tickMode="interval" />` so the dashed vertical
+  // lines always land under the matching date label, with no drift.
+  const intervalTickDates = useMemo(() => {
+    if (
+      !(
+        intervalDays &&
+        vertical &&
+        columnScale &&
+        typeof columnScale === "function"
+      )
+    ) {
+      return undefined;
+    }
+    const ticks = buildIntervalTicks({ xScale: columnScale, intervalDays });
+    return ticks.length > 0 ? ticks.map((tick) => tick.date) : undefined;
+  }, [intervalDays, vertical, columnScale]);
+
   const columnTickValuesResolved =
-    vertical &&
+    intervalTickDates ??
+    (vertical &&
     columnScale &&
     typeof columnScale === "function" &&
     hideVerticalEdgeLines
@@ -102,7 +124,7 @@ export function Grid({
           const filtered = hideEdgeTicks(ticks, true);
           return filtered.length > 0 ? filtered : undefined;
         })()
-      : undefined;
+      : undefined);
   const uniqueId = useId();
 
   // Horizontal fade mask (for grid rows - fades left/right)

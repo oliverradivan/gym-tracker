@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useChart, useChartStable } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
 import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
+import { buildIntervalTicks } from "./interval-ticks";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 
 const X_AXIS_POSITION_TWEEN_MS = DEFAULT_Y_DOMAIN_TWEEN_MS;
@@ -491,12 +492,25 @@ const XAxisInner = memo(function XAxisInner({
   numTicks = 5,
   tickerHalfWidth = 50,
   tickMode = "data",
+  intervalDays,
   container
 }) {
   const { xScale, margin, tooltipData, data, xAccessor, dateLabels, xDomain } =
     useChart();
 
   const labelsToShow = useMemo(() => {
+    // Fixed-interval mode (e.g. every 4 days): labels are NOT tied to data
+    // point dates. Grid uses the same generator via its `intervalDays` prop,
+    // so lines and labels stay in sync and the first tick always starts
+    // exactly at the domain start.
+    if (tickMode === "interval") {
+      return buildIntervalTicks({
+        xScale,
+        marginLeft: margin.left,
+        intervalDays: intervalDays ?? 4,
+      });
+    }
+
     const projectionExtendsScale =
       tickMode === "data" && domainExtendsPastData(data, xAccessor, xScale);
 
@@ -541,6 +555,7 @@ const XAxisInner = memo(function XAxisInner({
     return dataTicks;
   }, [
     tickMode,
+    intervalDays,
     xDomain,
     data,
     dateLabels,

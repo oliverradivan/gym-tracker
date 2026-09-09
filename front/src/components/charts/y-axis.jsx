@@ -1,7 +1,7 @@
 "use client";;
 import { memo, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { useChartStable, useYScale } from "./chart-context";
+import { useChart, useChartStable, useYScale } from "./chart-context";
 import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 import { resolveReferenceDataRange } from "./reference-area-geometry";
@@ -68,12 +68,49 @@ const YAxisInner = memo(function YAxisInner({
   numTicks = Y_AXIS_DEFAULT_TICK_COUNT,
   formatLargeNumbers = true,
   formatValue,
+  showHoverValue = true,
+  tickerHalfHeight = 12,
   container
 }) {
-  const { margin, referenceAreas } = useChartStable();
+  const { margin, referenceAreas, lines, tooltipData } = useChart();
   const yScale = useYScale(yAxisId);
   const isLeft = orientation === "left";
   const axisId = normalizeYAxisId(yAxisId);
+
+  // Lines registered on this axis, so we know which field(s) on the hovered
+  // point hold this axis's value (e.g. "actualValue" for the real series,
+  // "value" for a forecast/projection point).
+  const axisLines = useMemo(
+    () => lines.filter((line) => normalizeYAxisId(line.yAxisId) === axisId),
+    [lines, axisId]
+  );
+
+  // Mirrors XAxis's hovered-date label: a floating value pill that tracks
+  // the crosshair on the y-axis, so hovering shows both the date (x-axis)
+  // and the value (y-axis) of the point under the cursor.
+  const hoveredEntry = useMemo(() => {
+    if (!(showHoverValue && tooltipData)) {
+      return null;
+    }
+
+    for (const line of axisLines) {
+      const y = tooltipData.yPositions?.[line.dataKey];
+      const rawValue = tooltipData.point?.[line.dataKey];
+      if (y != null && Number.isFinite(y) && rawValue != null) {
+        return { y, label: formatLabel(rawValue, formatLargeNumbers, formatValue) };
+      }
+    }
+
+    // Fallback for point shapes that don't match any registered dataKey
+    // (e.g. a forecast point exposing a bare `.value`).
+    const fallbackY = Object.values(tooltipData.yPositions ?? {})[0];
+    const fallbackValue = tooltipData.point?.value;
+    if (fallbackY != null && Number.isFinite(fallbackY) && fallbackValue != null) {
+      return { y: fallbackY, label: formatLabel(fallbackValue, formatLargeNumbers, formatValue) };
+    }
+
+    return null;
+  }, [showHoverValue, tooltipData, axisLines, formatLargeNumbers, formatValue]);
 
   const ticks = useMemo(() => {
     const tickValues = yScale.ticks(resolveYAxisTickCount(numTicks));
@@ -111,27 +148,52 @@ const YAxisInner = memo(function YAxisInner({
             : { right: 0, width: margin.right }
         }
       >
-        {ticks.map((tick) => (
+        {ticks.map((tick) => {
+          const distance = hoveredEntry
+            ? Math.abs(tick.y - margin.top - hoveredEntry.y)
+            : Number.POSITIVE_INFINITY;
+          const opacity = distance < tickerHalfHeight ? 0 : 1;
+
+          return (
+            <div
+              className="absolute flex items-center"
+              key={tick.value}
+              style={{
+                top: tick.y,
+                transform: "translateY(-50%)",
+                opacity,
+                transition: `top ${Y_AXIS_POSITION_TWEEN_MS}ms cubic-bezier(${LINE_LOADING_PULSE_EASE.join(", ")}), opacity 0.15s ease-in-out`,
+                ...(isLeft
+                  ? { right: 0, justifyContent: "flex-end", paddingRight: 8 }
+                  : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),
+              }}
+            >
+              <span
+                className="text-chart-label text-xs"
+                style={tick.labelColor ? { color: tick.labelColor } : undefined}
+              >
+                {tick.label}
+              </span>
+            </div>
+          );
+        })}
+
+        {hoveredEntry && (
           <div
             className="absolute flex items-center"
-            key={tick.value}
             style={{
-              top: tick.y,
+              top: hoveredEntry.y + margin.top,
               transform: "translateY(-50%)",
-              transition: `top ${Y_AXIS_POSITION_TWEEN_MS}ms cubic-bezier(${LINE_LOADING_PULSE_EASE.join(", ")})`,
               ...(isLeft
                 ? { right: 0, justifyContent: "flex-end", paddingRight: 8 }
                 : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),
             }}
           >
-            <span
-              className="text-chart-label text-xs"
-              style={tick.labelColor ? { color: tick.labelColor } : undefined}
-            >
-              {tick.label}
+            <span className="text-chart-foreground text-xs font-semibold">
+              {hoveredEntry.label}
             </span>
           </div>
-        ))}
+        )}
       </div>
     </div>,
     container
