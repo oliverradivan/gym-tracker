@@ -45,7 +45,7 @@
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.7rem;
-  color: #5f5f61;
+  color: #000000;
   margin-bottom: 8px;
 }
 
@@ -515,4 +515,8 @@
 
 .dark .welcome-message {
   color: #c2c2c2;
+}
+
+.dark .eyebrow {
+  color: #858585;
 }

@@ -17,18 +17,6 @@
   align-items: flex-start;
 }
 
-/* Animated Title */
-.title {
-  text-align: center;
-  font-size: 2rem;
-  line-height: 1;
-  margin-top: 0;
-  margin-bottom: -2px; 
-  color: #111111;
-  -webkit-animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-          animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-}
-
 .auth-shell {
   width: 100%;
   min-height: auto;

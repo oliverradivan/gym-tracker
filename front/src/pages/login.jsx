@@ -32,7 +32,6 @@ function LoginPage() {
 
   return (
     <div className="login-container">
-      <h1 className="title">My Workout Tracker 🥳</h1>
       <div className="auth-shell login-page">
         <div className="auth-card">
           <div className="auth-header">
