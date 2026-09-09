@@ -77,6 +77,7 @@ function RegisterPage() {
 
           <label>
             Password
+            <div>
             <input
               type={showPassword ? 'text' : 'password'}
               name="password"
@@ -87,6 +88,7 @@ function RegisterPage() {
             />
             <div className="password-toggle" onClick={() => setShowPassword((prev) => !prev)} style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}>
               {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+            </div>
             </div>
           </label>
 

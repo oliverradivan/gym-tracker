@@ -32,7 +32,7 @@ function LoginPage() {
 
   return (
     <div>
-      <h1 className="auth-title">My Workout Tracker 🥳</h1>
+      <h1 className='Title'>My Workout Tracker 🥳</h1>
     <div className="auth-shell login-page">
       <div className="auth-card">
         <div className="auth-header">
@@ -66,6 +66,7 @@ function LoginPage() {
 
           <label>
             Password
+            <div>
             <input
               type={showPassword ? 'text' : 'password'}
               name="password"
@@ -76,6 +77,7 @@ function LoginPage() {
             />
             <div className="password-toggle" onClick={() => setShowPassword((prev) => !prev)} style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}>
               {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+            </div>
             </div>
           </label>
 
