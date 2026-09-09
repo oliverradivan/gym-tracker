@@ -298,6 +298,8 @@ def build_session_summary(rows):
         weight = int(weight_val) if weight_val.is_integer() else weight_val
         reps = int(reps_val) if reps_val.is_integer() else reps_val
         volume = weight_val * reps_val
+        if float(volume).is_integer():
+            volume = int(volume)
         log_id = row.get("id")
         exercise_id = row.get("exercise_id")
 
