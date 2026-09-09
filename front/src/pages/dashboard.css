@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .dashboard-page {
   min-height: 100vh;
   background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
@@ -219,12 +225,14 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .create-exercise-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
 }
 
 .input-group {
@@ -243,7 +251,8 @@
 
 .input-group input[type="text"] {
   width: 100%;
-  padding: 11px 16px;
+  height: 44px;
+  padding: 0 16px;
   border-radius: 12px;
   background-color: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(17, 17, 17, 0.12);
@@ -264,7 +273,8 @@
 }
 
 .create-exercise-form .primary-btn {
-  align-self: flex-start;
+  height: 44px;
+  white-space: nowrap;
 }
 
 @keyframes exerciseItemReveal {
@@ -337,10 +347,15 @@
   .create-exercise-form {
     flex-direction: row;
     align-items: flex-end;
+    gap: 12px;
   }
 
   .input-group {
     flex: 1;
+  }
+
+  .create-exercise-form .primary-btn {
+    align-self: flex-end;
   }
 }
 
@@ -386,6 +401,11 @@
   .exercise-item {
     width: 100%;
     justify-content: center;
+  }
+
+  .create-exercise-form {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .create-exercise-form .primary-btn {
@@ -510,7 +530,6 @@
 .dark .today-session-item {
   border-color: rgba(238, 238, 238, 0.08);
 }
-
 
 .welcome-message {
   margin: 0;
