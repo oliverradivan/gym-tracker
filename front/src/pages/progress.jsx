@@ -259,7 +259,7 @@ function ProgressPage() {
           showMarkers={true}
         />
       )}
-      <YAxis showHoverIndicator={true} />
+      <YAxis showHoverValue={true} />
       <XAxis tickMode="interval" intervalDays={4} />
       <ChartTooltip
         backgroundColor="var(--tooltip-bg)"

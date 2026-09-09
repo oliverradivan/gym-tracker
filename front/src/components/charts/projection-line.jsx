@@ -68,10 +68,13 @@ export function ProjectionLine({
     (point) => xScale(point.date) ?? 0,
     [xScale]
   );
+
+  // FIX: Access point[dataKey] dynamically instead of point.value
   const getY = useCallback(
     (point) => yScale(point[dataKey]) ?? 0,
     [yScale, dataKey]
   );
+
   const handlePointClick = useCallback((point, index) => {
     setTooltipData({ point, index, x: getX(point), yPositions: { [dataKey]: getY(point) } });
   }, [dataKey, getX, getY, setTooltipData]);
@@ -179,7 +182,7 @@ export function ProjectionLine({
       {showMarkers && (
         <SeriesMarkers
           data={data.length > 1 ? data.slice(1) : data}
-          dataKey={dataKey}
+          dataKey={dataKey} // FIX: Dynamic dataKey instead of "value" string
           stroke={stroke}
           strokeWidth={strokeWidth}
           fill={stroke}
