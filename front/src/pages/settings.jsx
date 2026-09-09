@@ -380,7 +380,7 @@ function SettingsPage() {
                 <div className="setting-label">
                   <label>Use scrollable graph</label>
                   <p className="setting-description">
-                    Enable horizontal scrolling to view all workout data points.
+                    Enable horizontal scrolling to allow for a smoother viewing experience. (for mobile only)
                   </p>
                   <p className="small-text">
                     {graphScrollable ? 'Scrollable — drag to navigate' : 'Compressed — all data visible'}
