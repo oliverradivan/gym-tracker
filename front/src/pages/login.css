@@ -1,10 +1,32 @@
-.auth-shell {
+/* Page layout container */
+.login-container {
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
   padding: 32px 20px;
+  perspective: 1000px; /* Enables 3D translateZ effect for the title */
+}
+
+/* Animated Title */
+.title {
+  text-align: center;
+  font-size: 2rem;
+  margin-top: 0;
+  margin-bottom: 12px; /* Controls the small gap between title and card */
+  color: #111111;
+  -webkit-animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+          animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+}
+
+/* Auth Container */
+.auth-shell {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auth-card {
@@ -135,6 +157,26 @@
   text-align: center;
 }
 
+/* Keyframe Animations */
+@keyframes focus-in-contract-bck {
+  0% {
+    letter-spacing: 1em;
+    -webkit-transform: translateZ(300px);
+            transform: translateZ(300px);
+    -webkit-filter: blur(12px);
+            filter: blur(12px);
+    opacity: 0;
+  }
+  100% {
+    letter-spacing: normal;
+    -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+    -webkit-filter: blur(0);
+            filter: blur(0);
+    opacity: 1;
+  }
+}
+
 @keyframes floatIn {
   from {
     opacity: 0;
@@ -148,7 +190,7 @@
 }
 
 @media (max-width: 480px) {
-  .auth-shell {
+  .login-container {
     padding: 20px 12px;
   }
 
@@ -173,8 +215,12 @@
 }
 
 /* Dark Mode Overrides */
-.dark .auth-shell {
+.dark .login-container {
   background: linear-gradient(180deg, rgba(10, 10, 8, 0.9), rgba(5, 5, 3, 0.95));
+}
+
+.dark .title {
+  color: #eeeeee;
 }
 
 .dark .auth-card {
@@ -232,34 +278,6 @@
   color: #eeeeee;
 }
 
-.title {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 20px;
-  color: #111111;
-}
-
-/* Apply directly to <h1 class="title"> */
-.title {
-  -webkit-animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-          animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-}
-
-@keyframes focus-in-contract-bck {
-  0% {
-    letter-spacing: 1em;
-    -webkit-transform: translateZ(300px);
-            transform: translateZ(300px);
-    -webkit-filter: blur(12px);
-            filter: blur(12px);
-    opacity: 0;
-  }
-  100% {
-    letter-spacing: normal;
-    -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-    -webkit-filter: blur(0);
-            filter: blur(0);
-    opacity: 1;
-  }
+.dark .title {
+  color: #eeeeee;
 }
