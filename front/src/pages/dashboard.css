@@ -49,6 +49,10 @@
   margin-bottom: 8px;
 }
 
+.welcome-eyebrow {
+  color: #000000;
+}
+
 .topbar h2,
 .welcome-card h1,
 .schedule-card h3,
@@ -515,4 +519,8 @@
 
 .dark .welcome-message {
   color: #c2c2c2;
+}
+
+.dark .welcome-eyebrow {
+  color: #858585;
 }

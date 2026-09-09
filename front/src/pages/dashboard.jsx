@@ -170,7 +170,7 @@ function DashboardPage() {
 
       <main className="dashboard-grid">
         <section className="welcome-card">
-          <p className="eyebrow">Welcome</p>
+          <p className="welcome-eyebrow">Welcome</p>
           <h1>{username}</h1>
           <p className="welcome-message">
             Let's get those reps in. No Pain, No Gain! Log your workouts and track your progress over time.
