@@ -48,7 +48,6 @@ function LoginPage() {
               </svg>
             </div>
             <h1>Welcome back</h1>
-            <p></p>
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
