@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { curveLinear } from "@visx/curve";
 import { LinePath } from "@visx/shape";
 import { useCallback, useId, useMemo } from "react";
@@ -121,8 +121,14 @@ export function ProjectionLine({
     if (curveKind !== "linear" || !geometry) {
       return null;
     }
-    return `M ${geometry.startX},${geometry.startY} L ${geometry.visibleEndX},${geometry.endY}`;
-  }, [curveKind, geometry]);
+    const segments = data.map((point, index) => {
+      const isLast = index === data.length - 1;
+      const x = isLast ? geometry.visibleEndX : getX(point);
+      const y = getY(point);
+      return `${index === 0 ? "M" : "L"} ${x},${y}`;
+    });
+    return segments.join(" ");
+  }, [curveKind, geometry, data, getX, getY]);
 
   const showStroke =
     chartPhase === "revealing" ||
