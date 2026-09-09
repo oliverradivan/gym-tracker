@@ -1,13 +1,15 @@
-/* Page layout container */
 .login-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start; 
+  padding-top: 5vh; 
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
   background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
-  padding: 32px 20px;
-  perspective: 1000px; /* Enables 3D translateZ effect for the title */
+  perspective: 1000px;
 }
 
 /* Animated Title */
@@ -15,18 +17,19 @@
   text-align: center;
   font-size: 2rem;
   margin-top: 0;
-  margin-bottom: 12px; /* Controls the small gap between title and card */
+  margin-bottom: 8px; /* Controls the small gap between title and card */
   color: #111111;
   -webkit-animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
           animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
 }
 
-/* Auth Container */
 .auth-shell {
   width: 100%;
+  min-height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
 }
 
 .auth-card {
