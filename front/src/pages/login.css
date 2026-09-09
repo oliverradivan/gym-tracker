@@ -17,7 +17,7 @@
   text-align: center;
   font-size: 2rem;
   margin-top: 0;
-  margin-bottom: 8px; /* Controls the small gap between title and card */
+  margin-bottom: 2px; 
   color: #111111;
   -webkit-animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
           animation: focus-in-contract-bck 1s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
@@ -33,6 +33,7 @@
 }
 
 .auth-card {
+  margin-top: 0;
   width: min(100%, 440px);
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(17, 17, 17, 0.08);
