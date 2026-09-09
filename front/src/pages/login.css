@@ -12,6 +12,11 @@
   perspective: 1000px;
 }
 
+.auth-shell.login-page {
+  min-height: auto;
+  align-items: flex-start;
+}
+
 /* Animated Title */
 .title {
   text-align: center;
