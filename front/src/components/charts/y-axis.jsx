@@ -184,12 +184,13 @@ const YAxisInner = memo(function YAxisInner({
             style={{
               top: hoveredEntry.y + margin.top,
               transform: "translateY(-50%)",
+              zIndex: 1,
               ...(isLeft
-                ? { right: 0, justifyContent: "flex-end", paddingRight: 8 }
-                : { left: 0, justifyContent: "flex-start", paddingLeft: 8 }),
+                ? { right: 0, justifyContent: "flex-end", paddingRight: 4 }
+                : { left: 0, justifyContent: "flex-start", paddingLeft: 4 }),
             }}
           >
-            <span className="text-chart-label text-xs font-semibold">
+            <span className="whitespace-nowrap rounded-full bg-zinc-900 px-2.5 py-0.5 font-medium text-white text-xs shadow-lg dark:bg-zinc-100 dark:text-zinc-900">
               {hoveredEntry.label}
             </span>
           </div>
