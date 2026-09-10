@@ -229,28 +229,9 @@ function ProgressPage() {
     ]
   }, [showForecast, predictions, chartData])
 
-  // Combined chart data: actual points (with actualValue) first,
-  // then forecast points (with value but NOT actualValue) so that
-  // <Line dataKey="actualValue" /> only renders historical data,
-  // while <ProjectionLine> still shows forecast data.
-  const combinedChartData = useMemo(() => {
-    const actualPoints = chartData.map((point) => ({
-      ...point,
-      // Ensure forecast points downstream don't have actualValue
-      actualValue: point.actualValue,
-    }))
-    const forecastPoints = forecastData.map((point) => {
-      // Omit actualValue so <Line dataKey="actualValue" > only shows actual points
-      const { actualValue, ...rest } = point
-      return rest
-    })
-    // Actual points first, then forecast points
-    return [...actualPoints, ...forecastPoints]
-  }, [chartData, forecastData])
-
   const renderChart = () => (
     <LineChart
-      data={combinedChartData}
+      data={chartData}
       xDataKey="date"
       animationDuration={1800}
       animationEasing="cubic-bezier(0.42, 0, 1, 1)"
@@ -278,7 +259,7 @@ function ProgressPage() {
           showMarkers={true}
         />
       )}
-      <YAxis showHoverValue={true} />
+      <YAxis />
       <XAxis tickMode="interval" intervalDays={4} />
       <ChartTooltip
         backgroundColor="var(--tooltip-bg)"

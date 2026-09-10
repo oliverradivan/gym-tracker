@@ -48,7 +48,7 @@ import {
 } from "./series-bar-layout";
 import { useStaticChartPreview } from "./static-chart-preview-context";
 import { useAnimatedYDomains } from "./use-animated-y-domains";
-import { useChartInteraction } from "./use-chart-interaction";
+import { buildCombinedData, useChartInteraction } from "./use-chart-interaction";
 import { useChartPhaseOrchestrator } from "./use-chart-phase-orchestrator";
 import {
   buildYScalesFromDomains,
@@ -339,10 +339,16 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     scaleLinear({ range: [innerHeight, 0], domain: [0, 100], nice: true })
   );
 
-  const dateLabels = useMemo(
-    () => visiblePlotData.map((d) => shortDateFmt.format(xAccessor(d))),
-    [visiblePlotData, xAccessor]
-  );
+  const dateLabels = useMemo(() => {
+    // Must match `resolveTooltipFromX`'s hit-testing array exactly — when a
+    // forecast is present, `tooltipData.index` points into the combined
+    // actual+forecast series, not just `visiblePlotData`. Building labels
+    // from `visiblePlotData` alone made that index run out of bounds for
+    // forecast points (the floating date pill fell back to a wrong label).
+    const combined = buildCombinedData(visiblePlotData, projectionConfigs, xAccessor);
+    const labelSource = combined ?? visiblePlotData;
+    return labelSource.map((d) => shortDateFmt.format(xAccessor(d)));
+  }, [visiblePlotData, projectionConfigs, xAccessor]);
 
   const canInteract = isLoaded && isChartInteractionPhase(chartPhase);
 

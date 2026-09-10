@@ -143,13 +143,9 @@ export function useChartInteraction(
         }
         const forecastScale = yScales[normalizeYAxisId(forecastAxisId)] ?? yScale;
         const forecastValue = typeof d.value === "number" ? d.value : 0;
-        // Only set if this dataKey hasn't been set yet (prioritize actual dataKeys)
-        if (!yPositions[forecastAxisId]) {
-          yPositions[forecastAxisId] = forecastScale(forecastValue) ?? 0;
-        }
-        // Also set it under the first line's dataKey so the marker-rendering
-        // code (which reads yPositions[line.dataKey]) can find it,
-        // but only if that dataKey isn't already set from actual data.
+        // Set it under the first line's dataKey so marker-rendering code
+        // (which reads yPositions[line.dataKey]) can find it, but only if
+        // that dataKey isn't already set from actual data.
         if (lines.length > 0 && !yPositions[lines[0].dataKey]) {
           yPositions[lines[0].dataKey] = forecastScale(forecastValue) ?? 0;
         }
@@ -416,7 +412,7 @@ export function useChartInteraction(
  *
  * The y-domain is NOT widened by this merge — only the data used for hit-testing.
  */
-function buildCombinedData(actualData, projectionConfigs, xAccessor) {
+export function buildCombinedData(actualData, projectionConfigs, xAccessor) {
   if (!projectionConfigs || projectionConfigs.length === 0) {
     // No forecast data — no merge needed, return null to keep original behavior.
     return null;
