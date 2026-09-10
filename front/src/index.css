@@ -120,7 +120,7 @@
   --text-primary: #eeeeee;
   --text-secondary: #b2b2b0;
   --border-color: rgba(238, 238, 238, 0.08);
-  --primary-color: #66bb6a;
+  --primary-color: #ffffff;
 }
 
 :root.dark body {
