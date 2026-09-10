@@ -87,7 +87,7 @@ function RegisterPage() {
               required
             />
             <div className="password-toggle" onClick={() => setShowPassword((prev) => !prev)} style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}>
-              {showPassword ? <EyeOff size={12} /> : <Eye size={12} />}
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </div>
             </div>
           </label>

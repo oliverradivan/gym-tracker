@@ -257,14 +257,19 @@
   color: #8e8e93;
 }
 
-/* Real <input type="date"> stays functionally present (so showPicker()/
-   focus()+click() both work across browsers) but is invisible, sized to
-   fill the field so Firefox/Safari's click-to-open fallback still works. */
+/* Real <input type="date"> is stretched invisibly over the whole field so
+   the user's actual tap/click lands directly on it. This is required for
+   mobile (iOS Safari in particular): the native picker only opens on a
+   genuine user gesture aimed at the input itself, not a JS-triggered
+   focus()/click()/showPicker() on an element the user didn't actually touch. */
 .date-native-input {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
   opacity: 0;
-  pointer-events: none;
+  cursor: pointer;
   border: none;
   padding: 0;
 }

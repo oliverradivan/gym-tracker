@@ -80,20 +80,6 @@ function LogWorkoutPage() {
     setDropdownOpen(false)
   }
 
-  // Opens the native date picker on the hidden <input type="date">.
-  // showPicker() is Chrome/Edge; fall back to focus()+click() for browsers
-  // (Firefox, older Safari) that don't support it.
-  const openDatePicker = () => {
-    const input = dateInputRef.current
-    if (!input) return
-    if (typeof input.showPicker === 'function') {
-      input.showPicker()
-    } else {
-      input.focus()
-      input.click()
-    }
-  }
-
   const formatDisplayDate = (isoDate) => {
     if (!isoDate) return ''
     const [year, month, day] = isoDate.split('-')
@@ -238,7 +224,7 @@ function LogWorkoutPage() {
 
           <label>
             Date
-            <div className="date-picker-field" onClick={openDatePicker}>
+            <div className="date-picker-field">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -251,7 +237,15 @@ function LogWorkoutPage() {
                 readOnly
                 placeholder="Select a date"
                 className="date-display-input"
+                tabIndex={-1}
+                aria-hidden="true"
               />
+              {/* Real native date input, stretched invisibly over the whole
+                  field so the tap/click lands on it directly. Mobile browsers
+                  (iOS Safari in particular) only open the native picker UI for
+                  a genuine user gesture on the input itself — a JS-triggered
+                  .click()/.focus()/showPicker() on a hidden input is ignored
+                  on iOS and unreliable elsewhere. */}
               <input
                 ref={dateInputRef}
                 type="date"
@@ -260,7 +254,6 @@ function LogWorkoutPage() {
                 onChange={handleChange}
                 required
                 className="date-native-input"
-                tabIndex={-1}
               />
             </div>
           </label>
