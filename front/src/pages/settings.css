@@ -11,6 +11,14 @@
   --danger-tint: rgba(179, 65, 58, 0.06);
   --danger-tint-strong: rgba(179, 65, 58, 0.12);
   --danger-border: rgba(179, 65, 58, 0.35);
+
+  /* Sidebar tab palette — kept as variables for the same reason as the
+     danger palette above: one clean override point for dark mode instead
+     of duplicating values inline. */
+  --tab-active-bg: #ffffff;
+  --tab-active-text: #000000;
+  --tab-hover-bg: rgba(17, 17, 17, 0.05);
+  --tab-hover-border: rgba(17, 17, 17, 0.18);
 }
 
 .dark.settings-page,
@@ -20,6 +28,11 @@
   --danger-tint: rgba(224, 132, 124, 0.08);
   --danger-tint-strong: rgba(224, 132, 124, 0.14);
   --danger-border: rgba(224, 132, 124, 0.35);
+
+  --tab-active-bg: #ffffff;
+  --tab-active-text: #000000;
+  --tab-hover-bg: rgba(255, 255, 255, 0.1);
+  --tab-hover-border: rgba(255, 255, 255, 0.28);
 }
 
 .settings-page .topbar {
@@ -70,15 +83,26 @@
   transition: all 0.2s ease;
 }
 
+/* Hover always LIGHTENS, regardless of active state or theme — never the
+   near-black --primary-color the old rule pulled in for dark mode. */
 .settings-tab:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  border-color: var(--tab-hover-border);
+  background: var(--tab-hover-bg);
+  color: var(--text-primary);
 }
 
+/* The tab you're currently on: solid white pill, black text, always. */
 .settings-tab.active {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: white;
+  background: var(--tab-active-bg);
+  border-color: var(--tab-active-bg);
+  color: var(--tab-active-text);
+}
+
+.settings-tab.active:hover {
+  background: var(--tab-active-bg);
+  border-color: var(--tab-active-bg);
+  color: var(--tab-active-text);
+  opacity: 0.9;
 }
 
 /* Danger tab: quiet by default, only asserts itself on hover/active */
@@ -96,6 +120,13 @@
   background: var(--danger-color);
   border-color: var(--danger-color);
   color: white;
+}
+
+.settings-tab.danger.active:hover {
+  background: var(--danger-color-hover);
+  border-color: var(--danger-color-hover);
+  color: white;
+  opacity: 1;
 }
 
 .tab-icon {
