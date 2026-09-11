@@ -178,7 +178,7 @@ function LogWorkoutPage() {
 
               {dropdownOpen && (
                 <ul className="custom-select-list" role="listbox">
-                  {exerciseOptions.map((exercise) => (
+                  {[...exerciseOptions].sort((a, b) => { const catA = getExerciseCategory(a.name); const catB = getExerciseCategory(b.name); if (catA < catB) return -1; if (catA > catB) return 1; return 0; }).map((exercise) => (
                     <li
                       key={exercise.id}
                       role="option"
