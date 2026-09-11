@@ -246,6 +246,7 @@
   font: inherit;
   color: #111111;
   cursor: pointer;
+  pointer-events: none;
 }
 
 .date-display-input:focus {
@@ -392,6 +393,7 @@
 
 .dark .date-display-input {
   color: #eeeeee;
+  pointer-events: none;
 }
 
 .dark .date-display-input::placeholder {
