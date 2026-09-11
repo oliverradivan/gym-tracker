@@ -203,7 +203,7 @@ function LogWorkoutPage() {
               onChange={handleChange}
               placeholder=""
               min="0"
-              step="0.05"
+              step="any"
               required
             />
           </label>
@@ -217,7 +217,7 @@ function LogWorkoutPage() {
               onChange={handleChange}
               placeholder=""
               min="0.5"
-              step="0.5"
+              step="any"
               required
             />
           </label>
