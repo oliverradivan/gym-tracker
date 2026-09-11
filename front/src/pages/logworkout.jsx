@@ -243,6 +243,7 @@ function LogWorkoutPage() {
                 className="date-display-input"
                 tabIndex={-1}
                 aria-hidden="true"
+                onClick={handleDateClick}
               />
               {/* Real native date input, stretched invisibly over the whole
                   field so the tap/click lands on it directly. Mobile browsers
