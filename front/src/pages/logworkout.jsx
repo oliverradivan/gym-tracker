@@ -86,6 +86,10 @@ function LogWorkoutPage() {
     return `${day}/${month}/${year}`
   }
 
+  const handleDateClick = () => {
+    dateInputRef.current?.focus();
+  }
+
   const selectedExercise = exerciseOptions.find((exercise) => exercise.id === form.exercise_id)
 
   const handleSubmit = async (event) => {
@@ -224,7 +228,7 @@ function LogWorkoutPage() {
 
           <label>
             Date
-            <div className="date-picker-field">
+            <div className="date-picker-field" onClick={handleDateClick}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
