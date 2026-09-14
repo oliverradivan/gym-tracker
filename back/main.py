@@ -773,6 +773,8 @@ def list_exercises(authorization: str | None = Header(default=None)):
         result = (
             supabase.table("exercises")
             .select("*")
+            # Global exercises (created_by is null) plus this user's own custom ones.
+            .or_(f"created_by.is.null,created_by.eq.{user.id}")
             .order("category")
             .order("name")
             .execute()
@@ -803,6 +805,8 @@ def create_exercise(
             supabase.table("exercises")
             .select("*")
             .ilike("name", name)
+            # Only collide with exercises this user can actually see (global + their own).
+            .or_(f"created_by.is.null,created_by.eq.{user.id}")
             .limit(1)
             .execute()
         )
@@ -814,7 +818,9 @@ def create_exercise(
     try:
         created = (
             supabase.table("exercises")
-            .insert({"name": name})
+            # created_by makes this exercise private to the user who added it -
+            # it will not show up in anyone else's exercise list.
+            .insert({"name": name, "created_by": user.id})
             .execute()
         )
     except APIError as exc:
@@ -847,7 +853,43 @@ def delete_exercise(
 
     user = get_authenticated_user(authorization)
 
-    raise HTTPException(status_code=403, detail="Exercise deletions are not allowed. Exercises are managed globally.")
+    try:
+        existing = (
+            supabase.table("exercises")
+            .select("id, created_by")
+            .eq("id", exercise_id)
+            .limit(1)
+            .execute()
+        )
+    except APIError as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to look up exercise: {exc.message}") from exc
+
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Exercise not found.")
+
+    exercise_row = existing.data[0]
+    if exercise_row.get("created_by") != user.id:
+        # Global exercises (created_by is null) and other users' custom
+        # exercises can't be removed - only the exercise's own creator can.
+        raise HTTPException(
+            status_code=403,
+            detail="You can only delete exercises you created yourself.",
+        )
+
+    try:
+        supabase.table("exercises").delete().eq("id", exercise_id).eq(
+            "created_by", user.id
+        ).execute()
+    except APIError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Failed to delete exercise. If it's used in existing workout logs, "
+                f"remove those logs first. ({exc.message})"
+            ),
+        ) from exc
+
+    return {"message": "Exercise deleted successfully."}
 
 
 @router.post("/workout-logs")
