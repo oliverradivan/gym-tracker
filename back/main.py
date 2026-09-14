@@ -1,3 +1,5 @@
+Main.py
+
 import os
 import re
 import time
@@ -92,21 +94,8 @@ def get_supabase_config() -> tuple[str | None, str | None]:
 
 SUPABASE_URL, SUPABASE_KEY = get_supabase_config()
 
-# Import seeding function
-from seed_exercises import seed_exercises_for_all_users
-
 app = FastAPI(title="Workout Tracker API")
 router = APIRouter(prefix="/api")
-
-
-@app.on_event("startup")
-def startup_event():
-    """Seed default exercises on application startup."""
-    try:
-        seed_exercises_for_all_users()
-    except Exception as e:
-        # Log but don't crash the app
-        print(f"Warning: Failed to seed exercises during startup: {e}")
 
 if os.getenv("APP_ENV") == "local":
     app.add_middleware(
@@ -348,54 +337,26 @@ def build_session_summary(rows):
 
 
 # Fit the full history, then use exponential gains; k flattens sooner as data volume grows.
-
-
-def _prepare_forecast_data(points):
+def build_forecast(
+    points: list[dict],
+    periods: int = 7,
+    interval_days: int = 1,
+    category: str = "compound",
+) -> list[dict]:
     if not points:
-        return [], []
+        return []
+
     sorted_points = sorted(points, key=lambda item: str(item.get("date", "")))
     values = [float(point.get("volume", 0) or 0) for point in sorted_points]
     if len(values) < 2:
-        return [], []
-    return sorted_points, values
+        return []
 
+    import math
 
-def _calculate_weights(values):
-    RECENT_DATA_DECAY_RATE = 0.9
-    weights = [
-        RECENT_DATA_DECAY_RATE ** (len(values) - 1 - index)
-        for index in range(len(values))
-    ]
-    return weights
-
-
-def _calculate_regression_slope(weights, values):
-    weight_sum = sum(weights)
-    x_mean = sum(weight * index for index, weight in enumerate(weights)) / weight_sum
-    y_mean = sum(weight * value for weight, value in zip(weights, values)) / weight_sum
-    denominator = sum(
-        weight * (index - x_mean) ** 2
-        for index, weight in enumerate(weights)
-    )
-    if denominator == 0:
-        return 0
-    regression_slope = sum(
-        weight * (index - x_mean) * (value - y_mean)
-        for index, (weight, value) in enumerate(zip(weights, values))
-    ) / denominator
-    return regression_slope
-
-
-def _calculate_max_gain(regression_slope, values, max_gain_scale=0.5, FALLBACK_GROWTH_RATE=0.05):
-    if regression_slope <= 0:
-        # When regression_slope <= 0, sparse history gets assumed novice progression.
-        return max(1.0, values[-1] * FALLBACK_GROWTH_RATE)
-    else:
-        slope = regression_slope
-        return slope * max(len(values) - 1, 1) * max_gain_scale
-
-
-def _calculate_k(values, category):
+    # Tune the curve here: k controls how quickly gains flatten, and scales down
+    # as more history makes the athlete's progression look more established.
+    max_gain_scale = 0.5
+    FALLBACK_GROWTH_RATE = 0.05
     novice_k = (
         ISOLATION_NOVICE_K
         if category == "isolation"
@@ -407,14 +368,34 @@ def _calculate_k(values, category):
         else COMPOUND_EXPERIENCED_K
     )
     history_for_experienced_k = 30
+
+    RECENT_DATA_DECAY_RATE = 0.9
+    # Higher decay rates keep weighting more even; lower rates surface genuine
+    # shifts like injury recovery or a program change faster without letting a
+    # single bad session dominate like the old "last 3 points" approach.
+    weights = [
+        RECENT_DATA_DECAY_RATE ** (len(values) - 1 - index)
+        for index in range(len(values))
+    ]
+    weight_sum = sum(weights)
+    x_mean = sum(weight * index for index, weight in enumerate(weights)) / weight_sum
+    y_mean = sum(weight * value for weight, value in zip(weights, values)) / weight_sum
+    denominator = sum(
+        weight * (index - x_mean) ** 2
+        for index, weight in enumerate(weights)
+    )
+    regression_slope = sum(
+        weight * (index - x_mean) * (value - y_mean)
+        for index, (weight, value) in enumerate(zip(weights, values))
+    ) / denominator
+    if regression_slope <= 0:
+        # When regression_slope <= 0, sparse history gets assumed novice progression.
+        max_gain = max(1.0, values[-1] * FALLBACK_GROWTH_RATE)
+    else:
+        slope = regression_slope
+        max_gain = slope * max(len(values) - 1, 1) * max_gain_scale
     history_ratio = min((len(values) - 2) / max(history_for_experienced_k - 2, 1), 1.0)
     k = novice_k - ((novice_k - experienced_k) * history_ratio)
-    return k
-
-
-def _generate_forecast_points(sorted_points, values, regression_slope, max_gain, k, periods, interval_days):
-    import math
-    from datetime import datetime, timedelta
 
     start_date = datetime.strptime(str(sorted_points[-1].get("date")), "%Y-%m-%d")
     forecast = []
@@ -454,23 +435,6 @@ def _generate_forecast_points(sorted_points, values, regression_slope, max_gain,
         )
 
     return forecast
-
-
-def build_forecast(
-    points: list[dict],
-    periods: int = 7,
-    interval_days: int = 1,
-    category: str = "compound",
-) -> list[dict]:
-    sorted_points, values = _prepare_forecast_data(points)
-    if not sorted_points:
-        return []
-
-    weights = _calculate_weights(values)
-    regression_slope = _calculate_regression_slope(weights, values)
-    max_gain = _calculate_max_gain(regression_slope, values)
-    k = _calculate_k(values, category)
-    return _generate_forecast_points(sorted_points, values, regression_slope, max_gain, k, periods, interval_days)
 
 
 def get_authenticated_user(authorization: str | None):
@@ -798,30 +762,19 @@ def list_exercises(authorization: str | None = Header(default=None)):
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
 
     user = get_authenticated_user(authorization)
-    user_id = user.id
 
     try:
-        personal = (
+        result = (
             supabase.table("exercises")
             .select("*")
-            .eq("user_id", user_id)
             .order("category")
             .order("name")
             .execute()
         )
-        global_ = (
-            supabase.table("exercises")
-            .select("*")
-            .is_("user_id", "null")
-            .order("category")
-            .order("name")
-            .execute()
-        )
-        combined = (personal.data or []) + (global_.data or [])
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to load exercises: {exc.message}") from exc
 
-    return {"exercises": combined}
+    return {"exercises": result.data}
 
 
 @router.post("/exercises")
@@ -833,20 +786,17 @@ def create_exercise(
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
 
     user = get_authenticated_user(authorization)
-    user_id = user.id
 
     try:
         name = normalize_exercise_name(payload.name)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    # Check if the user already has this exercise (case-insensitive?)
     try:
         existing = (
             supabase.table("exercises")
-            .select("id")
-            .eq("user_id", user_id)
-            .eq("name", name)
+            .select("*")
+            .ilike("name", name)
             .limit(1)
             .execute()
         )
@@ -858,7 +808,7 @@ def create_exercise(
     try:
         created = (
             supabase.table("exercises")
-            .insert({"name": name, "user_id": user_id})
+            .insert({"name": name})
             .execute()
         )
     except APIError as exc:
@@ -890,32 +840,8 @@ def delete_exercise(
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
 
     user = get_authenticated_user(authorization)
-    user_id = user.id
 
-    # Fetch the exercise to check ownership
-    exercise_resp = (
-        supabase.table("exercises")
-        .select("user_id")
-        .eq("id", exercise_id)
-        .single()
-        .execute()
-    )
-    if not exercise_resp.data:
-        raise HTTPException(status_code=404, detail="Exercise not found.")
-    
-    exercise = exercise_resp.data
-    if exercise.get("user_id") is None:
-        raise HTTPException(
-            status_code=403, detail="Global exercises cannot be deleted."
-        )
-    if exercise.get("user_id") != user_id:
-        raise HTTPException(
-            status_code=403, detail="You can only delete your own exercises."
-        )
-
-    # Delete the exercise
-    supabase.table("exercises").delete().eq("id", exercise_id).execute()
-    return {"message": "Exercise deleted successfully"}
+    raise HTTPException(status_code=403, detail="Exercise deletions are not allowed. Exercises are managed globally.")
 
 
 @router.post("/workout-logs")
