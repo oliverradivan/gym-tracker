@@ -89,7 +89,7 @@ function LoginPage() {
           </form>
 
           <p className="auth-switch">
-            Need an account? <Link to="/register">Create one</Link>
+            Don't have an account? <Link to="/register">Create one</Link>
           </p>
 
           {message && <p className="status-message">{message}</p>}
