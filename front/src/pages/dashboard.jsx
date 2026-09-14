@@ -283,7 +283,8 @@ function DashboardPage() {
                       title="Remove exercise"
                     >
                       <svg viewBox="0 0 24 24">
-                        <path d="M6 6l12 12M18 6L6 18" />
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
                       </svg>
                     </button>
                   )}
