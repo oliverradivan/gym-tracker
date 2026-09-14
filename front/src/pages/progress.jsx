@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory, getExerciseCategoryColor } from '../utils/exerciseCategory'
-import { LineChart, Line } from '@/components/charts/line-chart'
-import { Grid } from '@/components/charts/grid'
-import { XAxis } from '@/components/charts/x-axis'
-import { ProjectionLine } from '@/components/charts/projection-line'
-import YAxis from '@/components/charts/y-axis'
-import { ChartTooltip } from '@/components/charts/tooltip/chart-tooltip'
+const LineChart = lazy(() => import('@/components/charts/line-chart'))
+const Grid = lazy(() => import('@/components/charts/grid'))
+const XAxis = lazy(() => import('@/components/charts/x-axis'))
+const ProjectionLine = lazy(() => import('@/components/charts/projection-line'))
+const YAxis = lazy(() => import('@/components/charts/y-axis'))
+const ChartTooltip = lazy(() => import('@/components/charts/tooltip/chart-tooltip'))
 import './progress.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -324,11 +324,15 @@ function ProgressPage() {
               {isMobile && graphScrollable ? (
                 <div className="chart-scroll-wrapper">
                   <div style={{ minWidth: `${Math.max(800, progress.length * 45)}px`, height: '400px' }}>
-                    {renderChart()}
+                    <Suspense fallback={<div>Loading chart...</div>}>
+                      {renderChart()}
+                    </Suspense>
                   </div>
                 </div>
               ) : (
-                renderChart()
+                <Suspense fallback={<div>Loading chart...</div>}>
+                  {renderChart()}
+                </Suspense>
               )}
               <div className="chart-footer">
                 <div className="chart-legend" aria-label="Chart legend">

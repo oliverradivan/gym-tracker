@@ -74,7 +74,7 @@ def seed_exercises_for_all_users():
             continue
 
         try:
-            insert_data = {"name": exercise_name}
+            insert_data = {"name": exercise_name, "user_id": None}
             if isinstance(exercise, dict) and "category" in exercise:
                 insert_data["category"] = exercise["category"]
             
@@ -83,7 +83,7 @@ def seed_exercises_for_all_users():
         except Exception as exc:
             print(f"Skipping {exercise_name}: {exc}")
 
-    print(f"Seeded {len(EXERCISES)} exercises globally.")
+    print(f"Seeded {len(EXERCISES)} exercises globally (user_id = NULL).")
     print(f"New exercises inserted: {seeded_count}")
 
 

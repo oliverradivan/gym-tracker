@@ -24,8 +24,6 @@ function LogWorkoutPage() {
   const [form, setForm] = useState(initialForm)
   const [exerciseOptions, setExerciseOptions] = useState([])
   const [message, setMessage] = useState('')
-  const [dropdownOpen, setDropdownOpen] = useState(false)
-  const dropdownRef = useRef(null)
   const dateInputRef = useRef(null)
   const navigate = useNavigate()
   const { session, setMessage: setGlobalMessage } = useAuth()
@@ -44,6 +42,7 @@ function LogWorkoutPage() {
         const result = await response.json()
         setExerciseOptions(result.exercises || [])
       } catch (error) {
+        setMessage('Failed to load exercises. Please try again.')
         console.error('Failed to load exercises', error)
       }
     }
@@ -51,33 +50,18 @@ function LogWorkoutPage() {
     loadExercises()
   }, [session])
 
-  // Close the custom dropdown when clicking outside of it.
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
   const handleChange = (event) => {
     const { name, value } = event.target
-    setForm((prev) => {
+    setForm(prev => {
       const updated = { ...prev, [name]: value }
+      if (name === 'exercise_id' && value) {
+        updated.exercise_name = ''
+      }
       if (name === 'exercise_name' && value) {
         updated.exercise_id = ''
       }
       return updated
     })
-  }
-
-  const handleSelectExercise = (event, exercise) => {
-    event.stopPropagation()
-    setForm((prev) => ({ ...prev, exercise_id: exercise.id, exercise_name: '' }))
-    setDropdownOpen(false)
   }
 
   const formatDisplayDate = (isoDate) => {
@@ -106,8 +90,6 @@ function LogWorkoutPage() {
     }
   }
 
-  const selectedExercise = exerciseOptions.find((exercise) => exercise.id === form.exercise_id)
-
   const handleSubmit = async (event) => {
     event.preventDefault()
 
@@ -117,6 +99,7 @@ function LogWorkoutPage() {
       return
     }
 
+    setMessage('Saving...')
     try {
       let exerciseId = form.exercise_id
 
@@ -184,34 +167,34 @@ function LogWorkoutPage() {
         <form onSubmit={handleSubmit} className="logworkout-form">
           <span>
             Exercise
-            <div className="custom-select" ref={dropdownRef}>
-              <button
-                type="button"
-                className={`custom-select-trigger ${selectedExercise ? `select-${getExerciseCategory(selectedExercise.name)}` : ''}`}
-                onClick={() => setDropdownOpen((prev) => !prev)}
-              >
-                <span>{selectedExercise ? selectedExercise.name : 'Select an exercise'}</span>
-                <span className={`custom-select-arrow ${dropdownOpen ? 'open' : ''}`} aria-hidden="true">
-                  ▾
-                </span>
-              </button>
-
-              {dropdownOpen && (
-                <ul className="custom-select-list" role="listbox">
-                  {[...exerciseOptions].sort((a, b) => { const catA = getExerciseCategory(a.name); const catB = getExerciseCategory(b.name); if (catA < catB) return -1; if (catA > catB) return 1; return 0; }).map((exercise) => (
-                    <li
-                      key={exercise.id}
-                      role="option"
-                      aria-selected={exercise.id === form.exercise_id}
-                      className={`custom-select-option option-${getExerciseCategory(exercise.name)} ${exercise.id === form.exercise_id ? 'selected' : ''}`}
-                      onClick={(event) => handleSelectExercise(event, exercise)}
-                    >
-                      {exercise.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+            <select
+              value={form.exercise_id}
+              onChange={e => {
+                setForm(prev => ({
+                  ...prev,
+                  exercise_id: e.target.value,
+                  exercise_name: ''
+                }))
+              }}
+              className={`select-${form.exercise_id ? getExerciseCategory(exerciseOptions.find(opt => opt.id === form.exercise_id)?.name || '') : ''}`}
+            >
+              <option value="">Select an exercise</option>
+              {exerciseOptions.map(exercise => (
+                <option key={exercise.id} value={exercise.id}>
+                  {exercise.name}
+                </option>
+              ))}
+            </select>
+          </span>
+          <span>
+            Or create new exercise
+            <input
+              type="text"
+              name="exercise_name"
+              value={form.exercise_name}
+              onChange={handleChange}
+              placeholder="New exercise name"
+            />
           </span>
 
           <label>
