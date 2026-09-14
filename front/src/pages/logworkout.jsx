@@ -87,7 +87,23 @@ function LogWorkoutPage() {
   }
 
   const handleDateClick = () => {
-    dateInputRef.current?.focus();
+    const input = dateInputRef.current
+    if (!input) return
+
+    // A plain focus() only opens the native calendar on mobile browsers.
+    // Desktop browsers (Chrome in particular) only auto-open it if the click
+    // lands on the input's own tiny calendar-icon hitbox, which is invisible
+    // here since the input is stretched/hidden over the whole field.
+    // showPicker() opens it programmatically from any click on the field.
+    if (typeof input.showPicker === 'function') {
+      try {
+        input.showPicker()
+      } catch (error) {
+        input.focus()
+      }
+    } else {
+      input.focus()
+    }
   }
 
   const selectedExercise = exerciseOptions.find((exercise) => exercise.id === form.exercise_id)
@@ -257,6 +273,7 @@ function LogWorkoutPage() {
                 name="date"
                 value={form.date}
                 onChange={handleChange}
+                onClick={handleDateClick}
                 required
                 className="date-native-input"
               />
