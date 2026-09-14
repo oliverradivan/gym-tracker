@@ -509,6 +509,10 @@ def register_user(payload: RegisterPayload, request: Request):
         )
     except AuthApiError as exc:
         raise HTTPException(status_code=exc.status or 400, detail=exc.message) from exc
+    except Exception as exc:
+        # Log the exception (in production, use a proper logger)
+        print(f"Unexpected error during registration: {exc}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     # Insert Profile - back on the clean admin client, so this still bypasses RLS.
     if auth_response.user is not None:
@@ -585,6 +589,10 @@ def login_user(payload: LoginPayload, request: Request):
         )
     except AuthApiError as exc:
         raise HTTPException(status_code=401, detail="Invalid email or password.") from exc
+    except Exception as exc:
+        # Log the exception (in production, use a proper logger)
+        print(f"Unexpected error during login: {exc}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
     return {
         "message": "Login successful.",
