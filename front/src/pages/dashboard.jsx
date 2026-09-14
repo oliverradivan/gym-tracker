@@ -266,15 +266,12 @@ function DashboardPage() {
               sortedExercises.map((exercise, index) => (
                 <div
                   key={exercise.id}
-                  className="exercise-item-wrapper"
+                  className={`exercise-item-wrapper ${getExerciseCategory(exercise.name || '')}`}
                   style={{ '--reveal-delay': `${index * 0.06}s` }}
                 >
-                  <Link
-                    to={`/progress/${exercise.id}`}
-                    className={`exercise-item ${getExerciseCategory(exercise.name || '')}`}
-                  >
+                  <Link to={`/progress/${exercise.id}`} className="exercise-item">
                     <span className="exercise-item-icon" aria-hidden="true" />
-                    {exercise.name}
+                    <span className="exercise-item-name">{exercise.name}</span>
                   </Link>
                   {exercise.created_by === user?.id && (
                     <button
@@ -285,7 +282,9 @@ function DashboardPage() {
                       aria-label={`Remove ${exercise.name}`}
                       title="Remove exercise"
                     >
-                      ×
+                      <svg viewBox="0 0 24 24">
+                        <path d="M6 6l12 12M18 6L6 18" />
+                      </svg>
                     </button>
                   )}
                 </div>

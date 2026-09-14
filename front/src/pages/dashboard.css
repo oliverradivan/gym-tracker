@@ -36,7 +36,8 @@
 }
 
 .nav-icon svg,
-.brand-badge svg {
+.brand-badge svg,
+.exercise-remove-btn svg {
   width: 100%;
   height: 100%;
   stroke: currentColor;
@@ -195,64 +196,86 @@
 
 .exercise-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
   gap: 12px;
 }
 
-.exercise-item {
-  display: inline-flex;
+.exercise-item-wrapper {
+  position: relative;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
   width: 100%;
-  padding: 10px 14px;
   border-radius: 999px;
   background: rgba(17, 17, 17, 0.04);
   color: #111111;
-  text-decoration: none;
   border: 1px solid rgba(17, 17, 17, 0.08);
   opacity: 0;
   transform: translateY(16px);
   animation: exerciseItemReveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-play-state: paused;
   animation-delay: var(--reveal-delay, 0s);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
 }
 
-.exercise-list-card.in-view .exercise-item {
+.exercise-item-wrapper:hover {
+  box-shadow: 0 6px 16px rgba(17, 17, 17, 0.08);
+}
+
+.exercise-list-card.in-view .exercise-item-wrapper {
   animation-play-state: running;
 }
 
-.exercise-item-wrapper {
-  position: relative;
+.exercise-item {
   display: flex;
-  width: 100%;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  padding: 10px 6px 10px 14px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.exercise-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .exercise-remove-btn {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 20px;
-  height: 20px;
-  padding: 0;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(245, 245, 247, 0.95);
+  width: 26px;
+  height: 26px;
+  margin-right: 7px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
-  background: #111111;
-  color: #ffffff;
-  font-size: 13px;
-  line-height: 1;
+  background: rgba(17, 17, 17, 0.07);
+  color: inherit;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-  transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
-  z-index: 1;
+  transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.exercise-remove-btn svg {
+  width: 11px;
+  height: 11px;
+  stroke: currentColor;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  fill: none;
 }
 
 .exercise-remove-btn:hover {
   background: #b91c1c;
+  color: #ffffff;
   transform: scale(1.08);
+}
+
+.exercise-remove-btn:active {
+  transform: scale(0.94);
 }
 
 .exercise-remove-btn:disabled {
@@ -331,7 +354,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .exercise-item {
+  .exercise-item-wrapper {
     animation: none;
     opacity: 1;
     transform: none;
@@ -347,21 +370,21 @@
   box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.04);
 }
 
-.exercise-item.push,
+.exercise-item-wrapper.push,
 .today-session-item.push {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(255, 255, 255, 0.96));
   border-color: rgba(185, 28, 28, 0.28);
   color: #b91c1c;
 }
 
-.exercise-item.pull,
+.exercise-item-wrapper.pull,
 .today-session-item.pull {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(255, 255, 255, 0.96));
   border-color: rgba(29, 78, 216, 0.28);
   color: #1d4ed8;
 }
 
-.exercise-item.leg,
+.exercise-item-wrapper.leg,
 .today-session-item.leg {
   background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(255, 255, 255, 0.96));
   border-color: rgba(180, 132, 0, 0.3);
@@ -516,7 +539,7 @@
   color: #b2b2b0;
 }
 
-.dark .exercise-item {
+.dark .exercise-item-wrapper {
   background: rgba(238, 238, 238, 0.04);
   color: #eeeeee;
   border-color: rgba(238, 238, 238, 0.08);
@@ -527,9 +550,8 @@
 }
 
 .dark .exercise-remove-btn {
-  background: #eeeeee;
-  color: #111111;
-  border-color: rgba(5, 5, 3, 0.9);
+  background: rgba(238, 238, 238, 0.12);
+  color: #eeeeee;
 }
 
 .dark .exercise-remove-btn:hover {
@@ -553,21 +575,21 @@
   background-color: rgba(238, 238, 238, 0.08);
 }
 
-.dark .exercise-item.push,
+.dark .exercise-item-wrapper.push,
 .dark .today-session-item.push {
   background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(0, 0, 0, 0.7));
   border-color: rgba(239, 68, 68, 0.4);
   color: #ff8787;
 }
 
-.dark .exercise-item.pull,
+.dark .exercise-item-wrapper.pull,
 .dark .today-session-item.pull {
   background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(0, 0, 0, 0.7));
   border-color: rgba(59, 130, 246, 0.4);
   color: #60a5fa;
 }
 
-.dark .exercise-item.leg,
+.dark .exercise-item-wrapper.leg,
 .dark .today-session-item.leg {
   background: linear-gradient(135deg, rgba(250, 204, 21, 0.25), rgba(0, 0, 0, 0.7));
   border-color: rgba(250, 204, 21, 0.4);
