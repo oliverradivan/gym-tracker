@@ -92,8 +92,21 @@ def get_supabase_config() -> tuple[str | None, str | None]:
 
 SUPABASE_URL, SUPABASE_KEY = get_supabase_config()
 
+# Import seeding function
+from seed_exercises import seed_exercises_for_all_users
+
 app = FastAPI(title="Workout Tracker API")
 router = APIRouter(prefix="/api")
+
+
+@app.on_event("startup")
+def startup_event():
+    """Seed default exercises on application startup."""
+    try:
+        seed_exercises_for_all_users()
+    except Exception as e:
+        # Log but don't crash the app
+        print(f"Warning: Failed to seed exercises during startup: {e}")
 
 if os.getenv("APP_ENV") == "local":
     app.add_middleware(
@@ -877,8 +890,32 @@ def delete_exercise(
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
 
     user = get_authenticated_user(authorization)
+    user_id = user.id
 
-    raise HTTPException(status_code=403, detail="Exercise deletions are not allowed. Exercises are managed globally.")
+    # Fetch the exercise to check ownership
+    exercise_resp = (
+        supabase.table("exercises")
+        .select("user_id")
+        .eq("id", exercise_id)
+        .single()
+        .execute()
+    )
+    if not exercise_resp.data:
+        raise HTTPException(status_code=404, detail="Exercise not found.")
+    
+    exercise = exercise_resp.data
+    if exercise.get("user_id") is None:
+        raise HTTPException(
+            status_code=403, detail="Global exercises cannot be deleted."
+        )
+    if exercise.get("user_id") != user_id:
+        raise HTTPException(
+            status_code=403, detail="You can only delete your own exercises."
+        )
+
+    # Delete the exercise
+    supabase.table("exercises").delete().eq("id", exercise_id).execute()
+    return {"message": "Exercise deleted successfully"}
 
 
 @router.post("/workout-logs")
