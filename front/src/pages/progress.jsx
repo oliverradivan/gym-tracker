@@ -4,6 +4,7 @@ import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory, getExerciseCategoryColor } from '../utils/exerciseCategory'
 const LineChart = lazy(() => import('@/components/charts/line-chart'))
+const Line = lazy(() => import('@/components/charts/line'))
 const Grid = lazy(() => import('@/components/charts/grid'))
 const XAxis = lazy(() => import('@/components/charts/x-axis'))
 const ProjectionLine = lazy(() => import('@/components/charts/projection-line'))
