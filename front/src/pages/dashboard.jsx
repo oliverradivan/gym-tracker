@@ -51,6 +51,40 @@ function DashboardPage() {
     }
   }
 
+  const [deletingExerciseId, setDeletingExerciseId] = useState(null)
+
+  const handleDeleteExercise = async (e, exercise) => {
+    // Stop the click from bubbling up to the surrounding <Link>, which would
+    // otherwise navigate to /progress/:id instead of deleting.
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!session?.access_token || deletingExerciseId) return
+
+    const confirmed = window.confirm(`Remove "${exercise.name}"? This can't be undone.`)
+    if (!confirmed) return
+
+    setDeletingExerciseId(exercise.id)
+    try {
+      const response = await fetch(`${API_URL}/exercises/${exercise.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+
+      if (response.ok) {
+        setExercises((prev) => prev.filter((item) => item.id !== exercise.id))
+      } else {
+        const data = await response.json().catch(() => null)
+        window.alert(data?.detail || 'Failed to remove exercise.')
+      }
+    } catch (err) {
+      console.error('Failed to delete exercise:', err)
+      window.alert('Failed to remove exercise.')
+    } finally {
+      setDeletingExerciseId(null)
+    }
+  }
+
   const toLocalDateKey = (date) => {
     const offset = date.getTimezoneOffset() * 60000
     return new Date(date.getTime() - offset).toISOString().slice(0, 10)
@@ -230,15 +264,31 @@ function DashboardPage() {
           <div className="exercise-list">
             {sortedExercises.length ? (
               sortedExercises.map((exercise, index) => (
-                <Link
+                <div
                   key={exercise.id}
-                  to={`/progress/${exercise.id}`}
-                  className={`exercise-item ${getExerciseCategory(exercise.name || '')}`}
+                  className="exercise-item-wrapper"
                   style={{ '--reveal-delay': `${index * 0.06}s` }}
                 >
-                  <span className="exercise-item-icon" aria-hidden="true" />
-                  {exercise.name}
-                </Link>
+                  <Link
+                    to={`/progress/${exercise.id}`}
+                    className={`exercise-item ${getExerciseCategory(exercise.name || '')}`}
+                  >
+                    <span className="exercise-item-icon" aria-hidden="true" />
+                    {exercise.name}
+                  </Link>
+                  {exercise.created_by === user?.id && (
+                    <button
+                      type="button"
+                      className="exercise-remove-btn"
+                      onClick={(e) => handleDeleteExercise(e, exercise)}
+                      disabled={deletingExerciseId === exercise.id}
+                      aria-label={`Remove ${exercise.name}`}
+                      title="Remove exercise"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
               ))
             ) : (
               <p>No exercises yet. Create one from the workout logger.</p>

@@ -220,6 +220,44 @@
   animation-play-state: running;
 }
 
+.exercise-item-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.exercise-remove-btn {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(245, 245, 247, 0.95);
+  border-radius: 50%;
+  background: #111111;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, background-color 0.15s ease, opacity 0.15s ease;
+  z-index: 1;
+}
+
+.exercise-remove-btn:hover {
+  background: #b91c1c;
+  transform: scale(1.08);
+}
+
+.exercise-remove-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Create Exercise Card & Form */
 .create-exercise-card {
   display: flex;
@@ -403,6 +441,10 @@
     justify-content: center;
   }
 
+  .exercise-item-wrapper {
+    width: 100%;
+  }
+
   .create-exercise-form {
     flex-direction: column;
     align-items: stretch;
@@ -488,6 +530,17 @@
 
 .dark .exercise-item-icon {
   box-shadow: 0 0 0 3px rgba(238, 238, 238, 0.04);
+}
+
+.dark .exercise-remove-btn {
+  background: #eeeeee;
+  color: #111111;
+  border-color: rgba(5, 5, 3, 0.9);
+}
+
+.dark .exercise-remove-btn:hover {
+  background: #ff8787;
+  color: #111111;
 }
 
 .dark .input-group input[type="text"] {
