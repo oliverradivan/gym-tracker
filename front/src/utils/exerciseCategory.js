@@ -45,7 +45,7 @@ export const CATEGORY_COLORS = {
   leg: '#b7791f',
   push: '#b91c1c',
   pull: '#1d4ed8',
-  general: '#6b7280',
+  general: '#39904d',
 }
 
 export function getExerciseCategoryColor(name = '') {
