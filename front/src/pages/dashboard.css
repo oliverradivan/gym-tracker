@@ -194,15 +194,17 @@
 }
 
 .exercise-list {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 12px;
 }
 
 .exercise-item {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
   padding: 10px 14px;
   border-radius: 999px;
   background: rgba(17, 17, 17, 0.04);
@@ -222,7 +224,8 @@
 
 .exercise-item-wrapper {
   position: relative;
-  display: inline-flex;
+  display: flex;
+  width: 100%;
 }
 
 .exercise-remove-btn {
@@ -434,15 +437,6 @@
 
   .exercise-list {
     gap: 8px;
-  }
-
-  .exercise-item {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .exercise-item-wrapper {
-    width: 100%;
   }
 
   .create-exercise-form {
