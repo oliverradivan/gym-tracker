@@ -101,7 +101,7 @@ function HistoryPage() {
             {sessions.map((sessionItem) => (
               <section key={sessionItem.date} className="session-block">
                 <div className="session-header-row">
-                  <h2>{sessionItem.date}</h2>
+                  <h2>{sessionItem.date.split('-').reverse().join('/')}</h2>
                   <span>Total volume: {Number(sessionItem.total_volume).toFixed(1)}</span>
                 </div>
 
