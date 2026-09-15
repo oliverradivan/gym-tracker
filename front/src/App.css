@@ -116,9 +116,9 @@
 }
 
 .page-toggle button.active {
-  background: #111111;
+  background: #3274ee;
   color: #ffffff;
-  box-shadow: 0 8px 18px rgba(17, 17, 17, 0.12);
+  box-shadow: 0 8px 18px rgba(50, 116, 238, 0.35);
 }
 
 .auth-form {
@@ -352,9 +352,9 @@
 }
 
 .dark .page-toggle button.active {
-  background: #eeeeee;
-  color: #1ccb31;
-  box-shadow: 0 8px 18px rgba(238, 238, 238, 0.12);
+  background: #3274ee;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(50, 116, 238, 0.35);
 }
 
 .dark .auth-form label {
