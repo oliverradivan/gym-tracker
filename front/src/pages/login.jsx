@@ -95,6 +95,11 @@ function LoginPage() {
           {message && <p className="status-message">{message}</p>}
         </div>
       </div>
+      <img
+  className="logo"
+  src="/logo_video.webp"
+  alt="Logo"
+/>
     </div>
   )
 }
