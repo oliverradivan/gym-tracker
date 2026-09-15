@@ -1,0 +1,4 @@
+INFO:     Will watch for changes in these directories: ['/Users/oliverradivan/Coding/workout tracker/back']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [34743] using StatReload
+INFO:     Started server process [34746]
