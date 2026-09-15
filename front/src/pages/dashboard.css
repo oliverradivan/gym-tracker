@@ -124,6 +124,7 @@
 .welcome-card {
   display: flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
@@ -135,8 +136,8 @@
 }
 
 .logo {
-  width: 180px;
-  height: 180px;
+  width: clamp(48px, 10vw, 110px);
+  height: clamp(48px, 10vw, 110px);
   object-fit: contain;
   flex-shrink: 0;
 }
@@ -526,12 +527,6 @@
 
   .create-exercise-form .primary-btn {
     width: 100%;
-  }
-
-  /* Keep hamster beside the welcome text on smaller screens */
-  .welcome-card {
-    flex-direction: row;
-    align-items: center;
   }
 }
 
