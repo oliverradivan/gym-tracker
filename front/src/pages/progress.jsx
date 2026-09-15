@@ -363,14 +363,16 @@ function ProgressPage() {
                 </tr>
               </thead>
               <tbody>
-                {progress.map((point) => (
-                  <tr key={point.date}>
-                    <td>{formatDisplayDate(point.date)}</td>
-                    <td>{Number(point.weight || 0).toFixed(1)}</td>
-                    <td>{(Number(point.reps) || 0) % 1 === 0 ? Number(point.reps) || 0 : (Number(point.reps) || 0).toFixed(1)}</td>
-                    <td>{Number(point.volume).toFixed(1)}</td>
-                  </tr>
-                ))}
+                {[...progress]
+                  .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+                  .map((point) => (
+                    <tr key={point.date}>
+                      <td>{formatDisplayDate(point.date)}</td>
+                      <td>{Number(point.weight || 0).toFixed(1)}</td>
+                      <td>{(Number(point.reps) || 0) % 1 === 0 ? Number(point.reps) || 0 : (Number(point.reps) || 0).toFixed(1)}</td>
+                      <td>{Number(point.volume).toFixed(1)}</td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           </>
