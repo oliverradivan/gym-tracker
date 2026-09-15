@@ -221,6 +221,7 @@ function DashboardPage() {
           <p className="welcome-message">
             Let's get those reps in. No Pain, No Gain! Log your workouts and track your progress over time.
           </p>
+           <img className="logo"  src="/logo_video.webp" alt="Logo"   />
         </section>
 
         <section className="stats-grid">

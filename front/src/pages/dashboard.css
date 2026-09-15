@@ -629,3 +629,12 @@
 .dark .welcome-eyebrow {
   color: #858585;
 }
+
+.logo {
+  display: block;
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  margin-left: auto;
+  margin-top: auto;
+}
