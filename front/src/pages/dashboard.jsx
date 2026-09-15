@@ -216,13 +216,15 @@ function DashboardPage() {
 
       <main className="dashboard-grid">
         <section className="welcome-card">
-          <p className="welcome-eyebrow">Welcome</p>
-          <h1>{username}</h1>
-          <p className="welcome-message">
-            Let's get those reps in. No Pain, No Gain! Log your workouts and track your progress over time.
-          </p>
-           <img className="logo"  src="/logo_video.webp" alt="Logo"   />
-        </section>
+          <div className="welcome-content">
+            <p className="welcome-eyebrow">Welcome</p>
+            <h1>{username}</h1>
+            <p className="welcome-message">
+              Hamster says: "Let's get those reps in. No Pain, No Gain! Log your workouts and track your progress over time."
+            </p>
+            </div>
+            <img className="logo" src="/logo_video.webp" alt="Logo" />
+          </section>
 
         <section className="stats-grid">
           <article className="stat-card">

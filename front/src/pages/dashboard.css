@@ -6,7 +6,11 @@
 
 .dashboard-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
+  background: linear-gradient(
+    180deg,
+    rgba(245, 245, 247, 0.9),
+    rgba(230, 230, 232, 0.95)
+  );
   padding: 32px 18px;
 }
 
@@ -116,14 +120,35 @@
   animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Welcome card */
 .welcome-card {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.welcome-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.welcome-logo {
+  display: block;
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .welcome-card p,
 .schedule-card li {
+  color: #3d3d3d;
+}
+
+.welcome-message {
+  margin: 0;
   color: #3d3d3d;
 }
 
@@ -258,7 +283,10 @@
   background: transparent;
   color: rgba(17, 17, 17, 0.45);
   cursor: pointer;
-  transition: color 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.1s ease;
 }
 
 .exercise-remove-btn svg {
@@ -327,7 +355,10 @@
   color: #111111;
   font-size: 0.95rem;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .input-group input[type="text"]::placeholder {
@@ -376,28 +407,44 @@
 
 .exercise-item-wrapper.push,
 .today-session-item.push {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(255, 255, 255, 0.96));
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.18),
+    rgba(255, 255, 255, 0.96)
+  );
   border-color: rgba(185, 28, 28, 0.28);
   color: #b91c1c;
 }
 
 .exercise-item-wrapper.pull,
 .today-session-item.pull {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(255, 255, 255, 0.96));
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.18),
+    rgba(255, 255, 255, 0.96)
+  );
   border-color: rgba(29, 78, 216, 0.28);
   color: #1d4ed8;
 }
 
 .exercise-item-wrapper.leg,
 .today-session-item.leg {
-  background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(255, 255, 255, 0.96));
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.22),
+    rgba(255, 255, 255, 0.96)
+  );
   border-color: rgba(180, 132, 0, 0.3);
   color: #b7791f;
 }
 
 .exercise-item-wrapper.general,
 .today-session-item.general {
-  background: linear-gradient(135deg, rgba(57, 144, 77, 0.18), rgba(255, 255, 255, 0.96));
+  background: linear-gradient(
+    135deg,
+    rgba(57, 144, 77, 0.18),
+    rgba(255, 255, 255, 0.96)
+  );
   border-color: rgba(57, 144, 77, 0.3);
   color: #39904d;
 }
@@ -481,11 +528,26 @@
   .create-exercise-form .primary-btn {
     width: 100%;
   }
+
+  /* Keep hamster beside the welcome text on smaller screens */
+  .welcome-card {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .welcome-logo {
+    width: 110px;
+    height: 110px;
+  }
 }
 
 /* Dark Mode Overrides */
 .dark .dashboard-page {
-  background: linear-gradient(180deg, rgba(10, 10, 8, 0.9), rgba(5, 5, 3, 0.95));
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 8, 0.9),
+    rgba(5, 5, 3, 0.95)
+  );
 }
 
 .dark .eyebrow {
@@ -587,28 +649,44 @@
 
 .dark .exercise-item-wrapper.push,
 .dark .today-session-item.push {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(0, 0, 0, 0.7));
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.25),
+    rgba(0, 0, 0, 0.7)
+  );
   border-color: rgba(239, 68, 68, 0.4);
   color: #ff8787;
 }
 
 .dark .exercise-item-wrapper.pull,
 .dark .today-session-item.pull {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(0, 0, 0, 0.7));
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.25),
+    rgba(0, 0, 0, 0.7)
+  );
   border-color: rgba(59, 130, 246, 0.4);
   color: #60a5fa;
 }
 
 .dark .exercise-item-wrapper.leg,
 .dark .today-session-item.leg {
-  background: linear-gradient(135deg, rgba(250, 204, 21, 0.25), rgba(0, 0, 0, 0.7));
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.25),
+    rgba(0, 0, 0, 0.7)
+  );
   border-color: rgba(250, 204, 21, 0.4);
   color: #fcd34d;
 }
 
 .dark .exercise-item-wrapper.general,
 .dark .today-session-item.general {
-  background: linear-gradient(135deg, rgba(57, 144, 77, 0.28), rgba(0, 0, 0, 0.7));
+  background: linear-gradient(
+    135deg,
+    rgba(57, 144, 77, 0.28),
+    rgba(0, 0, 0, 0.7)
+  );
   border-color: rgba(57, 144, 77, 0.45);
   color: #4ade80;
 }
@@ -617,24 +695,10 @@
   border-color: rgba(238, 238, 238, 0.08);
 }
 
-.welcome-message {
-  margin: 0;
-  color: #3d3d3d;
-}
-
 .dark .welcome-message {
   color: #c2c2c2;
 }
 
 .dark .welcome-eyebrow {
   color: #858585;
-}
-
-.logo {
-  display: block;
-  width: 180px;
-  height: 180px;
-  object-fit: contain;
-  margin-left: auto;
-  margin-top: auto;
 }
