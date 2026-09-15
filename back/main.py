@@ -341,96 +341,106 @@ def build_forecast(
     interval_days: int = 1,
     category: str = "compound",
 ) -> list[dict]:
+    """
+    Forecast future volume (weight*reps) using a model that captures:
+    - Diminishing returns via a saturation factor.
+    - Recent-trend weighting with exponential moving average on session-to-session deltas.
+    - Plateau detection when predicted change falls below a noise threshold.
+    - Exercise-type awareness via category‑specific parameters.
+    - Confidence bands that widen with uncertainty and variability.
+    """
     if not points:
         return []
 
+    # Sort chronologically and extract the volume metric.
     sorted_points = sorted(points, key=lambda item: str(item.get("date", "")))
     values = [float(point.get("volume", 0) or 0) for point in sorted_points]
     if len(values) < 2:
         return []
 
-    import math
+    # --- 1. Compute session‑to‑session deltas (progress per workout) ---
+    deltas = [values[i] - values[i - 1] for i in range(1, len(values))]
+    if not deltas:
+        return []
 
-    # Tune the curve here: k controls how quickly gains flatten, and scales down
-    # as more history makes the athlete's progression look more established.
-    max_gain_scale = 0.5
-    FALLBACK_GROWTH_RATE = 0.05
-    novice_k = (
-        ISOLATION_NOVICE_K
-        if category == "isolation"
-        else COMPOUND_NOVICE_K
-    )
-    experienced_k = (
-        ISOLATION_EXPERIENCED_K
-        if category == "isolation"
-        else COMPOUND_EXPERIENCED_K
-    )
-    history_for_experienced_k = 30
+    # --- 2. Recent‑trend weighting (EMA on deltas) ---
+    # Choose smoothing factor based on exercise type.
+    alpha = 0.2 if category == "compound" else 0.4  # compound = smoother, isolation = more responsive
+    # Compute EMA of deltas: most recent delta gets weight alpha.
+    ema = deltas[0]  # start with first delta
+    for d in deltas[1:]:
+        ema = alpha * d + (1.0 - alpha) * ema
+    predicted_delta = ema
 
-    RECENT_DATA_DECAY_RATE = 0.9
-    # Higher decay rates keep weighting more even; lower rates surface genuine
-    # shifts like injury recovery or a program change faster without letting a
-    # single bad session dominate like the old "last 3 points" approach.
-    weights = [
-        RECENT_DATA_DECAY_RATE ** (len(values) - 1 - index)
-        for index in range(len(values))
-    ]
-    weight_sum = sum(weights)
-    x_mean = sum(weight * index for index, weight in enumerate(weights)) / weight_sum
-    y_mean = sum(weight * value for weight, value in zip(weights, values)) / weight_sum
-    denominator = sum(
-        weight * (index - x_mean) ** 2
-        for index, weight in enumerate(weights)
-    )
-    regression_slope = sum(
-        weight * (index - x_mean) * (value - y_mean)
-        for index, (weight, value) in enumerate(zip(weights, values))
-    ) / denominator
-    if regression_slope <= 0:
-        # When regression_slope <= 0, sparse history gets assumed novice progression.
-        max_gain = max(1.0, values[-1] * FALLBACK_GROWTH_RATE)
+    # --- 3. Variability of recent deltas (for confidence) ---
+    recent_window = deltas[-8:] if len(deltas) >= 8 else deltas
+    if len(recent_window) >= 2:
+        mean_recent = sum(recent_window) / len(recent_window)
+        variance = sum((x - mean_recent) ** 2 for x in recent_window) / len(recent_window)
+        std_recent = math.sqrt(variance)
     else:
-        slope = regression_slope
-        max_gain = slope * max(len(values) - 1, 1) * max_gain_scale
-    history_ratio = min((len(values) - 2) / max(history_for_experienced_k - 2, 1), 1.0)
-    k = novice_k - ((novice_k - experienced_k) * history_ratio)
+        mean_recent = 0.0
+        std_recent = 0.0
 
+    # --- 4. Diminishing returns: saturation factor ---
+    # Saturation level is higher for compound lifts (they can grow longer) and lower for isolation.
+    saturation = 1000.0 if category == "compound" else 400.0
+    # Factor in [0,1]: small when current value is large, approaches 1 when value is small.
+    # Use absolute value to keep sign‑independent.
+    current_val = abs(values[-1])
+    diminishing_factor = saturation / (saturation + current_val)
+
+    # Apply diminishing returns to the predicted delta.
+    predicted_delta_adj = predicted_delta * diminishing_factor
+
+    # --- 5. Plateau / noise tolerance ---
+    # If the expected change is smaller than a small absolute threshold, treat as a plateau.
+    MIN_DELTA_THRESHOLD = 0.5  # volume units; tweak as needed
+    if abs(predicted_delta_adj) < MIN_DELTA_THRESHOLD:
+        predicted_delta_adj = 0.0
+
+    # --- 6. Generate forecast points ---
     start_date = datetime.strptime(str(sorted_points[-1].get("date")), "%Y-%m-%d")
     forecast = []
+    current_projected = values[-1]
 
-    for offset in range(1, max(1, periods) + 1):
-        exponential_projected = values[-1] + (max_gain * (1 - math.exp(-k * offset)))
-        if regression_slope > 0:
-            transition_end = NOVICE_WINDOW_SESSIONS + NOVICE_TRANSITION_SESSIONS
-            linear_weight = max(
-                0.0,
-                min(
-                    1.0,
-                    (transition_end - len(values)) / NOVICE_TRANSITION_SESSIONS,
-                ),
-            )
-            linear_slope = (
-                max_gain / max(len(values) - 1, 1)
-            ) * LINEAR_FORECAST_SLOPE_SCALE
-            linear_projected = values[-1] + (
-                linear_slope * offset
-            )
-            projected = (
-                (linear_weight * linear_projected)
-                + ((1 - linear_weight) * exponential_projected)
-            )
+    for step in range(1, max(1, periods) + 1):
+        if predicted_delta_adj == 0.0:
+            # No further change expected.
+            next_val = current_projected
         else:
-            projected = exponential_projected
-        next_date = start_date + timedelta(days=offset * max(1, interval_days))
-        confidence_band_pct = get_confidence_band_pct(len(values), offset)
+            next_val = current_projected + predicted_delta_adj
+            # Update the diminishing‑returns factor for the next iteration.
+            current_val = abs(next_val)
+            diminishing_factor = saturation / (saturation + current_val)
+            predicted_delta_adj = predicted_delta * diminishing_factor
+            if abs(predicted_delta_adj) < MIN_DELTA_THRESHOLD:
+                predicted_delta_adj = 0.0
+
+        next_date = start_date + timedelta(days=step * max(1, interval_days))
+
+        # --- 7. Confidence band ---
+        base_conf = get_confidence_band_pct(len(values), step)
+        # Widen band if recent delta variability is high relative to the mean trend.
+        if abs(mean_recent) > 1e-6:
+            var_factor = 1.0 + (std_recent / abs(mean_recent))
+        else:
+            var_factor = 1.0
+        var_factor = min(var_factor, 2.0)  # cap the widening effect
+        conf_pct = min(MAX_CONFIDENCE_BAND, base_conf * var_factor)
+
+        lower = max(next_val * (1.0 - conf_pct), 0.0)
+        upper = next_val * (1.0 + conf_pct)
+
         forecast.append(
             {
                 "date": next_date.strftime("%Y-%m-%d"),
-                "value": round(projected, 2),
-                "lower": round(max(projected * (1 - confidence_band_pct), 0), 2),
-                "upper": round(projected * (1 + confidence_band_pct), 2),
+                "value": round(next_val, 2),
+                "lower": round(lower, 2),
+                "upper": round(upper, 2),
             }
         )
+        current_projected = next_val
 
     return forecast
 
