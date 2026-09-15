@@ -71,7 +71,15 @@ function LogWorkoutPage() {
   const selectedExercise = exerciseOptions.find(opt => opt.id === form.exercise_id)
   const selectedCategory = selectedExercise ? getExerciseCategory(selectedExercise.name || '') : ''
 
-  const handleSelectExercise = (exerciseId) => {
+  const handleSelectExercise = (event, exerciseId) => {
+    // Fire on mousedown (not click) and stop it from reaching the
+    // document-level outside-click listener. Relying on 'click' here meant
+    // selection only registered if mouseup landed cleanly back on the same
+    // <li> — any small cursor movement (trackpads especially) could drop the
+    // click entirely, making the menu feel like it wouldn't close until a
+    // second, cleaner click.
+    event.preventDefault()
+    event.stopPropagation()
     setForm(prev => ({ ...prev, exercise_id: exerciseId }))
     setSelectOpen(false)
   }
@@ -180,7 +188,7 @@ function LogWorkoutPage() {
                       <li
                         key={exercise.id}
                         className={`custom-select-option option-${category}${exercise.id === form.exercise_id ? ' selected' : ''}`}
-                        onClick={() => handleSelectExercise(exercise.id)}
+                        onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
                       >
                         {exercise.name}
                       </li>
