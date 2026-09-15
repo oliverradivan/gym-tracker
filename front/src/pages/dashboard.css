@@ -134,7 +134,7 @@
   min-width: 0;
 }
 
-.welcome-logo {
+.logo {
   display: block;
   width: 180px;
   height: 180px;
@@ -535,7 +535,7 @@
     align-items: center;
   }
 
-  .welcome-logo {
+  .logo {
     width: 110px;
     height: 110px;
   }
