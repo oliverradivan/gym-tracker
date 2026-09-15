@@ -37,7 +37,7 @@ function LoginPage() {
           <div className="auth-header">
             <div className="brand-badge" aria-label="Workout Tracker">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <g stroke="#d1d1d6" strokeWidth="2.2" transform="rotate(45 12 12)">
+                <g stroke="currentColor" strokeWidth="2.2" transform="rotate(45 12 12)">
                   <line x1="6" y1="12" x2="18" y2="12" />
                   <line x1="6" y1="9" x2="6" y2="15" />
                   <line x1="18" y1="9" x2="18" y2="15" />
@@ -46,7 +46,7 @@ function LoginPage() {
                 </g>
               </svg>
             </div>
-            <h1>Welcome back</h1>
+            <h1>Welcome back!!</h1>
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
