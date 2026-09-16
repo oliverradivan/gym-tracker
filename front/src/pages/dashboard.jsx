@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import './dashboard.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -13,11 +14,12 @@ const initialForm = {
 function DashboardPage() {
   const [form, setForm] = useState(initialForm)
   const { user, handleLogout, session } = useAuth()
-  
+
   const [exercises, setExercises] = useState([])
   const [todaySession, setTodaySession] = useState(null)
   const [totalDaysExercised, setTotalDaysExercised] = useState(0)
   const [exerciseListInView, setExerciseListInView] = useState(false)
+  const [pageLoading, setPageLoading] = useState(true)
   const exerciseListRef = useRef(null)
 
   const username = user?.user_metadata?.username || user?.user_metadata?.full_name || 'Athlete'
@@ -92,8 +94,12 @@ function DashboardPage() {
 
   useEffect(() => {
     const loadDashboardData = async () => {
-      if (!session?.access_token) return
+      if (!session?.access_token) {
+        setPageLoading(false)
+        return
+      }
 
+      setPageLoading(true)
       try {
         const todayKey = toLocalDateKey(new Date())
         const [exercisesResponse, sessionsResponse] = await Promise.all([
@@ -123,6 +129,8 @@ function DashboardPage() {
         }
       } catch {
         // Dashboard data load error handled silently
+      } finally {
+        setPageLoading(false)
       }
     }
 
@@ -214,112 +222,118 @@ function DashboardPage() {
         </div>
       </header>
 
-      <main className="dashboard-grid">
-        <section className="welcome-card">
-          <div className="welcome-content">
-            <p className="welcome-eyebrow">Welcome</p>
-            <h1>{username}</h1>
-            <p className="welcome-message">
-              Hamster says: "Let's get those reps in. No Pain, No Gain! Log your workouts and track your progress over time."
-            </p>
-            </div>
-            <img className="logo" src="/logo_video.webp" alt="Logo" />
+      {pageLoading ? (
+        <div className="dashboard-loading">
+          <LoadingSpinner size={64} label="Loading your dashboard..." showLabel />
+        </div>
+      ) : (
+        <main className="dashboard-grid">
+          <section className="welcome-card">
+            <div className="welcome-content">
+              <p className="welcome-eyebrow">Welcome</p>
+              <h1>{username}</h1>
+              <p className="welcome-message">
+                Hamster says: "Let's get those reps in. No Pain, No Gain! Log your workouts and track your progress over time."
+              </p>
+              </div>
+              <img className="logo" src="/logo_video.webp" alt="Logo" />
+            </section>
+
+          <section className="stats-grid">
+            <article className="stat-card">
+              <span>You've moved this much volume today:</span>
+              <strong>{todaySession ? Number(todaySession.total_volume).toFixed(1) : '0'}</strong>
+              {todaySession && todaySession.entries && todaySession.entries.length > 0 ? (
+                <ul className="today-session-list">
+                  {todaySession.entries.map((entry, index) => (
+                    <li key={`${entry.exercise_name}-${index}`} className={`today-session-item ${getExerciseCategory(entry.exercise_name || '')}`}>
+                      {entry.exercise_id ? (
+                        <Link to={`/progress/${entry.exercise_id}`} className="today-session-link">
+                          <span>{entry.exercise_name}</span>
+                        </Link>
+                      ) : (
+                        <span>{entry.exercise_name}</span>
+                      )}
+                      <span>{entry.weight} kg × {entry.reps}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="today-session-empty">No workouts logged today yet.</p>
+              )}
+            </article>
+            <article className="stat-card">
+              <span>Days logged:</span>
+              <strong>{totalDaysExercised}</strong>
+            </article>
+            <article className="stat-card">
+              <span>Exercises in our system</span>
+              <strong>{exercises.length}</strong>
+            </article>
           </section>
 
-        <section className="stats-grid">
-          <article className="stat-card">
-            <span>You've moved this much volume today:</span>
-            <strong>{todaySession ? Number(todaySession.total_volume).toFixed(1) : '0'}</strong>
-            {todaySession && todaySession.entries && todaySession.entries.length > 0 ? (
-              <ul className="today-session-list">
-                {todaySession.entries.map((entry, index) => (
-                  <li key={`${entry.exercise_name}-${index}`} className={`today-session-item ${getExerciseCategory(entry.exercise_name || '')}`}>
-                    {entry.exercise_id ? (
-                      <Link to={`/progress/${entry.exercise_id}`} className="today-session-link">
-                        <span>{entry.exercise_name}</span>
-                      </Link>
-                    ) : (
-                      <span>{entry.exercise_name}</span>
+          <section
+            className={`exercise-list-card${exerciseListInView ? ' in-view' : ''}`}
+            ref={exerciseListRef}
+          >
+            <h3>Exercises:</h3>
+            <div className="exercise-list">
+              {sortedExercises.length ? (
+                sortedExercises.map((exercise, index) => (
+                  <div
+                    key={exercise.id}
+                    className={`exercise-item-wrapper ${getExerciseCategory(exercise.name || '')}`}
+                    style={{ '--reveal-delay': `${index * 0.06}s` }}
+                  >
+                    <Link to={`/progress/${exercise.id}`} className="exercise-item">
+                      <span className="exercise-item-icon" aria-hidden="true" />
+                      <span className="exercise-item-name">{exercise.name}</span>
+                    </Link>
+                    {exercise.created_by === user?.id && (
+                      <button
+                        type="button"
+                        className="exercise-remove-btn"
+                        onClick={(e) => handleDeleteExercise(e, exercise)}
+                        disabled={deletingExerciseId === exercise.id}
+                        aria-label={`Remove ${exercise.name}`}
+                        title="Remove exercise"
+                      >
+                        <svg viewBox="0 0 24 24">
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
+                        </svg>
+                      </button>
                     )}
-                    <span>{entry.weight} kg × {entry.reps}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="today-session-empty">No workouts logged today yet.</p>
-            )}
-          </article>
-          <article className="stat-card">
-            <span>Days logged:</span>
-            <strong>{totalDaysExercised}</strong>
-          </article>
-          <article className="stat-card">
-            <span>Exercises in our system</span>
-            <strong>{exercises.length}</strong>
-          </article>
-        </section>
-
-        <section
-          className={`exercise-list-card${exerciseListInView ? ' in-view' : ''}`}
-          ref={exerciseListRef}
-        >
-          <h3>Exercises:</h3>
-          <div className="exercise-list">
-            {sortedExercises.length ? (
-              sortedExercises.map((exercise, index) => (
-                <div
-                  key={exercise.id}
-                  className={`exercise-item-wrapper ${getExerciseCategory(exercise.name || '')}`}
-                  style={{ '--reveal-delay': `${index * 0.06}s` }}
-                >
-                  <Link to={`/progress/${exercise.id}`} className="exercise-item">
-                    <span className="exercise-item-icon" aria-hidden="true" />
-                    <span className="exercise-item-name">{exercise.name}</span>
-                  </Link>
-                  {exercise.created_by === user?.id && (
-                    <button
-                      type="button"
-                      className="exercise-remove-btn"
-                      onClick={(e) => handleDeleteExercise(e, exercise)}
-                      disabled={deletingExerciseId === exercise.id}
-                      aria-label={`Remove ${exercise.name}`}
-                      title="Remove exercise"
-                    >
-                      <svg viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" />
-                        <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p>No exercises yet. Create one from the workout logger.</p>
-            )}
-          </div>
-        </section>
-
-        <section className="create-exercise-card">
-          <h3>Create New Exercise</h3>
-          <form onSubmit={handleCreateExercise} className="create-exercise-form">
-            <div className="input-group">
-              <label htmlFor="exercise_name">Exercise Name</label>
-              <input
-                id="exercise_name"
-                type="text"
-                name="exercise_name"
-                value={form.exercise_name}
-                onChange={handleChange}
-                placeholder="e.g. Incline Bench Press"
-                required
-              />
+                  </div>
+                ))
+              ) : (
+                <p>No exercises yet. Create one from the workout logger.</p>
+              )}
             </div>
-            <button type="submit" className="primary-btn">
-              Add Exercise
-            </button>
-          </form>
-        </section>
-      </main>
+          </section>
+
+          <section className="create-exercise-card">
+            <h3>Create New Exercise</h3>
+            <form onSubmit={handleCreateExercise} className="create-exercise-form">
+              <div className="input-group">
+                <label htmlFor="exercise_name">Exercise Name</label>
+                <input
+                  id="exercise_name"
+                  type="text"
+                  name="exercise_name"
+                  value={form.exercise_name}
+                  onChange={handleChange}
+                  placeholder="e.g. Incline Bench Press"
+                  required
+                />
+              </div>
+              <button type="submit" className="primary-btn">
+                Add Exercise
+              </button>
+            </form>
+          </section>
+        </main>
+      )}
     </div>
   )
 }

@@ -1,0 +1,17 @@
+.loading-spinner-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+}
+
+.loading-spinner-img {
+  display: block;
+}
+
+.loading-spinner-label {
+  font-size: 0.85rem;
+  color: var(--muted-text, #6b7280);
+}

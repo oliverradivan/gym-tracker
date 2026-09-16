@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory, getExerciseCategoryColor } from '../utils/exerciseCategory'
+import LoadingSpinner from '@/components/LoadingSpinner'
 const LineChart = lazy(() => import('@/components/charts/line-chart'))
 const Line = lazy(() => import('@/components/charts/line'))
 const Grid = lazy(() => import('@/components/charts/grid'))
@@ -300,7 +301,7 @@ function ProgressPage() {
         </label>
 
         {loading ? (
-          <p className="status-message">Loading progress...</p>
+          <LoadingSpinner label="Loading workouts..." showLabel />
         ) : !selectedExercise ? (
           <p className="status-message">Select an exercise from the dropdown to view progress.</p>
         ) : progress.length === 0 ? (
