@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
@@ -71,13 +71,16 @@ function LogWorkoutPage() {
   const selectedExercise = exerciseOptions.find(opt => opt.id === form.exercise_id)
   const selectedCategory = selectedExercise ? getExerciseCategory(selectedExercise.name || '') : ''
 
+  const sortedExerciseOptions = useMemo(() => {
+    return [...exerciseOptions].sort((a, b) => {
+      const catA = getExerciseCategory(a.name || '')
+      const catB = getExerciseCategory(b.name || '')
+      if (catA !== catB) return catA.localeCompare(catB)
+      return (a.name || '').localeCompare(b.name || '')
+    })
+  }, [exerciseOptions])
+
   const handleSelectExercise = (event, exerciseId) => {
-    // Fire on mousedown (not click) and stop it from reaching the
-    // document-level outside-click listener. Relying on 'click' here meant
-    // selection only registered if mouseup landed cleanly back on the same
-    // <li> — any small cursor movement (trackpads especially) could drop the
-    // click entirely, making the menu feel like it wouldn't close until a
-    // second, cleaner click.
     event.preventDefault()
     event.stopPropagation()
     setForm(prev => ({ ...prev, exercise_id: exerciseId }))
@@ -94,11 +97,7 @@ function LogWorkoutPage() {
     const input = dateInputRef.current
     if (!input) return
 
-    // A plain focus() only opens the native calendar on mobile browsers.
-    // Desktop browsers (Chrome in particular) only auto-open it if the click
-    // lands on the input's own tiny calendar-icon hitbox, which is invisible
-    // here since the input is stretched/hidden over the whole field.
-    // showPicker() opens it programmatically from any click on the field.
+
     if (typeof input.showPicker === 'function') {
       try {
         input.showPicker()
@@ -182,7 +181,7 @@ function LogWorkoutPage() {
               </button>
               {selectOpen && (
                 <ul className="custom-select-list">
-                  {exerciseOptions.map(exercise => {
+                  {sortedExerciseOptions.map(exercise => {
                     const category = getExerciseCategory(exercise.name || '')
                     return (
                       <li

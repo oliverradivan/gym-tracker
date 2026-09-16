@@ -209,6 +209,18 @@ function ProgressPage() {
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
   const chartStroke = getExerciseCategoryColor(selectedExercise?.name || '')
 
+  // Sort dropdown options by category (push/pull/leg/etc.) so exercises in
+  // the same color group are grouped together, regardless of what order the
+  // API returned them in.
+  const sortedExercises = useMemo(() => {
+    return [...exercises].sort((a, b) => {
+      const catA = getExerciseCategory(a.name || '')
+      const catB = getExerciseCategory(b.name || '')
+      if (catA !== catB) return catA.localeCompare(catB)
+      return (a.name || '').localeCompare(b.name || '')
+    })
+  }, [exercises])
+
   const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
 
   const chartData = useMemo(() => {
@@ -288,7 +300,7 @@ function ProgressPage() {
             onChange={(event) => setSelectedExerciseId(event.target.value)}
             className={`select-${getExerciseCategory(selectedExercise?.name || '')}`}
           >
-            {exercises.map((exercise) => (
+            {sortedExercises.map((exercise) => (
               <option
                 key={exercise.id}
                 value={exercise.id}
