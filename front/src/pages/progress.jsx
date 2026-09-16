@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
@@ -42,6 +42,8 @@ function ProgressPage() {
     if (typeof window === 'undefined') return false
     return window.matchMedia('(max-width: 640px)').matches
   })
+  const [selectOpen, setSelectOpen] = useState(false)
+  const selectRef = useRef(null)
 
   // Track responsive screen width
   useEffect(() => {
@@ -49,6 +51,18 @@ function ProgressPage() {
     const handler = (e) => setIsMobile(e.matches)
     mediaQuery.addEventListener('change', handler)
     return () => mediaQuery.removeEventListener('change', handler)
+  }, [])
+
+  // Close the custom dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        setSelectOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const [predictionEnabled] = useState(() => {
@@ -221,6 +235,15 @@ function ProgressPage() {
     })
   }, [exercises])
 
+  const handleSelectExercise = (event, exerciseId) => {
+    // Fire on mousedown (not click) and stop it from reaching the
+    // document-level outside-click listener — see logworkout.jsx for why.
+    event.preventDefault()
+    event.stopPropagation()
+    setSelectedExerciseId(exerciseId)
+    setSelectOpen(false)
+  }
+
   const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
 
   const chartData = useMemo(() => {
@@ -295,21 +318,36 @@ function ProgressPage() {
 
         <label className="exercise-select-label">
           Exercise
-          <select
-            value={selectedExerciseId}
-            onChange={(event) => setSelectedExerciseId(event.target.value)}
-            className={`select-${getExerciseCategory(selectedExercise?.name || '')}`}
-          >
-            {sortedExercises.map((exercise) => (
-              <option
-                key={exercise.id}
-                value={exercise.id}
-                className={`option-${getExerciseCategory(exercise.name)}`}
-              >
-                {exercise.name}
-              </option>
-            ))}
-          </select>
+          <div className="custom-select" ref={selectRef}>
+            <button
+              type="button"
+              className={`custom-select-trigger ${category ? `select-${category}` : ''}`}
+              onClick={() => setSelectOpen(prev => !prev)}
+            >
+              <span>{selectedExercise ? selectedExercise.name : 'Select an exercise'}</span>
+              <span className={`custom-select-arrow ${selectOpen ? 'open' : ''}`} aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
+              </span>
+            </button>
+            {selectOpen && (
+              <ul className="custom-select-list">
+                {sortedExercises.map(exercise => {
+                  const optionCategory = getExerciseCategory(exercise.name || '')
+                  return (
+                    <li
+                      key={exercise.id}
+                      className={`custom-select-option option-${optionCategory}${exercise.id === selectedExerciseId ? ' selected' : ''}`}
+                      onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
+                    >
+                      {exercise.name}
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </div>
         </label>
 
         {loading ? (
