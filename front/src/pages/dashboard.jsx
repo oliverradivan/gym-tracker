@@ -138,6 +138,11 @@ function DashboardPage() {
   }, [session])
 
   useEffect(() => {
+    // exerciseListRef only attaches once <main> renders, which happens after
+    // pageLoading flips to false — so this effect must depend on pageLoading
+    // to re-run once the ref is actually populated. With an empty dependency
+    // array it fires once on mount while the ref is still null (since <main>
+    // is hidden behind the loading state), and the observer never gets set up.
     const node = exerciseListRef.current
     if (!node) return
 
@@ -153,7 +158,7 @@ function DashboardPage() {
 
     observer.observe(node)
     return () => observer.disconnect()
-  }, [])
+  }, [pageLoading])
 
   // Sort exercises by category (push/pull/leg/etc.) so newly created
   // exercises always land next to others in the same color group,
