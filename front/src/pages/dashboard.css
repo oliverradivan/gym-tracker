@@ -73,7 +73,8 @@
 }
 
 .ghost-btn,
-.primary-btn {
+.primary-btn,
+.logout-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -91,6 +92,20 @@
   background: rgba(17, 17, 17, 0.03);
   color: #111111;
   border: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.logout-btn {
+  background: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+  border: 1px solid rgba(220, 38, 38, 0.22);
+}
+
+.logout-btn:hover {
+  background: rgba(220, 38, 38, 0.14);
+}
+
+.logout-btn:active {
+  transform: scale(0.97);
 }
 
 .dashboard-primary-btn,
@@ -500,7 +515,8 @@
   }
 
   .ghost-btn,
-  .primary-btn {
+  .primary-btn,
+  .logout-btn {
     flex: 1 1 42%;
     min-width: 0;
     width: 100%;
@@ -555,6 +571,16 @@
   background: rgba(238, 238, 238, 0.03);
   color: #eeeeee;
   border-color: rgba(238, 238, 238, 0.08);
+}
+
+.dark .logout-btn {
+  background: rgba(255, 135, 135, 0.1);
+  color: #ff8787;
+  border-color: rgba(255, 135, 135, 0.3);
+}
+
+.dark .logout-btn:hover {
+  background: rgba(255, 135, 135, 0.18);
 }
 
 .dark .primary-btn,

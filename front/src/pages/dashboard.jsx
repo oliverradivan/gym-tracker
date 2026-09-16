@@ -216,7 +216,7 @@ function DashboardPage() {
             </span>
             Settings
           </Link>
-          <Link to="/login" className="ghost-btn" onClick={handleLogout}>
+          <Link to="/login" className="logout-btn" onClick={handleLogout}>
             <span className="nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24">
                 <path d="M9 7.5V6.8A2.8 2.8 0 0 1 11.8 4h4.4A2.8 2.8 0 0 1 19 6.8v10.4A2.8 2.8 0 0 1 16.2 20h-4.4A2.8 2.8 0 0 1 9 17.2v-.7M15 12H4m0 0 3-3m-3 3 3 3" />
