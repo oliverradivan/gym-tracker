@@ -70,7 +70,7 @@ function LoginPage() {
                   name="password"
                   value={form.password}
                   onChange={handleChange}
-                  placeholder="At least 6 characters"
+                  placeholder="Your password"
                   required
                 />
                 <div
