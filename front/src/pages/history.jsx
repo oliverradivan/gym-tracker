@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import './history.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -93,7 +94,7 @@ function HistoryPage() {
         {message && <p className="status-message">{message}</p>}
 
         {loading ? (
-          <p className="status-message">Loading workouts...</p>
+          <LoadingSpinner label="Loading workouts..." showLabel />
         ) : sessions.length === 0 ? (
           <p className="status-message">No workouts logged yet.</p>
         ) : (
