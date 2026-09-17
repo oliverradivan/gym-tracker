@@ -268,24 +268,23 @@ function DashboardPage() {
               )}
             </article>
             <article className="stat-card">
-              <span>Days logged:</span>
-              <strong>
-                {totalDaysExercised}{' '}
-                <svg width="18" height="18" viewBox="0 0 680 300" style={{ verticalAlign: 'middle' }}>
-                  <rect x="240" y="60" width="200" height="180" rx="8" fill="none" stroke="currentColor" strokeWidth="4" />
-                  <rect x="240" y="60" width="200" height="40" rx="8" fill="currentColor" />
-                  <rect x="240" y="88" width="200" height="12" fill="currentColor" />
-                  <rect x="275" y="40" width="10" height="35" rx="4" fill="currentColor" />
-                  <rect x="395" y="40" width="10" height="35" rx="4" fill="currentColor" />
-                  <line x1="240" y1="140" x2="440" y2="140" stroke="currentColor" strokeWidth="2" />
-                  <line x1="240" y1="180" x2="440" y2="180" stroke="currentColor" strokeWidth="2" />
-                  <line x1="280" y1="100" x2="280" y2="240" stroke="currentColor" strokeWidth="2" />
-                  <line x1="320" y1="100" x2="320" y2="240" stroke="currentColor" strokeWidth="2" />
-                  <line x1="360" y1="100" x2="360" y2="240" stroke="currentColor" strokeWidth="2" />
-                  <line x1="400" y1="100" x2="400" y2="240" stroke="currentColor" strokeWidth="2" />
-                  <circle cx="300" cy="160" r="6" fill="currentColor" />
-                </svg>
-              </strong>
+              <span>               
+                  <svg width="50" height="50" viewBox="0 0 680 300" style={{ verticalAlign: 'middle' }}>
+                    <rect x="240" y="60" width="200" height="180" rx="8" fill="none" stroke="currentColor" strokeWidth="4" />
+                    <rect x="240" y="60" width="200" height="40" rx="8" fill="currentColor" />
+                    <rect x="240" y="88" width="200" height="12" fill="currentColor" />
+                    <rect x="275" y="40" width="10" height="35" rx="4" fill="currentColor" />
+                    <rect x="395" y="40" width="10" height="35" rx="4" fill="currentColor" />
+                    <line x1="240" y1="140" x2="440" y2="140" stroke="currentColor" strokeWidth="2" />
+                    <line x1="240" y1="180" x2="440" y2="180" stroke="currentColor" strokeWidth="2" />
+                    <line x1="280" y1="100" x2="280" y2="240" stroke="currentColor" strokeWidth="2" />
+                    <line x1="320" y1="100" x2="320" y2="240" stroke="currentColor" strokeWidth="2" />
+                    <line x1="360" y1="100" x2="360" y2="240" stroke="currentColor" strokeWidth="2" />
+                    <line x1="400" y1="100" x2="400" y2="240" stroke="currentColor" strokeWidth="2" />
+                    <circle cx="300" cy="160" r="6" fill="currentColor" />
+                  </svg>
+                  Days logged:</span>
+              <strong>{totalDaysExercised}{' '}</strong>
             </article>
             <article className="stat-card">
               <span>Exercises in the system</span>
