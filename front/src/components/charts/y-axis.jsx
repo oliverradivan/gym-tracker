@@ -18,9 +18,10 @@ function formatLabel(value, formatLargeNumbers, formatValue) {
     return formatValue(value);
   }
   if (formatLargeNumbers && value >= 1000) {
-    return `${(value / 1000).toFixed(0)}k`;
+    const scaled = Math.round((value / 1000) * 10) / 10;
+    return `${scaled}k`;
   }
-  return String(value);
+  return String(Math.round(value * 100) / 100);
 }
 
 function resolveTickLabelColor(tickY, axisId, yScale, referenceAreas) {

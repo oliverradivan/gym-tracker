@@ -296,7 +296,7 @@ function ProgressPage() {
           showMarkers={true}
         />
       )}
-      <YAxis />
+      <YAxis formatLargeNumbers={false} />
       <XAxis tickMode="interval" intervalDays={4} />
       <ChartTooltip
         backgroundColor="var(--tooltip-bg)"

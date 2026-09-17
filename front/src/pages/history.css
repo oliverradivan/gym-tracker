@@ -126,12 +126,18 @@
 }
 
 .delete-workout-btn {
-  background: rgba(17, 17, 17, 0.03);
+  background: #f4f4f5;
   border: 1px solid rgba(17, 17, 17, 0.1);
   color: #111111;
   border-radius: 8px;
   padding: 7px 12px;
   cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.delete-workout-btn:hover {
+  background: #e4e4e7;
+  border-color: rgba(17, 17, 17, 0.18);
 }
 
 .secondary-btn {
@@ -256,9 +262,14 @@
 }
 
 .dark .delete-workout-btn {
-  background: rgba(238, 238, 238, 0.03);
+  background: #1c1c1e;
   border-color: rgba(238, 238, 238, 0.1);
   color: #eeeeee;
+}
+
+.dark .delete-workout-btn:hover {
+  background: #2a2a2c;
+  border-color: rgba(238, 238, 238, 0.18);
 }
 
 .dark .secondary-btn {
