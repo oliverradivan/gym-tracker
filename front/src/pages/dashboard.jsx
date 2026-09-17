@@ -269,7 +269,7 @@ function DashboardPage() {
             </article>
             <article className="stat-card">
               <span>               
-                  <svg width="50" height="50" viewBox="0 0 680 300" style={{ verticalAlign: 'middle' }}>
+                  <svg width="45" height="45" viewBox="0 0 680 300" style={{ verticalAlign: 'middle' }}>
                     <rect x="240" y="60" width="200" height="180" rx="8" fill="none" stroke="currentColor" strokeWidth="4" />
                     <rect x="240" y="60" width="200" height="40" rx="8" fill="currentColor" />
                     <rect x="240" y="88" width="200" height="12" fill="currentColor" />
