@@ -13,7 +13,6 @@ const YAxis = lazy(() => import('@/components/charts/y-axis'))
 const ChartTooltip = lazy(() => import('@/components/charts/tooltip/chart-tooltip'))
 import './progress.css'
 
-const API_URL = import.meta.env.VITE_API_URL || '/api'
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 const METRICS = {
@@ -28,7 +27,7 @@ const formatDisplayDate = (date) => {
 }
 
 function ProgressPage() {
-  const { session } = useAuth()
+  const { session, authFetch } = useAuth()
   const { exerciseId } = useParams()
   const [exercises, setExercises] = useState([])
   const [selectedExerciseId, setSelectedExerciseId] = useState('')
@@ -101,12 +100,10 @@ function ProgressPage() {
 
   useEffect(() => {
     const loadExercises = async () => {
-      if (!session?.access_token) return
+      if (!session) return
 
       try {
-        const response = await fetch(`${API_URL}/exercises`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        })
+        const response = await authFetch('/exercises')
 
         if (!response.ok) {
           throw new Error('Unable to load exercises.')
@@ -128,20 +125,19 @@ function ProgressPage() {
     }
 
     loadExercises()
-  }, [exerciseId, session])
+  }, [exerciseId, session, authFetch])
 
   useEffect(() => {
     const loadProgress = async () => {
-      if (!session?.access_token || !selectedExerciseId) {
+      if (!session || !selectedExerciseId) {
         setLoading(false)
         return
       }
 
       try {
         setLoading(true)
-        const response = await fetch(
-          `${API_URL}/workout-logs/progress?exercise_id=${selectedExerciseId}`,
-          { headers: { Authorization: `Bearer ${session.access_token}` } },
+        const response = await authFetch(
+          `/workout-logs/progress?exercise_id=${selectedExerciseId}`,
         )
 
         if (!response.ok) {
@@ -158,7 +154,7 @@ function ProgressPage() {
     }
 
     loadProgress()
-  }, [selectedExerciseId, session])
+  }, [selectedExerciseId, session, authFetch])
 
   useEffect(() => {
     let mounted = true
@@ -177,11 +173,10 @@ function ProgressPage() {
       setPredictionError('')
 
       try {
-        const response = await fetch(`${API_URL}/predictions`, {
+        const response = await authFetch('/predictions', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${session?.access_token}`,
           },
           body: JSON.stringify({
             exercise_id: selectedExerciseId,
@@ -217,7 +212,7 @@ function ProgressPage() {
 
     loadPredictions()
     return () => { mounted = false }
-  }, [predictionEnabled, selectedExerciseId, progress, session])
+  }, [predictionEnabled, selectedExerciseId, progress, session, authFetch])
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
