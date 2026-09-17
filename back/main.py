@@ -191,6 +191,10 @@ class LoginPayload(BaseModel):
     password: str
 
 
+class RefreshPayload(BaseModel):
+    refresh_token: str
+
+
 class WorkoutPayload(BaseModel):
     workout_name: str
     duration_minutes: int
@@ -604,6 +608,26 @@ def login_user(payload: LoginPayload, request: Request):
 
     return {
         "message": "Login successful.",
+        "user": auth_response.user,
+        "session": auth_response.session,
+    }
+
+
+@router.post("/auth/refresh")
+def refresh_session(payload: RefreshPayload):
+    if supabase is None:
+        raise HTTPException(status_code=500, detail="Supabase is not configured.")
+
+    # Same reasoning as login/register: use a throwaway client so the
+    # refreshed session never contaminates the shared admin client.
+    auth_client = get_auth_client()
+    try:
+        auth_response = auth_client.auth.refresh_session(payload.refresh_token)
+    except AuthApiError as exc:
+        raise HTTPException(status_code=401, detail=exc.message) from exc
+
+    return {
+        "message": "Session refreshed.",
         "user": auth_response.user,
         "session": auth_response.session,
     }

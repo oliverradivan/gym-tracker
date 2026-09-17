@@ -269,10 +269,10 @@ function DashboardPage() {
             </article>
             <article className="stat-card">
               <span>Days logged:</span>
-              <strong>{totalDaysExercised}</strong>
+              <strong>{totalDaysExercised} 📆</strong>
             </article>
             <article className="stat-card">
-              <span>Exercises in our system</span>
+              <span>Exercises in the system</span>
               <strong>{exercises.length}</strong>
             </article>
           </section>

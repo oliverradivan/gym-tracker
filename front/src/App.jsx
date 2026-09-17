@@ -17,8 +17,14 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+        />
+        <Route
+          path="/register"
+          element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />}
+        />
         <Route
           path="/dashboard"
           element={user ? <DashboardPage /> : <Navigate to="/login" replace />}
@@ -43,7 +49,10 @@ function AppRoutes() {
           path="/settings"
           element={user ? <SettingsPage /> : <Navigate to="/login" replace />}
         />
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route
+          path="/"
+          element={<Navigate to={user ? '/dashboard' : '/login'} replace />}
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
