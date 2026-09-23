@@ -308,7 +308,6 @@ function ProgressPage() {
             <p className="eyebrow">Workout Tracker</p>
             <h1>Progress</h1>
           </div>
-          <Link to="/dashboard" className="secondary-btn">Back to dashboard</Link>
         </div>
 
         <label className="exercise-select-label">

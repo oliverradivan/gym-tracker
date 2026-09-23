@@ -1,3 +1,6 @@
+/* ==========================================================================
+   Bottom Navigation Container
+   ========================================================================== */
 .bottom-nav {
   position: fixed;
   left: 12px;
@@ -7,9 +10,10 @@
 
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
 
-  height: 64px;
+  /* Account for safe area inset within the total element height */
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
   border-radius: 24px;
 
   /* iOS Frosted Glass */
@@ -17,7 +21,7 @@
   backdrop-filter: blur(32px) saturate(200%);
   -webkit-backdrop-filter: blur(32px) saturate(200%);
 
-  /* iOS Surface Highlight & WhatsApp Boundary Ring */
+  /* iOS Surface Highlight & Boundary Ring */
   border: 1px solid rgba(255, 255, 255, 0.75);
 
   /* Deep multi-layered glass shadows */
@@ -26,11 +30,10 @@
     0 4px 12px rgba(0, 0, 0, 0.03),
     inset 0 1px 1px rgba(255, 255, 255, 0.9);
 
-  padding:
-    0
-    calc(env(safe-area-inset-right, 0px) + 6px)
-    calc(env(safe-area-inset-bottom, 0px))
-    calc(env(safe-area-inset-left, 0px) + 6px);
+  padding-top: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: calc(env(safe-area-inset-left, 0px) + 6px);
+  padding-right: calc(env(safe-area-inset-right, 0px) + 6px);
 
   isolation: isolate;
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
@@ -47,6 +50,9 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
+/* --------------------------------------------------------------------------
+   Indicator Pill
+   -------------------------------------------------------------------------- */
 .bottom-nav-indicator {
   position: absolute;
   top: 8px;
@@ -86,6 +92,7 @@
   position: relative;
   z-index: 1;
 
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -93,7 +100,7 @@
   gap: 2px;
 
   height: 48px;
-  padding: 0 12px;
+  padding: 0 4px;
   border-radius: 18px;
 
   color: #737373;
@@ -126,7 +133,7 @@
   color: #f5f5f5;
 }
 
-/* Facebook Active Icon Dynamics */
+/* Active Icon Dynamics */
 .bottom-nav-link.active {
   color: #000000;
   font-weight: 700;
@@ -144,7 +151,7 @@
   transform: scale(0.92);
 }
 
-/* Optional WhatsApp Unread / Active Badge Dot */
+/* Badge Dot */
 .bottom-nav-link.has-badge::after {
   content: '';
   position: absolute;
@@ -153,7 +160,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #25d366; /* WhatsApp Accent Green */
+  background: #25d366;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9);
 }
 
@@ -162,9 +169,10 @@
 }
 
 /* --------------------------------------------------------------------------
-   Center Action Floating FAB Button (Reverted Color Accent)
+   Center Action Floating FAB Button
    -------------------------------------------------------------------------- */
 .bottom-nav-center {
+  flex: 0 0 auto;
   margin-top: -36px;
   display: flex;
   flex-direction: column;
@@ -181,7 +189,6 @@
   align-items: center;
   justify-content: center;
 
-  /* Reverted to original dark monochrome gradient */
   background: linear-gradient(
     180deg,
     rgba(40, 40, 40, 0.96),
@@ -189,7 +196,6 @@
   );
   color: #ffffff;
 
-  /* iOS Glassy border highlight */
   border: 1px solid rgba(255, 255, 255, 0.14);
 
   box-shadow:
@@ -205,7 +211,6 @@
 
 /* Dark Mode Button */
 .dark .bottom-nav-center-btn {
-  /* Reverted to original light monochrome gradient for dark mode */
   background: linear-gradient(
     180deg,
     rgba(235, 235, 235, 0.96),

@@ -1,500 +1,908 @@
 .settings-page {
+
   min-height: 100vh;
+
   background: var(--bg-secondary);
+
   padding-bottom: 40px;
 
-  /* Refined danger palette — muted brick/wine instead of flat bootstrap red.
-     Defined as variables so dark mode can override cleanly instead of
-     duplicating hex values all over the file. */
+
   --danger-color: #b3413a;
+
   --danger-color-hover: #963530;
+
   --danger-tint: rgba(179, 65, 58, 0.06);
+
   --danger-tint-strong: rgba(179, 65, 58, 0.12);
+
   --danger-border: rgba(179, 65, 58, 0.35);
 
-  /* Sidebar tab palette — kept as variables for the same reason as the
-     danger palette above: one clean override point for dark mode instead
-     of duplicating values inline. */
-  --tab-active-bg: #ffffff;
-  --tab-active-text: #000000;
+
+  --tab-active-bg: #000000;
+
+  --tab-active-text: #ffffff;
+
   --tab-hover-bg: rgba(17, 17, 17, 0.05);
+
   --tab-hover-border: rgba(17, 17, 17, 0.18);
 
-  /* Apple-blue toggle accent — matches the login page's page-toggle color
-     (#3274ee), sampled from Apple's own switch/segmented-control blue. */
+
   --toggle-on-bg: #3274ee;
+
   --toggle-on-shadow: 0 8px 18px rgba(50, 116, 238, 0.35);
+
 }
+
 
 .dark.settings-page,
+
 .dark .settings-page {
+
   --danger-color: #e0847c;
+
   --danger-color-hover: #c96a62;
+
   --danger-tint: rgba(224, 132, 124, 0.08);
+
   --danger-tint-strong: rgba(224, 132, 124, 0.14);
+
   --danger-border: rgba(224, 132, 124, 0.35);
 
+
   --tab-active-bg: #ffffff;
+
   --tab-active-text: #000000;
+
   --tab-hover-bg: rgba(255, 255, 255, 0.1);
+
   --tab-hover-border: rgba(255, 255, 255, 0.28);
 
+
   --toggle-on-bg: #3274ee;
+
   --toggle-on-shadow: 0 8px 18px rgba(50, 116, 238, 0.45);
+
 }
+
 
 .settings-page .topbar {
+
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
+
   background: var(--bg-primary);
+
   border-bottom: 1px solid var(--border-color);
+
   padding: 20px 30px;
+
   margin-bottom: 40px;
+
 }
+
 
 .settings-page .topbar > div:first-child h2 {
+
   margin: 5px 0 0 0;
+
 }
+
 
 .settings-container {
+
   display: grid;
+
   grid-template-columns: 250px 1fr;
+
   gap: 40px;
+
   max-width: 1200px;
+
   margin: 0 auto;
+
   padding: 0 30px;
+
 }
+
 
 /* Sidebar Navigation */
+
 .settings-sidebar {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 10px;
+
   position: sticky;
+
   top: 20px;
+
   height: fit-content;
+
 }
+
 
 .settings-tab {
+
   display: flex;
+
   align-items: center;
+
   background: transparent;
+
   border: 2px solid var(--border-color);
+
   border-radius: 8px;
+
   padding: 12px 16px;
+
   text-align: left;
+
   cursor: pointer;
+
   font-size: 14px;
+
   font-weight: 500;
+
   color: var(--text-secondary);
+
   transition: all 0.2s ease;
+
 }
 
-/* Hover always LIGHTENS, regardless of active state or theme — never the
-   near-black --primary-color the old rule pulled in for dark mode. */
+
 .settings-tab:hover {
+
   border-color: var(--tab-hover-border);
+
   background: var(--tab-hover-bg);
+
   color: var(--text-primary);
+
 }
 
-/* The tab you're currently on: solid white pill, black text, always. */
+
 .settings-tab.active {
+
   background: var(--tab-active-bg);
+
   border-color: var(--tab-active-bg);
+
   color: var(--tab-active-text);
+
 }
+
 
 .settings-tab.active:hover {
+
   background: var(--tab-active-bg);
+
   border-color: var(--tab-active-bg);
+
   color: var(--tab-active-text);
+
   opacity: 0.9;
+
 }
 
-/* Danger tab: quiet by default, only asserts itself on hover/active */
+
 .settings-tab.danger {
+
   color: var(--text-secondary);
+
 }
+
 
 .settings-tab.danger:hover {
+
   border-color: var(--danger-border);
+
   color: var(--danger-color);
+
   background: var(--danger-tint);
+
 }
+
 
 .settings-tab.danger.active {
+
   background: var(--danger-color);
+
   border-color: var(--danger-color);
+
   color: white;
+
 }
+
 
 .settings-tab.danger.active:hover {
+
   background: var(--danger-color-hover);
+
   border-color: var(--danger-color-hover);
+
   color: white;
+
   opacity: 1;
+
 }
+
 
 .tab-icon {
+
   margin-right: 8px;
+
   flex-shrink: 0;
+
 }
+
 
 /* Content Area */
+
 .settings-content {
+
   display: flex;
+
   flex-direction: column;
+
   gap: 20px;
+
 }
+
 
 .success-message,
+
 .error-message {
+
   display: flex;
+
   align-items: center;
+
   gap: 10px;
+
 }
+
 
 .success-message {
+
   background: rgba(56, 142, 60, 0.08);
+
   color: #2e7d32;
+
   border: 1px solid rgba(56, 142, 60, 0.25);
+
   border-radius: 8px;
+
   padding: 12px 16px;
+
   font-size: 14px;
+
 }
+
 
 .error-message {
+
   background: var(--danger-tint-strong);
+
   color: var(--danger-color);
+
   border: 1px solid var(--danger-border);
+
   border-radius: 8px;
+
   padding: 12px 16px;
+
   font-size: 14px;
+
 }
+
 
 .success-message svg,
+
 .error-message svg,
+
 .warning-box svg {
+
   flex-shrink: 0;
+
 }
+
 
 /* Dark mode adjustments for messages */
+
 .dark .success-message {
+
   background: rgba(129, 199, 132, 0.1);
+
   color: #81c784;
+
   border-color: rgba(129, 199, 132, 0.3);
+
 }
+
 
 .dark .error-message {
+
   background: var(--danger-tint-strong);
+
   color: var(--danger-color);
+
   border-color: var(--danger-border);
+
 }
+
 
 /* Settings Section */
+
 .settings-section {
+
   background: var(--bg-primary);
+
   border: 1px solid var(--border-color);
+
   border-radius: 12px;
+
   padding: 30px;
+
 }
+
 
 .settings-section h3 {
+
   font-size: 22px;
+
   margin-bottom: 25px;
+
   color: var(--text-primary);
+
 }
+
 
 .settings-section h4 {
+
   font-size: 16px;
+
   margin-bottom: 15px;
+
   color: var(--text-primary);
+
   margin-top: 20px;
+
 }
+
 
 .settings-section h4:first-child {
+
   margin-top: 0;
+
 }
+
 
 /* Setting Items */
+
 .setting-item {
+
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
+
   padding: 16px 0;
+
   border-bottom: 1px solid var(--border-color);
+
 }
+
 
 .setting-item:last-child {
+
   border-bottom: none;
+
 }
+
 
 .setting-label {
+
   flex: 1;
+
 }
+
 
 .setting-label label {
+
   display: block;
+
   font-weight: 600;
+
   color: var(--text-primary);
+
   margin-bottom: 4px;
+
 }
+
 
 .setting-description {
+
   font-size: 13px;
+
   color: var(--text-secondary);
+
   margin: 0;
+
 }
+
 
 .current-value {
+
   color: var(--text-secondary);
+
   font-size: 14px;
+
   margin: 0;
+
 }
 
-/* Theme Toggle Switch — styled after Apple's iOS switch: pill track,
-   round white thumb, spring-like easing, and a soft drop shadow under
-   the thumb so it reads as sitting on top of the track. */
+
 .theme-toggle {
+
   position: relative;
+
   width: 56px;
+
   height: 32px;
+
   min-width: 56px;
+
   min-height: 32px;
+
   background: var(--border-color);
+
   border: none;
+
   border-radius: 16px;
+
   cursor: pointer;
+
   transition: background 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
   padding: 0;
+
 }
+
 
 .theme-toggle.dark {
+
   background: var(--toggle-on-bg);
+
 }
+
 
 .toggle-track {
+
   position: absolute;
+
   width: 100%;
+
   height: 100%;
+
   border-radius: 16px;
+
   pointer-events: none;
+
 }
+
 
 .toggle-thumb {
+
   position: absolute;
+
   width: 28px;
+
   height: 28px;
+
   background: white;
+
   border-radius: 50%;
+
   top: 2px;
+
   left: 2px;
+
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 1px 2px rgba(0, 0, 0, 0.15);
+
   transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
 }
+
 
 .theme-toggle.dark .toggle-thumb {
+
   left: 26px;
+
 }
+
 
 .theme-toggle.dark:hover {
+
   box-shadow: var(--toggle-on-shadow);
+
 }
+
 
 /* Forms */
+
 .settings-form {
+
   padding-top: 20px;
+
 }
+
 
 .form-group {
+
   margin-bottom: 20px;
+
 }
+
 
 .form-group label {
+
   display: block;
+
   font-weight: 600;
+
   margin-bottom: 8px;
+
   color: var(--text-primary);
+
 }
+
 
 .form-group input {
+
   width: 100%;
+
   max-width: 400px;
+
   padding: 10px 12px;
+
   border: 1px solid var(--border-color);
+
   border-radius: 6px;
+
   font-size: 14px;
+
   background: var(--bg-secondary);
+
   color: var(--text-primary);
+
   transition: border-color 0.2s ease;
+
 }
+
 
 .form-group input:focus {
+
   outline: none;
+
   border-color: var(--toggle-on-bg);
+
   box-shadow: 0 0 0 3px rgba(50, 116, 238, 0.12);
+
 }
+
 
 .form-group input:disabled {
+
   opacity: 0.6;
+
   cursor: not-allowed;
+
 }
+
 
 .form-group small {
+
   display: block;
+
   font-size: 12px;
+
   color: var(--text-secondary);
+
   margin-top: 4px;
+
 }
 
-/* Danger Zone
-   Principle: let ONE strong red element (the button) carry the alarm.
-   Everything else — border, tint, headings — stays muted so the section
-   reads as "handle with care" rather than a wall of red. */
+
 .danger-zone {
+
   border-color: var(--danger-border);
+
   background: var(--danger-tint);
+
 }
+
 
 .danger-zone h3 {
+
   color: var(--danger-color);
+
   font-weight: 600;
+
 }
+
 
 .danger-item {
+
   display: flex;
+
   justify-content: space-between;
+
   align-items: center;
+
   gap: 20px;
+
   padding: 20px;
+
   background: var(--bg-primary);
+
   border-radius: 8px;
+
   border: 1px solid var(--border-color);
+
 }
+
 
 .danger-item h4 {
+
   margin: 0 0 8px 0;
+
   color: var(--text-primary);
+
 }
+
 
 .danger-item p {
+
   margin: 0;
+
   font-size: 14px;
+
   color: var(--text-secondary);
+
 }
+
 
 .danger-btn {
+
   background: var(--danger-color);
+
   color: white;
+
   border: none;
+
   border-radius: 6px;
+
   padding: 10px 20px;
+
   font-weight: 600;
+
   cursor: pointer;
+
   transition: background 0.2s ease;
+
   white-space: nowrap;
+
 }
+
 
 .danger-btn:hover:not(:disabled) {
+
   background: var(--danger-color-hover);
+
 }
+
 
 .danger-btn:disabled {
+
   opacity: 0.6;
+
   cursor: not-allowed;
+
 }
+
 
 /* Delete Confirmation */
+
 .delete-confirmation {
+
   margin-top: 20px;
+
   padding: 20px;
+
   background: var(--bg-primary);
+
   border: 1px solid var(--danger-border);
+
   border-radius: 8px;
+
 }
+
 
 .warning-box {
+
   display: flex;
+
   align-items: flex-start;
+
   gap: 10px;
+
   background: var(--danger-tint-strong);
+
   border-left: 3px solid var(--danger-color);
+
   padding: 12px 16px;
+
   border-radius: 4px;
+
   margin-bottom: 20px;
+
   color: var(--text-primary);
+
   font-size: 14px;
+
   font-weight: 500;
+
 }
+
 
 .warning-box svg {
+
   color: var(--danger-color);
+
   margin-top: 2px;
+
 }
+
 
 .button-group {
+
   display: flex;
+
   gap: 10px;
+
   margin-top: 20px;
+
 }
+
 
 .button-group button {
+
   flex: 1;
+
   max-width: 200px;
+
 }
 
+
 /* Responsive */
+
 @media (max-width: 768px) {
+
   .settings-container {
+
     grid-template-columns: 1fr;
-    gap: 20px;
+
+    gap: 0;
+
     padding: 0 16px;
+
   }
+
+
+  /* Mobile tabs
+     2x2 grid so there is no horizontal scrolling.
+     This leaves horizontal swipes available for page navigation. */
 
   .settings-sidebar {
+
     position: static;
-    flex-direction: row;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
     gap: 8px;
+
+    width: 100%;
+
   }
+
 
   .settings-tab {
-    flex-shrink: 0;
-    min-width: 120px;
+
+    width: 100%;
+
+    min-width: 0;
+
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 11px 10px;
+
+    font-size: 13px;
+
   }
+
+
+  .tab-icon {
+
+    margin-right: 6px;
+
+  }
+
 
   .settings-page .topbar {
+
     flex-direction: column;
+
     align-items: flex-start;
+
     gap: 16px;
+
     padding: 16px;
+
   }
+
 
   .settings-page .topbar button {
+
     width: 100%;
+
   }
+
 
   .danger-item {
+
     flex-direction: column;
+
     align-items: flex-start;
+
   }
+
 
   .danger-btn {
+
     width: 100%;
+
   }
+
 
   .button-group {
+
     flex-direction: column;
+
   }
+
 
   .button-group button {
+
     max-width: 100%;
+
   }
 
+
   .form-group input {
+
     max-width: 100%;
+
   }
+
 }

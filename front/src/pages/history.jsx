@@ -88,7 +88,6 @@ function HistoryPage() {
             <p className="eyebrow">Workout Tracker</p>
             <h1>Workout history</h1>
           </div>
-          <Link to="/dashboard" className="secondary-btn">Back to dashboard</Link>
         </div>
 
         {message && <p className="status-message">{message}</p>}

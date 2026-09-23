@@ -289,9 +289,6 @@ function SettingsPage() {
           <span className="eyebrow">Settings</span>
           <h2>Account Settings</h2>
         </div>
-        <button className="ghost-btn" onClick={() => navigate('/dashboard')}>
-          Back to Dashboard
-        </button>
       </header>
 
       <div className="settings-container">
@@ -340,12 +337,6 @@ function SettingsPage() {
                   <span className="toggle-track" />
                   <span className="toggle-thumb" />
                 </button>
-              </div>
-              <div className="setting-item">
-                <div className="setting-label">
-                  <label>Current Theme</label>
-                </div>
-                <p className="current-value">{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</p>
               </div>
             </section>
           )}

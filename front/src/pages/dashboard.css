@@ -1,4 +1,3 @@
-/* dashboard.css */
 *,
 *::before,
 *::after {
@@ -75,39 +74,6 @@
   color: var(--ink);
 }
 
-.topbar {
-  width: min(100%, 1100px);
-  margin: 0 auto 20px;
-  display: flex;
-  align-items: center;
-}
-
-.topbar-left,
-.topbar-center,
-.topbar-right {
-  display: flex;
-  align-items: center;
-}
-.topbar-left {
-  flex: 0 0 auto;
-}
-.topbar-center {
-  flex: 1 1 auto;
-  justify-content: center;
-}
-.topbar-right {
-  flex: 0 0 auto;
-  justify-content: flex-end;
-}
-
-.topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-/* Icons */
 .nav-icon,
 .exercise-item-icon {
   display: inline-flex;
@@ -140,7 +106,6 @@
   margin-bottom: 6px;
 }
 
-.topbar h2,
 .welcome-card h1,
 .schedule-card h3,
 .exercise-list-card h3,
@@ -202,42 +167,6 @@
 .dark .create-exercise-form .primary-btn {
   background: linear-gradient(180deg, #e2e2e2, #d2d2d2);
   color: #000000;
-}
-
-/* Full-width Log Workout banner */
-.logworkout-banner {
-  width: min(100%, 1100px);
-  margin: 0 auto 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px 24px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, #1d1d1d, #0d0d0d);
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 1.05rem;
-  text-decoration: none;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-}
-.dark .logworkout-banner {
-  background: linear-gradient(180deg, #e2e2e2, #d2d2d2);
-  color: #000000;
-}
-.logworkout-banner:hover {
-  box-shadow: var(--shadow-card-hover), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  transform: translateY(-1px);
-}
-.logworkout-banner:active {
-  transform: translateY(0);
-}
-.logworkout-banner .banner-arrow {
-  display: inline-flex;
-  transition: transform 0.2s var(--ease);
-}
-.logworkout-banner:hover .banner-arrow {
-  transform: translateX(4px);
 }
 
 /* Grid + cards */
@@ -728,24 +657,12 @@
     padding: 20px 12px;
   }
 
-  .topbar-actions {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
   .ghost-btn,
   .primary-btn,
   .logout-btn {
     flex: 1 1 42%;
     min-width: 0;
     width: 100%;
-  }
-
-  .logworkout-banner {
-    padding: 16px 18px;
-    font-size: 1rem;
   }
 
   .stats-grid {

@@ -15,12 +15,33 @@ const PAGES = [
   '/settings',
 ]
 
+// How far you have to drag before it counts as a deliberate page change.
+const PASS_RATIO = 0.4 // 40% of the viewport width
+// A short, fast flick still counts, but it has to be a real flick now.
+const FLICK_MIN_VELOCITY = 0.55 // px/ms
+const FLICK_MIN_DISTANCE_RATIO = 0.15 // 15% of viewport width
+
+// Edges shouldn't swipe into empty space - just a small rubber-band give.
+const EDGE_RESISTANCE = 0.3
+const MAX_EDGE_OVERSCROLL_PX = 48
+
 function getIndexFromPath(pathname) {
   if (pathname.startsWith('/history')) return 1
   if (pathname.startsWith('/logworkout')) return 2
   if (pathname.startsWith('/progress')) return 3
   if (pathname.startsWith('/settings')) return 4
   return 0
+}
+
+// Dampens and caps movement once you're dragging past the first or last page.
+function applyEdgeResistance(deltaX, atStart, atEnd) {
+  const overscrollingStart = atStart && deltaX > 0
+  const overscrollingEnd = atEnd && deltaX < 0
+  if (!overscrollingStart && !overscrollingEnd) return deltaX
+
+  const damped = deltaX * EDGE_RESISTANCE
+  const clampedMagnitude = Math.min(Math.abs(damped), MAX_EDGE_OVERSCROLL_PX)
+  return Math.sign(deltaX) * clampedMagnitude
 }
 
 function SwipeDeck() {
@@ -81,17 +102,24 @@ function SwipeDeck() {
       const touch = e.touches[0]
       const containerWidth = node.clientWidth || window.innerWidth
 
-      const deltaX = touch.clientX - drag.current.startX
+      const rawDeltaX = touch.clientX - drag.current.startX
       const deltaY = touch.clientY - drag.current.startY
 
       if (drag.current.axis === null) {
-        if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) return
-        drag.current.axis = Math.abs(deltaX) > Math.abs(deltaY) ? 'x' : 'y'
+        if (Math.abs(rawDeltaX) < 8 && Math.abs(deltaY) < 8) return
+        drag.current.axis = Math.abs(rawDeltaX) > Math.abs(deltaY) ? 'x' : 'y'
       }
 
       if (drag.current.axis !== 'x') return
 
       if (e.cancelable) e.preventDefault()
+
+      const currentIndex = activeIndexRef.current
+      const deltaX = applyEdgeResistance(
+        rawDeltaX,
+        currentIndex === 0,
+        currentIndex === PAGES.length - 1
+      )
 
       drag.current.deltaX = deltaX
 
@@ -106,15 +134,17 @@ function SwipeDeck() {
       if (drag.current.axis === 'x' && !drag.current.dispatched) {
         const containerWidth = node.clientWidth || window.innerWidth
         const deltaX = drag.current.deltaX
-        const duration = Date.now() - drag.current.startTime
+        const duration = Math.max(1, Date.now() - drag.current.startTime)
         const velocity = Math.abs(deltaX) / duration
 
         const currentIndex = activeIndexRef.current
 
-        const passedHalfPage = Math.abs(deltaX) > containerWidth * 0.5
-        const isQuickFlick = velocity > 0.35 && Math.abs(deltaX) > 25
+        const passedThreshold = Math.abs(deltaX) > containerWidth * PASS_RATIO
+        const isConfidentFlick =
+          velocity > FLICK_MIN_VELOCITY &&
+          Math.abs(deltaX) > containerWidth * FLICK_MIN_DISTANCE_RATIO
 
-        if (passedHalfPage || isQuickFlick) {
+        if (passedThreshold || isConfidentFlick) {
           if (deltaX < 0) {
             drag.current.dispatched = true
             goToIndex(currentIndex + 1)
@@ -165,25 +195,38 @@ function SwipeDeck() {
       e.preventDefault()
 
       const containerWidth = node.clientWidth || window.innerWidth
-      accumulatedDeltaX += e.deltaX
+      const currentIndex = activeIndexRef.current
+
+      // Keep the raw accumulator undamped so repeated events keep adding up
+      // correctly; only the *visual* and *decision* deltas get resisted.
+      const rawAccumulated = accumulatedDeltaX + e.deltaX
+      const visualDeltaX = applyEdgeResistance(
+        -rawAccumulated,
+        currentIndex === 0,
+        currentIndex === PAGES.length - 1
+      )
+      accumulatedDeltaX = rawAccumulated
 
       const totalTrackWidth = containerWidth * PAGES.length
-      const percentOffset = (-accumulatedDeltaX / totalTrackWidth) * 100
+      const percentOffset = (visualDeltaX / totalTrackWidth) * 100
 
       setIsDragging(true)
       setDragPercent(percentOffset)
 
       if (wheelTimer) clearTimeout(wheelTimer)
 
-      // Fast 40ms timeout fires immediately after fingers lift
       wheelTimer = setTimeout(() => {
         const currentIndex = activeIndexRef.current
-        const deltaX = -accumulatedDeltaX
+        const deltaX = applyEdgeResistance(
+          -accumulatedDeltaX,
+          currentIndex === 0,
+          currentIndex === PAGES.length - 1
+        )
 
-        const passedHalfPage = Math.abs(deltaX) > containerWidth * 0.5
-        const isFlick = Math.abs(deltaX) > 50
+        const passedThreshold = Math.abs(deltaX) > containerWidth * PASS_RATIO
+        const isFlick = Math.abs(deltaX) > containerWidth * FLICK_MIN_DISTANCE_RATIO
 
-        if (passedHalfPage || isFlick) {
+        if (passedThreshold || isFlick) {
           if (deltaX < 0) {
             goToIndex(currentIndex + 1)
           } else if (deltaX > 0) {

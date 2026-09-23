@@ -175,46 +175,6 @@ function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="topbar">
-        <div className="topbar-left">
-          <button
-            className="hamburger-btn"
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            aria-label="Open sidebar"
-          >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
-        </div>
-        <div className="topbar-center"></div>
-        <div className="topbar-right"></div>
-      </header>
-
-      <div
-        className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`}
-        onClick={() => setSidebarOpen(false)}
-        aria-hidden="true"
-      />
-      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} aria-hidden={!sidebarOpen}>
-        <nav className="sidebar-nav">
-          <button
-            className="hamburger-btn"
-            onClick={() => setSidebarOpen(false)}
-            aria-label="Close sidebar"
-          >
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-          </button>
-          <Link to="/progress" className="sidebar-link">Progress</Link>
-          <Link to="/history" className="sidebar-link">History</Link>
-          <Link to="/settings" className="sidebar-link">Settings</Link>
-          <button className="sidebar-link logout-link" onClick={handleLogout}>
-            Logout
-          </button>
-        </nav>
-      </aside>
 
       {pageLoading ? (
         <div className="dashboard-loading">
