@@ -45,7 +45,6 @@ function SwipeDeck() {
     dispatched: false,
   })
 
-  // Stores drag offset as a percentage of TOTAL TRACK WIDTH (0% to 100%)
   const [dragPercent, setDragPercent] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
 
@@ -59,7 +58,7 @@ function SwipeDeck() {
   }
 
   // -------------------------
-  // Touch swipe
+  // Touch Swipe
   // -------------------------
   useEffect(() => {
     const node = containerRef.current
@@ -85,7 +84,6 @@ function SwipeDeck() {
       const deltaX = touch.clientX - drag.current.startX
       const deltaY = touch.clientY - drag.current.startY
 
-      // Axis Lock Detection
       if (drag.current.axis === null) {
         if (Math.abs(deltaX) < 8 && Math.abs(deltaY) < 8) return
         drag.current.axis = Math.abs(deltaX) > Math.abs(deltaY) ? 'x' : 'y'
@@ -93,13 +91,10 @@ function SwipeDeck() {
 
       if (drag.current.axis !== 'x') return
 
-      // Prevent scrolling page vertically while horizontal swipe is active
       if (e.cancelable) e.preventDefault()
 
       drag.current.deltaX = deltaX
 
-      // Convert pixel drag distance to track percentage
-      // Total track width = containerWidth * 5 pages
       const totalTrackWidth = containerWidth * PAGES.length
       const percentOffset = (deltaX / totalTrackWidth) * 100
 
@@ -112,13 +107,12 @@ function SwipeDeck() {
         const containerWidth = node.clientWidth || window.innerWidth
         const deltaX = drag.current.deltaX
         const duration = Date.now() - drag.current.startTime
-        const velocity = Math.abs(deltaX) / duration // px / ms
+        const velocity = Math.abs(deltaX) / duration
 
         const currentIndex = activeIndexRef.current
 
-        // 50% screen drag threshold OR quick intentional flick (>0.4 px/ms)
         const passedHalfPage = Math.abs(deltaX) > containerWidth * 0.5
-        const isQuickFlick = velocity > 0.4 && Math.abs(deltaX) > 30
+        const isQuickFlick = velocity > 0.35 && Math.abs(deltaX) > 25
 
         if (passedHalfPage || isQuickFlick) {
           if (deltaX < 0) {
@@ -140,7 +134,6 @@ function SwipeDeck() {
         dispatched: false,
       }
 
-      // Re-enable smooth transition snapping
       setDragPercent(0)
       setIsDragging(false)
     }
@@ -157,53 +150,61 @@ function SwipeDeck() {
   }, [])
 
   // -------------------------
-  // Mac trackpad swipe
+  // Mac Trackpad Fast Live Swipe
   // -------------------------
   useEffect(() => {
     const node = containerRef.current
     if (!node) return
 
-    let accumulatedX = 0
-    let cooldown = false
-    let timeoutId = null
+    let accumulatedDeltaX = 0
+    let wheelTimer = null
 
     const handleWheel = (e) => {
       if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) * 1.2) return
 
       e.preventDefault()
-      if (cooldown) return
 
-      accumulatedX += e.deltaX
+      const containerWidth = node.clientWidth || window.innerWidth
+      accumulatedDeltaX += e.deltaX
 
-      if (Math.abs(accumulatedX) >= 180) {
+      const totalTrackWidth = containerWidth * PAGES.length
+      const percentOffset = (-accumulatedDeltaX / totalTrackWidth) * 100
+
+      setIsDragging(true)
+      setDragPercent(percentOffset)
+
+      if (wheelTimer) clearTimeout(wheelTimer)
+
+      // Fast 40ms timeout fires immediately after fingers lift
+      wheelTimer = setTimeout(() => {
         const currentIndex = activeIndexRef.current
+        const deltaX = -accumulatedDeltaX
 
-        if (accumulatedX > 0) {
-          goToIndex(currentIndex + 1)
-        } else {
-          goToIndex(currentIndex - 1)
+        const passedHalfPage = Math.abs(deltaX) > containerWidth * 0.5
+        const isFlick = Math.abs(deltaX) > 50
+
+        if (passedHalfPage || isFlick) {
+          if (deltaX < 0) {
+            goToIndex(currentIndex + 1)
+          } else if (deltaX > 0) {
+            goToIndex(currentIndex - 1)
+          }
         }
 
-        accumulatedX = 0
-        cooldown = true
-        timeoutId = setTimeout(() => {
-          cooldown = false
-        }, 500)
-      }
+        accumulatedDeltaX = 0
+        setDragPercent(0)
+        setIsDragging(false)
+      }, 20)
     }
 
     node.addEventListener('wheel', handleWheel, { passive: false })
 
     return () => {
       node.removeEventListener('wheel', handleWheel)
-      if (timeoutId) clearTimeout(timeoutId)
+      if (wheelTimer) clearTimeout(wheelTimer)
     }
   }, [])
 
-  // -------------------------
-  // Position Calculation
-  // -------------------------
-  // Each page takes up 20% of the total 500% track width
   const baseTranslatePercent = -(activeIndex * 20)
   const finalTranslate = baseTranslatePercent + dragPercent
 

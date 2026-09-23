@@ -6,6 +6,7 @@ const navLinkClass = ({ isActive }) => `bottom-nav-link${isActive ? ' active' : 
 
 function BottomNav() {
   const location = useLocation()
+  const navRef = useRef(null)
   const linkRefs = useRef({})
   const [indicator, setIndicator] = useState({ left: 0, width: 0, visible: false })
 
@@ -15,8 +16,17 @@ function BottomNav() {
         path === '/dashboard' ? location.pathname === '/dashboard' : location.pathname.startsWith(path)
       )
       const node = activeKey ? linkRefs.current[activeKey] : null
-      if (node) {
-        setIndicator({ left: node.offsetLeft, width: node.offsetWidth, visible: true })
+      const navNode = navRef.current
+
+      if (node && navNode) {
+        const nodeRect = node.getBoundingClientRect()
+        const navRect = navNode.getBoundingClientRect()
+
+        setIndicator({
+          left: nodeRect.left - navRect.left,
+          width: nodeRect.width,
+          visible: true,
+        })
       } else {
         setIndicator((prev) => ({ ...prev, visible: false }))
       }
@@ -31,12 +41,12 @@ function BottomNav() {
   }, [location.pathname])
 
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-nav" ref={navRef}>
       <span
         className="bottom-nav-indicator"
         style={{
           transform: `translateX(${indicator.left}px)`,
-          width: indicator.width,
+          width: `${indicator.width}px`,
           opacity: indicator.visible ? 1 : 0,
         }}
       />

@@ -8,8 +8,7 @@
 .swipe-deck-track {
   display: flex;
   width: 500%;
-  /* Use a fluid cubic-bezier easing for smooth snaps */
-  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  transition: transform 0.18s cubic-bezier(0, 0, 0.2, 1);
   will-change: transform;
 }
 
