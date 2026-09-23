@@ -237,7 +237,7 @@ function SwipeDeck() {
         accumulatedDeltaX = 0
         setDragPercent(0)
         setIsDragging(false)
-      }, 20)
+      }, 40)
     }
 
     node.addEventListener('wheel', handleWheel, { passive: false })
