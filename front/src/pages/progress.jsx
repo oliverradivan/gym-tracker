@@ -218,9 +218,7 @@ function ProgressPage() {
   const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
   const chartStroke = getExerciseCategoryColor(selectedExercise?.name || '')
 
-  // Sort dropdown options by category (push/pull/leg/etc.) so exercises in
-  // the same color group are grouped together, regardless of what order the
-  // API returned them in.
+  // Sort dropdown options by category (push/pull/leg/etc.)
   const sortedExercises = useMemo(() => {
     return [...exercises].sort((a, b) => {
       const catA = getExerciseCategory(a.name || '')
@@ -231,8 +229,6 @@ function ProgressPage() {
   }, [exercises])
 
   const handleSelectExercise = (event, exerciseId) => {
-    // Fire on mousedown (not click) and stop it from reaching the
-    // document-level outside-click listener — see logworkout.jsx for why.
     event.preventDefault()
     event.stopPropagation()
     setSelectedExerciseId(exerciseId)

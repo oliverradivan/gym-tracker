@@ -575,7 +575,7 @@
 
 .chart-scroll-wrapper {
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden;
   width: 100%;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-x;
