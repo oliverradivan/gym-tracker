@@ -20,6 +20,7 @@ function DashboardPage() {
   const [totalDaysExercised, setTotalDaysExercised] = useState(0)
   const [exerciseListInView, setExerciseListInView] = useState(false)
   const [pageLoading, setPageLoading] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const exerciseListRef = useRef(null)
 
   const username = user?.user_metadata?.username || user?.user_metadata?.full_name || 'Athlete'
@@ -175,57 +176,45 @@ function DashboardPage() {
   return (
     <div className="dashboard-page">
       <header className="topbar">
-        <div>
-          <span className="eyebrow">Oliver's Workout Tracker</span>
-          <h2>Dashboard</h2>
+        <div className="topbar-left">
+          <button
+            className="hamburger-btn"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label="Open sidebar"
+          >
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
         </div>
-        <div className="topbar-actions">
-          <Link to="/logworkout" className="primary-btn dashboard-primary-btn">
-            <span className="nav-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M4 9v6M6.5 6v12M17.5 6v12M20 9v6M6.5 12h11" />
-              </svg>
-            </span>
-            Log Workout
-          </Link>
-          <Link to="/history" className="ghost-btn">
-            <span className="nav-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8" />
-                <path d="M3 3v5h5" />
-                <path d="M12 7v5l4 2" />
-              </svg>
-            </span>
-            History
-          </Link>
-          <Link to="/progress" className="ghost-btn">
-            <span className="nav-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M4 16.5 9 11l4 4 6.5-7.5" />
-                <path d="M14.5 7h5v5" />
-              </svg>
-            </span>
-            Progress
-          </Link>
-          <Link to="/settings" className="ghost-btn">
-            <span className="nav-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="1" />
-                <path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24" />
-              </svg>
-            </span>
-            Settings
-          </Link>
-          <Link to="/login" className="logout-btn" onClick={handleLogout}>
-            <span className="nav-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24">
-                <path d="M9 7.5V6.8A2.8 2.8 0 0 1 11.8 4h4.4A2.8 2.8 0 0 1 19 6.8v10.4A2.8 2.8 0 0 1 16.2 20h-4.4A2.8 2.8 0 0 1 9 17.2v-.7M15 12H4m0 0 3-3m-3 3 3 3" />
-              </svg>
-            </span>
-            Log out
-          </Link>
-        </div>
+        <div className="topbar-center"></div>
+        <div className="topbar-right"></div>
       </header>
+
+      <div
+        className={`sidebar-backdrop ${sidebarOpen ? 'open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+        aria-hidden="true"
+      />
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} aria-hidden={!sidebarOpen}>
+        <nav className="sidebar-nav">
+          <button
+            className="hamburger-btn"
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close sidebar"
+          >
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
+          <Link to="/progress" className="sidebar-link">Progress</Link>
+          <Link to="/history" className="sidebar-link">History</Link>
+          <Link to="/settings" className="sidebar-link">Settings</Link>
+          <button className="sidebar-link logout-link" onClick={handleLogout}>
+            Logout
+          </button>
+        </nav>
+      </aside>
 
       {pageLoading ? (
         <div className="dashboard-loading">
@@ -240,9 +229,9 @@ function DashboardPage() {
               <p className="welcome-message">
                 Hamster says: "Let's get those reps in. No Pain, No Gain! Log your workouts and track your progress over time."
               </p>
-              </div>
-              <img className="logo" src="/logo_video.webp" alt="Logo" />
-            </section>
+            </div>
+            <img className="logo" src="/logo_video.webp" alt="Logo" />
+          </section>
 
           <section className="stats-grid">
             <article className="stat-card">

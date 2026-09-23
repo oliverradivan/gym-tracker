@@ -1,0 +1,25 @@
+.swipe-deck {
+  width: 100%;
+  overflow: hidden;
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-x: none;
+}
+
+.swipe-deck-track {
+  display: flex;
+  width: 500%;
+  /* Use a fluid cubic-bezier easing for smooth snaps */
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+/* Remove transition while actively dragging for 1:1 real-time tracking */
+.swipe-deck-track.dragging {
+  transition: none !important;
+}
+
+.swipe-deck-page {
+  width: 20%;
+  flex: 0 0 20%;
+  min-width: 0;
+}

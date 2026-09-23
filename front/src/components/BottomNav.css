@@ -1,0 +1,195 @@
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+
+  /* iOS-style translucent glass */
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+
+  /* subtle glass edge */
+  border-top: 1px solid rgba(255, 255, 255, 0.65);
+
+  /* soft separation from content */
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.35),
+    0 -8px 30px rgba(0, 0, 0, 0.06);
+
+  padding:
+    8px
+    calc(env(safe-area-inset-right, 0px) + 8px)
+    calc(env(safe-area-inset-bottom, 0px) + 8px)
+    calc(env(safe-area-inset-left, 0px) + 8px);
+
+  /* prevents the glass from looking completely flat */
+  isolation: isolate;
+}
+
+.dark .bottom-nav {
+  background: rgba(18, 18, 18, 0.62);
+
+  border-top-color: rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.06),
+    0 -8px 30px rgba(0, 0, 0, 0.35);
+}
+
+
+/* Active tab glass pill */
+.bottom-nav-indicator {
+  position: absolute;
+  top: 4px;
+  height: 44px;
+  border-radius: 14px;
+
+  background: rgba(0, 0, 0, 0.055);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+
+  transition:
+    transform 0.28s var(--ease),
+    width 0.28s var(--ease),
+    opacity 0.2s ease;
+
+  pointer-events: none;
+}
+
+.dark .bottom-nav-indicator {
+  background: rgba(255, 255, 255, 0.10);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+
+.bottom-nav-link {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+
+  padding: 6px 10px;
+  border-radius: 12px;
+
+  color: var(--muted);
+  text-decoration: none;
+
+  font-size: 0.68rem;
+  font-weight: 600;
+
+  transition:
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.bottom-nav-link svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottom-nav-link:hover {
+  color: var(--ink);
+}
+
+.bottom-nav-link.active {
+  color: var(--ink);
+}
+
+.bottom-nav-link:active {
+  transform: scale(0.94);
+}
+
+
+/* Center action button */
+.bottom-nav-center {
+  margin-top: -30px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bottom-nav-center-btn {
+  width: 56px;
+  height: 56px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(40, 40, 40, 0.96),
+      rgba(12, 12, 12, 0.96)
+    );
+
+  color: #ffffff;
+
+  /* glassy floating button */
+  border: 1px solid rgba(255, 255, 255, 0.14);
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.20),
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    0 0 0 4px rgba(255, 255, 255, 0.62);
+
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
+}
+
+.dark .bottom-nav-center-btn {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(235, 235, 235, 0.96),
+      rgba(205, 205, 205, 0.96)
+    );
+
+  color: #000000;
+
+  border-color: rgba(255, 255, 255, 0.25);
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    0 0 0 4px rgba(18, 18, 18, 0.62);
+}
+
+.bottom-nav-center-btn svg {
+  width: 26px;
+  height: 26px;
+}
+
+.bottom-nav-center-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+.bottom-nav-center-btn:active {
+  transform: scale(0.94);
+}
+
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav-indicator,
+  .bottom-nav-center-btn,
+  .bottom-nav-link {
+    transition: none;
+  }
+}

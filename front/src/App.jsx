@@ -7,6 +7,8 @@ import HistoryPage from './pages/history'
 import ProgressPage from './pages/progress'
 import SettingsPage from './pages/settings'
 import NotFoundPage from './pages/404'
+import Layout from './components/Layout'
+import SwipeDeck from './components/SwipeDeck'
 import { AuthProvider, useAuth } from './context/authContext'
 import { ThemeProvider } from './context/themeContext'
 import './App.css'
@@ -19,39 +21,25 @@ function AppRoutes() {
       <Routes>
         <Route
           path="/login"
-          element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+          element={user ? ( <Navigate to="/dashboard" replace />) : (<LoginPage /> )}
         />
         <Route
-          path="/register"
-          element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />}
+          path="/register" 
+          element={user ? ( <Navigate to="/dashboard" replace /> ) : ( <RegisterPage /> )}
         />
-        <Route
-          path="/dashboard"
-          element={user ? <DashboardPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/logworkout"
-          element={user ? <LogWorkoutPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/history"
-          element={user ? <HistoryPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/progress"
-          element={user ? <ProgressPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/progress/:exerciseId"
-          element={user ? <ProgressPage /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/settings"
-          element={user ? <SettingsPage /> : <Navigate to="/login" replace />}
-        />
+
+        <Route element={user ? ( <Layout />) : ( <Navigate to="/login" replace /> ) } >
+          <Route path="/dashboard" element={<SwipeDeck />} />
+          <Route path="/history" element={<SwipeDeck />} />
+          <Route path="/logworkout" element={<SwipeDeck />} />
+          <Route path="/progress" element={<SwipeDeck />} />
+          <Route path="/progress/:exerciseId" element={<SwipeDeck />} />
+          <Route path="/settings" element={<SwipeDeck />} />
+        </Route>
+
         <Route
           path="/"
-          element={<Navigate to={user ? '/dashboard' : '/login'} replace />}
+          element={ <Navigate to={user ? '/dashboard' : '/login'} replace /> }
         />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

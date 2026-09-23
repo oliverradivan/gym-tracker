@@ -409,17 +409,23 @@ def build_forecast(
     current_projected = values[-1]
 
     for step in range(1, max(1, periods) + 1):
+        # Predict change based on current delta
         if predicted_delta_adj == 0.0:
             # No further change expected.
             next_val = current_projected
         else:
             next_val = current_projected + predicted_delta_adj
-            # Update the diminishing‑returns factor for the next iteration.
-            current_val = abs(next_val)
-            diminishing_factor = saturation / (saturation + current_val)
-            predicted_delta_adj = predicted_delta * diminishing_factor
-            if abs(predicted_delta_adj) < MIN_DELTA_THRESHOLD:
-                predicted_delta_adj = 0.0
+
+        # Ensure forecasted volume is non-negative
+        if next_val < 0:
+            next_val = 0.0
+
+        # Update the diminishing‑returns factor for the next iteration.
+        current_val = abs(next_val)
+        diminishing_factor = saturation / (saturation + current_val)
+        predicted_delta_adj = predicted_delta * diminishing_factor
+        if abs(predicted_delta_adj) < MIN_DELTA_THRESHOLD:
+            predicted_delta_adj = 0.0
 
         next_date = start_date + timedelta(days=step * max(1, interval_days))
 
@@ -445,7 +451,6 @@ def build_forecast(
             }
         )
         current_projected = next_val
-
     return forecast
 
 
