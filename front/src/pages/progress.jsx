@@ -54,20 +54,12 @@ function ProgressPage() {
   const [selectOpen, setSelectOpen] = useState(false)
   const selectRef = useRef(null)
 
-  /*
-   * Graph scrolling
-   *
-   * chartScrollRef points to the actual horizontally scrollable
-   * container.
-   */
+
   const chartScrollRef = useRef(null)
 
   const [chartScrollPosition, setChartScrollPosition] = useState(0)
   const [chartScrollMax, setChartScrollMax] = useState(0)
 
-  // ============================================================
-  // Responsive screen width
-  // ============================================================
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 640px)')
@@ -83,9 +75,6 @@ function ProgressPage() {
     }
   }, [])
 
-  // ============================================================
-  // Close custom dropdown on outside click
-  // ============================================================
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -110,9 +99,6 @@ function ProgressPage() {
     }
   }, [])
 
-  // ============================================================
-  // Prediction setting
-  // ============================================================
 
   const [predictionEnabled] = useState(() => {
     try {
@@ -126,9 +112,6 @@ function ProgressPage() {
     }
   })
 
-  // ============================================================
-  // Graph scroll setting
-  // ============================================================
 
   const [graphScrollable, setGraphScrollable] = useState(() => {
     try {
@@ -144,9 +127,6 @@ function ProgressPage() {
     }
   })
 
-  // ============================================================
-  // Listen for preference changes from other tabs/pages
-  // ============================================================
 
   useEffect(() => {
     const syncScrollSetting = () => {
@@ -178,11 +158,10 @@ function ProgressPage() {
     }
   }, [])
 
-  // ============================================================
-  // Load exercises
-  // ============================================================
-
+ 
   useEffect(() => {
+    let cancelled = false
+
     const loadExercises = async () => {
       if (!session) return
 
@@ -197,6 +176,8 @@ function ProgressPage() {
 
         const result = await response.json()
         const items = result.exercises || []
+
+        if (cancelled) return
 
         setExercises(items)
 
@@ -215,13 +196,16 @@ function ProgressPage() {
     }
 
     loadExercises()
+
+    return () => {
+      cancelled = true
+    }
   }, [exerciseId, session, authFetch])
 
-  // ============================================================
-  // Load progress
-  // ============================================================
-
+  
   useEffect(() => {
+    let cancelled = false
+
     const loadProgress = async () => {
       if (!session || !selectedExerciseId) {
         setLoading(false)
@@ -243,21 +227,26 @@ function ProgressPage() {
 
         const result = await response.json()
 
-        setProgress(result.progress || [])
+        if (!cancelled) {
+          setProgress(result.progress || [])
+        }
       } catch (error) {
         console.error(error)
       } finally {
-        setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+        }
       }
     }
 
     loadProgress()
+
+    return () => {
+      cancelled = true
+    }
   }, [selectedExerciseId, session, authFetch])
 
-  // ============================================================
-  // Load predictions
-  // ============================================================
-
+  
   useEffect(() => {
     let mounted = true
 
@@ -346,10 +335,7 @@ function ProgressPage() {
     authFetch,
   ])
 
-  // ============================================================
-  // Exercise / chart data
-  // ============================================================
-
+  
   const selectedExercise = exercises.find(
     (exercise) =>
       exercise.id === selectedExerciseId
@@ -448,10 +434,7 @@ function ProgressPage() {
     chartData,
   ])
 
-  // ============================================================
-  // Graph scroll synchronization
-  // ============================================================
-
+  
   useEffect(() => {
     const node = chartScrollRef.current
 
@@ -536,10 +519,7 @@ function ProgressPage() {
     showForecast,
   ])
 
-  // ============================================================
-  // Slider -> graph
-  // ============================================================
-
+   
   const handleChartSliderChange = (event) => {
     const value = Number(
       event.target.value
@@ -553,10 +533,7 @@ function ProgressPage() {
     setChartScrollPosition(value)
   }
 
-  // ============================================================
-  // Chart
-  // ============================================================
-
+  
   const renderChart = () => (
     <LineChart
       data={chartData}
@@ -629,329 +606,147 @@ function ProgressPage() {
     </LineChart>
   )
 
-  // ============================================================
-  // Render
-  // ============================================================
-
+  
   return (
-    <div
-      className={`progress-page ${category}`}
-    >
-      <div
-        className={`progress-card ${category}`}
-      >
-        <div className="progress-header">
-          <div>
-            <p className="eyebrow">
-              Workout Tracker
-            </p>
-
-            <h1>Progress</h1>
-          </div>
+  <div className={`progress-page ${category}`}>
+    <div className={`progress-card ${category}`}>
+      <div className="progress-header">
+        <div>
+          <p className="eyebrow">Workout Tracker</p>
+          <h1>Progress</h1>
         </div>
+      </div>
 
-        <label className="exercise-select-label">
-          Exercise
-
-          <div
-            className="custom-select"
-            ref={selectRef}
+      <label className="exercise-select-label">
+        Exercise
+        <div className="custom-select" ref={selectRef}>
+          <button
+            type="button"
+            className={`custom-select-trigger ${category ? `select-${category}` : ''}`}
+            onClick={() => setSelectOpen((prev) => !prev)}
           >
-            <button
-              type="button"
-              className={`custom-select-trigger ${
-                category
-                  ? `select-${category}`
-                  : ''
-              }`}
-              onClick={() =>
-                setSelectOpen(
-                  (prev) => !prev
-                )
-              }
-            >
-              <span>
-                {selectedExercise
-                  ? selectedExercise.name
-                  : 'Select an exercise'}
-              </span>
+            <span>{selectedExercise ? selectedExercise.name : 'Select an exercise'}</span>
+            <span className={`custom-select-arrow ${selectOpen ? 'open' : ''}`} aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </span>
+          </button>
 
-              <span
-                className={`custom-select-arrow ${
-                  selectOpen ? 'open' : ''
-                }`}
-                aria-hidden="true"
+          {selectOpen && (
+            <ul className="custom-select-list">
+              {sortedExercises.map((exercise) => {
+                const optionCategory = getExerciseCategory(exercise.name || '')
+                return (
+                  <li
+                    key={exercise.id}
+                    className={`custom-select-option option-${optionCategory}${exercise.id === selectedExerciseId ? ' selected' : ''}`}
+                    onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
+                  >
+                    {exercise.name}
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      </label>
+
+      {loading ? (
+        <LoadingSpinner label="Loading workouts..." showLabel />
+      ) : !selectedExercise ? (
+        <p className="status-message">Select an exercise from the dropdown to view progress.</p>
+      ) : progress.length === 0 ? (
+        <p className="status-message">No progress data yet for {selectedExercise.name}.</p>
+      ) : (
+        <>
+          <div className="metric-toggle" role="group" aria-label="Chart metric">
+            {Object.entries(METRICS).map(([value, details]) => (
+              <button
+                key={value}
+                type="button"
+                className={selectedMetric === value ? 'active' : ''}
+                aria-pressed={selectedMetric === value}
+                aria-label={selectedMetric === value ? `Selected: ${details.label} metric` : `Select ${details.label} metric`}
+                onClick={() => setSelectedMetric(value)}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-              </span>
-            </button>
-
-            {selectOpen && (
-              <ul className="custom-select-list">
-                {sortedExercises.map(
-                  (exercise) => {
-                    const optionCategory =
-                      getExerciseCategory(
-                        exercise.name || ''
-                      )
-
-                    return (
-                      <li
-                        key={exercise.id}
-                        className={`custom-select-option option-${optionCategory}${
-                          exercise.id ===
-                          selectedExerciseId
-                            ? ' selected'
-                            : ''
-                        }`}
-                        onMouseDown={(
-                          event
-                        ) =>
-                          handleSelectExercise(
-                            event,
-                            exercise.id
-                          )
-                        }
-                      >
-                        {exercise.name}
-                      </li>
-                    )
-                  }
-                )}
-              </ul>
-            )}
+                {details.label}
+              </button>
+            ))}
           </div>
-        </label>
 
-        {loading ? (
-          <LoadingSpinner
-            label="Loading workouts..."
-            showLabel
-          />
-        ) : !selectedExercise ? (
-          <p className="status-message">
-            Select an exercise from the dropdown
-            to view progress.
-          </p>
-        ) : progress.length === 0 ? (
-          <p className="status-message">
-            No progress data yet for{' '}
-            {selectedExercise.name}.
-          </p>
-        ) : (
-          <>
-            <div
-              className="metric-toggle"
-              role="group"
-              aria-label="Chart metric"
-            >
-              {Object.entries(METRICS).map(
-                ([value, details]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className={
-                      selectedMetric === value
-                        ? 'active'
-                        : ''
-                    }
-                    aria-pressed={
-                      selectedMetric === value
-                    }
-                    aria-label={
-                      selectedMetric === value
-                        ? `Selected: ${details.label} metric`
-                        : `Select ${details.label} metric`
-                    }
-                    onClick={() =>
-                      setSelectedMetric(value)
-                    }
-                  >
-                    {details.label}
-                  </button>
-                )
-              )}
-            </div>
-
-            <div className="chart-box">
-              {isMobile &&
-              graphScrollable ? (
-                <>
-                  {/*
-                   * data-swipe-ignore is picked up by
-                   * SwipeDeck. Any gesture beginning here
-                   * belongs to the graph, not page navigation.
-                   */}
-                  <div
-                    className="chart-scroll-wrapper"
-                    ref={chartScrollRef}
-                    data-swipe-ignore
-                  >
-                    <div
-                      style={{
-                        minWidth: `${Math.max(
-                          800,
-                          progress.length * 45
-                        )}px`,
-                        height: '400px',
-                      }}
-                    >
-                      <Suspense
-                        fallback={
-                          <div>
-                            Loading chart...
-                          </div>
-                        }
-                      >
-                        {renderChart()}
-                      </Suspense>
-                    </div>
+          <div className="chart-box">
+            {isMobile && graphScrollable ? (
+              <>
+                <div className="chart-scroll-wrapper" ref={chartScrollRef} data-swipe-ignore>
+                  <div style={{ minWidth: `${Math.max(800, progress.length * 45)}px`, height: '400px' }}>
+                    <Suspense fallback={<div>Loading chart...</div>}>{renderChart()}</Suspense>
                   </div>
-
-                  {/*
-                   * Dedicated horizontal slider.
-                   *
-                   * It controls the exact same scrollLeft
-                   * position as the graph above.
-                   */}
-                  {chartScrollMax > 0 && (
-                    <div
-                      className="chart-scroll-control"
-                      data-swipe-ignore
-                    >
-                      <input
-                        type="range"
-                        min="0"
-                        max={chartScrollMax}
-                        step="1"
-                        value={Math.min(
-                          chartScrollPosition,
-                          chartScrollMax
-                        )}
-                        onChange={
-                          handleChartSliderChange
-                        }
-                        aria-label="Scroll progress chart horizontally"
-                      />
-                    </div>
-                  )}
-                </>
-              ) : (
-                <Suspense
-                  fallback={
-                    <div>
-                      Loading chart...
-                    </div>
-                  }
-                >
-                  {renderChart()}
-                </Suspense>
-              )}
-
-              <div className="chart-footer">
-                <div
-                  className="chart-legend"
-                  aria-label="Chart legend"
-                >
-                  <span className="legend-item">
-                    <span className="legend-line actual-line" />
-
-                    Actual{' '}
-                    {METRICS[
-                      selectedMetric
-                    ].label.toLowerCase()}
-                  </span>
-
-                  {showForecast && (
-                    <span className="legend-item">
-                      <span className="legend-line forecast-line" />
-
-                      Forecast
-                    </span>
-                  )}
                 </div>
 
-                {isPredicting && (
-                  <p className="status-message">
-                    Generating forecast...
-                  </p>
+                {chartScrollMax > 0 && (
+                  <div className="chart-scroll-control" data-swipe-ignore>
+                    <input
+                      type="range"
+                      min="0"
+                      max={chartScrollMax}
+                      step="1"
+                      value={Math.min(chartScrollPosition, chartScrollMax)}
+                      onChange={handleChartSliderChange}
+                      aria-label="Scroll progress chart horizontally"
+                    />
+                  </div>
                 )}
+              </>
+            ) : (
+              <Suspense fallback={<div>Loading chart...</div>}>{renderChart()}</Suspense>
+            )}
 
-                {predictionError && (
-                  <p className="status-message error-message">
-                    {predictionError}
-                  </p>
+            <div className="chart-footer">
+              <div className="chart-legend" aria-label="Chart legend">
+                <span className="legend-item">
+                  <span className="legend-line actual-line" />
+                  Actual {METRICS[selectedMetric].label.toLowerCase()}
+                </span>
+                {showForecast && (
+                  <span className="legend-item">
+                    <span className="legend-line forecast-line" />
+                    Forecast
+                  </span>
                 )}
               </div>
+
+              {isPredicting && <p className="status-message">Generating forecast...</p>}
+              {predictionError && <p className="status-message error-message">{predictionError}</p>}
             </div>
+          </div>
 
-            <table className="progress-table">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Weight</th>
-                  <th>Reps</th>
-                  <th>Volume</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {[...progress]
-                  .sort((a, b) =>
-                    String(b.date).localeCompare(
-                      String(a.date)
-                    )
-                  )
-                  .map((point) => (
-                    <tr key={point.date}>
-                      <td>
-                        {formatDisplayDate(
-                          point.date
-                        )}
-                      </td>
-
-                      <td>
-                        {Number(
-                          point.weight || 0
-                        ).toFixed(1)}
-                      </td>
-
-                      <td>
-                        {(Number(point.reps) ||
-                          0) % 1 ===
-                        0
-                          ? Number(
-                              point.reps
-                            ) || 0
-                          : (
-                              Number(
-                                point.reps
-                              ) || 0
-                            ).toFixed(1)}
-                      </td>
-
-                      <td>
-                        {Number(
-                          point.volume
-                        ).toFixed(1)}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </>
-        )}
-      </div>
+          <table className="progress-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Weight</th>
+                <th>Reps</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...progress]
+                .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+                .map((point) => (
+                  <tr key={point.date}>
+                    <td>{formatDisplayDate(point.date)}</td>
+                    <td>{Number(point.weight || 0).toFixed(1)}</td>
+                    <td>{(Number(point.reps) || 0) % 1 === 0 ? Number(point.reps) || 0 : (Number(point.reps) || 0).toFixed(1)}</td>
+                    <td>{Number(point.volume || 0).toFixed(1)}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
+  </div>
   )
 }
 

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useTheme } from '../context/themeContext'
+import { useLocalStorageState } from '../hooks/useLocalStorageState'
 import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle, Sparkles, Eye, EyeOff } from 'lucide-react'
 import './settings.css'
 
@@ -48,39 +49,16 @@ function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [predictionEnabled, setPredictionEnabled] = useState(() => {
-    try {
-      return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
-    } catch {
-      return true
-    }
-  })
-  const [graphScrollable, setGraphScrollable] = useState(() => {
-    try {
-      const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
-      return savedPreference === null
-        ? window.matchMedia('(max-width: 640px)').matches
-        : savedPreference === 'true'
-    } catch {
-      return false
-    }
-  })
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(PREDICTION_SETTING_KEY, String(predictionEnabled))
-    } catch {
-      // Ignore storage issues in restricted environments.
-    }
-  }, [predictionEnabled])
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(GRAPH_SCROLL_SETTING_KEY, String(graphScrollable))
-    } catch {
-      // Ignore storage issues in restricted environments.
-    }
-  }, [graphScrollable])
+  // Backed by localStorage and kept in sync in real time with any other
+  // component (or tab) reading the same key — see hooks/useLocalStorageState.
+  const [predictionEnabled, setPredictionEnabled] = useLocalStorageState(
+    PREDICTION_SETTING_KEY,
+    true
+  )
+  const [graphScrollable, setGraphScrollable] = useLocalStorageState(
+    GRAPH_SCROLL_SETTING_KEY,
+    () => window.matchMedia('(max-width: 640px)').matches
+  )
 
   const currentUsername = user?.user_metadata?.username || 'User'
 

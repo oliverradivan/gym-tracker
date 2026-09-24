@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
+import LoadingSpinner from '../components/LoadingSpinner'
 import './logworkout.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
@@ -24,6 +25,7 @@ function LogWorkoutPage() {
   const [exerciseOptions, setExerciseOptions] = useState([])
   const [message, setMessage] = useState('')
   const [selectOpen, setSelectOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const dateInputRef = useRef(null)
   const selectRef = useRef(null)
   const navigate = useNavigate()
@@ -123,7 +125,8 @@ function LogWorkoutPage() {
       return
     }
 
-    setMessage('Saving...')
+    setMessage('')
+    setIsSaving(true)
     try {
       const response = await fetch(`${API_URL}/workout-logs`, {
         method: 'POST',
@@ -152,6 +155,7 @@ function LogWorkoutPage() {
       }, 500)
     } catch (error) {
       setMessage(error.message || 'Something went wrong while saving your workout.')
+      setIsSaving(false)
     }
   }
 
@@ -164,110 +168,127 @@ function LogWorkoutPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="logworkout-form">
-          <label>
-            Exercise
-            <div className="custom-select" ref={selectRef}>
-              <button
-                type="button"
-                className={`custom-select-trigger ${selectedCategory ? `select-${selectedCategory}` : ''}`}
-                onClick={() => setSelectOpen(prev => !prev)}
-              >
-                <span>{selectedExercise ? selectedExercise.name : 'Select an exercise'}</span>
-                <span className={`custom-select-arrow ${selectOpen ? 'open' : ''}`} aria-hidden="true">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </span>
-              </button>
-              {selectOpen && (
-                <ul className="custom-select-list">
-                  {sortedExerciseOptions.map(exercise => {
-                    const category = getExerciseCategory(exercise.name || '')
-                    return (
-                      <li
-                        key={exercise.id}
-                        className={`custom-select-option option-${category}${exercise.id === form.exercise_id ? ' selected' : ''}`}
-                        onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
-                      >
-                        {exercise.name}
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-            </div>
-          </label>
+          <fieldset disabled={isSaving} className="logworkout-fieldset">
+            <label>
+              Exercise
+              <div className="custom-select" ref={selectRef}>
+                <button
+                  type="button"
+                  className={`custom-select-trigger ${selectedCategory ? `select-${selectedCategory}` : ''}`}
+                  onClick={() => setSelectOpen(prev => !prev)}
+                >
+                  <span>{selectedExercise ? selectedExercise.name : 'Select an exercise'}</span>
+                  <span className={`custom-select-arrow ${selectOpen ? 'open' : ''}`} aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
+                  </span>
+                </button>
+                {selectOpen && (
+                  <ul className="custom-select-list">
+                    {sortedExerciseOptions.map(exercise => {
+                      const category = getExerciseCategory(exercise.name || '')
+                      return (
+                        <li
+                          key={exercise.id}
+                          className={`custom-select-option option-${category}${exercise.id === form.exercise_id ? ' selected' : ''}`}
+                          onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
+                        >
+                          {exercise.name}
+                        </li>
+                      )
+                    })}
+                  </ul>
+                )}
+              </div>
+            </label>
 
-          <label>
-            Weight (kg/notches)
-            <input
-              type="number"
-              name="weight"
-              value={form.weight}
-              onChange={handleChange}
-              placeholder=""
-              min="0"
-              step="any"
-              required
-            />
-          </label>
-
-          <label>
-            Reps
-            <input
-              type="number"
-              name="reps"
-              value={form.reps}
-              onChange={handleChange}
-              placeholder=""
-              min="0.5"
-              step="any"
-              required
-            />
-          </label>
-
-          <label>
-            Date
-            <div className="date-picker-field" onClick={handleDateClick}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
+            <label>
+              Weight (kg/notches)
               <input
-                type="text"
-                value={formatDisplayDate(form.date)}
-                readOnly
-                placeholder="Select a date"
-                className="date-display-input"
-                tabIndex={-1}
-                aria-hidden="true"
-                onClick={handleDateClick}
-              />
-              {/* Real native date input, stretched invisibly over the whole
-                  field so the tap/click lands on it directly. Mobile browsers
-                  (iOS Safari in particular) only open the native picker UI for
-                  a genuine user gesture on the input itself — a JS-triggered
-                  .click()/.focus()/showPicker() on a hidden input is ignored
-                  on iOS and unreliable elsewhere. */}
-              <input
-                ref={dateInputRef}
-                type="date"
-                name="date"
-                value={form.date}
+                type="number"
+                name="weight"
+                value={form.weight}
                 onChange={handleChange}
-                onClick={handleDateClick}
+                placeholder=""
+                min="0"
+                step="any"
                 required
-                className="date-native-input"
               />
-            </div>
-          </label>
+            </label>
 
-          <div className="logworkout-actions">
-            <button type="submit" className="primary-btn">Save workout</button>
-            <Link to="/dashboard" className="secondary-btn">Cancel</Link>
-          </div>
+            <label>
+              Reps
+              <input
+                type="number"
+                name="reps"
+                value={form.reps}
+                onChange={handleChange}
+                placeholder=""
+                min="0.5"
+                step="any"
+                required
+              />
+            </label>
+
+            <label>
+              Date
+              <div className="date-picker-field" onClick={handleDateClick}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <input
+                  type="text"
+                  value={formatDisplayDate(form.date)}
+                  readOnly
+                  placeholder="Select a date"
+                  className="date-display-input"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  onClick={handleDateClick}
+                />
+                {/* Real native date input, stretched invisibly over the whole
+                    field so the tap/click lands on it directly. Mobile browsers
+                    (iOS Safari in particular) only open the native picker UI for
+                    a genuine user gesture on the input itself — a JS-triggered
+                    .click()/.focus()/showPicker() on a hidden input is ignored
+                    on iOS and unreliable elsewhere. */}
+                <input
+                  ref={dateInputRef}
+                  type="date"
+                  name="date"
+                  value={form.date}
+                  onChange={handleChange}
+                  onClick={handleDateClick}
+                  required
+                  className="date-native-input"
+                />
+              </div>
+            </label>
+
+            <div className="logworkout-actions">
+              <button type="submit" className="primary-btn" disabled={isSaving}>
+                {isSaving ? (
+                  <span className="btn-spinner-content">
+                    <LoadingSpinner size={18} />
+                    Saving...
+                  </span>
+                ) : (
+                  'Save workout'
+                )}
+              </button>
+              <Link
+                to="/dashboard"
+                className={`secondary-btn${isSaving ? ' disabled-link' : ''}`}
+                onClick={(event) => isSaving && event.preventDefault()}
+              >
+                Cancel
+              </Link>
+            </div>
+          </fieldset>
         </form>
 
         {message && <p className="status-message">{message}</p>}

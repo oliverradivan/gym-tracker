@@ -392,3 +392,16 @@
 .dark .date-display-input::placeholder {
   color: #666666;
 }
+
+.btn-spinner-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.secondary-btn.disabled-link {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
