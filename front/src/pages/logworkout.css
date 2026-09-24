@@ -106,8 +106,8 @@
 }
 
 .select-general {
-  border-color: rgba(107, 114, 128, 0.5);
-  color: #6b7280;
+  border-color: rgba(245, 21, 249, 0.5);
+  color: #db09b1;
 }
 
 .logworkout-page {
@@ -179,20 +179,50 @@
 
 .logworkout-actions {
   display: flex;
-  gap: 12px;
+  justify-content: center;
   margin-top: 8px;
 }
 
-.secondary-btn {
-  display: inline-flex;
+/* Save button ⇄ spinner swap. Both sit stacked in the same fixed-size box
+   and cross-fade — the button disappears, the spinner takes its place. */
+.save-action {
+  position: relative;
+  width: 100%;
+  height: 52px;
+}
+
+.primary-btn {
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.save-spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 13px 18px;
-  border-radius: 12px;
-  color: #111111;
-  text-decoration: none;
-  background: rgba(17, 17, 17, 0.03);
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.save-action.is-saving .primary-btn {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+
+.save-action.is-saving .save-spinner {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: 0.1s;
+  pointer-events: auto;
 }
 
 .eyebrow {
@@ -294,15 +324,6 @@
   .logworkout-form {
     gap: 14px;
   }
-
-  .logworkout-actions {
-    flex-direction: column;
-  }
-
-  .secondary-btn,
-  .primary-btn {
-    width: 100%;
-  }
 }
 
 /* Dark Mode Overrides */
@@ -357,12 +378,6 @@
   outline-color: rgba(238, 238, 238, 0.4);
 }
 
-.dark .secondary-btn {
-  color: #eeeeee;
-  background: rgba(238, 238, 238, 0.03);
-  border-color: rgba(238, 238, 238, 0.08);
-}
-
 .dark .eyebrow {
   color: #858585;
 }
@@ -393,15 +408,11 @@
   color: #666666;
 }
 
-.btn-spinner-content {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
+.proud {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50px;
+  height: 50px;
 
-.secondary-btn.disabled-link {
-  opacity: 0.5;
-  pointer-events: none;
-  cursor: not-allowed;
 }

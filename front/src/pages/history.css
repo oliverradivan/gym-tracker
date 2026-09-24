@@ -81,7 +81,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.8);
+
+  /* Green that softly fades away */
+  background: linear-gradient(
+    90deg,
+    rgba(74, 222, 128, 0.35) 0%,
+    rgba(74, 222, 128, 0.18) 45%,
+    rgba(74, 222, 128, 0.04) 100%
+  );
+
   border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: 12px;
   padding: 12px 14px;
@@ -102,19 +110,31 @@
 }
 
 .history-entry.push {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(255, 255, 255, 0.9));
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.18),
+    rgba(255, 255, 255, 0.9)
+  );
   border: 1px solid rgba(185, 28, 28, 0.28);
   color: #b91c1c;
 }
 
 .history-entry.pull {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(255, 255, 255, 0.9));
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.18),
+    rgba(255, 255, 255, 0.9)
+  );
   border: 1px solid rgba(29, 78, 216, 0.28);
   color: #1d4ed8;
 }
 
 .history-entry.leg {
-  background: linear-gradient(135deg, rgba(250, 204, 21, 0.22), rgba(255, 255, 255, 0.9));
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.22),
+    rgba(255, 255, 255, 0.9)
+  );
   border: 1px solid rgba(180, 132, 0, 0.3);
   color: #b7791f;
 }
@@ -201,8 +221,13 @@
 }
 
 /* Dark Mode Overrides */
+
 .dark .history-page {
-  background: linear-gradient(180deg, rgba(10, 10, 8, 0.9), rgba(5, 5, 3, 0.95));
+  background: linear-gradient(
+    180deg,
+    rgba(10, 10, 8, 0.9),
+    rgba(5, 5, 3, 0.95)
+  );
 }
 
 .dark .history-card {
@@ -233,7 +258,12 @@
 }
 
 .dark .session-entries li {
-  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(
+    90deg,
+    rgba(74, 222, 128, 0.3) 0%,
+    rgba(74, 222, 128, 0.14) 45%,
+    rgba(74, 222, 128, 0.02) 100%
+  );
   color: #eeeeee;
   border-color: rgba(238, 238, 238, 0.08);
 }
@@ -244,19 +274,31 @@
 }
 
 .dark .history-entry.push {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(0, 0, 0, 0.7));
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.25),
+    rgba(0, 0, 0, 0.7)
+  );
   border-color: rgba(239, 68, 68, 0.4);
   color: #ff8787;
 }
 
 .dark .history-entry.pull {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(0, 0, 0, 0.7));
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.25),
+    rgba(0, 0, 0, 0.7)
+  );
   border-color: rgba(59, 130, 246, 0.4);
   color: #60a5fa;
 }
 
 .dark .history-entry.leg {
-  background: linear-gradient(135deg, rgba(250, 204, 21, 0.25), rgba(0, 0, 0, 0.7));
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.25),
+    rgba(0, 0, 0, 0.7)
+  );
   border-color: rgba(250, 204, 21, 0.4);
   color: #fcd34d;
 }

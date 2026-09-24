@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
-import LoadingSpinner from '../components/LoadingSpinner'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import './logworkout.css'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api'
+
+// Minimum time the spinner stays visible, so a very fast save doesn't just flash.
+const MIN_SPINNER_MS = 450
 
 const getTodayKey = () => {
   const date = new Date()
@@ -13,15 +16,15 @@ const getTodayKey = () => {
   return new Date(date.getTime() - offset).toISOString().slice(0, 10)
 }
 
-const initialForm = {
+const buildInitialForm = () => ({
   exercise_id: '',
   weight: '',
   reps: '',
   date: getTodayKey(),
-}
+})
 
 function LogWorkoutPage() {
-  const [form, setForm] = useState(initialForm)
+  const [form, setForm] = useState(buildInitialForm)
   const [exerciseOptions, setExerciseOptions] = useState([])
   const [message, setMessage] = useState('')
   const [selectOpen, setSelectOpen] = useState(false)
@@ -99,7 +102,6 @@ function LogWorkoutPage() {
     const input = dateInputRef.current
     if (!input) return
 
-
     if (typeof input.showPicker === 'function') {
       try {
         input.showPicker()
@@ -127,6 +129,8 @@ function LogWorkoutPage() {
 
     setMessage('')
     setIsSaving(true)
+    const startedAt = Date.now()
+
     try {
       const response = await fetch(`${API_URL}/workout-logs`, {
         method: 'POST',
@@ -148,11 +152,19 @@ function LogWorkoutPage() {
         throw new Error(result.detail || 'Failed to save workout.')
       }
 
-      setMessage('Workout saved successfully.')
+      // Keep the spinner up for a minimum stretch so the swap back to the
+      // button doesn't feel like a flicker on fast connections.
+      const elapsed = Date.now() - startedAt
+      const remaining = Math.max(MIN_SPINNER_MS - elapsed, 0)
+      if (remaining > 0) {
+        await new Promise(resolve => setTimeout(resolve, remaining))
+      }
+
+      setForm(buildInitialForm())
       setGlobalMessage('Workout saved successfully.')
-      setTimeout(() => {
-        navigate('/dashboard')
-      }, 500)
+      setMessage('Workout saved!')
+      setIsSaving(false)
+      setTimeout(() => setMessage(''), 2000)
     } catch (error) {
       setMessage(error.message || 'Something went wrong while saving your workout.')
       setIsSaving(false)
@@ -270,28 +282,26 @@ function LogWorkoutPage() {
             </label>
 
             <div className="logworkout-actions">
-              <button type="submit" className="primary-btn" disabled={isSaving}>
-                {isSaving ? (
-                  <span className="btn-spinner-content">
-                    <LoadingSpinner size={18} />
-                    Saving...
-                  </span>
-                ) : (
-                  'Save workout'
-                )}
-              </button>
-              <Link
-                to="/dashboard"
-                className={`secondary-btn${isSaving ? ' disabled-link' : ''}`}
-                onClick={(event) => isSaving && event.preventDefault()}
-              >
-                Cancel
-              </Link>
+              {/* Fixed-size wrapper so the button and spinner occupy the same
+                  footprint and cross-fade in place instead of jumping the layout. */}
+              <div className={`save-action${isSaving ? ' is-saving' : ''}`}>
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={isSaving}
+                  aria-hidden={isSaving}
+                  tabIndex={isSaving ? -1 : undefined}
+                >
+                  Save workout
+                </button>
+                <div className="save-spinner" aria-hidden={!isSaving}>
+                  <LoadingSpinner size={32} />
+                </div>
+              </div>
             </div>
           </fieldset>
         </form>
-
-        {message && <p className="status-message">{message}</p>}
+        {message && <p className="status-message">{message} <img className="proud" src="/proud.png" alt="proud" /></p>}
       </div>
     </div>
   )
