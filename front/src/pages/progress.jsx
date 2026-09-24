@@ -4,6 +4,7 @@ import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { getExerciseCategory, getExerciseCategoryColor } from '../utils/exerciseCategory'
 import LoadingSpinner from '@/components/LoadingSpinner'
+
 const LineChart = lazy(() => import('@/components/charts/line-chart'))
 const Line = lazy(() => import('@/components/charts/line'))
 const Grid = lazy(() => import('@/components/charts/grid'))
@@ -11,10 +12,12 @@ const XAxis = lazy(() => import('@/components/charts/x-axis'))
 const ProjectionLine = lazy(() => import('@/components/charts/projection-line'))
 const YAxis = lazy(() => import('@/components/charts/y-axis'))
 const ChartTooltip = lazy(() => import('@/components/charts/tooltip/chart-tooltip'))
+
 import './progress.css'
 
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
+
 const METRICS = {
   volume: { label: 'Volume' },
   weight: { label: 'Weight' },
@@ -23,12 +26,16 @@ const METRICS = {
 
 const formatDisplayDate = (date) => {
   const [year, month, day] = String(date || '').slice(0, 10).split('-')
-  return year && month && day ? `${day}/${month}/${year}` : String(date || '')
+
+  return year && month && day
+    ? `${day}/${month}/${year}`
+    : String(date || '')
 }
 
 function ProgressPage() {
   const { session, authFetch } = useAuth()
   const { exerciseId } = useParams()
+
   const [exercises, setExercises] = useState([])
   const [selectedExerciseId, setSelectedExerciseId] = useState('')
   const [progress, setProgress] = useState([])
@@ -37,66 +44,143 @@ function ProgressPage() {
   const [predictions, setPredictions] = useState([])
   const [isPredicting, setIsPredicting] = useState(false)
   const [predictionError, setPredictionError] = useState('')
+
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window === 'undefined') return false
+
     return window.matchMedia('(max-width: 640px)').matches
   })
+
   const [selectOpen, setSelectOpen] = useState(false)
   const selectRef = useRef(null)
 
-  // Track responsive screen width
+  /*
+   * Graph scrolling
+   *
+   * chartScrollRef points to the actual horizontally scrollable
+   * container.
+   */
+  const chartScrollRef = useRef(null)
+
+  const [chartScrollPosition, setChartScrollPosition] = useState(0)
+  const [chartScrollMax, setChartScrollMax] = useState(0)
+
+  // ============================================================
+  // Responsive screen width
+  // ============================================================
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 640px)')
-    const handler = (e) => setIsMobile(e.matches)
+
+    const handler = (event) => {
+      setIsMobile(event.matches)
+    }
+
     mediaQuery.addEventListener('change', handler)
-    return () => mediaQuery.removeEventListener('change', handler)
+
+    return () => {
+      mediaQuery.removeEventListener('change', handler)
+    }
   }, [])
 
-  // Close the custom dropdown on outside click
+  // ============================================================
+  // Close custom dropdown on outside click
+  // ============================================================
+
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
+      if (
+        selectRef.current &&
+        !selectRef.current.contains(event.target)
+      ) {
         setSelectOpen(false)
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener(
+      'mousedown',
+      handleClickOutside
+    )
+
+    return () => {
+      document.removeEventListener(
+        'mousedown',
+        handleClickOutside
+      )
+    }
   }, [])
+
+  // ============================================================
+  // Prediction setting
+  // ============================================================
 
   const [predictionEnabled] = useState(() => {
     try {
-      return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false'
+      return (
+        localStorage.getItem(
+          PREDICTION_SETTING_KEY
+        ) !== 'false'
+      )
     } catch {
       return true
     }
   })
+
+  // ============================================================
+  // Graph scroll setting
+  // ============================================================
 
   const [graphScrollable, setGraphScrollable] = useState(() => {
     try {
-      const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
-      return savedPreference === null ? true : savedPreference === 'true'
+      const savedPreference = localStorage.getItem(
+        GRAPH_SCROLL_SETTING_KEY
+      )
+
+      return savedPreference === null
+        ? true
+        : savedPreference === 'true'
     } catch {
       return true
     }
   })
 
+  // ============================================================
   // Listen for preference changes from other tabs/pages
+  // ============================================================
+
   useEffect(() => {
     const syncScrollSetting = () => {
       try {
-        const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
+        const savedPreference = localStorage.getItem(
+          GRAPH_SCROLL_SETTING_KEY
+        )
+
         if (savedPreference !== null) {
-          setGraphScrollable(savedPreference === 'true')
+          setGraphScrollable(
+            savedPreference === 'true'
+          )
         }
       } catch {
         // Ignore storage access errors
       }
     }
 
-    window.addEventListener('storage', syncScrollSetting)
-    return () => window.removeEventListener('storage', syncScrollSetting)
+    window.addEventListener(
+      'storage',
+      syncScrollSetting
+    )
+
+    return () => {
+      window.removeEventListener(
+        'storage',
+        syncScrollSetting
+      )
+    }
   }, [])
+
+  // ============================================================
+  // Load exercises
+  // ============================================================
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -106,14 +190,20 @@ function ProgressPage() {
         const response = await authFetch('/exercises')
 
         if (!response.ok) {
-          throw new Error('Unable to load exercises.')
+          throw new Error(
+            'Unable to load exercises.'
+          )
         }
 
         const result = await response.json()
         const items = result.exercises || []
+
         setExercises(items)
 
-        const urlExercise = items.find((item) => String(item.id) === exerciseId)
+        const urlExercise = items.find(
+          (item) => String(item.id) === exerciseId
+        )
+
         if (urlExercise) {
           setSelectedExerciseId(urlExercise.id)
         } else if (items[0]) {
@@ -127,6 +217,10 @@ function ProgressPage() {
     loadExercises()
   }, [exerciseId, session, authFetch])
 
+  // ============================================================
+  // Load progress
+  // ============================================================
+
   useEffect(() => {
     const loadProgress = async () => {
       if (!session || !selectedExerciseId) {
@@ -136,15 +230,19 @@ function ProgressPage() {
 
       try {
         setLoading(true)
+
         const response = await authFetch(
           `/workout-logs/progress?exercise_id=${selectedExerciseId}`,
         )
 
         if (!response.ok) {
-          throw new Error('Unable to load progress.')
+          throw new Error(
+            'Unable to load progress.'
+          )
         }
 
         const result = await response.json()
+
         setProgress(result.progress || [])
       } catch (error) {
         console.error(error)
@@ -156,16 +254,25 @@ function ProgressPage() {
     loadProgress()
   }, [selectedExerciseId, session, authFetch])
 
+  // ============================================================
+  // Load predictions
+  // ============================================================
+
   useEffect(() => {
     let mounted = true
 
     const loadPredictions = async () => {
-      if (!predictionEnabled || !selectedExerciseId || progress.length < 2) {
+      if (
+        !predictionEnabled ||
+        !selectedExerciseId ||
+        progress.length < 2
+      ) {
         if (mounted) {
           setPredictions([])
           setPredictionError('')
           setIsPredicting(false)
         }
+
         return
       }
 
@@ -173,35 +280,51 @@ function ProgressPage() {
       setPredictionError('')
 
       try {
-        const response = await authFetch('/predictions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            exercise_id: selectedExerciseId,
-            points: progress.map((point) => ({
-              date: point.date,
-              volume: point.volume,
-            })),
-            periods: 5,
-            interval_days: 7,
-          }),
-        })
+        const response = await authFetch(
+          '/predictions',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              exercise_id: selectedExerciseId,
+              points: progress.map((point) => ({
+                date: point.date,
+                volume: point.volume,
+              })),
+              periods: 5,
+              interval_days: 7,
+            }),
+          }
+        )
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.detail || 'Failed to generate predictions.')
+          const errorData = await response
+            .json()
+            .catch(() => ({}))
+
+          throw new Error(
+            errorData.detail ||
+              'Failed to generate predictions.'
+          )
         }
 
         const result = await response.json()
+
         if (mounted) {
-          setPredictions(result.predictions || [])
+          setPredictions(
+            result.predictions || []
+          )
         }
       } catch (error) {
         console.error(error)
+
         if (mounted) {
-          setPredictionError(error.message || 'Failed to generate predictions.')
+          setPredictionError(
+            error.message ||
+              'Failed to generate predictions.'
+          )
         }
       } finally {
         if (mounted) {
@@ -211,51 +334,228 @@ function ProgressPage() {
     }
 
     loadPredictions()
-    return () => { mounted = false }
-  }, [predictionEnabled, selectedExerciseId, progress, session, authFetch])
 
-  const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
-  const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
-  const chartStroke = getExerciseCategoryColor(selectedExercise?.name || '')
+    return () => {
+      mounted = false
+    }
+  }, [
+    predictionEnabled,
+    selectedExerciseId,
+    progress,
+    session,
+    authFetch,
+  ])
 
-  // Sort dropdown options by category (push/pull/leg/etc.)
+  // ============================================================
+  // Exercise / chart data
+  // ============================================================
+
+  const selectedExercise = exercises.find(
+    (exercise) =>
+      exercise.id === selectedExerciseId
+  )
+
+  const category = useMemo(
+    () =>
+      getExerciseCategory(
+        selectedExercise?.name || ''
+      ),
+    [selectedExercise]
+  )
+
+  const chartStroke = getExerciseCategoryColor(
+    selectedExercise?.name || ''
+  )
+
+  // Sort dropdown options by category
   const sortedExercises = useMemo(() => {
     return [...exercises].sort((a, b) => {
-      const catA = getExerciseCategory(a.name || '')
-      const catB = getExerciseCategory(b.name || '')
-      if (catA !== catB) return catA.localeCompare(catB)
-      return (a.name || '').localeCompare(b.name || '')
+      const catA = getExerciseCategory(
+        a.name || ''
+      )
+
+      const catB = getExerciseCategory(
+        b.name || ''
+      )
+
+      if (catA !== catB) {
+        return catA.localeCompare(catB)
+      }
+
+      return (a.name || '').localeCompare(
+        b.name || ''
+      )
     })
   }, [exercises])
 
-  const handleSelectExercise = (event, exerciseId) => {
+  const handleSelectExercise = (
+    event,
+    exerciseId
+  ) => {
     event.preventDefault()
     event.stopPropagation()
+
     setSelectedExerciseId(exerciseId)
     setSelectOpen(false)
   }
 
-  const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
+  const showForecast =
+    selectedMetric === 'volume' &&
+    predictionEnabled &&
+    predictions.length > 0
 
   const chartData = useMemo(() => {
     return progress.map((point) => ({
-      date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
-      actualValue: Number(point[selectedMetric] || 0),
+      date: point.date
+        ? new Date(`${point.date}T00:00:00Z`)
+        : null,
+
+      actualValue: Number(
+        point[selectedMetric] || 0
+      ),
     }))
   }, [progress, selectedMetric])
 
   const forecastData = useMemo(() => {
-    if (!showForecast || predictions.length === 0) return []
+    if (
+      !showForecast ||
+      predictions.length === 0
+    ) {
+      return []
+    }
+
     const lastActual = chartData.at(-1)
+
     if (!lastActual) return []
+
     return [
-      { date: lastActual.date, value: lastActual.actualValue },
+      {
+        date: lastActual.date,
+        value: lastActual.actualValue,
+      },
+
       ...predictions.map((point) => ({
-        date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
+        date: point.date
+          ? new Date(`${point.date}T00:00:00Z`)
+          : null,
+
         value: Number(point.value || 0),
       })),
     ]
-  }, [showForecast, predictions, chartData])
+  }, [
+    showForecast,
+    predictions,
+    chartData,
+  ])
+
+  // ============================================================
+  // Graph scroll synchronization
+  // ============================================================
+
+  useEffect(() => {
+    const node = chartScrollRef.current
+
+    if (
+      !node ||
+      !isMobile ||
+      !graphScrollable
+    ) {
+      setChartScrollPosition(0)
+      setChartScrollMax(0)
+
+      return
+    }
+
+    const syncScrollState = () => {
+      const maxScroll = Math.max(
+        0,
+        node.scrollWidth - node.clientWidth
+      )
+
+      setChartScrollMax(maxScroll)
+
+      setChartScrollPosition(
+        Math.min(node.scrollLeft, maxScroll)
+      )
+    }
+
+    const handleScroll = () => {
+      setChartScrollPosition(
+        node.scrollLeft
+      )
+    }
+
+    node.addEventListener(
+      'scroll',
+      handleScroll,
+      { passive: true }
+    )
+
+    let resizeObserver = null
+
+    if (
+      typeof ResizeObserver !== 'undefined'
+    ) {
+      resizeObserver = new ResizeObserver(
+        syncScrollState
+      )
+
+      resizeObserver.observe(node)
+
+      if (node.firstElementChild) {
+        resizeObserver.observe(
+          node.firstElementChild
+        )
+      }
+    }
+
+    syncScrollState()
+
+    const frame = requestAnimationFrame(
+      syncScrollState
+    )
+
+    return () => {
+      node.removeEventListener(
+        'scroll',
+        handleScroll
+      )
+
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      }
+
+      cancelAnimationFrame(frame)
+    }
+  }, [
+    isMobile,
+    graphScrollable,
+    progress.length,
+    selectedMetric,
+    predictions.length,
+    showForecast,
+  ])
+
+  // ============================================================
+  // Slider -> graph
+  // ============================================================
+
+  const handleChartSliderChange = (event) => {
+    const value = Number(
+      event.target.value
+    )
+
+    if (chartScrollRef.current) {
+      chartScrollRef.current.scrollLeft =
+        value
+    }
+
+    setChartScrollPosition(value)
+  }
+
+  // ============================================================
+  // Chart
+  // ============================================================
 
   const renderChart = () => (
     <LineChart
@@ -264,9 +564,19 @@ function ProgressPage() {
       animationDuration={1800}
       animationEasing="cubic-bezier(0.42, 0, 1, 1)"
       key={selectedMetric}
-      style={{ touchAction: isMobile && graphScrollable ? 'pan-x' : 'none' }}
+      style={{
+        touchAction:
+          isMobile && graphScrollable
+            ? 'pan-x'
+            : 'none',
+      }}
     >
-      <Grid horizontal vertical intervalDays={4} />
+      <Grid
+        horizontal
+        vertical
+        intervalDays={4}
+      />
+
       <Line
         dataKey="actualValue"
         stroke={chartStroke}
@@ -275,122 +585,312 @@ function ProgressPage() {
         showHighlight={true}
         showMarkers
       />
-      {showForecast && predictions.length > 0 && (
-        <ProjectionLine
-          data={forecastData}
-          dataKey="value"
-          curveKind="linear"
-          showEndMarker={false}
-          stroke="var(--chart-3)"
-          strokeWidth={2}
-          strokeDasharray="6,4"
-          showMarkers={true}
-        />
-      )}
-      <YAxis formatLargeNumbers={false} />
-      <XAxis tickMode="interval" intervalDays={4} />
+
+      {showForecast &&
+        predictions.length > 0 && (
+          <ProjectionLine
+            data={forecastData}
+            dataKey="value"
+            curveKind="linear"
+            showEndMarker={false}
+            stroke="var(--chart-3)"
+            strokeWidth={2}
+            strokeDasharray="6,4"
+            showMarkers={true}
+          />
+        )}
+
+      <YAxis
+        formatLargeNumbers={false}
+      />
+
+      <XAxis
+        tickMode="interval"
+        intervalDays={4}
+      />
+
       <ChartTooltip
         backgroundColor="var(--tooltip-bg)"
-        rows={(point) => [{ label: METRICS[selectedMetric]?.label || 'Unknown', value: point.value ?? point.actualValue ?? 0, color: chartStroke }]}
+        rows={(point) => [
+          {
+            label:
+              METRICS[selectedMetric]?.label ||
+              'Unknown',
+
+            value:
+              point.value ??
+              point.actualValue ??
+              0,
+
+            color: chartStroke,
+          },
+        ]}
       />
     </LineChart>
   )
 
+  // ============================================================
+  // Render
+  // ============================================================
+
   return (
-    <div className={`progress-page ${category}`}>
-      <div className={`progress-card ${category}`}>
+    <div
+      className={`progress-page ${category}`}
+    >
+      <div
+        className={`progress-card ${category}`}
+      >
         <div className="progress-header">
           <div>
-            <p className="eyebrow">Workout Tracker</p>
+            <p className="eyebrow">
+              Workout Tracker
+            </p>
+
             <h1>Progress</h1>
           </div>
         </div>
 
         <label className="exercise-select-label">
           Exercise
-          <div className="custom-select" ref={selectRef}>
+
+          <div
+            className="custom-select"
+            ref={selectRef}
+          >
             <button
               type="button"
-              className={`custom-select-trigger ${category ? `select-${category}` : ''}`}
-              onClick={() => setSelectOpen(prev => !prev)}
+              className={`custom-select-trigger ${
+                category
+                  ? `select-${category}`
+                  : ''
+              }`}
+              onClick={() =>
+                setSelectOpen(
+                  (prev) => !prev
+                )
+              }
             >
-              <span>{selectedExercise ? selectedExercise.name : 'Select an exercise'}</span>
-              <span className={`custom-select-arrow ${selectOpen ? 'open' : ''}`} aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <span>
+                {selectedExercise
+                  ? selectedExercise.name
+                  : 'Select an exercise'}
+              </span>
+
+              <span
+                className={`custom-select-arrow ${
+                  selectOpen ? 'open' : ''
+                }`}
+                aria-hidden="true"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </span>
             </button>
+
             {selectOpen && (
               <ul className="custom-select-list">
-                {sortedExercises.map(exercise => {
-                  const optionCategory = getExerciseCategory(exercise.name || '')
-                  return (
-                    <li
-                      key={exercise.id}
-                      className={`custom-select-option option-${optionCategory}${exercise.id === selectedExerciseId ? ' selected' : ''}`}
-                      onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
-                    >
-                      {exercise.name}
-                    </li>
-                  )
-                })}
+                {sortedExercises.map(
+                  (exercise) => {
+                    const optionCategory =
+                      getExerciseCategory(
+                        exercise.name || ''
+                      )
+
+                    return (
+                      <li
+                        key={exercise.id}
+                        className={`custom-select-option option-${optionCategory}${
+                          exercise.id ===
+                          selectedExerciseId
+                            ? ' selected'
+                            : ''
+                        }`}
+                        onMouseDown={(
+                          event
+                        ) =>
+                          handleSelectExercise(
+                            event,
+                            exercise.id
+                          )
+                        }
+                      >
+                        {exercise.name}
+                      </li>
+                    )
+                  }
+                )}
               </ul>
             )}
           </div>
         </label>
 
         {loading ? (
-          <LoadingSpinner label="Loading workouts..." showLabel />
+          <LoadingSpinner
+            label="Loading workouts..."
+            showLabel
+          />
         ) : !selectedExercise ? (
-          <p className="status-message">Select an exercise from the dropdown to view progress.</p>
+          <p className="status-message">
+            Select an exercise from the dropdown
+            to view progress.
+          </p>
         ) : progress.length === 0 ? (
-          <p className="status-message">No progress data yet for {selectedExercise.name}.</p>
+          <p className="status-message">
+            No progress data yet for{' '}
+            {selectedExercise.name}.
+          </p>
         ) : (
           <>
-            <div className="metric-toggle" role="group" aria-label="Chart metric">
-              {Object.entries(METRICS).map(([value, details]) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={selectedMetric === value ? 'active' : ''}
-                  aria-pressed={selectedMetric === value}
-                  aria-label={selectedMetric === value ? `Selected: ${details.label} metric` : `Select ${details.label} metric`}
-                  onClick={() => setSelectedMetric(value)}
-                >
-                  {details.label}
-                </button>
-              ))}
+            <div
+              className="metric-toggle"
+              role="group"
+              aria-label="Chart metric"
+            >
+              {Object.entries(METRICS).map(
+                ([value, details]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className={
+                      selectedMetric === value
+                        ? 'active'
+                        : ''
+                    }
+                    aria-pressed={
+                      selectedMetric === value
+                    }
+                    aria-label={
+                      selectedMetric === value
+                        ? `Selected: ${details.label} metric`
+                        : `Select ${details.label} metric`
+                    }
+                    onClick={() =>
+                      setSelectedMetric(value)
+                    }
+                  >
+                    {details.label}
+                  </button>
+                )
+              )}
             </div>
+
             <div className="chart-box">
-              {isMobile && graphScrollable ? (
-                <div className="chart-scroll-wrapper">
-                  <div style={{ minWidth: `${Math.max(800, progress.length * 45)}px`, height: '400px' }}>
-                    <Suspense fallback={<div>Loading chart...</div>}>
-                      {renderChart()}
-                    </Suspense>
+              {isMobile &&
+              graphScrollable ? (
+                <>
+                  {/*
+                   * data-swipe-ignore is picked up by
+                   * SwipeDeck. Any gesture beginning here
+                   * belongs to the graph, not page navigation.
+                   */}
+                  <div
+                    className="chart-scroll-wrapper"
+                    ref={chartScrollRef}
+                    data-swipe-ignore
+                  >
+                    <div
+                      style={{
+                        minWidth: `${Math.max(
+                          800,
+                          progress.length * 45
+                        )}px`,
+                        height: '400px',
+                      }}
+                    >
+                      <Suspense
+                        fallback={
+                          <div>
+                            Loading chart...
+                          </div>
+                        }
+                      >
+                        {renderChart()}
+                      </Suspense>
+                    </div>
                   </div>
-                </div>
+
+                  {/*
+                   * Dedicated horizontal slider.
+                   *
+                   * It controls the exact same scrollLeft
+                   * position as the graph above.
+                   */}
+                  {chartScrollMax > 0 && (
+                    <div
+                      className="chart-scroll-control"
+                      data-swipe-ignore
+                    >
+                      <input
+                        type="range"
+                        min="0"
+                        max={chartScrollMax}
+                        step="1"
+                        value={Math.min(
+                          chartScrollPosition,
+                          chartScrollMax
+                        )}
+                        onChange={
+                          handleChartSliderChange
+                        }
+                        aria-label="Scroll progress chart horizontally"
+                      />
+                    </div>
+                  )}
+                </>
               ) : (
-                <Suspense fallback={<div>Loading chart...</div>}>
+                <Suspense
+                  fallback={
+                    <div>
+                      Loading chart...
+                    </div>
+                  }
+                >
                   {renderChart()}
                 </Suspense>
               )}
+
               <div className="chart-footer">
-                <div className="chart-legend" aria-label="Chart legend">
+                <div
+                  className="chart-legend"
+                  aria-label="Chart legend"
+                >
                   <span className="legend-item">
                     <span className="legend-line actual-line" />
-                    Actual {METRICS[selectedMetric].label.toLowerCase()}
+
+                    Actual{' '}
+                    {METRICS[
+                      selectedMetric
+                    ].label.toLowerCase()}
                   </span>
+
                   {showForecast && (
                     <span className="legend-item">
                       <span className="legend-line forecast-line" />
+
                       Forecast
                     </span>
                   )}
                 </div>
-                {isPredicting && <p className="status-message">Generating forecast...</p>}
-                {predictionError && <p className="status-message error-message">{predictionError}</p>}
+
+                {isPredicting && (
+                  <p className="status-message">
+                    Generating forecast...
+                  </p>
+                )}
+
+                {predictionError && (
+                  <p className="status-message error-message">
+                    {predictionError}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -403,15 +903,47 @@ function ProgressPage() {
                   <th>Volume</th>
                 </tr>
               </thead>
+
               <tbody>
                 {[...progress]
-                  .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+                  .sort((a, b) =>
+                    String(b.date).localeCompare(
+                      String(a.date)
+                    )
+                  )
                   .map((point) => (
                     <tr key={point.date}>
-                      <td>{formatDisplayDate(point.date)}</td>
-                      <td>{Number(point.weight || 0).toFixed(1)}</td>
-                      <td>{(Number(point.reps) || 0) % 1 === 0 ? Number(point.reps) || 0 : (Number(point.reps) || 0).toFixed(1)}</td>
-                      <td>{Number(point.volume).toFixed(1)}</td>
+                      <td>
+                        {formatDisplayDate(
+                          point.date
+                        )}
+                      </td>
+
+                      <td>
+                        {Number(
+                          point.weight || 0
+                        ).toFixed(1)}
+                      </td>
+
+                      <td>
+                        {(Number(point.reps) ||
+                          0) % 1 ===
+                        0
+                          ? Number(
+                              point.reps
+                            ) || 0
+                          : (
+                              Number(
+                                point.reps
+                              ) || 0
+                            ).toFixed(1)}
+                      </td>
+
+                      <td>
+                        {Number(
+                          point.volume
+                        ).toFixed(1)}
+                      </td>
                     </tr>
                   ))}
               </tbody>

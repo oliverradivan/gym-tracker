@@ -15,13 +15,9 @@ const PAGES = [
   '/settings',
 ]
 
-// How far you have to drag before it counts as a deliberate page change.
-const PASS_RATIO = 0.4 // 40% of the viewport width
-// A short, fast flick still counts, but it has to be a real flick now.
-const FLICK_MIN_VELOCITY = 0.55 // px/ms
-const FLICK_MIN_DISTANCE_RATIO = 0.15 // 15% of viewport width
-
-// Edges shouldn't swipe into empty space - just a small rubber-band give.
+const PASS_RATIO = 0.4
+const FLICK_MIN_VELOCITY = 0.55
+const FLICK_MIN_DISTANCE_RATIO = 0.15
 const EDGE_RESISTANCE = 0.3
 const MAX_EDGE_OVERSCROLL_PX = 48
 
@@ -33,15 +29,40 @@ function getIndexFromPath(pathname) {
   return 0
 }
 
-// Dampens and caps movement once you're dragging past the first or last page.
 function applyEdgeResistance(deltaX, atStart, atEnd) {
   const overscrollingStart = atStart && deltaX > 0
   const overscrollingEnd = atEnd && deltaX < 0
-  if (!overscrollingStart && !overscrollingEnd) return deltaX
+
+  if (!overscrollingStart && !overscrollingEnd) {
+    return deltaX
+  }
 
   const damped = deltaX * EDGE_RESISTANCE
-  const clampedMagnitude = Math.min(Math.abs(damped), MAX_EDGE_OVERSCROLL_PX)
+  const clampedMagnitude = Math.min(
+    Math.abs(damped),
+    MAX_EDGE_OVERSCROLL_PX
+  )
+
   return Math.sign(deltaX) * clampedMagnitude
+}
+
+function isSwipeIgnoredTarget(target) {
+  return (
+    target instanceof Element &&
+    Boolean(target.closest('[data-swipe-ignore]'))
+  )
+}
+
+function createEmptyDragState(ignored = false) {
+  return {
+    startX: 0,
+    startY: 0,
+    startTime: 0,
+    axis: null,
+    deltaX: 0,
+    dispatched: false,
+    ignored,
+  }
 }
 
 function SwipeDeck() {
@@ -57,36 +78,64 @@ function SwipeDeck() {
 
   const containerRef = useRef(null)
 
-  const drag = useRef({
-    startX: 0,
-    startY: 0,
-    startTime: 0,
-    axis: null,
-    deltaX: 0,
-    dispatched: false,
-  })
+  const drag = useRef(createEmptyDragState())
 
   const [dragPercent, setDragPercent] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
 
   const goToIndex = (index) => {
     const currentIndex = activeIndexRef.current
-    const clamped = Math.max(0, Math.min(PAGES.length - 1, index))
+
+    const clamped = Math.max(
+      0,
+      Math.min(PAGES.length - 1, index)
+    )
 
     if (clamped !== currentIndex) {
       navigate(PAGES[clamped])
     }
   }
 
-  // -------------------------
+  // ============================================================
   // Touch Swipe
-  // -------------------------
+  // ============================================================
+
   useEffect(() => {
     const node = containerRef.current
+
     if (!node) return
+
+    const resetDrag = () => {
+      drag.current = createEmptyDragState()
+      setDragPercent(0)
+      setIsDragging(false)
+    }
 
     const handleTouchStart = (e) => {
       const touch = e.touches[0]
+
+      if (!touch) return
+
+      /*
+       * Anything marked with data-swipe-ignore owns the gesture.
+       *
+       * This is what allows the progress graph and its slider
+       * to receive horizontal touches without SwipeDeck turning
+       * them into page navigation.
+       */
+      if (isSwipeIgnoredTarget(e.target)) {
+        drag.current = {
+          startX: touch.clientX,
+          startY: touch.clientY,
+          startTime: Date.now(),
+          axis: null,
+          deltaX: 0,
+          dispatched: false,
+          ignored: true,
+        }
+
+        return
+      }
 
       drag.current = {
         startX: touch.clientX,
@@ -95,26 +144,53 @@ function SwipeDeck() {
         axis: null,
         deltaX: 0,
         dispatched: false,
+        ignored: false,
       }
     }
 
     const handleTouchMove = (e) => {
-      const touch = e.touches[0]
-      const containerWidth = node.clientWidth || window.innerWidth
-
-      const rawDeltaX = touch.clientX - drag.current.startX
-      const deltaY = touch.clientY - drag.current.startY
-
-      if (drag.current.axis === null) {
-        if (Math.abs(rawDeltaX) < 8 && Math.abs(deltaY) < 8) return
-        drag.current.axis = Math.abs(rawDeltaX) > Math.abs(deltaY) ? 'x' : 'y'
+      if (drag.current.ignored) {
+        return
       }
 
-      if (drag.current.axis !== 'x') return
+      const touch = e.touches[0]
 
-      if (e.cancelable) e.preventDefault()
+      if (!touch) return
 
-      const currentIndex = activeIndexRef.current
+      const containerWidth =
+        node.clientWidth || window.innerWidth
+
+      const rawDeltaX =
+        touch.clientX - drag.current.startX
+
+      const deltaY =
+        touch.clientY - drag.current.startY
+
+      if (drag.current.axis === null) {
+        if (
+          Math.abs(rawDeltaX) < 8 &&
+          Math.abs(deltaY) < 8
+        ) {
+          return
+        }
+
+        drag.current.axis =
+          Math.abs(rawDeltaX) > Math.abs(deltaY)
+            ? 'x'
+            : 'y'
+      }
+
+      if (drag.current.axis !== 'x') {
+        return
+      }
+
+      if (e.cancelable) {
+        e.preventDefault()
+      }
+
+      const currentIndex =
+        activeIndexRef.current
+
       const deltaX = applyEdgeResistance(
         rawDeltaX,
         currentIndex === 0,
@@ -123,28 +199,55 @@ function SwipeDeck() {
 
       drag.current.deltaX = deltaX
 
-      const totalTrackWidth = containerWidth * PAGES.length
-      const percentOffset = (deltaX / totalTrackWidth) * 100
+      const totalTrackWidth =
+        containerWidth * PAGES.length
+
+      const percentOffset =
+        (deltaX / totalTrackWidth) * 100
 
       setIsDragging(true)
       setDragPercent(percentOffset)
     }
 
     const handleTouchEnd = () => {
-      if (drag.current.axis === 'x' && !drag.current.dispatched) {
-        const containerWidth = node.clientWidth || window.innerWidth
+      if (drag.current.ignored) {
+        resetDrag()
+        return
+      }
+
+      if (
+        drag.current.axis === 'x' &&
+        !drag.current.dispatched
+      ) {
+        const containerWidth =
+          node.clientWidth || window.innerWidth
+
         const deltaX = drag.current.deltaX
-        const duration = Math.max(1, Date.now() - drag.current.startTime)
-        const velocity = Math.abs(deltaX) / duration
 
-        const currentIndex = activeIndexRef.current
+        const duration = Math.max(
+          1,
+          Date.now() - drag.current.startTime
+        )
 
-        const passedThreshold = Math.abs(deltaX) > containerWidth * PASS_RATIO
+        const velocity =
+          Math.abs(deltaX) / duration
+
+        const currentIndex =
+          activeIndexRef.current
+
+        const passedThreshold =
+          Math.abs(deltaX) >
+          containerWidth * PASS_RATIO
+
         const isConfidentFlick =
           velocity > FLICK_MIN_VELOCITY &&
-          Math.abs(deltaX) > containerWidth * FLICK_MIN_DISTANCE_RATIO
+          Math.abs(deltaX) >
+            containerWidth * FLICK_MIN_DISTANCE_RATIO
 
-        if (passedThreshold || isConfidentFlick) {
+        if (
+          passedThreshold ||
+          isConfidentFlick
+        ) {
           if (deltaX < 0) {
             drag.current.dispatched = true
             goToIndex(currentIndex + 1)
@@ -155,78 +258,143 @@ function SwipeDeck() {
         }
       }
 
-      drag.current = {
-        startX: 0,
-        startY: 0,
-        startTime: 0,
-        axis: null,
-        deltaX: 0,
-        dispatched: false,
-      }
-
-      setDragPercent(0)
-      setIsDragging(false)
+      resetDrag()
     }
 
-    node.addEventListener('touchstart', handleTouchStart, { passive: true })
-    node.addEventListener('touchmove', handleTouchMove, { passive: false })
-    node.addEventListener('touchend', handleTouchEnd)
+    const handleTouchCancel = () => {
+      resetDrag()
+    }
+
+    node.addEventListener(
+      'touchstart',
+      handleTouchStart,
+      { passive: true }
+    )
+
+    node.addEventListener(
+      'touchmove',
+      handleTouchMove,
+      { passive: false }
+    )
+
+    node.addEventListener(
+      'touchend',
+      handleTouchEnd
+    )
+
+    node.addEventListener(
+      'touchcancel',
+      handleTouchCancel
+    )
 
     return () => {
-      node.removeEventListener('touchstart', handleTouchStart)
-      node.removeEventListener('touchmove', handleTouchMove)
-      node.removeEventListener('touchend', handleTouchEnd)
+      node.removeEventListener(
+        'touchstart',
+        handleTouchStart
+      )
+
+      node.removeEventListener(
+        'touchmove',
+        handleTouchMove
+      )
+
+      node.removeEventListener(
+        'touchend',
+        handleTouchEnd
+      )
+
+      node.removeEventListener(
+        'touchcancel',
+        handleTouchCancel
+      )
     }
   }, [])
 
-  // -------------------------
+  // ============================================================
   // Mac Trackpad Fast Live Swipe
-  // -------------------------
+  // ============================================================
+
   useEffect(() => {
     const node = containerRef.current
+
     if (!node) return
 
     let accumulatedDeltaX = 0
     let wheelTimer = null
 
     const handleWheel = (e) => {
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) * 1.2) return
+      /*
+       * Let scrollable controls such as the progress graph
+       * handle their own horizontal wheel/trackpad scrolling.
+       */
+      if (isSwipeIgnoredTarget(e.target)) {
+        return
+      }
+
+      if (
+        Math.abs(e.deltaX) <=
+        Math.abs(e.deltaY) * 1.2
+      ) {
+        return
+      }
 
       e.preventDefault()
 
-      const containerWidth = node.clientWidth || window.innerWidth
-      const currentIndex = activeIndexRef.current
+      const containerWidth =
+        node.clientWidth || window.innerWidth
 
-      // Keep the raw accumulator undamped so repeated events keep adding up
-      // correctly; only the *visual* and *decision* deltas get resisted.
-      const rawAccumulated = accumulatedDeltaX + e.deltaX
-      const visualDeltaX = applyEdgeResistance(
-        -rawAccumulated,
-        currentIndex === 0,
-        currentIndex === PAGES.length - 1
-      )
-      accumulatedDeltaX = rawAccumulated
+      const currentIndex =
+        activeIndexRef.current
 
-      const totalTrackWidth = containerWidth * PAGES.length
-      const percentOffset = (visualDeltaX / totalTrackWidth) * 100
+      const rawAccumulated =
+        accumulatedDeltaX + e.deltaX
 
-      setIsDragging(true)
-      setDragPercent(percentOffset)
-
-      if (wheelTimer) clearTimeout(wheelTimer)
-
-      wheelTimer = setTimeout(() => {
-        const currentIndex = activeIndexRef.current
-        const deltaX = applyEdgeResistance(
-          -accumulatedDeltaX,
+      const visualDeltaX =
+        applyEdgeResistance(
+          -rawAccumulated,
           currentIndex === 0,
           currentIndex === PAGES.length - 1
         )
 
-        const passedThreshold = Math.abs(deltaX) > containerWidth * PASS_RATIO
-        const isFlick = Math.abs(deltaX) > containerWidth * FLICK_MIN_DISTANCE_RATIO
+      accumulatedDeltaX = rawAccumulated
 
-        if (passedThreshold || isFlick) {
+      const totalTrackWidth =
+        containerWidth * PAGES.length
+
+      const percentOffset =
+        (visualDeltaX / totalTrackWidth) * 100
+
+      setIsDragging(true)
+      setDragPercent(percentOffset)
+
+      if (wheelTimer) {
+        clearTimeout(wheelTimer)
+      }
+
+      wheelTimer = setTimeout(() => {
+        const currentIndex =
+          activeIndexRef.current
+
+        const deltaX =
+          applyEdgeResistance(
+            -accumulatedDeltaX,
+            currentIndex === 0,
+            currentIndex === PAGES.length - 1
+          )
+
+        const passedThreshold =
+          Math.abs(deltaX) >
+          containerWidth * PASS_RATIO
+
+        const isFlick =
+          Math.abs(deltaX) >
+          containerWidth *
+            FLICK_MIN_DISTANCE_RATIO
+
+        if (
+          passedThreshold ||
+          isFlick
+        ) {
           if (deltaX < 0) {
             goToIndex(currentIndex + 1)
           } else if (deltaX > 0) {
@@ -240,30 +408,62 @@ function SwipeDeck() {
       }, 40)
     }
 
-    node.addEventListener('wheel', handleWheel, { passive: false })
+    node.addEventListener(
+      'wheel',
+      handleWheel,
+      { passive: false }
+    )
 
     return () => {
-      node.removeEventListener('wheel', handleWheel)
-      if (wheelTimer) clearTimeout(wheelTimer)
+      node.removeEventListener(
+        'wheel',
+        handleWheel
+      )
+
+      if (wheelTimer) {
+        clearTimeout(wheelTimer)
+      }
     }
   }, [])
 
-  const baseTranslatePercent = -(activeIndex * 20)
-  const finalTranslate = baseTranslatePercent + dragPercent
+  const baseTranslatePercent =
+    -(activeIndex * 20)
+
+  const finalTranslate =
+    baseTranslatePercent + dragPercent
 
   return (
-    <div className="swipe-deck" ref={containerRef}>
+    <div
+      className="swipe-deck"
+      ref={containerRef}
+    >
       <div
-        className={`swipe-deck-track${isDragging ? ' dragging' : ''}`}
+        className={`swipe-deck-track${
+          isDragging ? ' dragging' : ''
+        }`}
         style={{
           transform: `translate3d(${finalTranslate}%, 0, 0)`,
         }}
       >
-        <div className="swipe-deck-page"><DashboardPage /></div>
-        <div className="swipe-deck-page"><HistoryPage /></div>
-        <div className="swipe-deck-page"><LogWorkoutPage /></div>
-        <div className="swipe-deck-page"><ProgressPage /></div>
-        <div className="swipe-deck-page"><SettingsPage /></div>
+        <div className="swipe-deck-page">
+          <DashboardPage />
+        </div>
+
+        <div className="swipe-deck-page">
+          <HistoryPage />
+        </div>
+
+        <div className="swipe-deck-page">
+          <LogWorkoutPage />
+        </div>
+
+        <div className="swipe-deck-page">
+          <ProgressPage />
+        </div>
+
+        <div className="swipe-deck-page">
+          <SettingsPage />
+        </div>
       </div>
     </div>
   )
