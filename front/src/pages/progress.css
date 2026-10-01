@@ -1,77 +1,253 @@
+/* =========================================================
+   PROGRESS PAGE — DESIGN SYSTEM
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --progress-ink: #111111;
+  --progress-ink-soft: #3d3d3d;
+  --progress-muted: #6b6b6f;
+
+  --progress-page-top: #f6f6f8;
+  --progress-page-bottom: #e8e8eb;
+
+  --progress-surface: rgba(255, 255, 255, 0.78);
+  --progress-surface-solid: #ffffff;
+  --progress-surface-elevated: rgba(255, 255, 255, 0.92);
+
+  --progress-input: rgba(255, 255, 255, 0.86);
+
+  --progress-border: rgba(17, 17, 17, 0.08);
+  --progress-border-strong: rgba(17, 17, 17, 0.14);
+
+  --progress-shadow:
+    0 24px 80px rgba(17, 17, 17, 0.08),
+    0 2px 8px rgba(17, 17, 17, 0.025);
+
+  --progress-shadow-soft:
+    0 12px 30px rgba(17, 17, 17, 0.06);
+
+  --progress-radius-lg: 26px;
+  --progress-radius-md: 16px;
+  --progress-radius-sm: 12px;
+
+  --progress-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --tooltip-bg: rgba(255, 255, 255, 0.97);
+
+  /* Chart */
+  --chart-axis: rgba(17, 17, 17, 0.28);
+  --chart-grid: rgba(17, 17, 17, 0.10);
+  --chart-label: #5f5f61;
+  --chart-tick: rgba(17, 17, 17, 0.28);
+  --chart-3: #64748b;
+}
+
+/* =========================================================
+   DARK THEME VARIABLES
+   ========================================================= */
+
+.dark {
+  --progress-ink: #f5f7fa;
+  --progress-ink-soft: #d2d7de;
+  --progress-muted: #969eaa;
+
+  --progress-page-top: #101216;
+  --progress-page-bottom: #0a0c0f;
+
+  --progress-surface: rgba(22, 25, 30, 0.88);
+  --progress-surface-solid: #16191e;
+  --progress-surface-elevated: #1b1f25;
+
+  --progress-input: #12151a;
+
+  --progress-border: rgba(255, 255, 255, 0.075);
+  --progress-border-strong: rgba(255, 255, 255, 0.13);
+
+  --progress-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.34),
+    0 2px 10px rgba(0, 0, 0, 0.18);
+
+  --progress-shadow-soft:
+    0 14px 34px rgba(0, 0, 0, 0.24);
+
+  --tooltip-bg: rgba(25, 28, 33, 0.98);
+
+  --chart-axis: rgba(255, 255, 255, 0.30);
+  --chart-grid: rgba(255, 255, 255, 0.11);
+  --chart-label: #b8bec7;
+  --chart-tick: rgba(255, 255, 255, 0.28);
+  --chart-3: #9aa8ba;
+}
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
 .progress-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
   padding: 32px 18px;
+  color: var(--progress-ink);
+
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.65),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      var(--progress-page-top),
+      var(--progress-page-bottom)
+    );
 }
 
 .progress-page.push {
-  background: linear-gradient(180deg, rgba(254, 242, 242, 0.96), rgba(254, 226, 226, 0.98));
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.65),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(254, 242, 242, 0.96),
+      rgba(254, 226, 226, 0.98)
+    );
 }
 
 .progress-page.pull {
-  background: linear-gradient(180deg, rgba(239, 246, 255, 0.96), rgba(219, 234, 254, 0.98));
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.65),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(239, 246, 255, 0.96),
+      rgba(219, 234, 254, 0.98)
+    );
 }
 
 .progress-page.leg {
-  background: linear-gradient(180deg, rgba(254, 249, 195, 0.96), rgba(253, 230, 138, 0.98));
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.65),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(254, 249, 195, 0.96),
+      rgba(253, 230, 138, 0.98)
+    );
 }
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
 
 .progress-card {
   width: min(100%, 1000px);
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  border-radius: 28px;
+
   padding: 28px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
+
+  background: var(--progress-surface);
+  border: 1px solid var(--progress-border);
+  border-radius: var(--progress-radius-lg);
+
+  box-shadow: var(--progress-shadow);
+
   backdrop-filter: blur(18px);
-  animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  -webkit-backdrop-filter: blur(18px);
+
+  animation: floatIn 0.5s var(--progress-ease);
 }
 
 .progress-card.push {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(254, 242, 242, 0.96));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(254, 242, 242, 0.96)
+    );
   border-color: rgba(185, 28, 28, 0.22);
 }
 
 .progress-card.pull {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(239, 246, 255, 0.96));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(239, 246, 255, 0.96)
+    );
   border-color: rgba(29, 78, 216, 0.22);
 }
 
 .progress-card.leg {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(254, 249, 195, 0.96));
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(254, 249, 195, 0.96)
+    );
   border-color: rgba(180, 132, 0, 0.24);
 }
+
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .progress-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .progress-header h1 {
   margin: 0;
-  color: #111111;
+  color: var(--progress-ink);
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
 }
 
 .eyebrow {
   display: inline-block;
+  margin-bottom: 8px;
+
   text-transform: uppercase;
   letter-spacing: 0.14em;
+
   font-size: 0.7rem;
-  color: #5f5f61;
-  margin-bottom: 8px;
+  font-weight: 700;
+
+  color: var(--progress-muted);
 }
+
+/* =========================================================
+   EXERCISE SELECT
+   ========================================================= */
 
 .exercise-select-label {
   display: flex;
   flex-direction: column;
   gap: 8px;
+
   margin-bottom: 20px;
-  color: #111111;
-  font-weight: 600;
+
+  color: var(--progress-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .custom-select {
@@ -80,30 +256,61 @@
 
 .custom-select-trigger {
   width: 100%;
-  box-sizing: border-box;
+  min-height: 46px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  background: rgba(255, 255, 255, 0.8);
-  color: #111111;
+
   padding: 12px 14px;
+
+  border: 1px solid var(--progress-border-strong);
+  border-radius: var(--progress-radius-sm);
+
+  background: var(--progress-input);
+  color: var(--progress-ink);
+
   font: inherit;
-  font-weight: 400;
+  font-weight: 500;
+
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.12s ease;
+}
+
+.custom-select-trigger:hover {
+  background: var(--progress-surface-elevated);
+}
+
+.custom-select-trigger:active {
+  transform: scale(0.995);
 }
 
 .custom-select-trigger:focus {
   outline: none;
-  border-color: rgba(17, 17, 17, 0.2);
-  box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06);
+  border-color: var(--progress-ink);
+  box-shadow:
+    0 0 0 3px rgba(17, 17, 17, 0.07);
+}
+
+.dark .custom-select-trigger:focus {
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.07);
 }
 
 .custom-select-arrow {
-  transition: transform 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   margin-left: 8px;
+
+  transition: transform 0.2s var(--progress-ease);
 }
 
 .custom-select-arrow.open {
@@ -113,123 +320,237 @@
 .custom-select-list {
   position: absolute;
   z-index: 20;
+
   top: calc(100% + 6px);
   left: 0;
   right: 0;
+
   max-height: 260px;
   overflow-y: auto;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
-  list-style: none;
+
   margin: 0;
   padding: 6px;
+
+  list-style: none;
+
+  background: var(--progress-surface-solid);
+
+  border: 1px solid var(--progress-border-strong);
+  border-radius: var(--progress-radius-sm);
+
+  box-shadow: var(--progress-shadow-soft);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .custom-select-option {
   padding: 10px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 400;
-}
 
-.custom-select-option.selected {
-  outline: 2px solid rgba(17, 17, 17, 0.3);
+  border-radius: 9px;
+
+  cursor: pointer;
+  font-weight: 500;
+
+  transition:
+    background-color 0.15s ease,
+    transform 0.1s ease;
 }
 
 .custom-select-option:hover {
-  filter: brightness(0.96);
+  filter: brightness(0.97);
 }
 
-/* Category colors — dropdown options */
+.dark .custom-select-option:hover {
+  filter: brightness(1.16);
+}
+
+.custom-select-option.selected {
+  outline: 2px solid rgba(17, 17, 17, 0.24);
+}
+
+.dark .custom-select-option.selected {
+  outline-color: rgba(255, 255, 255, 0.25);
+}
+
+/* =========================================================
+   CATEGORY SELECT COLOURS
+   ========================================================= */
+
 .option-leg {
   background-color: #fef3e2;
-  color: #b7791f;
+  color: #a66d12;
 }
 
 .option-push {
   background-color: #fee2e2;
-  color: #b91c1c;
+  color: #b42323;
 }
 
 .option-pull {
   background-color: #dbeafe;
-  color: #1d4ed8;
+  color: #2457c5;
 }
 
 .option-general {
-  background-color: #f3f4f6;
-  color: #4ade80;
+  background-color: #edf5ef;
+  color: #347d46;
 }
 
-/* Category colors — the trigger button, once an exercise is chosen */
+.dark .option-leg {
+  background-color: rgba(250, 204, 21, 0.12);
+  color: #f6d96a;
+}
+
+.dark .option-push {
+  background-color: rgba(239, 68, 68, 0.13);
+  color: #ff9696;
+}
+
+.dark .option-pull {
+  background-color: rgba(59, 130, 246, 0.13);
+  color: #82b5ff;
+}
+
+.dark .option-general {
+  background-color: rgba(57, 144, 77, 0.13);
+  color: #78d58b;
+}
+
+/* Trigger category colours */
+
 .select-leg {
   border-color: rgba(180, 132, 0, 0.5);
-  color: #b7791f;
+  color: #a66d12;
 }
 
 .select-push {
   border-color: rgba(185, 28, 28, 0.5);
-  color: #b91c1c;
+  color: #b42323;
 }
 
 .select-pull {
   border-color: rgba(29, 78, 216, 0.5);
-  color: #1d4ed8;
+  color: #2457c5;
 }
 
 .select-general {
   border-color: rgba(107, 114, 128, 0.5);
-  color: #6b7280;
+  color: #5f6670;
 }
+
+.dark .select-leg {
+  border-color: rgba(250, 204, 21, 0.34);
+  color: #f6d96a;
+}
+
+.dark .select-push {
+  border-color: rgba(248, 113, 113, 0.34);
+  color: #ff9696;
+}
+
+.dark .select-pull {
+  border-color: rgba(96, 165, 250, 0.34);
+  color: #82b5ff;
+}
+
+.dark .select-general {
+  border-color: rgba(120, 213, 139, 0.30);
+  color: #78d58b;
+}
+
+/* =========================================================
+   METRIC TOGGLE
+   ========================================================= */
 
 .metric-toggle {
   display: inline-flex;
-  margin-bottom: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  border-radius: 10px;
+
+  margin-bottom: 14px;
+
+  padding: 3px;
+
+  border: 1px solid var(--progress-border);
+  border-radius: 12px;
+
+  background: rgba(17, 17, 17, 0.035);
+
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.7);
+}
+
+.dark .metric-toggle {
+  background: rgba(255, 255, 255, 0.045);
 }
 
 .metric-toggle button {
   border: 0;
-  border-right: 1px solid rgba(17, 17, 17, 0.1);
-  background: transparent;
-  color: #4d4d4f;
-  padding: 9px 14px;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
+  border-radius: 9px;
 
-.metric-toggle button:last-child {
-  border-right: 0;
+  background: transparent;
+
+  color: var(--progress-muted);
+
+  padding: 8px 14px;
+
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.1s ease;
 }
 
 .metric-toggle button:hover {
   background: rgba(17, 17, 17, 0.06);
+  color: var(--progress-ink);
+}
+
+.dark .metric-toggle button:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--progress-ink);
 }
 
 .metric-toggle button.active {
   background: #111111;
   color: #ffffff;
+  box-shadow:
+    0 2px 6px rgba(17, 17, 17, 0.16);
 }
+
+.dark .metric-toggle button.active {
+  background: #f1f3f5;
+  color: #111318;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.28);
+}
+
+/* =========================================================
+   CHART
+   ========================================================= */
 
 .chart-box {
   width: 100%;
-  background: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  border-radius: 16px;
+
   padding: 12px;
+
   margin-bottom: 20px;
-  --tooltip-bg: rgba(255, 255, 255, 0.97);
+
+  background: rgba(255, 255, 255, 0.80);
+
+  border: 1px solid var(--progress-border);
+  border-radius: var(--progress-radius-md);
+
+  --tooltip-bg: var(--tooltip-bg);
+
+  overflow: hidden;
 }
 
 .dark .chart-box {
-  --tooltip-bg: rgba(32, 32, 30, 0.97);
+  background: rgba(18, 21, 26, 0.90);
 }
 
 .volume-chart {
@@ -239,8 +560,10 @@
 
 .chart-scroll {
   width: 100%;
+
   overflow-x: hidden;
   overflow-y: hidden;
+
   padding-bottom: 4px;
 }
 
@@ -248,14 +571,21 @@
   overflow-x: auto;
 }
 
+/* =========================================================
+   CHART FOOTER
+   ========================================================= */
+
 .chart-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 12px;
   flex-wrap: wrap;
+
   padding: 10px 6px 2px;
-  border-top: 1px solid rgba(17, 17, 17, 0.08);
+
+  border-top: 1px solid var(--progress-border);
 }
 
 .chart-legend {
@@ -263,7 +593,9 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  color: #4d4d4f;
+
+  color: var(--progress-muted);
+
   font-size: 0.82rem;
 }
 
@@ -275,14 +607,24 @@
 
 .legend-line {
   display: inline-block;
+
   width: 24px;
   height: 0;
-  border-top: 3px solid #111111;
+
+  border-top: 3px solid var(--progress-ink);
+}
+
+.actual-line {
+  border-top-color: var(--progress-ink);
 }
 
 .forecast-line {
-  border-top-color: #475569;
+  border-top-color: #64748b;
   border-top-style: dashed;
+}
+
+.dark .forecast-line {
+  border-top-color: #9aa8ba;
 }
 
 .forecast-connector {
@@ -290,83 +632,200 @@
   stroke-width: 3;
 }
 
+.dark .forecast-connector {
+  stroke: #9aa8ba;
+}
+
+/* =========================================================
+   CHART AXES / LABELS
+   ========================================================= */
+
 .chart-axis {
-  stroke: rgba(17, 17, 17, 0.28);
+  stroke: var(--chart-axis);
   stroke-width: 1;
 }
 
 .chart-grid-line {
-  stroke: rgba(17, 17, 17, 0.1);
+  stroke: var(--chart-grid);
   stroke-width: 1;
   stroke-dasharray: 3 5;
 }
 
-.chart-axis-label {
-  fill: #5f5f61;
-  font-family: system-ui, -apple-system, sans-serif;
+.chart-axis-label,
+.chart-axis-title {
+  fill: var(--chart-label);
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
   font-size: 9px;
 }
 
 .chart-axis-title {
-  fill: #5f5f61;
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 9px;
   font-weight: 600;
 }
 
 .chart-label {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+
   font-size: 11px;
-  fill: #666;
+
+  fill: var(--chart-label);
 }
 
 .chart-tick {
-  stroke: rgba(17, 17, 17, 0.28);
+  stroke: var(--chart-tick);
   stroke-width: 1;
 }
 
+/* =========================================================
+   TABLE
+   ========================================================= */
+
 .progress-table {
   width: 100%;
-  border-collapse: collapse;
-  color: #1a1a1a;
+
+  border-collapse: separate;
+  border-spacing: 0;
+
+  color: var(--progress-ink);
+
+  overflow: hidden;
+
+  border: 1px solid var(--progress-border);
+  border-radius: var(--progress-radius-md);
 }
 
 .progress-table th,
 .progress-table td {
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+
   text-align: left;
+
+  border-bottom: 1px solid var(--progress-border);
+}
+
+.progress-table th {
+  color: var(--progress-muted);
+
+  font-size: 0.76rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.progress-table td {
+  color: var(--progress-ink-soft);
+  font-size: 0.9rem;
+}
+
+.progress-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .progress-table thead {
-  background: rgba(17, 17, 17, 0.03);
+  background: rgba(17, 17, 17, 0.035);
 }
+
+.dark .progress-table thead {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.dark .progress-table td {
+  color: #d2d7de;
+}
+
+.dark .progress-table th {
+  color: #969eaa;
+}
+
+.progress-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.progress-table tbody tr:hover {
+  background: rgba(17, 17, 17, 0.025);
+}
+
+.dark .progress-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
 
 .secondary-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   padding: 11px 18px;
-  border-radius: 12px;
+
+  border-radius: var(--progress-radius-sm);
+
   text-decoration: none;
-  color: #111111;
-  background: rgba(17, 17, 17, 0.03);
-  border: 1px solid rgba(17, 17, 17, 0.08);
+
+  color: var(--progress-ink);
+
+  background: rgba(17, 17, 17, 0.035);
+
+  border: 1px solid var(--progress-border);
+
+  transition:
+    background-color 0.18s ease,
+    transform 0.1s ease;
 }
+
+.secondary-btn:hover {
+  background: rgba(17, 17, 17, 0.07);
+}
+
+.dark .secondary-btn {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.dark .secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.075);
+}
+
+/* =========================================================
+   PREDICTION TOGGLE
+   ========================================================= */
 
 .predict-toggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   padding: 10px 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  background: rgba(17, 17, 17, 0.03);
-  color: #111111;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+
   margin-left: 8px;
+
+  border-radius: var(--progress-radius-sm);
+
+  border: 1px solid var(--progress-border-strong);
+
+  background: rgba(17, 17, 17, 0.035);
+
+  color: var(--progress-ink);
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .predict-toggle:hover:not(:disabled) {
@@ -374,7 +833,15 @@
 }
 
 .predict-toggle:active:not(:disabled) {
-  background: rgba(17, 17, 17, 0.12);
+  transform: scale(0.97);
+}
+
+.dark .predict-toggle {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.dark .predict-toggle:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .predict-toggle:disabled {
@@ -382,204 +849,50 @@
   cursor: not-allowed;
 }
 
+/* =========================================================
+   STATUS / MESSAGES
+   ========================================================= */
+
 .status-message {
-  color: #4d4d4f;
+  margin: 0;
+
+  color: var(--progress-ink-soft);
+
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.dark .status-message {
+  color: #d2d7de;
 }
 
 .error-message {
   color: #dc2626;
+
   margin-top: 8px;
+
   font-size: 0.875rem;
 }
 
-@keyframes floatIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.dark .error-message {
+  color: #ff9696;
 }
 
-@media (max-width: 640px) {
-  .progress-page {
-    padding: 20px 12px;
-  }
-
-  .progress-card {
-    padding: 18px 14px;
-  }
-
-  .progress-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .secondary-btn {
-    width: 100%;
-  }
-
-  .volume-chart {
-    height: 200px;
-  }
-
-  .progress-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-}
-
-/* Dark Mode Overrides */
-.dark .progress-page {
-  background: linear-gradient(180deg, rgba(10, 10, 8, 0.9), rgba(5, 5, 3, 0.95));
-}
-
-.dark .progress-page.push {
-  background: linear-gradient(180deg, rgba(20, 10, 10, 0.96), rgba(25, 15, 15, 0.98));
-}
-
-.dark .progress-page.pull {
-  background: linear-gradient(180deg, rgba(10, 15, 25, 0.96), rgba(15, 25, 35, 0.98));
-}
-
-.dark .progress-page.leg {
-  background: linear-gradient(180deg, rgba(25, 20, 5, 0.96), rgba(30, 25, 10, 0.98));
-}
-
-.dark .progress-card {
-  background: rgba(0, 0, 0, 0.7);
-  border-color: rgba(238, 238, 238, 0.08);
-  box-shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
-}
-
-.dark .progress-card.push {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.88), rgba(20, 10, 10, 0.96));
-  border-color: rgba(239, 68, 68, 0.22);
-}
-
-.dark .progress-card.pull {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.88), rgba(10, 15, 25, 0.96));
-  border-color: rgba(59, 130, 246, 0.22);
-}
-
-.dark .progress-card.leg {
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.88), rgba(25, 20, 5, 0.96));
-  border-color: rgba(250, 204, 21, 0.24);
-}
-
-.dark .progress-header h1 {
-  color: #eeeeee;
-}
-
-.dark .eyebrow {
-  color: #858585;
-}
-
-.dark .exercise-select-label {
-  color: #eeeeee;
-}
-
-.dark .custom-select-trigger {
-  background: rgba(0, 0, 0, 0.7);
-  color: #eeeeee;
-  border-color: rgba(238, 238, 238, 0.14);
-}
-
-.dark .custom-select-trigger:focus {
-  border-color: rgba(238, 238, 238, 0.2);
-  box-shadow: 0 0 0 4px rgba(238, 238, 238, 0.06);
-}
-
-.dark .custom-select-list {
-  background: rgba(20, 20, 20, 0.96);
-  border-color: rgba(238, 238, 238, 0.14);
-}
-
-.dark .custom-select-option.selected {
-  outline-color: rgba(238, 238, 238, 0.4);
-}
-
-.dark .chart-box {
-  background: rgba(0, 0, 0, 0.5);
-  border-color: rgba(238, 238, 238, 0.08);
-}
-
-.dark .chart-footer {
-  border-top-color: rgba(238, 238, 238, 0.08);
-}
-
-.dark .chart-legend {
-  color: #b2b2b0;
-}
-
-.dark .actual-line {
-  border-top-color: #eeeeee;
-}
-
-.dark .forecast-line {
-  border-top-color: #94a3b8;
-}
-
-.dark .forecast-connector {
-  stroke: #94a3b8;
-}
-
-.dark .chart-axis {
-  stroke: rgba(238, 238, 238, 0.28);
-}
-
-.dark .chart-grid-line {
-  stroke: rgba(238, 238, 238, 0.12);
-}
-
-.dark .chart-axis-label {
-  fill: #b2b2b0;
-}
-
-.dark .chart-label {
-  fill: #b2b2b0;
-}
-
-.dark .chart-tick {
-  stroke: rgba(238, 238, 238, 0.28);
-}
-
-.dark .progress-table {
-  color: #e5e5e5;
-}
-
-.dark .progress-table th,
-.dark .progress-table td {
-  border-bottom-color: rgba(238, 238, 238, 0.08);
-}
-
-.dark .progress-table thead {
-  background: rgba(238, 238, 238, 0.03);
-}
-
-.dark .secondary-btn {
-  color: #eeeeee;
-  background: rgba(238, 238, 238, 0.03);
-  border-color: rgba(238, 238, 238, 0.08);
-}
-
-.dark .status-message {
-  color: #b2b2b0;
-}
-
-/* ===== Scrollable graph mode ===== */
+/* =========================================================
+   SCROLLABLE GRAPH MODE
+   ========================================================= */
 
 .chart-scroll-wrapper {
+  width: 100%;
+
   overflow-x: auto;
   overflow-y: hidden;
-  width: 100%;
+
   -webkit-overflow-scrolling: touch;
+
   touch-action: pan-x;
   overscroll-behavior-x: contain;
+
   scrollbar-width: none;
 }
 
@@ -593,7 +906,9 @@
 
 .chart-scroll-control {
   width: 100%;
+
   padding: 8px 4px 4px;
+
   touch-action: pan-x;
   user-select: none;
   -webkit-user-select: none;
@@ -601,16 +916,267 @@
 
 .chart-scroll-control input[type='range'] {
   display: block;
+
   width: 100%;
   height: 18px;
+
   margin: 0;
   padding: 0;
+
   cursor: ew-resize;
+
   accent-color: var(--chart-3);
+
   touch-action: pan-x;
 }
 
+/* =========================================================
+   DARK MODE — CATEGORY CARDS
+   ========================================================= */
+
+.dark .progress-page {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.035),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      #101216,
+      #0a0c0f
+    );
+}
+
+.dark .progress-page.push {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(239, 68, 68, 0.045),
+      transparent 45%
+    ),
+    linear-gradient(
+      180deg,
+      #141012,
+      #0d0a0c
+    );
+}
+
+.dark .progress-page.pull {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(59, 130, 246, 0.045),
+      transparent 45%
+    ),
+    linear-gradient(
+      180deg,
+      #10151d,
+      #0b0e13
+    );
+}
+
+.dark .progress-page.leg {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(250, 204, 21, 0.045),
+      transparent 45%
+    ),
+    linear-gradient(
+      180deg,
+      #17140c,
+      #0d0c08
+    );
+}
+
+/* =========================================================
+   DARK MODE — CARD
+   ========================================================= */
+
+.dark .progress-card {
+  background: rgba(22, 25, 30, 0.88);
+
+  border-color: rgba(255, 255, 255, 0.075);
+
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.34),
+    0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.dark .progress-card.push {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(24, 25, 30, 0.92),
+      rgba(29, 20, 22, 0.96)
+    );
+
+  border-color: rgba(248, 113, 113, 0.20);
+}
+
+.dark .progress-card.pull {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(23, 27, 34, 0.92),
+      rgba(18, 25, 34, 0.96)
+    );
+
+  border-color: rgba(96, 165, 250, 0.20);
+}
+
+.dark .progress-card.leg {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(28, 27, 23, 0.92),
+      rgba(29, 26, 16, 0.96)
+    );
+
+  border-color: rgba(250, 204, 21, 0.20);
+}
+
+/* =========================================================
+   DARK MODE — SELECT
+   ========================================================= */
+
+.dark .custom-select-trigger {
+  background: #12151a;
+  color: #f5f7fa;
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+.dark .custom-select-list {
+  background: #16191e;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* =========================================================
+   DARK MODE — CHART
+   ========================================================= */
+
+.dark .chart-box {
+  background: rgba(18, 21, 26, 0.90);
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+.dark .chart-footer {
+  border-top-color: rgba(255, 255, 255, 0.075);
+}
+
+.dark .chart-legend {
+  color: #d2d7de;
+}
+
+.dark .actual-line {
+  border-top-color: #f5f7fa;
+}
+
+/* =========================================================
+   DARK MODE — TABLE / TEXT
+   ========================================================= */
+
+.dark .progress-header h1 {
+  color: #f5f7fa;
+}
+
+.dark .eyebrow {
+  color: #969eaa;
+}
+
+.dark .exercise-select-label {
+  color: #f5f7fa;
+}
+
+.dark .chart-axis-label,
+.dark .chart-axis-title,
+.dark .chart-label {
+  fill: #b8bec7;
+}
+
+/* =========================================================
+   ANIMATION
+   ========================================================= */
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-card {
+    animation: none;
+  }
+
+  .custom-select-arrow,
+  .custom-select-trigger,
+  .metric-toggle button,
+  .secondary-btn,
+  .predict-toggle {
+    transition: none;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @media (max-width: 640px) {
+  .progress-page {
+    padding: 20px 12px;
+  }
+
+  .progress-card {
+    padding: 18px 14px;
+    border-radius: 22px;
+  }
+
+  .progress-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .progress-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .secondary-btn {
+    width: 100%;
+  }
+
+  .volume-chart {
+    height: 200px;
+  }
+
+  .metric-toggle {
+    width: 100%;
+  }
+
+  .metric-toggle button {
+    flex: 1;
+  }
+
+  .progress-table {
+    display: block;
+    overflow-x: auto;
+
+    white-space: nowrap;
+
+    border-radius: 14px;
+  }
+
   .chart-scroll-control {
     padding-top: 6px;
     padding-bottom: 4px;

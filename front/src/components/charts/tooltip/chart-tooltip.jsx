@@ -29,6 +29,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
   container,
   springConfig,
   matchCrosshair = false,
+  animateCrosshair,
   damping,
   indicatorDasharray,
   indicatorFadeEdges,
@@ -202,7 +203,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
         >
           <g transform={`translate(${margin.left},${margin.top})`}>
             <TooltipIndicator
-              animate={!discreteInteraction}
+              animate={animateCrosshair ?? !discreteInteraction}
               colorEdge={indicatorColor}
               colorMid={indicatorColor}
               columnWidth={columnWidth}
@@ -218,7 +219,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
               x={x}
             />
             <HorizontalTooltipIndicator
-              animate={!discreteInteraction}
+              animate={animateCrosshair ?? !discreteInteraction}
               colorEdge={indicatorColor}
               colorMid={indicatorColor}
               fadeEdges={

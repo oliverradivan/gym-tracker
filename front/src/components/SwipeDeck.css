@@ -8,14 +8,13 @@
 
 .swipe-deck-track {
   display: flex;
-  align-items: flex-start; /* stop pages stretching to the tallest sibling */
+  align-items: flex-start;
   width: 500%;
   height: 100%;
   transition: transform 0.5s cubic-bezier(0, 0, 0.2, 1);
   will-change: transform;
 }
 
-/* Remove transition while actively dragging for 1:1 real-time tracking */
 .swipe-deck-track.dragging {
   transition: none !important;
 }
@@ -26,5 +25,7 @@
   min-width: 0;
   height: 100%;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(96px + var(--safe-bottom));
 }

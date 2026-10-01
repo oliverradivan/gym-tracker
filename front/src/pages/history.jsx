@@ -12,6 +12,7 @@ function HistoryPage() {
   const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState('')
+  const [deletingId, setDeletingId] = useState(null)
 
   const loadSessions = async () => {
     if (!session?.access_token) return
@@ -61,6 +62,8 @@ function HistoryPage() {
       return
     }
 
+    setDeletingId(logId)
+
     try {
       const response = await fetch(`${API_URL}/workout-logs/${logId}`, {
         method: 'DELETE',
@@ -77,6 +80,8 @@ function HistoryPage() {
       setMessage('Workout deleted successfully.')
     } catch (error) {
       setMessage(error.message || 'Failed to delete workout.')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -106,22 +111,36 @@ function HistoryPage() {
                 </div>
 
                 <ul className="session-entries">
-                  {sessionItem.entries.map((entry, index) => (
-                    <li key={entry.log_id ?? entry.exercise_id ?? `${sessionItem.date}-${index}`} className={`history-entry ${getExerciseCategory(entry.exercise_name)}`}>
-                      <Link to={`/progress/${entry.exercise_id}`} className="exercise-link">{entry.exercise_name}</Link>
-                      <span>{entry.weight} kg × {entry.reps} reps</span>
-                      <div className="entry-actions">
-                        <strong>{Number(entry.volume).toFixed(1)}</strong>
-                        <button
-                          type="button"
-                          className="delete-workout-btn"
-                          onClick={() => handleDeleteWorkout(entry.log_id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </li>
-                  ))}
+                  {sessionItem.entries.map((entry, index) => {
+                    const isDeleting = deletingId === entry.log_id
+
+                    return (
+                      <li key={entry.log_id ?? entry.exercise_id ?? `${sessionItem.date}-${index}`} className={`history-entry ${getExerciseCategory(entry.exercise_name)}`}>
+                        <Link to={`/progress/${entry.exercise_id}`} className="exercise-link">{entry.exercise_name}</Link>
+                        <span>{entry.weight} kg × {entry.reps} reps</span>
+                        <div className="entry-actions">
+                          <strong>{Number(entry.volume).toFixed(1)}</strong>
+                          {/* Button and spinner share one grid cell, so they cross-fade
+                              in place without shifting the layout. */}
+                          <div className={`delete-action${isDeleting ? ' is-deleting' : ''}`}>
+                            <button
+                              type="button"
+                              className="delete-workout-btn"
+                              disabled={deletingId !== null}
+                              aria-hidden={isDeleting}
+                              tabIndex={isDeleting ? -1 : undefined}
+                              onClick={() => handleDeleteWorkout(entry.log_id)}
+                            >
+                              Delete
+                            </button>
+                            <div className="delete-spinner" aria-hidden={!isDeleting}>
+                              <LoadingSpinner size={20} />
+                            </div>
+                          </div>
+                        </div>
+                      </li>
+                    )
+                  })}
                 </ul>
               </section>
             ))}

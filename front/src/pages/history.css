@@ -1,18 +1,42 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   History Page
+   ========================================================= */
+
 .history-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, rgba(245, 245, 247, 0.9), rgba(230, 230, 232, 0.95));
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.72),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      #f6f6f8 0%,
+      #e9e9ec 100%
+    );
   padding: 32px 18px;
+  color: #111111;
 }
 
 .history-card {
   width: min(100%, 1000px);
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.78);
   border: 1px solid rgba(17, 17, 17, 0.08);
   border-radius: 28px;
   padding: 28px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 20px 60px rgba(17, 17, 17, 0.07),
+    0 2px 8px rgba(17, 17, 17, 0.025);
   backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -27,6 +51,7 @@
 .history-header h1 {
   margin: 0;
   color: #111111;
+  letter-spacing: -0.035em;
 }
 
 .eyebrow {
@@ -34,9 +59,14 @@
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.7rem;
-  color: #5f5f61;
-  margin-bottom: 8px;
+  font-weight: 600;
+  color: #6b6b6f;
+  margin: 0 0 8px;
 }
+
+/* =========================================================
+   Sessions
+   ========================================================= */
 
 .sessions-list {
   display: flex;
@@ -45,8 +75,8 @@
 }
 
 .session-block {
-  background: rgba(17, 17, 17, 0.03);
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: rgba(17, 17, 17, 0.025);
+  border: 1px solid rgba(17, 17, 17, 0.075);
   border-radius: 18px;
   padding: 20px;
 }
@@ -62,11 +92,18 @@
 .session-header-row h2 {
   margin: 0;
   color: #111111;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
 }
 
 .session-header-row span {
-  color: #4d4d4f;
+  color: #5f6065;
+  font-size: 0.88rem;
 }
+
+/* =========================================================
+   Entries
+   ========================================================= */
 
 .session-entries {
   list-style: none;
@@ -82,83 +119,172 @@
   justify-content: space-between;
   gap: 12px;
 
-  /* Green that softly fades away */
+  /* Soft green fade */
   background: linear-gradient(
     90deg,
-    rgba(74, 222, 128, 0.35) 0%,
-    rgba(74, 222, 128, 0.18) 45%,
-    rgba(74, 222, 128, 0.04) 100%
+    rgba(74, 222, 128, 0.25) 0%,
+    rgba(74, 222, 128, 0.11) 48%,
+    rgba(74, 222, 128, 0.025) 100%
   );
 
-  border: 1px solid rgba(17, 17, 17, 0.08);
+  border: 1px solid rgba(17, 17, 17, 0.07);
   border-radius: 12px;
   padding: 12px 14px;
   color: #111111;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
 }
+
+.session-entries li:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(17, 17, 17, 0.055);
+}
+
+/* =========================================================
+   Exercise Links
+   ========================================================= */
 
 .exercise-link {
   text-decoration: none;
   color: inherit;
-  font-weight: 500;
-  border-bottom: 2px solid currentColor;
+  font-weight: 600;
+  border-bottom: 1.5px solid currentColor;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .exercise-link:hover {
-  opacity: 0.7;
+  opacity: 0.68;
 }
+
+/* =========================================================
+   Category Colours
+   ========================================================= */
 
 .history-entry.push {
   background: linear-gradient(
     135deg,
-    rgba(239, 68, 68, 0.18),
-    rgba(255, 255, 255, 0.9)
+    rgba(239, 68, 68, 0.15),
+    rgba(255, 255, 255, 0.88)
   );
-  border: 1px solid rgba(185, 28, 28, 0.28);
-  color: #b91c1c;
+  border: 1px solid rgba(185, 28, 28, 0.22);
+  color: #b42323;
 }
 
 .history-entry.pull {
   background: linear-gradient(
     135deg,
-    rgba(59, 130, 246, 0.18),
-    rgba(255, 255, 255, 0.9)
+    rgba(59, 130, 246, 0.15),
+    rgba(255, 255, 255, 0.88)
   );
-  border: 1px solid rgba(29, 78, 216, 0.28);
-  color: #1d4ed8;
+  border: 1px solid rgba(29, 78, 216, 0.22);
+  color: #2457c5;
 }
 
 .history-entry.leg {
   background: linear-gradient(
     135deg,
-    rgba(250, 204, 21, 0.22),
-    rgba(255, 255, 255, 0.9)
+    rgba(250, 204, 21, 0.18),
+    rgba(255, 255, 255, 0.88)
   );
-  border: 1px solid rgba(180, 132, 0, 0.3);
-  color: #b7791f;
+  border: 1px solid rgba(180, 132, 0, 0.24);
+  color: #a66d12;
 }
 
 .entry-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
+}
+
+.entry-actions strong {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+/* =========================================================
+   Delete Button / Spinner
+   ========================================================= */
+
+/*
+  Button and spinner share one grid cell.
+  This lets them cross-fade without changing layout.
+*/
+
+.delete-action {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
 }
 
 .delete-workout-btn {
+  grid-area: 1 / 1;
   background: #f4f4f5;
-  border: 1px solid rgba(17, 17, 17, 0.1);
+  border: 1px solid rgba(17, 17, 17, 0.10);
   color: #111111;
   border-radius: 8px;
   padding: 7px 12px;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  font-weight: 600;
+
+  opacity: 1;
+  transform: scale(1);
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .delete-workout-btn:hover {
-  background: #e4e4e7;
+  background: #e8e8ea;
   border-color: rgba(17, 17, 17, 0.18);
 }
+
+.delete-workout-btn:active {
+  transform: scale(0.96);
+}
+
+.delete-workout-btn:disabled {
+  cursor: default;
+}
+
+.delete-spinner {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: none;
+}
+
+.delete-action.is-deleting .delete-workout-btn {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+
+.delete-action.is-deleting .delete-spinner {
+  opacity: 1;
+  transform: scale(1);
+  transition-delay: 0.1s;
+  pointer-events: auto;
+}
+
+/* =========================================================
+   Secondary Button
+   ========================================================= */
 
 .secondary-btn {
   display: inline-flex;
@@ -168,13 +294,34 @@
   border-radius: 12px;
   text-decoration: none;
   color: #111111;
-  background: rgba(17, 17, 17, 0.03);
+  background: rgba(17, 17, 17, 0.035);
   border: 1px solid rgba(17, 17, 17, 0.08);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s ease;
 }
 
-.status-message {
-  color: #4d4d4f;
+.secondary-btn:hover {
+  background: rgba(17, 17, 17, 0.07);
+  border-color: rgba(17, 17, 17, 0.14);
 }
+
+.secondary-btn:active {
+  transform: scale(0.98);
+}
+
+/* =========================================================
+   Status
+   ========================================================= */
+
+.status-message {
+  color: #5f6065;
+}
+
+/* =========================================================
+   Animation
+   ========================================================= */
 
 @keyframes floatIn {
   from {
@@ -188,6 +335,140 @@
   }
 }
 
+/* =========================================================
+   Dark Mode
+   ========================================================= */
+
+.dark .history-page {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.045),
+      transparent 40%
+    ),
+    linear-gradient(
+      180deg,
+      #101216 0%,
+      #0a0c0f 100%
+    );
+  color: #f3f4f6;
+}
+
+.dark .history-card {
+  background: rgba(22, 25, 30, 0.88);
+  border-color: rgba(255, 255, 255, 0.075);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.32),
+    0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.dark .history-header h1 {
+  color: #f3f4f6;
+}
+
+.dark .eyebrow {
+  color: #8e949e;
+}
+
+.dark .session-block {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+.dark .session-header-row h2 {
+  color: #f3f4f6;
+}
+
+.dark .session-header-row span {
+  color: #969da8;
+}
+
+/* Green default workout entry */
+.dark .session-entries li {
+  background: linear-gradient(
+    90deg,
+    rgba(74, 222, 128, 0.18) 0%,
+    rgba(74, 222, 128, 0.07) 48%,
+    rgba(74, 222, 128, 0.018) 100%
+  );
+  color: #e9edf1;
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+.dark .session-entries li:hover {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+.dark .exercise-link {
+  color: #f3f4f6;
+  border-bottom-color: rgba(243, 244, 246, 0.72);
+}
+
+/* Push */
+.dark .history-entry.push {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.17),
+    rgba(25, 28, 33, 0.94)
+  );
+  border-color: rgba(248, 113, 113, 0.25);
+  color: #ff9696;
+}
+
+/* Pull */
+.dark .history-entry.pull {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.17),
+    rgba(25, 28, 33, 0.94)
+  );
+  border-color: rgba(96, 165, 250, 0.26);
+  color: #82b5ff;
+}
+
+/* Legs */
+.dark .history-entry.leg {
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.16),
+    rgba(25, 28, 33, 0.94)
+  );
+  border-color: rgba(250, 204, 21, 0.25);
+  color: #f6d96a;
+}
+
+/* Delete */
+.dark .delete-workout-btn {
+  background: #1b1f25;
+  border-color: rgba(255, 255, 255, 0.10);
+  color: #e9edf1;
+}
+
+.dark .delete-workout-btn:hover {
+  background: #242932;
+  border-color: rgba(255, 255, 255, 0.17);
+}
+
+/* Secondary */
+.dark .secondary-btn {
+  color: #e9edf1;
+  background: rgba(255, 255, 255, 0.045);
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+.dark .secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.075);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.dark .status-message {
+  color: #969da8;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
 @media (max-width: 640px) {
   .history-page {
     padding: 20px 12px;
@@ -195,6 +476,7 @@
 
   .history-card {
     padding: 18px 14px;
+    border-radius: 22px;
   }
 
   .history-header,
@@ -214,112 +496,24 @@
     justify-content: space-between;
   }
 
+  .delete-action {
+    flex: 1;
+  }
+
   .delete-workout-btn,
   .secondary-btn {
     width: 100%;
   }
 }
 
-/* Dark Mode Overrides */
+@media (prefers-reduced-motion: reduce) {
+  .history-card {
+    animation: none;
+  }
 
-.dark .history-page {
-  background: linear-gradient(
-    180deg,
-    rgba(10, 10, 8, 0.9),
-    rgba(5, 5, 3, 0.95)
-  );
-}
-
-.dark .history-card {
-  background: rgba(0, 0, 0, 0.7);
-  border-color: rgba(238, 238, 238, 0.08);
-  box-shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
-}
-
-.dark .history-header h1 {
-  color: #eeeeee;
-}
-
-.dark .eyebrow {
-  color: #858585;
-}
-
-.dark .session-block {
-  background: rgba(238, 238, 238, 0.03);
-  border-color: rgba(238, 238, 238, 0.08);
-}
-
-.dark .session-header-row h2 {
-  color: #eeeeee;
-}
-
-.dark .session-header-row span {
-  color: #b2b2b0;
-}
-
-.dark .session-entries li {
-  background: linear-gradient(
-    90deg,
-    rgba(74, 222, 128, 0.3) 0%,
-    rgba(74, 222, 128, 0.14) 45%,
-    rgba(74, 222, 128, 0.02) 100%
-  );
-  color: #eeeeee;
-  border-color: rgba(238, 238, 238, 0.08);
-}
-
-.dark .exercise-link {
-  color: #eeeeee;
-  border-bottom-color: #eeeeee;
-}
-
-.dark .history-entry.push {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.25),
-    rgba(0, 0, 0, 0.7)
-  );
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #ff8787;
-}
-
-.dark .history-entry.pull {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.25),
-    rgba(0, 0, 0, 0.7)
-  );
-  border-color: rgba(59, 130, 246, 0.4);
-  color: #60a5fa;
-}
-
-.dark .history-entry.leg {
-  background: linear-gradient(
-    135deg,
-    rgba(250, 204, 21, 0.25),
-    rgba(0, 0, 0, 0.7)
-  );
-  border-color: rgba(250, 204, 21, 0.4);
-  color: #fcd34d;
-}
-
-.dark .delete-workout-btn {
-  background: #1c1c1e;
-  border-color: rgba(238, 238, 238, 0.1);
-  color: #eeeeee;
-}
-
-.dark .delete-workout-btn:hover {
-  background: #2a2a2c;
-  border-color: rgba(238, 238, 238, 0.18);
-}
-
-.dark .secondary-btn {
-  color: #eeeeee;
-  background: rgba(238, 238, 238, 0.03);
-  border-color: rgba(238, 238, 238, 0.08);
-}
-
-.dark .status-message {
-  color: #b2b2b0;
+  .session-entries li,
+  .delete-workout-btn,
+  .secondary-btn {
+    transition: none;
+  }
 }
