@@ -1,7 +1,3 @@
-/* =========================================================
-   PROGRESS PAGE — DESIGN SYSTEM
-   ========================================================= */
-
 *,
 *::before,
 *::after {
@@ -9,89 +5,134 @@
 }
 
 :root {
-  --progress-ink: #111111;
-  --progress-ink-soft: #3d3d3d;
-  --progress-muted: #6b6b6f;
+  /* -------------------------------------------------------
+     CORE
+     ------------------------------------------------------- */
 
-  --progress-page-top: #f6f6f8;
-  --progress-page-bottom: #e8e8eb;
+  --progress-ink: #111214;
+  --progress-ink-soft: #3f4146;
+  --progress-muted: #777a80;
+  --progress-faint: #a1a4aa;
 
-  --progress-surface: rgba(255, 255, 255, 0.78);
+  --progress-page-top: #f7f7f8;
+  --progress-page-bottom: #ececee;
+
+  --progress-surface: rgba(255, 255, 255, 0.84);
   --progress-surface-solid: #ffffff;
-  --progress-surface-elevated: rgba(255, 255, 255, 0.92);
+  --progress-surface-soft: rgba(248, 248, 249, 0.92);
 
-  --progress-input: rgba(255, 255, 255, 0.86);
+  --progress-input: rgba(255, 255, 255, 0.92);
 
-  --progress-border: rgba(17, 17, 17, 0.08);
-  --progress-border-strong: rgba(17, 17, 17, 0.14);
+  --progress-border: rgba(17, 18, 20, 0.075);
+  --progress-border-strong: rgba(17, 18, 20, 0.13);
 
   --progress-shadow:
-    0 24px 80px rgba(17, 17, 17, 0.08),
-    0 2px 8px rgba(17, 17, 17, 0.025);
+    0 30px 90px rgba(17, 18, 20, 0.075),
+    0 8px 24px rgba(17, 18, 20, 0.035);
 
   --progress-shadow-soft:
-    0 12px 30px rgba(17, 17, 17, 0.06);
+    0 12px 32px rgba(17, 18, 20, 0.055);
 
-  --progress-radius-lg: 26px;
+  --progress-radius-xl: 30px;
+  --progress-radius-lg: 22px;
   --progress-radius-md: 16px;
   --progress-radius-sm: 12px;
 
   --progress-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
+  /* -------------------------------------------------------
+     CATEGORY ACCENTS
+     ------------------------------------------------------- */
+
+  --push-color: #d94848;
+  --push-soft: rgba(217, 72, 72, 0.10);
+  --push-border: rgba(217, 72, 72, 0.22);
+
+  --pull-color: #3976d8;
+  --pull-soft: rgba(57, 118, 216, 0.10);
+  --pull-border: rgba(57, 118, 216, 0.22);
+
+  --leg-color: #b98520;
+  --leg-soft: rgba(185, 133, 32, 0.11);
+  --leg-border: rgba(185, 133, 32, 0.24);
+
+  --general-color: #4d9560;
+  --general-soft: rgba(77, 149, 96, 0.10);
+  --general-border: rgba(77, 149, 96, 0.22);
+
+  /* -------------------------------------------------------
+     CHART
+     ------------------------------------------------------- */
+
+  --chart-axis: rgba(17, 18, 20, 0.20);
+  --chart-grid: rgba(17, 18, 20, 0.075);
+  --chart-label: #777a80;
+  --chart-tick: rgba(17, 18, 20, 0.20);
+
+  --chart-3: #7a8492;
+
   --tooltip-bg: rgba(255, 255, 255, 0.97);
 
-  /* Chart */
-  --chart-axis: rgba(17, 17, 17, 0.28);
-  --chart-grid: rgba(17, 17, 17, 0.10);
-  --chart-label: #5f5f61;
-  --chart-tick: rgba(17, 17, 17, 0.28);
-  --chart-3: #64748b;
+  --chart-tooltip-foreground: #111214;
+  --chart-tooltip-muted: #777a80;
 }
 
 /* =========================================================
-   DARK THEME VARIABLES
+   DARK THEME
    ========================================================= */
 
 .dark {
-  --progress-ink: #f5f7fa;
-  --progress-ink-soft: #d2d7de;
-  --progress-muted: #969eaa;
+  --progress-ink: #f4f5f7;
+  --progress-ink-soft: #d2d5da;
+  --progress-muted: #9499a2;
+  --progress-faint: #696e77;
 
-  --progress-page-top: #101216;
-  --progress-page-bottom: #0a0c0f;
+  --progress-page-top: #111316;
+  --progress-page-bottom: #0b0d10;
 
-  --progress-surface: rgba(22, 25, 30, 0.88);
-  --progress-surface-solid: #16191e;
-  --progress-surface-elevated: #1b1f25;
+  --progress-surface: rgba(23, 26, 31, 0.90);
+  --progress-surface-solid: #181b20;
+  --progress-surface-soft: rgba(28, 31, 36, 0.92);
 
-  --progress-input: #12151a;
+  --progress-input: rgba(18, 21, 25, 0.94);
 
   --progress-border: rgba(255, 255, 255, 0.075);
   --progress-border-strong: rgba(255, 255, 255, 0.13);
 
   --progress-shadow:
-    0 24px 70px rgba(0, 0, 0, 0.34),
-    0 2px 10px rgba(0, 0, 0, 0.18);
+    0 32px 90px rgba(0, 0, 0, 0.34),
+    0 8px 24px rgba(0, 0, 0, 0.20);
 
   --progress-shadow-soft:
-    0 14px 34px rgba(0, 0, 0, 0.24);
+    0 14px 36px rgba(0, 0, 0, 0.24);
 
   --tooltip-bg: rgba(25, 28, 33, 0.98);
 
-  --chart-axis: rgba(255, 255, 255, 0.30);
-  --chart-grid: rgba(255, 255, 255, 0.11);
-  --chart-label: #b8bec7;
-  --chart-tick: rgba(255, 255, 255, 0.28);
-  --chart-3: #9aa8ba;
+  --chart-axis: rgba(255, 255, 255, 0.24);
+  --chart-grid: rgba(255, 255, 255, 0.075);
+  --chart-label: #989ea8;
+  --chart-tick: rgba(255, 255, 255, 0.22);
+
+  --chart-3: #9aa4b2;
+
+  --chart-tooltip-foreground: #f4f5f7;
+  --chart-tooltip-muted: #aeb4bd;
+}
+
+.dark .progress-page {
+  --chart-tooltip-foreground: #f4f5f7;
+  --chart-tooltip-muted: #aeb4bd;
 }
 
 /* =========================================================
-   PAGE
+   PAGE BACKGROUND
    ========================================================= */
 
 .progress-page {
   min-height: 100vh;
-  padding: 32px 18px;
+
+  padding: 34px 20px 56px;
+
   color: var(--progress-ink);
 
   background:
@@ -105,7 +146,15 @@
       var(--progress-page-top),
       var(--progress-page-bottom)
     );
+
+  transition:
+    background 0.35s ease,
+    color 0.25s ease;
 }
+
+/* ---------------------------------------------------------
+   PUSH — SOFT RED
+   --------------------------------------------------------- */
 
 .progress-page.push {
   background:
@@ -121,6 +170,10 @@
     );
 }
 
+/* ---------------------------------------------------------
+   PULL — SOFT BLUE
+   --------------------------------------------------------- */
+
 .progress-page.pull {
   background:
     radial-gradient(
@@ -134,6 +187,10 @@
       rgba(219, 234, 254, 0.98)
     );
 }
+
+/* ---------------------------------------------------------
+   LEGS — SOFT YELLOW
+   --------------------------------------------------------- */
 
 .progress-page.leg {
   background:
@@ -149,56 +206,93 @@
     );
 }
 
+/* ---------------------------------------------------------
+   GENERAL — SOFT GREEN
+   --------------------------------------------------------- */
+
+.progress-page.general {
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(255, 255, 255, 0.65),
+      transparent 42%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(239, 248, 241, 0.96),
+      rgba(220, 239, 224, 0.98)
+    );
+}
+
 /* =========================================================
    MAIN CARD
    ========================================================= */
 
 .progress-card {
-  width: min(100%, 1000px);
+  position: relative;
+
+  width: min(100%, 1080px);
+
   margin: 0 auto;
 
-  padding: 28px;
+  padding: 34px;
 
   background: var(--progress-surface);
+
   border: 1px solid var(--progress-border);
-  border-radius: var(--progress-radius-lg);
+
+  border-radius: var(--progress-radius-xl);
 
   box-shadow: var(--progress-shadow);
 
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
 
-  animation: floatIn 0.5s var(--progress-ease);
+  overflow: visible;
+
+  animation: progressFloatIn 0.55s var(--progress-ease);
 }
 
+/* Subtle top highlight */
+
+.progress-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 10%;
+  right: 10%;
+
+  height: 1px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  opacity: 0.7;
+
+  pointer-events: none;
+}
+
+.dark .progress-card::before {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Category border */
+
 .progress-card.push {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(254, 242, 242, 0.96)
-    );
-  border-color: rgba(185, 28, 28, 0.22);
+  border-color: rgba(217, 72, 72, 0.16);
 }
 
 .progress-card.pull {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(239, 246, 255, 0.96)
-    );
-  border-color: rgba(29, 78, 216, 0.22);
+  border-color: rgba(57, 118, 216, 0.16);
 }
 
 .progress-card.leg {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(254, 249, 195, 0.96)
-    );
-  border-color: rgba(180, 132, 0, 0.24);
+  border-color: rgba(185, 133, 32, 0.18);
+}
+
+.progress-card.general {
+  border-color: rgba(77, 149, 96, 0.16);
 }
 
 /* =========================================================
@@ -207,679 +301,499 @@
 
 .progress-header {
   display: flex;
-  align-items: center;
+
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
+
+  gap: 20px;
+
+  margin-bottom: 28px;
 }
 
 .progress-header h1 {
   margin: 0;
+
   color: var(--progress-ink);
-  font-size: clamp(1.7rem, 3vw, 2.2rem);
-  line-height: 1.1;
-  letter-spacing: -0.025em;
+
+  font-size: clamp(2rem, 4vw, 2.65rem);
+
+  font-weight: 750;
+
+  line-height: 1.02;
+
+  letter-spacing: -0.045em;
 }
 
 .eyebrow {
-  display: inline-block;
-  margin-bottom: 8px;
+  display: block;
 
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-
-  font-size: 0.7rem;
-  font-weight: 700;
+  margin: 0 0 9px;
 
   color: var(--progress-muted);
+
+  font-size: 0.68rem;
+
+  font-weight: 750;
+
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.16em;
 }
 
 /* =========================================================
-   EXERCISE SELECT
+   EXERCISE SELECTOR
    ========================================================= */
 
 .exercise-select-label {
   display: flex;
+
   flex-direction: column;
-  gap: 8px;
 
-  margin-bottom: 20px;
+  gap: 9px;
 
-  color: var(--progress-ink);
-  font-size: 0.82rem;
-  font-weight: 700;
+  margin: 0 0 28px;
+
+  color: var(--progress-muted);
+
+  font-size: 0.70rem;
+
+  font-weight: 750;
+
+  line-height: 1;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.11em;
 }
 
 .custom-select {
   position: relative;
+
+  width: 100%;
 }
 
 .custom-select-trigger {
+  position: relative;
+
   width: 100%;
-  min-height: 46px;
+
+  min-height: 58px;
 
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
 
-  padding: 12px 14px;
+  gap: 16px;
 
-  border: 1px solid var(--progress-border-strong);
-  border-radius: var(--progress-radius-sm);
+  padding: 15px 18px;
 
-  background: var(--progress-input);
   color: var(--progress-ink);
 
+  background: var(--progress-input);
+
+  border: 1px solid var(--progress-border-strong);
+
+  border-radius: var(--progress-radius-md);
+
+  box-shadow:
+    0 2px 5px rgba(17, 18, 20, 0.025),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+
   font: inherit;
-  font-weight: 500;
+
+  font-size: 0.98rem;
+
+  font-weight: 650;
+
+  text-align: left;
 
   cursor: pointer;
 
   transition:
     border-color 0.2s ease,
+    background 0.2s ease,
     box-shadow 0.2s ease,
-    background-color 0.2s ease,
-    transform 0.12s ease;
+    transform 0.14s ease;
 }
 
 .custom-select-trigger:hover {
-  background: var(--progress-surface-elevated);
+  background: var(--progress-surface-solid);
+
+  box-shadow:
+    0 5px 16px rgba(17, 18, 20, 0.045),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .custom-select-trigger:active {
-  transform: scale(0.995);
+  transform: scale(0.998);
 }
 
-.custom-select-trigger:focus {
+.custom-select-trigger:focus-visible {
   outline: none;
+
   border-color: var(--progress-ink);
+
   box-shadow:
-    0 0 0 3px rgba(17, 17, 17, 0.07);
+    0 0 0 4px rgba(17, 18, 20, 0.065),
+    0 5px 16px rgba(17, 18, 20, 0.045);
 }
 
-.dark .custom-select-trigger:focus {
-  border-color: rgba(255, 255, 255, 0.28);
+.dark .custom-select-trigger:focus-visible {
+  border-color: rgba(255, 255, 255, 0.36);
+
   box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.07);
+    0 0 0 4px rgba(255, 255, 255, 0.075),
+    0 6px 18px rgba(0, 0, 0, 0.25);
 }
 
 .custom-select-arrow {
+  flex: 0 0 auto;
+
+  width: 30px;
+  height: 30px;
+
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
-  margin-left: 8px;
+  color: var(--progress-muted);
 
-  transition: transform 0.2s var(--progress-ease);
+  background: rgba(17, 18, 20, 0.045);
+
+  border-radius: 9px;
+
+  transition:
+    transform 0.25s var(--progress-ease),
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.dark .custom-select-arrow {
+  background: rgba(255, 255, 255, 0.055);
 }
 
 .custom-select-arrow.open {
   transform: rotate(180deg);
+
+  color: var(--progress-ink);
 }
+
+/* =========================================================
+   CATEGORY SELECT ACCENTS
+   ========================================================= */
+
+.select-push {
+  border-color: var(--push-border);
+
+  color: var(--push-color);
+}
+
+.select-pull {
+  border-color: var(--pull-border);
+
+  color: var(--pull-color);
+}
+
+.select-leg {
+  border-color: var(--leg-border);
+
+  color: var(--leg-color);
+}
+
+.select-general {
+  border-color: var(--general-border);
+
+  color: var(--general-color);
+}
+
+/* =========================================================
+   DROPDOWN
+   ========================================================= */
 
 .custom-select-list {
   position: absolute;
-  z-index: 20;
 
-  top: calc(100% + 6px);
+  z-index: 50;
+
+  top: calc(100% + 8px);
+
   left: 0;
   right: 0;
 
-  max-height: 260px;
+  max-height: 310px;
+
   overflow-y: auto;
 
   margin: 0;
-  padding: 6px;
+
+  padding: 7px;
 
   list-style: none;
 
   background: var(--progress-surface-solid);
 
   border: 1px solid var(--progress-border-strong);
-  border-radius: var(--progress-radius-sm);
 
-  box-shadow: var(--progress-shadow-soft);
+  border-radius: var(--progress-radius-md);
 
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 22px 50px rgba(17, 18, 20, 0.12),
+    0 5px 14px rgba(17, 18, 20, 0.045);
+
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  animation: dropdownIn 0.18s var(--progress-ease);
 }
 
 .custom-select-option {
-  padding: 10px 12px;
+  min-height: 43px;
 
-  border-radius: 9px;
+  display: flex;
+
+  align-items: center;
+
+  padding: 10px 13px;
+
+  border-radius: 10px;
+
+  color: var(--progress-ink-soft);
+
+  font-size: 0.9rem;
+
+  font-weight: 600;
 
   cursor: pointer;
-  font-weight: 500;
 
   transition:
     background-color 0.15s ease,
-    transform 0.1s ease;
+    color 0.15s ease,
+    transform 0.12s ease;
 }
 
 .custom-select-option:hover {
-  filter: brightness(0.97);
-}
-
-.dark .custom-select-option:hover {
-  filter: brightness(1.16);
+  transform: translateX(2px);
 }
 
 .custom-select-option.selected {
-  outline: 2px solid rgba(17, 17, 17, 0.24);
+  outline: 2px solid rgba(17, 18, 20, 0.14);
+
+  outline-offset: -2px;
+
+  font-weight: 700;
 }
 
 .dark .custom-select-option.selected {
-  outline-color: rgba(255, 255, 255, 0.25);
+  outline-color: rgba(255, 255, 255, 0.16);
 }
 
-/* =========================================================
-   CATEGORY SELECT COLOURS
-   ========================================================= */
-
-.option-leg {
-  background-color: #fef3e2;
-  color: #a66d12;
-}
+/* ---------------------------------------------------------
+   DROPDOWN CATEGORY COLORS
+   --------------------------------------------------------- */
 
 .option-push {
-  background-color: #fee2e2;
-  color: #b42323;
+  background: var(--push-soft);
+
+  color: #b83d3d;
 }
 
 .option-pull {
-  background-color: #dbeafe;
-  color: #2457c5;
+  background: var(--pull-soft);
+
+  color: #3168bd;
+}
+
+.option-leg {
+  background: var(--leg-soft);
+
+  color: #9a6e1b;
 }
 
 .option-general {
-  background-color: #edf5ef;
-  color: #347d46;
+  background: var(--general-soft);
+
+  color: #417c50;
 }
 
-.dark .option-leg {
-  background-color: rgba(250, 204, 21, 0.12);
-  color: #f6d96a;
+.option-push:hover {
+  background: rgba(217, 72, 72, 0.15);
 }
 
-.dark .option-push {
-  background-color: rgba(239, 68, 68, 0.13);
-  color: #ff9696;
+.option-pull:hover {
+  background: rgba(57, 118, 216, 0.15);
 }
 
-.dark .option-pull {
-  background-color: rgba(59, 130, 246, 0.13);
-  color: #82b5ff;
+.option-leg:hover {
+  background: rgba(185, 133, 32, 0.16);
 }
 
-.dark .option-general {
-  background-color: rgba(57, 144, 77, 0.13);
-  color: #78d58b;
-}
-
-/* Trigger category colours */
-
-.select-leg {
-  border-color: rgba(180, 132, 0, 0.5);
-  color: #a66d12;
-}
-
-.select-push {
-  border-color: rgba(185, 28, 28, 0.5);
-  color: #b42323;
-}
-
-.select-pull {
-  border-color: rgba(29, 78, 216, 0.5);
-  color: #2457c5;
-}
-
-.select-general {
-  border-color: rgba(107, 114, 128, 0.5);
-  color: #5f6670;
-}
-
-.dark .select-leg {
-  border-color: rgba(250, 204, 21, 0.34);
-  color: #f6d96a;
-}
-
-.dark .select-push {
-  border-color: rgba(248, 113, 113, 0.34);
-  color: #ff9696;
-}
-
-.dark .select-pull {
-  border-color: rgba(96, 165, 250, 0.34);
-  color: #82b5ff;
-}
-
-.dark .select-general {
-  border-color: rgba(120, 213, 139, 0.30);
-  color: #78d58b;
+.option-general:hover {
+  background: rgba(77, 149, 96, 0.15);
 }
 
 /* =========================================================
-   METRIC TOGGLE
+   METRIC CONTROL
    ========================================================= */
 
 .metric-toggle {
+  width: fit-content;
+
   display: inline-flex;
 
-  margin-bottom: 14px;
+  align-items: center;
 
-  padding: 3px;
+  gap: 2px;
+
+  margin: 0 0 16px;
+
+  padding: 4px;
+
+  background: rgba(17, 18, 20, 0.045);
 
   border: 1px solid var(--progress-border);
-  border-radius: 12px;
 
-  background: rgba(17, 17, 17, 0.035);
+  border-radius: 13px;
+
+  box-shadow: inset 0 1px 2px rgba(17, 18, 20, 0.025);
 
   overflow: hidden;
 }
 
 .dark .metric-toggle {
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba(255, 255, 255, 0.055);
+
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.20);
 }
 
 .metric-toggle button {
+  min-width: 86px;
+
+  min-height: 38px;
+
+  padding: 8px 15px;
+
   border: 0;
+
   border-radius: 9px;
 
   background: transparent;
 
   color: var(--progress-muted);
 
-  padding: 8px 14px;
-
   font: inherit;
-  font-size: 0.85rem;
+
+  font-size: 0.82rem;
+
   font-weight: 700;
 
   cursor: pointer;
 
   transition:
-    background-color 0.18s ease,
     color 0.18s ease,
-    transform 0.1s ease;
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.12s ease;
 }
 
 .metric-toggle button:hover {
-  background: rgba(17, 17, 17, 0.06);
   color: var(--progress-ink);
+
+  background: rgba(17, 18, 20, 0.055);
 }
 
 .dark .metric-toggle button:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--progress-ink);
+  background: rgba(255, 255, 255, 0.065);
+}
+
+.metric-toggle button:active {
+  transform: scale(0.98);
 }
 
 .metric-toggle button.active {
-  background: #111111;
   color: #ffffff;
+
+  background: #17181a;
+
   box-shadow:
-    0 2px 6px rgba(17, 17, 17, 0.16);
+    0 3px 8px rgba(17, 18, 20, 0.17),
+    0 1px 2px rgba(17, 18, 20, 0.12);
 }
 
 .dark .metric-toggle button.active {
-  background: #f1f3f5;
-  color: #111318;
+  color: #111214;
+
+  background: #f2f3f4;
+
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.28);
+    0 3px 9px rgba(0, 0, 0, 0.30);
 }
 
 /* =========================================================
-   CHART
+   CHART CONTAINER
    ========================================================= */
 
 .chart-box {
+  position: relative;
+
   width: 100%;
 
-  padding: 12px;
+  margin: 0 0 26px;
 
-  margin-bottom: 20px;
+  padding: 18px 18px 13px;
 
-  background: rgba(255, 255, 255, 0.80);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.92),
+      rgba(250, 250, 251, 0.84)
+    );
 
   border: 1px solid var(--progress-border);
-  border-radius: var(--progress-radius-md);
 
-  --tooltip-bg: var(--tooltip-bg);
+  border-radius: var(--progress-radius-lg);
+
+  box-shadow:
+    0 8px 24px rgba(17, 18, 20, 0.025),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
 
   overflow: hidden;
+
+  --tooltip-bg: var(--tooltip-bg);
 }
 
 .dark .chart-box {
-  background: rgba(18, 21, 26, 0.90);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(28, 31, 36, 0.94),
+      rgba(20, 23, 28, 0.94)
+    );
+
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+/* Give the chart visual breathing room */
+
+.chart-box > .chart-scroll-wrapper,
+.chart-box > .visx-xychart {
+  min-height: 390px;
 }
 
 .volume-chart {
-  height: 220px;
+  height: 390px;
+
   display: block;
 }
 
-.chart-scroll {
-  width: 100%;
-
-  overflow-x: hidden;
-  overflow-y: hidden;
-
-  padding-bottom: 4px;
-}
-
-.chart-scroll.is-scrollable {
-  overflow-x: auto;
-}
-
 /* =========================================================
-   CHART FOOTER
-   ========================================================= */
-
-.chart-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 12px;
-  flex-wrap: wrap;
-
-  padding: 10px 6px 2px;
-
-  border-top: 1px solid var(--progress-border);
-}
-
-.chart-legend {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-
-  color: var(--progress-muted);
-
-  font-size: 0.82rem;
-}
-
-.legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.legend-line {
-  display: inline-block;
-
-  width: 24px;
-  height: 0;
-
-  border-top: 3px solid var(--progress-ink);
-}
-
-.actual-line {
-  border-top-color: var(--progress-ink);
-}
-
-.forecast-line {
-  border-top-color: #64748b;
-  border-top-style: dashed;
-}
-
-.dark .forecast-line {
-  border-top-color: #9aa8ba;
-}
-
-.forecast-connector {
-  stroke: #64748b;
-  stroke-width: 3;
-}
-
-.dark .forecast-connector {
-  stroke: #9aa8ba;
-}
-
-/* =========================================================
-   CHART AXES / LABELS
-   ========================================================= */
-
-.chart-axis {
-  stroke: var(--chart-axis);
-  stroke-width: 1;
-}
-
-.chart-grid-line {
-  stroke: var(--chart-grid);
-  stroke-width: 1;
-  stroke-dasharray: 3 5;
-}
-
-.chart-axis-label,
-.chart-axis-title {
-  fill: var(--chart-label);
-
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-
-  font-size: 9px;
-}
-
-.chart-axis-title {
-  font-weight: 600;
-}
-
-.chart-label {
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
-
-  font-size: 11px;
-
-  fill: var(--chart-label);
-}
-
-.chart-tick {
-  stroke: var(--chart-tick);
-  stroke-width: 1;
-}
-
-/* =========================================================
-   TABLE
-   ========================================================= */
-
-.progress-table {
-  width: 100%;
-
-  border-collapse: separate;
-  border-spacing: 0;
-
-  color: var(--progress-ink);
-
-  overflow: hidden;
-
-  border: 1px solid var(--progress-border);
-  border-radius: var(--progress-radius-md);
-}
-
-.progress-table th,
-.progress-table td {
-  padding: 12px 14px;
-
-  text-align: left;
-
-  border-bottom: 1px solid var(--progress-border);
-}
-
-.progress-table th {
-  color: var(--progress-muted);
-
-  font-size: 0.76rem;
-  font-weight: 700;
-
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.progress-table td {
-  color: var(--progress-ink-soft);
-  font-size: 0.9rem;
-}
-
-.progress-table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.progress-table thead {
-  background: rgba(17, 17, 17, 0.035);
-}
-
-.dark .progress-table thead {
-  background: rgba(255, 255, 255, 0.045);
-}
-
-.dark .progress-table td {
-  color: #d2d7de;
-}
-
-.dark .progress-table th {
-  color: #969eaa;
-}
-
-.progress-table tbody tr {
-  transition: background-color 0.15s ease;
-}
-
-.progress-table tbody tr:hover {
-  background: rgba(17, 17, 17, 0.025);
-}
-
-.dark .progress-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.035);
-}
-
-/* =========================================================
-   SECONDARY BUTTON
-   ========================================================= */
-
-.secondary-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 11px 18px;
-
-  border-radius: var(--progress-radius-sm);
-
-  text-decoration: none;
-
-  color: var(--progress-ink);
-
-  background: rgba(17, 17, 17, 0.035);
-
-  border: 1px solid var(--progress-border);
-
-  transition:
-    background-color 0.18s ease,
-    transform 0.1s ease;
-}
-
-.secondary-btn:hover {
-  background: rgba(17, 17, 17, 0.07);
-}
-
-.dark .secondary-btn {
-  background: rgba(255, 255, 255, 0.045);
-}
-
-.dark .secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.075);
-}
-
-/* =========================================================
-   PREDICTION TOGGLE
-   ========================================================= */
-
-.predict-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 10px 16px;
-
-  margin-left: 8px;
-
-  border-radius: var(--progress-radius-sm);
-
-  border: 1px solid var(--progress-border-strong);
-
-  background: rgba(17, 17, 17, 0.035);
-
-  color: var(--progress-ink);
-
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.1s ease;
-}
-
-.predict-toggle:hover:not(:disabled) {
-  background: rgba(17, 17, 17, 0.08);
-}
-
-.predict-toggle:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.dark .predict-toggle {
-  background: rgba(255, 255, 255, 0.045);
-}
-
-.dark .predict-toggle:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.predict-toggle:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* =========================================================
-   STATUS / MESSAGES
-   ========================================================= */
-
-.status-message {
-  margin: 0;
-
-  color: var(--progress-ink-soft);
-
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.dark .status-message {
-  color: #d2d7de;
-}
-
-.error-message {
-  color: #dc2626;
-
-  margin-top: 8px;
-
-  font-size: 0.875rem;
-}
-
-.dark .error-message {
-  color: #ff9696;
-}
-
-/* =========================================================
-   SCROLLABLE GRAPH MODE
+   MOBILE CHART SCROLLING
    ========================================================= */
 
 .chart-scroll-wrapper {
@@ -891,6 +805,7 @@
   -webkit-overflow-scrolling: touch;
 
   touch-action: pan-x;
+
   overscroll-behavior-x: contain;
 
   scrollbar-width: none;
@@ -904,23 +819,155 @@
   pointer-events: none;
 }
 
+/* =========================================================
+   CHART FOOTER
+   ========================================================= */
+
+.chart-footer {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  flex-wrap: wrap;
+
+  min-height: 38px;
+
+  padding: 11px 5px 2px;
+
+  border-top: 1px solid var(--progress-border);
+}
+
+.chart-legend {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  flex-wrap: wrap;
+
+  color: var(--progress-muted);
+
+  font-size: 0.76rem;
+
+  font-weight: 600;
+}
+
+.legend-item {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.legend-line {
+  width: 25px;
+
+  height: 0;
+
+  display: inline-block;
+
+  border-top-width: 3px;
+
+  border-top-style: solid;
+
+  border-radius: 999px;
+}
+
+.actual-line {
+  border-top-color: var(--progress-ink);
+}
+
+.forecast-line {
+  border-top-color: var(--chart-3);
+
+  border-top-style: dashed;
+}
+
+/* =========================================================
+   CHART AXES
+   ========================================================= */
+
+.chart-axis {
+  stroke: var(--chart-axis);
+
+  stroke-width: 1;
+}
+
+.chart-grid-line {
+  stroke: var(--chart-grid);
+
+  stroke-width: 1;
+
+  stroke-dasharray: 3 6;
+}
+
+.chart-axis-label,
+.chart-axis-title {
+  fill: var(--chart-label);
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  font-size: 9px;
+}
+
+.chart-axis-title {
+  font-weight: 650;
+}
+
+.chart-label {
+  fill: var(--chart-label);
+
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  font-size: 11px;
+}
+
+.chart-tick {
+  stroke: var(--chart-tick);
+
+  stroke-width: 1;
+}
+
+/* =========================================================
+   GRAPH SCROLL CONTROL
+   ========================================================= */
+
 .chart-scroll-control {
   width: 100%;
 
-  padding: 8px 4px 4px;
+  padding: 8px 5px 3px;
 
   touch-action: pan-x;
+
   user-select: none;
+
   -webkit-user-select: none;
 }
 
-.chart-scroll-control input[type='range'] {
+.chart-scroll-control input[type="range"] {
   display: block;
 
   width: 100%;
-  height: 18px;
+
+  height: 16px;
 
   margin: 0;
+
   padding: 0;
 
   cursor: ew-resize;
@@ -931,7 +978,261 @@
 }
 
 /* =========================================================
-   DARK MODE — CATEGORY CARDS
+   HISTORY TABLE
+   ========================================================= */
+
+.progress-table {
+  width: 100%;
+
+  border-collapse: separate;
+
+  border-spacing: 0;
+
+  color: var(--progress-ink);
+
+  background: var(--progress-surface-soft);
+
+  border: 1px solid var(--progress-border);
+
+  border-radius: var(--progress-radius-lg);
+
+  overflow: hidden;
+
+  box-shadow:
+    0 4px 16px rgba(17, 18, 20, 0.018);
+}
+
+.progress-table th,
+.progress-table td {
+  padding: 14px 17px;
+
+  text-align: left;
+
+  border-bottom: 1px solid var(--progress-border);
+}
+
+.progress-table th {
+  color: var(--progress-muted);
+
+  background: rgba(17, 18, 20, 0.022);
+
+  font-size: 0.67rem;
+
+  font-weight: 750;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.09em;
+}
+
+.dark .progress-table th {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.progress-table td {
+  color: var(--progress-ink-soft);
+
+  font-size: 0.88rem;
+
+  font-weight: 520;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-table tbody tr {
+  transition:
+    background-color 0.16s ease,
+    transform 0.16s ease;
+}
+
+.progress-table tbody tr:hover {
+  background: rgba(17, 18, 20, 0.028);
+}
+
+.dark .progress-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.progress-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.dark .progress-table td {
+  color: #d3d7dd;
+}
+
+.dark .progress-table th {
+  color: #9298a2;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-message {
+  margin: 0;
+
+  padding: 18px 2px;
+
+  color: var(--progress-ink-soft);
+
+  font-size: 0.9rem;
+
+  line-height: 1.55;
+}
+
+.error-message {
+  margin-top: 4px;
+
+  color: #c93636;
+
+  font-size: 0.82rem;
+}
+
+.dark .error-message {
+  color: #ff8d8d;
+}
+
+/* =========================================================
+   SECONDARY BUTTON
+   ========================================================= */
+
+.secondary-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 44px;
+
+  padding: 10px 17px;
+
+  color: var(--progress-ink);
+
+  background: rgba(17, 18, 20, 0.045);
+
+  border: 1px solid var(--progress-border);
+
+  border-radius: var(--progress-radius-sm);
+
+  text-decoration: none;
+
+  font-weight: 650;
+
+  transition:
+    background 0.18s ease,
+    transform 0.12s ease,
+    box-shadow 0.18s ease;
+}
+
+.secondary-btn:hover {
+  background: rgba(17, 18, 20, 0.075);
+
+  box-shadow: var(--progress-shadow-soft);
+}
+
+.secondary-btn:active {
+  transform: scale(0.98);
+}
+
+.dark .secondary-btn {
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.dark .secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.085);
+}
+
+/* =========================================================
+   PREDICTION TOGGLE
+   ========================================================= */
+
+.predict-toggle {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 9px 15px;
+
+  margin-left: 8px;
+
+  color: var(--progress-ink);
+
+  background: rgba(17, 18, 20, 0.045);
+
+  border: 1px solid var(--progress-border-strong);
+
+  border-radius: var(--progress-radius-sm);
+
+  font: inherit;
+
+  font-size: 0.82rem;
+
+  font-weight: 650;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.12s ease;
+}
+
+.predict-toggle:hover:not(:disabled) {
+  background: rgba(17, 18, 20, 0.08);
+}
+
+.predict-toggle:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.predict-toggle:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+.dark .predict-toggle {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .predict-toggle:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.085);
+}
+
+/* =========================================================
+   CATEGORY-SPECIFIC CHART ACCENTS
+   ========================================================= */
+
+.progress-page.push .chart-box {
+  box-shadow:
+    0 8px 24px rgba(17, 18, 20, 0.025),
+    0 0 0 1px rgba(217, 72, 72, 0.018);
+}
+
+.progress-page.pull .chart-box {
+  box-shadow:
+    0 8px 24px rgba(17, 18, 20, 0.025),
+    0 0 0 1px rgba(57, 118, 216, 0.018);
+}
+
+.progress-page.leg .chart-box {
+  box-shadow:
+    0 8px 24px rgba(17, 18, 20, 0.025),
+    0 0 0 1px rgba(185, 133, 32, 0.018);
+}
+
+.progress-page.general .chart-box {
+  box-shadow:
+    0 8px 24px rgba(17, 18, 20, 0.025),
+    0 0 0 1px rgba(77, 149, 96, 0.018);
+}
+
+/* =========================================================
+   DARK MODE — CATEGORY BACKGROUNDS
    ========================================================= */
 
 .dark .progress-page {
@@ -990,51 +1291,18 @@
     );
 }
 
-/* =========================================================
-   DARK MODE — CARD
-   ========================================================= */
-
-.dark .progress-card {
-  background: rgba(22, 25, 30, 0.88);
-
-  border-color: rgba(255, 255, 255, 0.075);
-
-  box-shadow:
-    0 24px 70px rgba(0, 0, 0, 0.34),
-    0 2px 10px rgba(0, 0, 0, 0.18);
-}
-
-.dark .progress-card.push {
+.dark .progress-page.general {
   background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(57, 144, 77, 0.045),
+      transparent 45%
+    ),
     linear-gradient(
       180deg,
-      rgba(24, 25, 30, 0.92),
-      rgba(29, 20, 22, 0.96)
+      #101611,
+      #0b0e0c
     );
-
-  border-color: rgba(248, 113, 113, 0.20);
-}
-
-.dark .progress-card.pull {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(23, 27, 34, 0.92),
-      rgba(18, 25, 34, 0.96)
-    );
-
-  border-color: rgba(96, 165, 250, 0.20);
-}
-
-.dark .progress-card.leg {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(28, 27, 23, 0.92),
-      rgba(29, 26, 16, 0.96)
-    );
-
-  border-color: rgba(250, 204, 21, 0.20);
 }
 
 /* =========================================================
@@ -1042,14 +1310,52 @@
    ========================================================= */
 
 .dark .custom-select-trigger {
-  background: #12151a;
-  color: #f5f7fa;
-  border-color: rgba(255, 255, 255, 0.13);
+  background: rgba(18, 21, 25, 0.96);
+
+  border-color: rgba(255, 255, 255, 0.12);
+
+  color: #f4f5f7;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.dark .custom-select-trigger:hover {
+  background: #1a1d22;
 }
 
 .dark .custom-select-list {
-  background: #16191e;
+  background: #181b20;
+
   border-color: rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    0 24px 55px rgba(0, 0, 0, 0.42),
+    0 5px 15px rgba(0, 0, 0, 0.22);
+}
+
+.dark .option-push {
+  background: rgba(217, 72, 72, 0.13);
+
+  color: #ff9a9a;
+}
+
+.dark .option-pull {
+  background: rgba(57, 118, 216, 0.14);
+
+  color: #8db8ff;
+}
+
+.dark .option-leg {
+  background: rgba(185, 133, 32, 0.14);
+
+  color: #e7c46b;
+}
+
+.dark .option-general {
+  background: rgba(77, 149, 96, 0.14);
+
+  color: #8bd39b;
 }
 
 /* =========================================================
@@ -1057,7 +1363,13 @@
    ========================================================= */
 
 .dark .chart-box {
-  background: rgba(18, 21, 26, 0.90);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(28, 31, 36, 0.94),
+      rgba(20, 23, 28, 0.94)
+    );
+
   border-color: rgba(255, 255, 255, 0.075);
 }
 
@@ -1066,48 +1378,88 @@
 }
 
 .dark .chart-legend {
-  color: #d2d7de;
+  color: #aeb4bd;
 }
 
 .dark .actual-line {
-  border-top-color: #f5f7fa;
+  border-top-color: #f4f5f7;
 }
 
 /* =========================================================
-   DARK MODE — TABLE / TEXT
+   DARK MODE — TABLE
+   ========================================================= */
+
+.dark .progress-table {
+  background: rgba(23, 26, 31, 0.80);
+
+  border-color: rgba(255, 255, 255, 0.075);
+}
+
+.dark .progress-table th,
+.dark .progress-table td {
+  border-bottom-color: rgba(255, 255, 255, 0.065);
+}
+
+/* =========================================================
+   DARK MODE — TEXT
    ========================================================= */
 
 .dark .progress-header h1 {
-  color: #f5f7fa;
+  color: #f4f5f7;
 }
 
-.dark .eyebrow {
-  color: #969eaa;
-}
-
+.dark .eyebrow,
 .dark .exercise-select-label {
-  color: #f5f7fa;
+  color: #9499a2;
+}
+
+.dark .status-message {
+  color: #d2d5da;
 }
 
 .dark .chart-axis-label,
 .dark .chart-axis-title,
 .dark .chart-label {
-  fill: #b8bec7;
+  fill: #aeb4bd;
 }
 
 /* =========================================================
-   ANIMATION
+   ANIMATIONS
    ========================================================= */
 
-@keyframes floatIn {
+@keyframes progressFloatIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+
+    transform:
+      translateY(14px)
+      scale(0.992);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-5px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
   }
 }
 
@@ -1116,7 +1468,8 @@
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-  .progress-card {
+  .progress-card,
+  .custom-select-list {
     animation: none;
   }
 
@@ -1124,8 +1477,36 @@
   .custom-select-trigger,
   .metric-toggle button,
   .secondary-btn,
-  .predict-toggle {
+  .predict-toggle,
+  .custom-select-option,
+  .progress-table tbody tr {
     transition: none;
+  }
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .progress-page {
+    padding: 26px 16px 48px;
+  }
+
+  .progress-card {
+    padding: 28px;
+  }
+
+  .progress-header h1 {
+    font-size: 2.15rem;
+  }
+
+  .chart-box {
+    padding: 14px 14px 11px;
+  }
+
+  .volume-chart {
+    height: 350px;
   }
 }
 
@@ -1135,50 +1516,214 @@
 
 @media (max-width: 640px) {
   .progress-page {
-    padding: 20px 12px;
+    padding: 15px 10px 38px;
   }
 
   .progress-card {
-    padding: 18px 14px;
-    border-radius: 22px;
+    width: 100%;
+
+    padding: 21px 15px 22px;
+
+    border-radius: 23px;
   }
 
   .progress-header {
-    flex-direction: column;
-    align-items: flex-start;
+    margin-bottom: 23px;
   }
 
   .progress-header h1 {
-    font-size: 1.65rem;
+    font-size: 1.82rem;
+
+    letter-spacing: -0.04em;
   }
 
-  .secondary-btn {
-    width: 100%;
+  .eyebrow {
+    margin-bottom: 8px;
+
+    font-size: 0.62rem;
   }
 
-  .volume-chart {
-    height: 200px;
+  /* -------------------------------------------------------
+     SELECT
+     ------------------------------------------------------- */
+
+  .exercise-select-label {
+    gap: 8px;
+
+    margin-bottom: 22px;
+
+    font-size: 0.64rem;
   }
 
-  .metric-toggle {
-    width: 100%;
+  .custom-select-trigger {
+    min-height: 55px;
+
+    padding: 13px 14px;
+
+    border-radius: 14px;
+
+    font-size: 0.92rem;
   }
 
-  .metric-toggle button {
-    flex: 1;
+  .custom-select-arrow {
+    width: 28px;
+    height: 28px;
   }
 
-  .progress-table {
-    display: block;
-    overflow-x: auto;
-
-    white-space: nowrap;
+  .custom-select-list {
+    max-height: 260px;
 
     border-radius: 14px;
   }
 
+  .custom-select-option {
+    min-height: 45px;
+
+    padding: 11px 12px;
+  }
+
+  /* -------------------------------------------------------
+     METRICS
+     ------------------------------------------------------- */
+
+  .metric-toggle {
+    width: 100%;
+
+    display: flex;
+
+    margin-bottom: 12px;
+
+    border-radius: 13px;
+  }
+
+  .metric-toggle button {
+    flex: 1;
+
+    min-width: 0;
+
+    min-height: 40px;
+
+    padding: 8px 7px;
+
+    font-size: 0.76rem;
+  }
+
+  /* -------------------------------------------------------
+     CHART
+     ------------------------------------------------------- */
+
+  .chart-box {
+    margin-bottom: 21px;
+
+    padding: 10px 9px 10px;
+
+    border-radius: 17px;
+  }
+
+  .chart-box > .chart-scroll-wrapper,
+  .chart-box > .visx-xychart {
+    min-height: 310px;
+  }
+
+  .volume-chart {
+    height: 310px;
+  }
+
+  .chart-footer {
+    gap: 8px;
+
+    min-height: 34px;
+
+    padding: 9px 3px 1px;
+  }
+
+  .chart-legend {
+    gap: 12px;
+
+    font-size: 0.69rem;
+  }
+
+  .legend-item {
+    gap: 6px;
+  }
+
+  .legend-line {
+    width: 19px;
+
+    border-top-width: 2px;
+  }
+
   .chart-scroll-control {
-    padding-top: 6px;
-    padding-bottom: 4px;
+    padding: 7px 2px 1px;
+  }
+
+  /* -------------------------------------------------------
+     TABLE
+     ------------------------------------------------------- */
+
+  .progress-table {
+    display: block;
+
+    overflow-x: auto;
+
+    white-space: nowrap;
+
+    border-radius: 16px;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .progress-table th,
+  .progress-table td {
+    padding: 12px 13px;
+  }
+
+  .progress-table th {
+    font-size: 0.62rem;
+  }
+
+  .progress-table td {
+    font-size: 0.8rem;
+  }
+
+  /* -------------------------------------------------------
+     STATUS
+     ------------------------------------------------------- */
+
+  .status-message {
+    padding: 14px 1px 8px;
+
+    font-size: 0.85rem;
+  }
+}
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 390px) {
+  .progress-page {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .progress-card {
+    padding-left: 13px;
+    padding-right: 13px;
+
+    border-radius: 20px;
+  }
+
+  .progress-header h1 {
+    font-size: 1.68rem;
+  }
+
+  .metric-toggle button {
+    font-size: 0.72rem;
+  }
+
+  .chart-box {
+    padding-left: 6px;
+    padding-right: 6px;
   }
 }

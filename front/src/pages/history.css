@@ -5,330 +5,797 @@
 }
 
 /* =========================================================
-   History Page
+   HISTORY PAGE
+   Refined premium fitness history design
+   ========================================================= */
+
+:root {
+  /* -------------------------------------------------------
+     Core Colors
+     ------------------------------------------------------- */
+
+  --history-bg: #f1f1ee;
+  --history-surface: #ffffff;
+  --history-surface-soft: #f8f8f6;
+
+  --history-ink: #111214;
+  --history-ink-soft: #34363a;
+  --history-muted: #686b70;
+  --history-faint: #8d9095;
+
+  --history-border: rgba(17, 18, 20, 0.09);
+  --history-border-strong: rgba(17, 18, 20, 0.14);
+
+  --history-shadow:
+    0 7px 20px rgba(17, 18, 20, 0.042),
+    0 1px 3px rgba(17, 18, 20, 0.025);
+
+  /* -------------------------------------------------------
+     Category Palette (Stronger contrast)
+     ------------------------------------------------------- */
+
+  --push-main: #e03131;
+  --push-soft: rgba(224, 49, 49, 0.22);
+  --push-mid: rgba(224, 49, 49, 0.10);
+  --push-border: rgba(224, 49, 49, 0.38);
+
+  --pull-main: #2563eb;
+  --pull-soft: rgba(37, 99, 235, 0.22);
+  --pull-mid: rgba(37, 99, 235, 0.10);
+  --pull-border: rgba(37, 99, 235, 0.38);
+
+  --leg-main: #d97706;
+  --leg-soft: rgba(217, 119, 6, 0.24);
+  --leg-mid: rgba(217, 119, 6, 0.11);
+  --leg-border: rgba(217, 119, 6, 0.40);
+
+  /* -------------------------------------------------------
+     Geometry
+     ------------------------------------------------------- */
+
+  --history-radius-lg: 14px;
+  --history-radius-md: 10px;
+  --history-radius-sm: 8px;
+
+  --history-max-width: 940px;
+}
+
+/* =========================================================
+   Page Shell
    ========================================================= */
 
 .history-page {
   min-height: 100vh;
+  padding: 32px 20px 56px;
+
   background:
     radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.72),
-      transparent 42%
+      circle at 50% -15%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0) 42%
     ),
     linear-gradient(
       180deg,
-      #f6f6f8 0%,
-      #e9e9ec 100%
+      #f5f5f3 0%,
+      var(--history-bg) 100%
     );
-  padding: 32px 18px;
-  color: #111111;
+
+  color: var(--history-ink);
 }
 
-.history-card {
-  width: min(100%, 1000px);
+.history-shell {
+  width: min(100%, var(--history-max-width));
   margin: 0 auto;
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  border-radius: 28px;
-  padding: 28px;
-  box-shadow:
-    0 20px 60px rgba(17, 17, 17, 0.07),
-    0 2px 8px rgba(17, 17, 17, 0.025);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.history-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.history-header h1 {
-  margin: 0;
-  color: #111111;
-  letter-spacing: -0.035em;
-}
-
-.eyebrow {
-  display: inline-block;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: #6b6b6f;
-  margin: 0 0 8px;
+  animation: historyFadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* =========================================================
-   Sessions
+   Header
+   ========================================================= */
+
+.history-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+
+  padding: 8px 0 20px;
+
+  border-bottom: 1px solid var(--history-border-strong);
+}
+
+.history-heading {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+
+  color: var(--history-muted);
+
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1;
+
+  font-weight: 700;
+
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.history-heading h1 {
+  margin: 0;
+
+  color: var(--history-ink);
+
+  font-size: clamp(1.75rem, 3.2vw, 2.25rem);
+  line-height: 1.1;
+
+  font-weight: 750;
+
+  letter-spacing: -0.04em;
+}
+
+.history-subtitle {
+  max-width: 460px;
+
+  margin: 8px 0 0;
+
+  color: var(--history-muted);
+
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.45;
+}
+
+/* =========================================================
+   Header Summary
+   ========================================================= */
+
+.history-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  flex-shrink: 0;
+}
+
+.history-summary-label {
+  margin-bottom: 4px;
+
+  color: var(--history-faint);
+
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.history-summary strong {
+  color: var(--history-ink);
+
+  font-size: 1.35rem;
+  line-height: 1;
+
+  font-weight: 750;
+
+  letter-spacing: -0.03em;
+}
+
+/* =========================================================
+   Status Banner
+   ========================================================= */
+
+.status-message {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 16px 0 0;
+  padding: 10px 14px;
+
+  border: 1px solid var(--history-border);
+  border-radius: var(--history-radius-sm);
+
+  background: rgba(255, 255, 255, 0.85);
+
+  color: var(--history-muted);
+
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.4;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+}
+
+.status-success {
+  color: #2e6840;
+}
+
+.status-error {
+  color: #a53d3d;
+}
+
+/* =========================================================
+   Loading & Empty States
+   ========================================================= */
+
+.history-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 200px;
+
+  color: var(--history-muted);
+}
+
+.history-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-top: 24px;
+  padding: 20px 24px;
+
+  border: 1px solid var(--history-border);
+  border-radius: var(--history-radius-lg);
+
+  background: var(--history-surface);
+
+  box-shadow: var(--history-shadow);
+}
+
+.empty-mark {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  gap: 3px;
+
+  width: 42px;
+  height: 42px;
+
+  padding: 8px;
+
+  border: 1px solid var(--history-border);
+  border-radius: 10px;
+
+  background: var(--history-surface-soft);
+
+  flex-shrink: 0;
+}
+
+.empty-mark span {
+  display: block;
+
+  width: 4px;
+
+  border-radius: 2px;
+
+  background: var(--history-faint);
+}
+
+.empty-mark span:nth-child(1) { height: 10px; }
+.empty-mark span:nth-child(2) { height: 18px; }
+.empty-mark span:nth-child(3) { height: 13px; }
+
+.history-empty h2 {
+  margin: 0 0 4px;
+
+  color: var(--history-ink);
+
+  font-size: 0.95rem;
+  line-height: 1.3;
+
+  font-weight: 700;
+}
+
+.history-empty p {
+  max-width: 500px;
+
+  margin: 0;
+
+  color: var(--history-muted);
+
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   Sessions List
    ========================================================= */
 
 .sessions-list {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+
+  gap: 16px;
+
+  margin-top: 24px;
 }
 
 .session-block {
-  background: rgba(17, 17, 17, 0.025);
-  border: 1px solid rgba(17, 17, 17, 0.075);
-  border-radius: 18px;
-  padding: 20px;
+  overflow: hidden;
+
+  border: 1px solid var(--history-border);
+  border-radius: var(--history-radius-lg);
+
+  background: var(--history-surface);
+
+  box-shadow: var(--history-shadow);
+
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
+
+.session-block:hover {
+  border-color: rgba(17, 18, 20, 0.14);
+
+  box-shadow:
+    0 10px 26px rgba(17, 18, 20, 0.055),
+    0 2px 5px rgba(17, 18, 20, 0.025);
+}
+
+/* =========================================================
+   Session Header
+   ========================================================= */
 
 .session-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 16px 20px;
+}
+
+.session-date-group {
+  display: flex;
+  align-items: center;
+
   gap: 12px;
-  margin-bottom: 12px;
+
+  min-width: 0;
+}
+
+.session-date-mark {
+  width: 4px;
+  height: 28px;
+
+  flex: 0 0 4px;
+
+  border-radius: 999px;
+
+  background: var(--history-ink);
+}
+
+.session-label {
+  margin: 0 0 2px;
+
+  color: var(--history-faint);
+
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1;
+
+  font-weight: 700;
+
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .session-header-row h2 {
   margin: 0;
-  color: #111111;
-  font-size: 1.15rem;
-  letter-spacing: -0.02em;
-}
 
-.session-header-row span {
-  color: #5f6065;
-  font-size: 0.88rem;
+  color: var(--history-ink);
+
+  font-size: 1.05rem;
+  line-height: 1.2;
+
+  font-weight: 700;
+
+  letter-spacing: -0.025em;
 }
 
 /* =========================================================
-   Entries
+   Session Volume
+   ========================================================= */
+
+.session-volume {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  flex-shrink: 0;
+}
+
+.session-volume > span {
+  margin-bottom: 2px;
+
+  color: var(--history-faint);
+
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1;
+
+  font-weight: 700;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.session-volume strong {
+  color: var(--history-ink);
+
+  font-size: 0.95rem;
+  line-height: 1.1;
+
+  font-weight: 750;
+}
+
+.session-volume small {
+  color: var(--history-muted);
+
+  font-size: 0.75rem;
+
+  font-weight: 600;
+}
+
+/* =========================================================
+   Divider
+   ========================================================= */
+
+.session-divider {
+  height: 1px;
+
+  margin: 0 20px;
+
+  background: var(--history-border);
+}
+
+/* =========================================================
+   EXERCISE CARDS
    ========================================================= */
 
 .session-entries {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
   list-style: none;
-  padding: 0;
+
+  padding: 10px 12px 12px;
+
   margin: 0;
-  display: grid;
-  gap: 10px;
 }
 
 .session-entries li {
+  position: relative;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 12px;
 
-  /* Soft green fade */
-  background: linear-gradient(
-    90deg,
-    rgba(74, 222, 128, 0.25) 0%,
-    rgba(74, 222, 128, 0.11) 48%,
-    rgba(74, 222, 128, 0.025) 100%
-  );
+  min-height: 48px;
+  height: auto;
 
-  border: 1px solid rgba(17, 17, 17, 0.07);
-  border-radius: 12px;
-  padding: 12px 14px;
-  color: #111111;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease;
+  overflow: hidden; /* Clips the full-height ::before accent line to border-radius */
+
+  padding: 8px 12px 8px 18px; /* Slightly increased left padding for clearance */
+
+  border: 1px solid var(--history-border);
+  border-radius: var(--history-radius-md);
+
+  background: var(--history-surface-soft);
+
+  color: var(--history-ink);
+
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
 }
 
-.session-entries li:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(17, 17, 17, 0.055);
-}
-
-/* =========================================================
-   Exercise Links
-   ========================================================= */
-
-.exercise-link {
-  text-decoration: none;
-  color: inherit;
-  font-weight: 600;
-  border-bottom: 1.5px solid currentColor;
-  cursor: pointer;
-  transition:
-    opacity 0.2s ease,
-    border-color 0.2s ease;
-}
-
-.exercise-link:hover {
-  opacity: 0.68;
-}
-
-/* =========================================================
-   Category Colours
-   ========================================================= */
+/* Category Background Variants */
 
 .history-entry.push {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.15),
-    rgba(255, 255, 255, 0.88)
-  );
-  border: 1px solid rgba(185, 28, 28, 0.22);
-  color: #b42323;
+  background: linear-gradient(105deg, var(--push-soft) 0%, var(--push-mid) 65%, rgba(255, 255, 255, 0.95) 100%);
+  border-color: var(--push-border);
 }
 
 .history-entry.pull {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.15),
-    rgba(255, 255, 255, 0.88)
-  );
-  border: 1px solid rgba(29, 78, 216, 0.22);
-  color: #2457c5;
+  background: linear-gradient(105deg, var(--pull-soft) 0%, var(--pull-mid) 65%, rgba(255, 255, 255, 0.95) 100%);
+  border-color: var(--pull-border);
 }
 
 .history-entry.leg {
-  background: linear-gradient(
-    135deg,
-    rgba(250, 204, 21, 0.18),
-    rgba(255, 255, 255, 0.88)
-  );
-  border: 1px solid rgba(180, 132, 0, 0.24);
-  color: #a66d12;
+  background: linear-gradient(105deg, var(--leg-soft) 0%, var(--leg-mid) 65%, rgba(255, 255, 255, 0.95) 100%);
+  border-color: var(--leg-border);
 }
+
+/* Full Vertical Height Accent Line */
+
+.history-entry.push::before,
+.history-entry.pull::before,
+.history-entry.leg::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  width: 4px;
+
+  border-radius: 0; /* Clipped cleanly by parent overflow: hidden */
+}
+
+.history-entry.push::before { background: var(--push-main); }
+.history-entry.pull::before { background: var(--pull-main); }
+.history-entry.leg::before { background: var(--leg-main); }
+
+.session-entries li:hover {
+  transform: translateY(-1px);
+
+  box-shadow: 0 4px 12px rgba(17, 18, 20, 0.05);
+}
+
+/* Left Side: Exercise Name & Prescription */
+
+.entry-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  gap: 3px;
+
+  flex: 1 1 auto;
+  min-width: 0;
+
+  text-align: left;
+}
+
+.exercise-link {
+  display: inline-block;
+
+  overflow: hidden;
+
+  max-width: 100%;
+
+  color: var(--history-ink);
+
+  font-size: 0.875rem; /* 14px */
+  line-height: 1.25;
+
+  font-weight: 700;
+
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  letter-spacing: -0.015em;
+
+  transition: opacity 0.15s ease;
+}
+
+.exercise-link:hover {
+  opacity: 0.65;
+
+  text-decoration: underline;
+}
+
+.entry-prescription {
+  color: var(--history-muted);
+
+  font-size: 0.75rem; /* 12px */
+  line-height: 1.2;
+
+  font-weight: 500;
+}
+
+/* Right Side: Volume & Action Buttons */
 
 .entry-actions {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+
   gap: 12px;
-  flex-shrink: 0;
+
+  flex: 0 0 auto;
+
+  margin: 0;
+  padding: 0;
 }
 
-.entry-actions strong {
-  font-size: 0.9rem;
+.entry-volume {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+
+  gap: 1px;
+
+  min-width: 56px;
+}
+
+.entry-volume span {
+  color: var(--history-faint);
+
+  font-size: 0.625rem; /* 10px */
+  line-height: 1;
+
   font-weight: 700;
-  color: inherit;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-/* =========================================================
-   Delete Button / Spinner
-   ========================================================= */
+.entry-volume strong {
+  color: var(--history-ink);
 
-/*
-  Button and spinner share one grid cell.
-  This lets them cross-fade without changing layout.
-*/
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.1;
+
+  font-weight: 750;
+}
+
+/* Delete Action */
 
 .delete-action {
   position: relative;
-  display: inline-grid;
-  place-items: center;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
 }
 
 .delete-workout-btn {
-  grid-area: 1 / 1;
-  background: #f4f4f5;
-  border: 1px solid rgba(17, 17, 17, 0.10);
-  color: #111111;
-  border-radius: 8px;
-  padding: 7px 12px;
+  width: 100%;
+  height: 100%;
+
+  padding: 0;
+
+  border: 1px solid rgba(17, 18, 20, 0.1);
+  border-radius: var(--history-radius-sm);
+
+  background: rgba(255, 255, 255, 0.65);
+
+  color: var(--history-muted);
+
   cursor: pointer;
+
+  font: inherit;
+
+  font-size: 0.75rem;
+  line-height: 1;
+
   font-weight: 600;
 
-  opacity: 1;
-  transform: scale(1);
-
-  transition:
-    background 0.15s ease,
-    border-color 0.15s ease,
-    opacity 0.2s ease,
-    transform 0.2s ease;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
 }
 
 .delete-workout-btn:hover {
-  background: #e8e8ea;
-  border-color: rgba(17, 17, 17, 0.18);
+  color: #a53d3d;
+
+  background: #ffffff;
+
+  border-color: rgba(165, 61, 61, 0.3);
+}
+
+.delete-workout-btn:focus-visible {
+  outline: 2px solid rgba(71, 120, 199, 0.5);
+  outline-offset: 2px;
 }
 
 .delete-workout-btn:active {
-  transform: scale(0.96);
-}
-
-.delete-workout-btn:disabled {
-  cursor: default;
+  transform: scale(0.94);
 }
 
 .delete-spinner {
-  grid-area: 1 / 1;
+  position: absolute;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   opacity: 0;
+
   transform: scale(0.85);
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+
   pointer-events: none;
+
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .delete-action.is-deleting .delete-workout-btn {
   opacity: 0;
+
   transform: scale(0.9);
+
   pointer-events: none;
 }
 
 .delete-action.is-deleting .delete-spinner {
   opacity: 1;
+
   transform: scale(1);
-  transition-delay: 0.1s;
-  pointer-events: auto;
 }
 
 /* =========================================================
-   Secondary Button
+   Secondary Action Button
    ========================================================= */
 
 .secondary-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 11px 18px;
-  border-radius: 12px;
+
+  min-height: 36px;
+
+  padding: 0 16px;
+
+  border: 1px solid var(--history-border-strong);
+  border-radius: var(--history-radius-sm);
+
+  background: var(--history-ink);
+
+  color: #ffffff;
+
+  font-size: 0.8125rem;
+  line-height: 1;
+
+  font-weight: 600;
+
   text-decoration: none;
-  color: #111111;
-  background: rgba(17, 17, 17, 0.035);
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    transform 0.12s ease;
+
+  white-space: nowrap;
+
+  transition: background 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
 }
 
 .secondary-btn:hover {
-  background: rgba(17, 17, 17, 0.07);
-  border-color: rgba(17, 17, 17, 0.14);
+  background: #282a2d;
+
+  box-shadow: 0 4px 12px rgba(17, 18, 20, 0.12);
 }
 
 .secondary-btn:active {
   transform: scale(0.98);
 }
 
-/* =========================================================
-   Status
-   ========================================================= */
-
-.status-message {
-  color: #5f6065;
+.secondary-btn:focus-visible {
+  outline: 2px solid rgba(71, 120, 199, 0.5);
+  outline-offset: 2px;
 }
 
 /* =========================================================
-   Animation
+   Animations
    ========================================================= */
 
-@keyframes floatIn {
+@keyframes historyFadeIn {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(6px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -336,183 +803,200 @@
 }
 
 /* =========================================================
-   Dark Mode
+   Dark Mode Overrides
    ========================================================= */
 
 .dark .history-page {
+  --history-bg: #0c0e11;
+  --history-surface: #15181c;
+  --history-surface-soft: #1a1d22;
+
+  --history-ink: #f1f3f5;
+  --history-ink-soft: #d2d6db;
+  --history-muted: #969da7;
+  --history-faint: #6f7781;
+
+  --history-border: rgba(255, 255, 255, 0.08);
+  --history-border-strong: rgba(255, 255, 255, 0.14);
+
+  --history-shadow: 0 10px 32px rgba(0, 0, 0, 0.25);
+
+  --push-main: #ff4d4d;
+  --push-soft: rgba(255, 77, 77, 0.28);
+  --push-mid: rgba(255, 77, 77, 0.12);
+  --push-border: rgba(255, 77, 77, 0.45);
+
+  --pull-main: #3b82f6;
+  --pull-soft: rgba(59, 130, 246, 0.28);
+  --pull-mid: rgba(59, 130, 246, 0.12);
+  --pull-border: rgba(59, 130, 246, 0.45);
+
+  --leg-main: #f59e0b;
+  --leg-soft: rgba(245, 158, 11, 0.28);
+  --leg-mid: rgba(245, 158, 11, 0.12);
+  --leg-border: rgba(245, 158, 11, 0.45);
+
   background:
     radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.045),
-      transparent 40%
+      circle at 50% -12%,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0) 43%
     ),
-    linear-gradient(
-      180deg,
-      #101216 0%,
-      #0a0c0f 100%
-    );
-  color: #f3f4f6;
+    var(--history-bg);
+
+  color: var(--history-ink);
 }
 
-.dark .history-card {
-  background: rgba(22, 25, 30, 0.88);
-  border-color: rgba(255, 255, 255, 0.075);
-  box-shadow:
-    0 24px 70px rgba(0, 0, 0, 0.32),
-    0 2px 10px rgba(0, 0, 0, 0.18);
-}
-
-.dark .history-header h1 {
-  color: #f3f4f6;
-}
-
-.dark .eyebrow {
-  color: #8e949e;
-}
-
-.dark .session-block {
-  background: rgba(255, 255, 255, 0.035);
-  border-color: rgba(255, 255, 255, 0.075);
-}
-
-.dark .session-header-row h2 {
-  color: #f3f4f6;
-}
-
-.dark .session-header-row span {
-  color: #969da8;
-}
-
-/* Green default workout entry */
-.dark .session-entries li {
-  background: linear-gradient(
-    90deg,
-    rgba(74, 222, 128, 0.18) 0%,
-    rgba(74, 222, 128, 0.07) 48%,
-    rgba(74, 222, 128, 0.018) 100%
-  );
-  color: #e9edf1;
-  border-color: rgba(255, 255, 255, 0.075);
-}
-
-.dark .session-entries li:hover {
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
-}
-
-.dark .exercise-link {
-  color: #f3f4f6;
-  border-bottom-color: rgba(243, 244, 246, 0.72);
-}
-
-/* Push */
-.dark .history-entry.push {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.17),
-    rgba(25, 28, 33, 0.94)
-  );
-  border-color: rgba(248, 113, 113, 0.25);
-  color: #ff9696;
-}
-
-/* Pull */
-.dark .history-entry.pull {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.17),
-    rgba(25, 28, 33, 0.94)
-  );
-  border-color: rgba(96, 165, 250, 0.26);
-  color: #82b5ff;
-}
-
-/* Legs */
-.dark .history-entry.leg {
-  background: linear-gradient(
-    135deg,
-    rgba(250, 204, 21, 0.16),
-    rgba(25, 28, 33, 0.94)
-  );
-  border-color: rgba(250, 204, 21, 0.25);
-  color: #f6d96a;
-}
-
-/* Delete */
-.dark .delete-workout-btn {
-  background: #1b1f25;
-  border-color: rgba(255, 255, 255, 0.10);
-  color: #e9edf1;
-}
-
-.dark .delete-workout-btn:hover {
-  background: #242932;
-  border-color: rgba(255, 255, 255, 0.17);
-}
-
-/* Secondary */
-.dark .secondary-btn {
-  color: #e9edf1;
-  background: rgba(255, 255, 255, 0.045);
-  border-color: rgba(255, 255, 255, 0.075);
-}
-
-.dark .secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.075);
-  border-color: rgba(255, 255, 255, 0.12);
+.dark .session-date-mark {
+  background: #f1f3f5;
 }
 
 .dark .status-message {
-  color: #969da8;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dark .status-success { color: #79b58a; }
+.dark .status-error { color: #e28b8b; }
+
+.dark .session-block:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.35);
+}
+
+.dark .session-entries li {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .delete-workout-btn {
+  background: rgba(255, 255, 255, 0.06);
+
+  border-color: rgba(255, 255, 255, 0.1);
+
+  color: #a0a7b0;
+}
+
+.dark .delete-workout-btn:hover {
+  background: rgba(240, 139, 139, 0.15);
+
+  border-color: rgba(240, 139, 139, 0.3);
+
+  color: #f08b8b;
+}
+
+.dark .secondary-btn {
+  background: #f1f3f5;
+
+  border-color: rgba(255, 255, 255, 0.15);
+
+  color: #111315;
+}
+
+.dark .secondary-btn:hover {
+  background: #ffffff;
 }
 
 /* =========================================================
-   Responsive
+   Responsive: Tablet (<760px)
    ========================================================= */
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
   .history-page {
-    padding: 20px 12px;
+    padding: 24px 16px 42px;
   }
 
-  .history-card {
-    padding: 18px 14px;
-    border-radius: 22px;
+  .history-header {
+    align-items: flex-start;
+
+    gap: 16px;
   }
 
-  .history-header,
-  .session-header-row {
+  .history-summary {
+    display: none;
+  }
+
+  .history-empty {
     flex-direction: column;
     align-items: flex-start;
+
+    padding: 18px;
   }
 
-  .session-entries li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .entry-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .delete-action {
-    flex: 1;
-  }
-
-  .delete-workout-btn,
-  .secondary-btn {
+  .history-empty .secondary-btn {
     width: 100%;
   }
 }
 
+/* =========================================================
+   Responsive: Mobile (<520px)
+   ========================================================= */
+
+@media (max-width: 520px) {
+  .history-page {
+    padding: 16px 12px 32px;
+  }
+
+  .session-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    padding: 14px 16px;
+  }
+
+  .session-volume {
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+
+    width: 100%;
+
+    padding-left: 16px;
+  }
+
+  .session-entries {
+    padding: 8px;
+  }
+
+  .session-entries li {
+    padding: 8px 10px 8px 16px;
+
+    min-height: 46px;
+  }
+
+  .exercise-link {
+    font-size: 0.8125rem; /* 13px */
+  }
+
+  .entry-prescription {
+    font-size: 0.6875rem; /* 11px */
+  }
+
+  .entry-volume {
+    min-width: 48px;
+  }
+
+  .delete-action {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+/* =========================================================
+   Reduced Motion
+   ========================================================= */
+
 @media (prefers-reduced-motion: reduce) {
-  .history-card {
+  .history-shell {
     animation: none;
   }
 
+  .session-block,
   .session-entries li,
+  .exercise-link,
   .delete-workout-btn,
+  .delete-spinner,
   .secondary-btn {
     transition: none;
   }

@@ -535,13 +535,6 @@ function DashboardPage() {
                         <span className="exercise-item-name">
                           {exercise.name}
                         </span>
-
-                        <span
-                          className="exercise-arrow"
-                          aria-hidden="true"
-                        >
-                          →
-                        </span>
                       </Link>
 
                       {exercise.created_by ===
