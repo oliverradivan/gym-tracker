@@ -11,12 +11,99 @@ const initialForm = {
   exercise_name: '',
 }
 
+/* -------------------------------------------------------
+   Formatting and date helpers
+------------------------------------------------------- */
+
+const todayFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'short',
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+})
+
+const weekdayLongFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'long',
+})
+
+const weekdayNarrowFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'narrow',
+})
+
+const decimalFormatter = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 1,
+})
+
+const wholeFormatter = new Intl.NumberFormat('en-US', {
+  maximumFractionDigits: 0,
+})
+
+/* One decimal for small numbers, whole numbers once it reaches 1,000. */
+function formatVolume(value) {
+  const number = Number(value)
+
+  if (!Number.isFinite(number)) return '0'
+
+  return (number >= 1000 ? wholeFormatter : decimalFormatter).format(number)
+}
+
+/* Local "YYYY-MM-DD" key, matching the dates returned by the API. */
+function toLocalDateKey(date) {
+  const offset = date.getTimezoneOffset() * 60000
+
+  return new Date(date.getTime() - offset).toISOString().slice(0, 10)
+}
+
+/*
+ * First day of the week for the user's locale, as a JS weekday
+ * (0 = Sunday ... 6 = Saturday). Falls back to Monday.
+ */
+function getFirstWeekday() {
+  try {
+    const locale = new Intl.Locale(navigator.language)
+    const info = locale.getWeekInfo ? locale.getWeekInfo() : locale.weekInfo
+
+    return (info?.firstDay ?? 1) % 7
+  } catch {
+    return 1
+  }
+}
+
+/* -------------------------------------------------------
+   Icons
+------------------------------------------------------- */
+
+function Icon({ children, className }) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {children}
+    </svg>
+  )
+}
+
+const DumbbellIcon = ({ className }) => (
+  <Icon className={className}>
+    <path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11" />
+  </Icon>
+)
+
 function DashboardPage() {
   const [form, setForm] = useState(initialForm)
   const { user, session } = useAuth()
 
   const [exercises, setExercises] = useState([])
   const [todaySession, setTodaySession] = useState(null)
+  const [allSessions, setAllSessions] = useState([])
   const [totalDaysExercised, setTotalDaysExercised] = useState(0)
   const [exerciseListInView, setExerciseListInView] = useState(false)
   const [pageLoading, setPageLoading] = useState(true)
@@ -110,16 +197,6 @@ function DashboardPage() {
     }
   }
 
-  const toLocalDateKey = (date) => {
-    const offset = date.getTimezoneOffset() * 60000
-
-    return new Date(
-      date.getTime() - offset
-    )
-      .toISOString()
-      .slice(0, 10)
-  }
-
   useEffect(() => {
     const loadDashboardData = async () => {
       if (!session?.access_token) {
@@ -165,6 +242,8 @@ function DashboardPage() {
           const sessions =
             sessionsResult.sessions || []
 
+          setAllSessions(sessions)
+
           const uniqueDays = new Set(
             sessions.map(
               (sessionItem) => sessionItem.date
@@ -179,9 +258,8 @@ function DashboardPage() {
                 sessionItem.date === todayKey
             )
 
-          setTodaySession(
-            matchingTodaySession || null
-          )
+          setTodaySession(matchingTodaySession || null)
+
         }
       } catch {
         // Dashboard data load error handled silently
@@ -230,10 +308,56 @@ function DashboardPage() {
     })
   }, [exercises])
 
+  /*
+   * This week's summary, derived from the sessions the page already loads
+   * (no extra request). The week starts on the user's locale first day.
+   */
+  const weekStats = useMemo(() => {
+    const now = new Date()
+    const todayKey = toLocalDateKey(now)
+    const offset = (now.getDay() - getFirstWeekday() + 7) % 7
+    const sessionsByDate = new Map(
+      allSessions.map((sessionItem) => [sessionItem.date, sessionItem])
+    )
+
+    let trained = 0
+
+    const days = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - offset + index
+      )
+      const key = toLocalDateKey(date)
+      const match = sessionsByDate.get(key)
+
+      if (match) trained += 1
+
+      const categoryCounts = (match?.entries || []).reduce((counts, entry) => {
+        const category = getExerciseCategory(entry.exercise_name || '')
+        counts[category] = (counts[category] || 0) + 1
+        return counts
+      }, {})
+      const category = Object.entries(categoryCounts)
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'general'
+
+      return {
+        key,
+        short: weekdayNarrowFormatter.format(date),
+        long: weekdayLongFormatter.format(date),
+        trained: Boolean(match),
+        category,
+        isToday: key === todayKey,
+      }
+    })
+
+    return { days, trained }
+  }, [allSessions])
+
   return (
-    <div className="dashboard-page">
+    <div className="dash-page">
       {pageLoading ? (
-        <div className="dashboard-loading">
+        <div className="dash-loading">
           <LoadingSpinner
             size={64}
             label="Loading your dashboard..."
@@ -241,368 +365,238 @@ function DashboardPage() {
           />
         </div>
       ) : (
-        <main className="dashboard-grid">
+        <main className="dash-shell">
 
           {/* -------------------------------------------------
-              Welcome
+              Header
           ------------------------------------------------- */}
 
-          <section className="welcome-card">
-            <div className="welcome-content">
-              <p className="welcome-eyebrow">
-                Welcome back
-              </p>
+          <header className="dash-header">
+            <div className="dash-header-text">
+              <h1 className="dash-greeting">Hi, {username}</h1>
 
-              <h1>{username}</h1>
-
-              <p className="welcome-message">
-                Ready when you are. Let's make today's
-                session count.
+              <p className="dash-date">
+                Today · {todayFormatter.format(new Date())}
               </p>
             </div>
 
-            <div className="welcome-logo-wrap">
-              <img
-                className="logo"
-                src="/logo_video.webp"
-                alt="Workout tracker mascot"
-              />
-            </div>
-          </section>
+            <img
+              className="dash-avatar"
+              src="/logo_video.webp"
+              alt="Workout tracker mascot"
+            />
+          </header>
 
 
           {/* -------------------------------------------------
               Stats
           ------------------------------------------------- */}
 
-          <section className="stats-grid">
+          <section className="dash-stats" aria-label="Overview">
 
-            <article className="stat-card stat-card-primary">
-              <div className="stat-heading">
-                <span className="stat-label">
-                  Today's volume
-                </span>
+            <article className="dash-stat" data-tone="orange">
+              <span className="dash-stat-icon">
+                <Icon>
+                  <path d="M5 20V10M12 20V4M19 20v-7" />
+                </Icon>
+              </span>
 
-                <span className="stat-kicker">
-                  KG
-                </span>
-              </div>
+              <span className="dash-stat-label">Today</span>
 
-              <strong>
+              <strong className="dash-stat-value">
                 {todaySession
-                  ? Number(
-                      todaySession.total_volume
-                    ).toFixed(1)
+                  ? formatVolume(todaySession.total_volume)
                   : '0'}
               </strong>
 
-              {todaySession?.entries?.length > 0 ? (
-                <ul className="today-session-list">
-                  {todaySession.entries.map(
-                    (entry, index) => (
-                      <li
-                        key={`${entry.exercise_name}-${index}`}
-                        className={`today-session-item ${getExerciseCategory(
-                          entry.exercise_name || ''
-                        )}`}
-                      >
-                        {entry.exercise_id ? (
-                          <Link
-                            to={`/progress/${entry.exercise_id}`}
-                            className="today-session-link"
-                          >
-                            <span>
-                              {entry.exercise_name}
-                            </span>
-                          </Link>
-                        ) : (
-                          <span>
-                            {entry.exercise_name}
-                          </span>
-                        )}
-
-                        <span className="session-detail">
-                          {entry.weight} kg × {entry.reps}
-                        </span>
-                      </li>
-                    )
-                  )}
-                </ul>
-              ) : (
-                <p className="today-session-empty">
-                  No workouts logged today.
-                </p>
-              )}
+              <span className="dash-stat-unit">kg lifted</span>
             </article>
 
+            <article className="dash-stat" data-tone="teal">
+              <span className="dash-stat-icon">
+                <Icon>
+                  <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
+                  <path d="M3.5 10h17M8 3v4M16 3v4" />
+                </Icon>
+              </span>
 
-            <article className="stat-card">
-              <div className="stat-heading">
-                <span className="stat-label">
-                  Training days
-                </span>
+              <span className="dash-stat-label">Trained</span>
 
-                <svg
-                  className="stat-icon"
-                  width="16"
-                  height="16"
-                  viewBox="230 30 220 220"
-                  aria-hidden="true"
-                >
-                  <rect
-                    x="240"
-                    y="60"
-                    width="200"
-                    height="180"
-                    rx="8"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="7"
-                  />
-
-                  <rect
-                    x="240"
-                    y="60"
-                    width="200"
-                    height="40"
-                    rx="8"
-                    fill="currentColor"
-                  />
-
-                  <rect
-                    x="240"
-                    y="88"
-                    width="200"
-                    height="12"
-                    fill="currentColor"
-                  />
-
-                  <rect
-                    x="275"
-                    y="40"
-                    width="10"
-                    height="35"
-                    rx="4"
-                    fill="currentColor"
-                  />
-
-                  <rect
-                    x="395"
-                    y="40"
-                    width="10"
-                    height="35"
-                    rx="4"
-                    fill="currentColor"
-                  />
-
-                  <line
-                    x1="240"
-                    y1="140"
-                    x2="440"
-                    y2="140"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-
-                  <line
-                    x1="240"
-                    y1="180"
-                    x2="440"
-                    y2="180"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-
-                  <line
-                    x1="280"
-                    y1="100"
-                    x2="280"
-                    y2="240"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-
-                  <line
-                    x1="320"
-                    y1="100"
-                    x2="320"
-                    y2="240"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-
-                  <line
-                    x1="360"
-                    y1="100"
-                    x2="360"
-                    y2="240"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-
-                  <line
-                    x1="400"
-                    y1="100"
-                    x2="400"
-                    y2="240"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-
-                  <circle
-                    cx="300"
-                    cy="160"
-                    r="6"
-                    fill="currentColor"
-                  />
-                </svg>
-              </div>
-
-              <strong>
+              <strong className="dash-stat-value">
                 {totalDaysExercised}
               </strong>
 
-              <p className="stat-support">
-                Days you've trained
-              </p>
+              <span className="dash-stat-unit">days</span>
             </article>
 
+            <article className="dash-stat" data-tone="indigo">
+              <span className="dash-stat-icon">
+                <Icon>
+                  <path d="M9 6h11M9 12h11M9 18h11" />
+                  <circle cx="4.5" cy="6" r="1" />
+                  <circle cx="4.5" cy="12" r="1" />
+                  <circle cx="4.5" cy="18" r="1" />
+                </Icon>
+              </span>
 
-            <article className="stat-card">
-              <div className="stat-heading">
-                <span className="stat-label">
-                  Exercise library
-                </span>
-              </div>
+              <span className="dash-stat-label">Library</span>
 
-              <strong>
+              <strong className="dash-stat-value">
                 {exercises.length}
               </strong>
 
-              <p className="stat-support">
-                Exercises available
-              </p>
+              <span className="dash-stat-unit">exercises</span>
             </article>
 
           </section>
 
 
           {/* -------------------------------------------------
-              Exercise Library
+              This week
           ------------------------------------------------- */}
 
-          <section
-            className={`exercise-list-card${
-              exerciseListInView ? ' in-view' : ''
-            }`}
-            ref={exerciseListRef}
-          >
-            <div className="section-heading">
-              <div>
-                <p className="section-eyebrow">
-                  Your library
-                </p>
-
-                <h3>
-                  Your Exercises
-                </h3>
-              </div>
-
-              <span className="exercise-count">
-                {exercises.length}
-              </span>
+          <section aria-labelledby="dash-week-title">
+            <div className="dash-section-head">
+              <h2 id="dash-week-title" className="dash-section-title">
+                This week
+              </h2>
             </div>
 
-            <div className="exercise-list">
-              {sortedExercises.length ? (
-                sortedExercises.map(
-                  (exercise, index) => (
-                    <div
-                      key={exercise.id}
-                      className={`exercise-item-wrapper ${getExerciseCategory(
-                        exercise.name || ''
-                      )}`}
-                      style={{
-                        '--reveal-delay': `${
-                          index * 0.045
-                        }s`,
-                      }}
+            <div className="dash-week-cards">
+              <article className="dash-card">
+                <span className="dash-card-label">Days trained</span>
+
+                <strong className="dash-card-value">
+                  {weekStats.trained}
+                  <small>/ 7</small>
+                </strong>
+
+                <ol
+                  className="dash-week"
+                  aria-label="Days trained this week"
+                >
+                  {weekStats.days.map((day) => (
+                    <li
+                      key={day.key}
+                      className="dash-week-day"
+                      data-trained={day.trained}
+                      data-category={day.category}
+                      data-today={day.isToday}
                     >
-                      <Link
-                        to={`/progress/${exercise.id}`}
-                        className="exercise-item"
-                      >
-                        <span className="exercise-item-name">
-                          {exercise.name}
-                        </span>
-                      </Link>
+                      <span className="dash-week-dot" aria-hidden="true" />
 
-                      {exercise.created_by ===
-                        user?.id && (
-                        <button
-                          type="button"
-                          className="exercise-remove-btn"
-                          onClick={(e) =>
-                            handleDeleteExercise(
-                              e,
-                              exercise
-                            )
-                          }
-                          disabled={
-                            deletingExerciseId ===
-                            exercise.id
-                          }
-                          aria-label={`Remove ${exercise.name}`}
-                          title="Remove exercise"
-                        >
-                          <svg viewBox="0 0 24 24">
-                            <circle
-                              cx="12"
-                              cy="12"
-                              r="10"
-                            />
+                      <span className="dash-week-label" aria-hidden="true">
+                        {day.short}
+                      </span>
 
-                            <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                  )
-                )
-              ) : (
-                <p className="empty-exercises">
-                  No exercises yet. Create one below.
-                </p>
-              )}
+                      <span className="dash-sr-only">
+                        {day.long}: {day.trained ? `${day.category} workout` : 'no workout'}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </article>
+
+
             </div>
           </section>
 
 
           {/* -------------------------------------------------
-              Create Exercise
+              Exercise library
           ------------------------------------------------- */}
 
-          <section className="create-exercise-card">
-            <div className="create-exercise-copy">
-              <p className="section-eyebrow">
-                Expand your library
+          <section
+            className={`dash-exercises${
+              exerciseListInView ? ' in-view' : ''
+            }`}
+            ref={exerciseListRef}
+            aria-labelledby="dash-library-title"
+          >
+            <div className="dash-section-head">
+              <h2 id="dash-library-title" className="dash-section-title">
+                Your exercises
+              </h2>
+
+              <span className="dash-count">{exercises.length}</span>
+            </div>
+
+            {sortedExercises.length ? (
+              <div className="dash-rows dash-rows-grid">
+                {sortedExercises.map((exercise, index) => (
+                  <div
+                    key={exercise.id}
+                    className="dash-row dash-row-compact"
+                    data-category={getExerciseCategory(
+                      exercise.name || ''
+                    )}
+                    style={{
+                      '--reveal-delay': `${Math.min(index, 10) * 0.04}s`,
+                    }}
+                  >
+                    <span className="dash-row-tile" aria-hidden="true">
+                      <DumbbellIcon />
+                    </span>
+
+                    <Link
+                      to={`/progress/${exercise.id}`}
+                      className="dash-row-title dash-row-link"
+                    >
+                      {exercise.name}
+                    </Link>
+
+                    {exercise.created_by === user?.id && (
+                      <button
+                        type="button"
+                        className="dash-remove-btn"
+                        onClick={(e) =>
+                          handleDeleteExercise(e, exercise)
+                        }
+                        disabled={deletingExerciseId === exercise.id}
+                        aria-label={`Remove ${exercise.name}`}
+                        title="Remove exercise"
+                      >
+                        <Icon>
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
+                        </Icon>
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="dash-empty-note">
+                No exercises yet. Create one below.
               </p>
+            )}
+          </section>
 
-              <h3>
+
+          {/* -------------------------------------------------
+              Create exercise
+          ------------------------------------------------- */}
+
+          <section
+            className="dash-card dash-create"
+            aria-labelledby="dash-create-title"
+          >
+            <div>
+              <h2 id="dash-create-title" className="dash-section-title">
                 Add an exercise
-              </h3>
+              </h2>
 
-              <p>
-                Can't find what you're looking for?
-                Add it to your exercise library.
+              <p className="dash-create-copy">
+                Can't find what you're looking for? Add it to your
+                exercise library.
               </p>
             </div>
 
             <form
               onSubmit={handleCreateExercise}
-              className="create-exercise-form"
+              className="dash-create-form"
             >
-              <div className="input-group">
+              <div className="dash-field">
                 <label htmlFor="exercise_name">
                   Exercise name
                 </label>
@@ -618,10 +612,7 @@ function DashboardPage() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="primary-btn"
-              >
+              <button type="submit" className="dash-btn">
                 Add Exercise
               </button>
             </form>
