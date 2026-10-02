@@ -14,9 +14,6 @@
   --progress-muted: #777a80;
   --progress-faint: #a1a4aa;
 
-  --progress-page-top: #f7f7f8;
-  --progress-page-bottom: #ececee;
-
   --progress-surface: rgba(255, 255, 255, 0.84);
   --progress-surface-solid: #ffffff;
   --progress-surface-soft: rgba(248, 248, 249, 0.92);
@@ -87,9 +84,6 @@
   --progress-muted: #9499a2;
   --progress-faint: #696e77;
 
-  --progress-page-top: #111316;
-  --progress-page-bottom: #0b0d10;
-
   --progress-surface: rgba(23, 26, 31, 0.90);
   --progress-surface-solid: #181b20;
   --progress-surface-soft: rgba(28, 31, 36, 0.92);
@@ -124,10 +118,6 @@
   --chart-tooltip-muted: #aeb4bd;
 }
 
-/* =========================================================
-   PAGE BACKGROUND
-   ========================================================= */
-
 .progress-page {
   min-height: 100vh;
 
@@ -135,93 +125,8 @@
 
   color: var(--progress-ink);
 
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.65),
-      transparent 42%
-    ),
-    linear-gradient(
-      180deg,
-      var(--progress-page-top),
-      var(--progress-page-bottom)
-    );
-
   transition:
-    background 0.35s ease,
     color 0.25s ease;
-}
-
-/* ---------------------------------------------------------
-   PUSH — SOFT RED
-   --------------------------------------------------------- */
-
-.progress-page.push {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.65),
-      transparent 42%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(254, 242, 242, 0.96),
-      rgba(254, 226, 226, 0.98)
-    );
-}
-
-/* ---------------------------------------------------------
-   PULL — SOFT BLUE
-   --------------------------------------------------------- */
-
-.progress-page.pull {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.65),
-      transparent 42%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(239, 246, 255, 0.96),
-      rgba(219, 234, 254, 0.98)
-    );
-}
-
-/* ---------------------------------------------------------
-   LEGS — SOFT YELLOW
-   --------------------------------------------------------- */
-
-.progress-page.leg {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.65),
-      transparent 42%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(254, 249, 195, 0.96),
-      rgba(253, 230, 138, 0.98)
-    );
-}
-
-/* ---------------------------------------------------------
-   GENERAL — SOFT GREEN
-   --------------------------------------------------------- */
-
-.progress-page.general {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.65),
-      transparent 42%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(239, 248, 241, 0.96),
-      rgba(220, 239, 224, 0.98)
-    );
 }
 
 /* =========================================================
@@ -1229,80 +1134,6 @@
   box-shadow:
     0 8px 24px rgba(17, 18, 20, 0.025),
     0 0 0 1px rgba(77, 149, 96, 0.018);
-}
-
-/* =========================================================
-   DARK MODE — CATEGORY BACKGROUNDS
-   ========================================================= */
-
-.dark .progress-page {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.035),
-      transparent 42%
-    ),
-    linear-gradient(
-      180deg,
-      #101216,
-      #0a0c0f
-    );
-}
-
-.dark .progress-page.push {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(239, 68, 68, 0.045),
-      transparent 45%
-    ),
-    linear-gradient(
-      180deg,
-      #141012,
-      #0d0a0c
-    );
-}
-
-.dark .progress-page.pull {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(59, 130, 246, 0.045),
-      transparent 45%
-    ),
-    linear-gradient(
-      180deg,
-      #10151d,
-      #0b0e13
-    );
-}
-
-.dark .progress-page.leg {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(250, 204, 21, 0.045),
-      transparent 45%
-    ),
-    linear-gradient(
-      180deg,
-      #17140c,
-      #0d0c08
-    );
-}
-
-.dark .progress-page.general {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(57, 144, 77, 0.045),
-      transparent 45%
-    ),
-    linear-gradient(
-      180deg,
-      #101611,
-      #0b0e0c
-    );
 }
 
 /* =========================================================

@@ -15,7 +15,7 @@
      Core application palette
      ------------------------------------------------------- */
 
-  --bg: #f5f5f7;
+  --bg: #ffffff;
   --bg-elevated: #ffffff;
   --bg-soft: rgba(255, 255, 255, 0.72);
   --bg-strong: #111111;
@@ -322,22 +322,6 @@
    DARK BODY
    ========================================================= */
 
-:root.dark body {
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.035),
-      transparent 38%
-    ),
-    linear-gradient(
-      180deg,
-      #101217 0%,
-      #0b0c0f 48%,
-      #08090c 100%
-    );
-}
-
-
 /* =========================================================
    GLOBAL RESET
    ========================================================= */
@@ -358,18 +342,7 @@ body {
 
   padding: 0;
 
-  background:
-    radial-gradient(
-      circle at 50% -10%,
-      rgba(255, 255, 255, 0.94),
-      transparent 38%
-    ),
-    linear-gradient(
-      180deg,
-      #f5f5f7 0%,
-      #eeeef1 55%,
-      #e8e8eb 100%
-    );
+  background: var(--bg);
 
   font-size: 16px;
   letter-spacing: -0.01em;
