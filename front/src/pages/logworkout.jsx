@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
-import { useWorkouts } from '../context/workoutsContext'
+import { useWorkouts } from '../context/WorkoutsContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import { toSeconds } from '../utils/duration'
 import LoadingSpinner from '@/components/LoadingSpinner'

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useWorkouts } from '../context/workoutsContext'
+import { useWorkouts } from '../context/WorkoutsContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import { formatDuration } from '../utils/duration'
 import LoadingSpinner from '@/components/LoadingSpinner'
