@@ -57,7 +57,6 @@ function RegisterPage() {
               name="username"
               value={form.username}
               onChange={handleChange}
-              placeholder="A funky username"
               required
             />
           </label>
@@ -69,7 +68,6 @@ function RegisterPage() {
               name="email"
               value={form.email}
               onChange={handleChange}
-              placeholder="alex@example.com"
               required
             />
           </label>

@@ -1,15 +1,14 @@
 import os
 import re
 import time
-from typing import Optional, List
+import logging
+from typing import Optional
 import math
 
 from datetime import datetime, timedelta
 
-from dateutil import parser as dateutil_parser
-
 from dotenv import load_dotenv
-from fastapi import APIRouter, FastAPI, Body, Header, HTTPException, Request
+from fastapi import APIRouter, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from postgrest.exceptions import APIError
 from pydantic import BaseModel, Field
@@ -25,17 +24,12 @@ class PredictionsPayload(BaseModel):
     category: str | None = None
 
 
-COMPOUND_NOVICE_K = 0.45
-ISOLATION_NOVICE_K = 0.45
-COMPOUND_EXPERIENCED_K = 0.12
-ISOLATION_EXPERIENCED_K = 0.20
 MIN_CONFIDENCE_BAND = 0.10
 MAX_CONFIDENCE_BAND = 0.30
 CONFIDENCE_BAND_FULL_CONFIDENCE_POINTS = 20
 CONFIDENCE_BAND_WIDENING_PER_OFFSET = 0.01
-NOVICE_WINDOW_SESSIONS = 8
-NOVICE_TRANSITION_SESSIONS = 4
-LINEAR_FORECAST_SLOPE_SCALE = 1.0
+MAX_FORECAST_PERIODS = 90
+MAX_FORECAST_INTERVAL_DAYS = 365
 EXERCISE_MOVEMENT_CATEGORIES = {
     "bench press": "compound",
     "smith bench press": "compound",
@@ -86,24 +80,41 @@ def get_confidence_band_pct(history_points: int, forecast_offset: int = 1) -> fl
 
 load_dotenv()
 
+logger = logging.getLogger(__name__)
+
+
 def get_supabase_config() -> tuple[str | None, str | None]:
     return os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 
-SUPABASE_URL, SUPABASE_KEY = get_supabase_config()
-
 app = FastAPI(title="Workout Tracker API")
 router = APIRouter(prefix="/api")
 
-if os.getenv("APP_ENV") == "local":
+LOCAL_CORS_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+
+def get_cors_origins() -> list[str]:
+    # Local dev origins are only allowed when APP_ENV=local. For production
+    # with a frontend on a different domain, set CORS_ALLOWED_ORIGINS to a
+    # comma-separated list, e.g. "https://my-app.vercel.app".
+    origins: list[str] = []
+    if os.getenv("APP_ENV") == "local":
+        origins.extend(LOCAL_CORS_ORIGINS)
+    extra = os.getenv("CORS_ALLOWED_ORIGINS", "")
+    origins.extend(origin.strip() for origin in extra.split(",") if origin.strip())
+    return origins
+
+
+_cors_origins = get_cors_origins()
+if _cors_origins:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:5173",
-            "http://127.0.0.1:5173",
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-        ],
+        allow_origins=_cors_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -123,8 +134,27 @@ if _supabase_url and _supabase_key:
 RATE_LIMIT_BUCKETS: dict[str, list[float]] = {}
 
 
+RATE_LIMIT_MAX_TRACKED = 5000
+RATE_LIMIT_MAX_AGE_SECONDS = 3600
+
+
+def prune_rate_limit_buckets(now: float) -> None:
+    stale_keys = [
+        key
+        for key, bucket in RATE_LIMIT_BUCKETS.items()
+        if not bucket or now - bucket[-1] > RATE_LIMIT_MAX_AGE_SECONDS
+    ]
+    for key in stale_keys:
+        del RATE_LIMIT_BUCKETS[key]
+
+
 def check_rate_limit(identifier: str, max_requests: int = 5, window_seconds: int = 60) -> None:
+    # NOTE: this limiter is in-memory, so each process / serverless instance
+    # keeps its own counters and they reset on restart or cold start. For a
+    # hard guarantee, move it to Redis/Upstash or a database table.
     now = time.time()
+    if len(RATE_LIMIT_BUCKETS) > RATE_LIMIT_MAX_TRACKED:
+        prune_rate_limit_buckets(now)
     bucket = RATE_LIMIT_BUCKETS.setdefault(identifier, [])
     bucket[:] = [timestamp for timestamp in bucket if now - timestamp < window_seconds]
 
@@ -138,6 +168,12 @@ def check_rate_limit(identifier: str, max_requests: int = 5, window_seconds: int
 
 
 def get_client_ip(request: Request) -> str:
+    # Only trust proxy headers when running behind a proxy that overwrites them
+    # (e.g. Vercel). Otherwise a client can spoof x-forwarded-for to dodge the
+    # rate limiter - set TRUST_PROXY_HEADERS=false in that case.
+    if os.getenv("TRUST_PROXY_HEADERS", "true").lower() == "false":
+        return request.client.host if request.client else "unknown"
+
     forwarded_for = request.headers.get("x-forwarded-for")
     if forwarded_for:
         return forwarded_for.split(",", 1)[0].strip() or "unknown"
@@ -238,6 +274,15 @@ CARDIO_EXERCISE_PATTERN = re.compile(
 
 
 def get_exercise_category(name: str = "") -> str:
+    """
+    Rough bucket for an exercise name: cardio / leg / push / pull / other.
+
+    Only "cardio" vs. not-cardio changes validation. Names that match nothing
+    fall back to "other" (treated like strength work) instead of "cardio", so
+    custom exercises such as "Plank" or "Farmer carry" still accept weight and
+    reps. Patterns use word boundaries so "narrow" doesn't match "row" and
+    "lateral" doesn't match "lat".
+    """
     value = (name or "").lower()
     if CARDIO_EXERCISE_PATTERN.search(value):
         return "cardio"
@@ -267,20 +312,28 @@ def get_exercise_category(name: str = "") -> str:
         re.IGNORECASE,
     ):
         return "push"
-    if re.search(r"(rear delt|rear delts|pull|row|lat|curl|shrug|pulldown|pull up|bicep)", value, re.IGNORECASE):
+    # Leg check comes before pull so "leg curl" isn't treated as a bicep curl.
+    if re.search(
+        r"\b(?:legs?|squats?|hamstrings?|calf|calves|lunges?|glutes?|hip thrusts?)\b",
+        value,
+        re.IGNORECASE,
+    ):
+        return "leg"
+    if re.search(
+        r"\b(?:rear delts?|pull ?ups?|chin ?ups?|pull ?downs?|pulls?|rows?|lats?|"
+        r"curls?|shrugs?|biceps?|deadlifts?)\b",
+        value,
+        re.IGNORECASE,
+    ):
         return "pull"
     if re.search(
-        r"(bench|press|shoulder|chest|tricep|push|dip|fly|incline|dumbbell bench|"
-        r"smith bench|machine bench|machine push press|dumbbell shoulder press|"
-        r"machine shoulder press|cable machine shoulder press|delt cable flys|"
-        r"delt machine flys)",
+        r"\b(?:bench|press|shoulder|chest|tricep|push|dips?|fly|flys|flies|"
+        r"incline|lateral raises?|delts?)",
         value,
         re.IGNORECASE,
     ):
         return "push"
-    if re.search(r"(leg|squat|hamstring|calf|extension|lunge)", value, re.IGNORECASE):
-        return "leg"
-    return "cardio"
+    return "other"
 
 
 def validate_workout_log_payload(payload: WorkoutLogPayload, exercise_name: str) -> None:
@@ -580,12 +633,23 @@ def get_authenticated_user(authorization: str | None):
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid bearer token.")
 
-    token = authorization.split(" ", 1)[1]
+    token = authorization.split(" ", 1)[1].strip()
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing or invalid bearer token.")
+
     try:
-        user = supabase.auth.get_user(token)
-        return user.user
+        response = supabase.auth.get_user(token)
     except AuthApiError as exc:
         raise HTTPException(status_code=401, detail=exc.message) from exc
+    except Exception as exc:
+        # Some invalid/expired-token cases raise other auth error classes.
+        logger.warning("Token verification failed: %s", exc)
+        raise HTTPException(status_code=401, detail="Invalid or expired token.") from exc
+
+    user = getattr(response, "user", None) if response else None
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid or expired token.")
+    return user
 
 
 @router.get("/health")
@@ -649,9 +713,8 @@ def register_user(payload: RegisterPayload, request: Request):
     except AuthApiError as exc:
         raise HTTPException(status_code=exc.status or 400, detail=exc.message) from exc
     except Exception as exc:
-        # Log the exception (in production, use a proper logger)
-        print(f"Unexpected error during registration: {exc}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        logger.exception("Unexpected error during registration")
+        raise HTTPException(status_code=500, detail="Internal server error") from exc
 
     # Insert Profile - back on the clean admin client, so this still bypasses RLS.
     if auth_response.user is not None:
@@ -665,6 +728,15 @@ def register_user(payload: RegisterPayload, request: Request):
                 on_conflict="id",
             ).execute()
         except APIError as exc:
+            # Don't leave an auth account behind with no profile.
+            try:
+                supabase.auth.admin.delete_user(auth_response.user.id)
+            except Exception:
+                logger.exception("Failed to clean up auth user after profile creation error")
+
+            # 23505 = unique violation (e.g. two people grabbed the same username at once).
+            if getattr(exc, "code", None) == "23505":
+                raise HTTPException(status_code=409, detail="Username already exists.") from exc
             raise HTTPException(
                 status_code=400, detail=f"Failed to create profile: {exc.message}"
             ) from exc
@@ -693,6 +765,11 @@ def login_user(payload: LoginPayload, request: Request):
 
     target_email = (payload.email or "").strip()
 
+    # If the frontend put an email into the username field, treat it as an
+    # email. normalize_username would strip the "@" and "." and break the login.
+    if not target_email and payload.username and "@" in payload.username:
+        target_email = payload.username.strip()
+
     # Look up email by username if email was not supplied directly.
     # Uses the clean admin client - safe, no session attached here.
     if not target_email and payload.username:
@@ -710,7 +787,7 @@ def login_user(payload: LoginPayload, request: Request):
                 .execute()
             )
             if not profile.data:
-                raise HTTPException(status_code=401, detail="Invalid email or password.")
+                raise HTTPException(status_code=401, detail="oops! something was incorrect.")
             target_email = profile.data[0]["email"]
         except APIError as exc:
             raise HTTPException(status_code=400, detail=exc.message) from exc
@@ -727,11 +804,10 @@ def login_user(payload: LoginPayload, request: Request):
             {"email": target_email, "password": payload.password}
         )
     except AuthApiError as exc:
-        raise HTTPException(status_code=401, detail="Invalid email or password.") from exc
+        raise HTTPException(status_code=401, detail="oops! something was incorrect.") from exc
     except Exception as exc:
-        # Log the exception (in production, use a proper logger)
-        print(f"Unexpected error during login: {exc}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+        logger.exception("Unexpected error during login")
+        raise HTTPException(status_code=500, detail="Internal server error") from exc
 
     return {
         "message": "Login successful.",
@@ -850,7 +926,8 @@ def update_password(
             {"password": payload.new_password},
         )
     except Exception as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to update password: {exc}") from exc
+        logger.exception("Failed to update password")
+        raise HTTPException(status_code=400, detail="Failed to update password.") from exc
 
     return {"message": "Password updated successfully"}
 
@@ -900,24 +977,23 @@ def delete_account(
     try:
         supabase.auth.admin.delete_user(user.id)
     except Exception as exc:
+        logger.exception("Auth user deletion failed")
         if profile_snapshot:
             try:
                 supabase.table("profiles").upsert(profile_snapshot, on_conflict="id").execute()
             except APIError as restore_exc:
+                logger.error("Profile recovery failed: %s", restore_exc.message)
                 raise HTTPException(
                     status_code=500,
                     detail=(
-                        "Failed to delete account: auth deletion failed and profile recovery also failed. "
-                        f"Original error: {exc}. Recovery error: {restore_exc.message}"
+                        "Failed to delete account, and the profile could not be restored. "
+                        "Please contact support."
                     ),
                 ) from exc
 
         raise HTTPException(
             status_code=500,
-            detail=(
-                "Failed to delete account: auth deletion failed and the profile was restored. "
-                f"Original error: {exc}"
-            ),
+            detail="Failed to delete account. Nothing was changed, please try again.",
         ) from exc
 
     return {"message": "Account deleted successfully"}
@@ -962,17 +1038,26 @@ def create_exercise(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     try:
-        existing = (
+        visible = (
             supabase.table("exercises")
             .select("*")
-            .ilike("name", name)
             # Only collide with exercises this user can actually see (global + their own).
             .or_(f"created_by.is.null,created_by.eq.{user.id}")
-            .limit(1)
             .execute()
         )
-        if existing.data:
-            return {"exercise": existing.data[0], "created": False}
+        # Compare in Python instead of using ilike: ilike treats % and _ as
+        # wildcards, so a name like "b%" would match "Bench Press".
+        wanted = name.casefold()
+        match = next(
+            (
+                row
+                for row in (visible.data or [])
+                if (row.get("name") or "").strip().casefold() == wanted
+            ),
+            None,
+        )
+        if match:
+            return {"exercise": match, "created": False}
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to check exercise name: {exc.message}") from exc
 
@@ -999,7 +1084,7 @@ def update_exercise(
     if supabase is None:
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
 
-    user = get_authenticated_user(authorization)
+    get_authenticated_user(authorization)
 
     raise HTTPException(status_code=403, detail="Exercise updates are not allowed. Exercises are managed globally.")
 
@@ -1083,6 +1168,21 @@ def create_workout_log(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     try:
+        # Next set number for this exercise on this day (instead of always 1).
+        last_set = (
+            supabase.table("workout_logs")
+            .select("set_number")
+            .eq("user_id", user.id)
+            .eq("exercise_id", payload.exercise_id)
+            .eq("log_date", payload.log_date)
+            .order("set_number", desc=True)
+            .limit(1)
+            .execute()
+        )
+        next_set_number = (
+            (last_set.data[0].get("set_number") or 0) + 1 if last_set.data else 1
+        )
+
         created = (
             supabase.table("workout_logs")
             .insert(
@@ -1093,7 +1193,7 @@ def create_workout_log(
                     "weight": payload.weight,
                     "reps": payload.reps,
                     "duration_seconds": payload.duration_seconds,
-                    "set_number": 1,
+                    "set_number": next_set_number,
                 }
             )
             .execute()
@@ -1101,7 +1201,7 @@ def create_workout_log(
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to save workout log: {exc.message}") from exc
 
-    return {"message": "good job gabby!", "log": created.data[0] if created.data else None}
+    return {"message": "Workout logged successfully.", "log": created.data[0] if created.data else None}
 
 
 @router.get("/workout-logs")
@@ -1232,8 +1332,8 @@ def create_predictions(
             detail="Not enough data points for forecasting. Minimum 2 data points required.",
         )
 
-    periods = max(1, payload.periods)
-    interval_days = max(1, payload.interval_days)
+    periods = min(max(1, payload.periods), MAX_FORECAST_PERIODS)
+    interval_days = min(max(1, payload.interval_days), MAX_FORECAST_INTERVAL_DAYS)
     category = payload.category
     if payload.exercise_id:
         try:
@@ -1250,12 +1350,18 @@ def create_predictions(
         exercise_name = (exercise_result.data[0].get("name") if exercise_result.data else "") or ""
         category = EXERCISE_MOVEMENT_CATEGORIES.get(exercise_name.strip().lower(), category)
 
-    predictions = build_forecast(
-        points,
-        periods=periods,
-        interval_days=interval_days,
-        category=category or "compound",
-    )
+    try:
+        predictions = build_forecast(
+            points,
+            periods=periods,
+            interval_days=interval_days,
+            category=category or "compound",
+        )
+    except (ValueError, TypeError) as exc:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid data points. Each point needs a 'date' (YYYY-MM-DD) and a numeric 'volume'.",
+        ) from exc
     return {"predictions": predictions}
 
 

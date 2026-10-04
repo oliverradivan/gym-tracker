@@ -119,6 +119,7 @@
 }
 
 .logworkout-card {
+  margin-top: -225px;
   width: min(100%, 540px);
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(17, 17, 17, 0.08);
