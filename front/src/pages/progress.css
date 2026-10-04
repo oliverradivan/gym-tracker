@@ -53,9 +53,9 @@
   --leg-soft: rgba(185, 133, 32, 0.11);
   --leg-border: rgba(185, 133, 32, 0.24);
 
-  --general-color: #4d9560;
-  --general-soft: rgba(77, 149, 96, 0.10);
-  --general-border: rgba(77, 149, 96, 0.22);
+  --cardio-color: #4d9560;
+  --cardio-soft: rgba(77, 149, 96, 0.10);
+  --cardio-border: rgba(77, 149, 96, 0.22);
 
   /* -------------------------------------------------------
      CHART
@@ -196,7 +196,7 @@
   border-color: rgba(185, 133, 32, 0.18);
 }
 
-.progress-card.general {
+.progress-card.cardio {
   border-color: rgba(77, 149, 96, 0.16);
 }
 
@@ -410,10 +410,10 @@
   color: var(--leg-color);
 }
 
-.select-general {
-  border-color: var(--general-border);
+.select-cardio {
+  border-color: var(--cardio-border);
 
-  color: var(--general-color);
+  color: var(--cardio-color);
 }
 
 /* =========================================================
@@ -519,8 +519,8 @@
   color: #9a6e1b;
 }
 
-.option-general {
-  background: var(--general-soft);
+.option-cardio {
+  background: var(--cardio-soft);
 
   color: #417c50;
 }
@@ -537,7 +537,7 @@
   background: rgba(185, 133, 32, 0.16);
 }
 
-.option-general:hover {
+.option-cardio:hover {
   background: rgba(77, 149, 96, 0.15);
 }
 
@@ -1130,7 +1130,7 @@
     0 0 0 1px rgba(185, 133, 32, 0.018);
 }
 
-.progress-page.general .chart-box {
+.progress-page.cardio .chart-box {
   box-shadow:
     0 8px 24px rgba(17, 18, 20, 0.025),
     0 0 0 1px rgba(77, 149, 96, 0.018);
@@ -1183,7 +1183,7 @@
   color: #e7c46b;
 }
 
-.dark .option-general {
+.dark .option-cardio {
   background: rgba(77, 149, 96, 0.14);
 
   color: #8bd39b;

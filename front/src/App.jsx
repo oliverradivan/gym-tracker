@@ -10,6 +10,7 @@ import NotFoundPage from './pages/404'
 import Layout from './components/Layout'
 import SwipeDeck from './components/SwipeDeck'
 import { AuthProvider, useAuth } from './context/authContext'
+import { WorkoutsProvider } from './context/workoutsContext'
 import { ThemeProvider } from './context/themeContext'
 import './App.css'
 
@@ -51,7 +52,9 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppRoutes />
+        <WorkoutsProvider>
+          <AppRoutes />
+        </WorkoutsProvider>
       </AuthProvider>
     </ThemeProvider>
   )

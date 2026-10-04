@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
+import { useWorkouts } from '../context/workoutsContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './dashboard.css'
@@ -55,18 +56,11 @@ function toLocalDateKey(date) {
 }
 
 /*
- * First day of the week for the user's locale, as a JS weekday
- * (0 = Sunday ... 6 = Saturday). Falls back to Monday.
+ * First day of the week, as a JS weekday
+ * (0 = Sunday ... 6 = Saturday)
  */
 function getFirstWeekday() {
-  try {
-    const locale = new Intl.Locale(navigator.language)
-    const info = locale.getWeekInfo ? locale.getWeekInfo() : locale.weekInfo
-
-    return (info?.firstDay ?? 1) % 7
-  } catch {
-    return 1
-  }
+  return 0
 }
 
 /* -------------------------------------------------------
@@ -99,7 +93,7 @@ function Icon({ children, className }) {
  *   push    -> chest (front torso)
  *   pull    -> back
  *   leg     -> legs, front view (leg day)
- *   general -> legs, side view (running / cardio)
+ *   cardio -> legs, side view (running / cardio)
  */
 const CATEGORY_ARTWORK = {
   push: {
@@ -167,7 +161,7 @@ const CATEGORY_ARTWORK = {
     fills: [],
   },
 
-  general: {
+  cardio: {
     viewBox: '0 40 550 560',
     strokeWidth: 12,
     strokes: [
@@ -188,7 +182,7 @@ const CATEGORY_ARTWORK = {
 }
 
 function ExerciseCategoryIcon({ category, className }) {
-  const artwork = CATEGORY_ARTWORK[category] || CATEGORY_ARTWORK.general
+  const artwork = CATEGORY_ARTWORK[category] || CATEGORY_ARTWORK.cardio
 
   return (
     <svg
@@ -222,13 +216,19 @@ function DashboardPage() {
   const [form, setForm] = useState(initialForm)
   const { user, session } = useAuth()
 
+  /*
+   * Workout sessions live in the shared store, so logging or deleting a
+   * workout elsewhere updates this page without a reload. Only the exercise
+   * library is still fetched here.
+   */
+  const { sessions: allSessions, loading: sessionsLoading } = useWorkouts()
+
   const [exercises, setExercises] = useState([])
-  const [todaySession, setTodaySession] = useState(null)
-  const [allSessions, setAllSessions] = useState([])
-  const [totalDaysExercised, setTotalDaysExercised] = useState(0)
   const [exerciseListInView, setExerciseListInView] = useState(false)
-  const [pageLoading, setPageLoading] = useState(true)
+  const [exercisesLoading, setExercisesLoading] = useState(true)
   const exerciseListRef = useRef(null)
+
+  const pageLoading = exercisesLoading || sessionsLoading
 
   const username =
     user?.user_metadata?.username ||
@@ -319,78 +319,49 @@ function DashboardPage() {
   }
 
   useEffect(() => {
-    const loadDashboardData = async () => {
+    const loadExercises = async () => {
       if (!session?.access_token) {
-        setPageLoading(false)
+        setExercisesLoading(false)
         return
       }
 
-      setPageLoading(true)
-
       try {
-        const todayKey = toLocalDateKey(new Date())
+        const response = await fetch(`${API_URL}/exercises`, {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        })
 
-        const [
-          exercisesResponse,
-          sessionsResponse,
-        ] = await Promise.all([
-          fetch(`${API_URL}/exercises`, {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          }),
-
-          fetch(`${API_URL}/workout-sessions`, {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          }),
-        ])
-
-        if (exercisesResponse.ok) {
-          const exercisesResult =
-            await exercisesResponse.json()
-
-          setExercises(
-            exercisesResult.exercises || []
-          )
-        }
-
-        if (sessionsResponse.ok) {
-          const sessionsResult =
-            await sessionsResponse.json()
-
-          const sessions =
-            sessionsResult.sessions || []
-
-          setAllSessions(sessions)
-
-          const uniqueDays = new Set(
-            sessions.map(
-              (sessionItem) => sessionItem.date
-            )
-          )
-
-          setTotalDaysExercised(uniqueDays.size)
-
-          const matchingTodaySession =
-            sessions.find(
-              (sessionItem) =>
-                sessionItem.date === todayKey
-            )
-
-          setTodaySession(matchingTodaySession || null)
-
+        if (response.ok) {
+          const result = await response.json()
+          setExercises(result.exercises || [])
         }
       } catch {
-        // Dashboard data load error handled silently
+        // Exercise load error handled silently
       } finally {
-        setPageLoading(false)
+        setExercisesLoading(false)
       }
     }
 
-    loadDashboardData()
+    loadExercises()
   }, [session])
+
+  /*
+   * Today's session and the total number of training days, derived from the
+   * shared sessions. They recompute whenever a workout is logged or deleted.
+   */
+  const todaySession = useMemo(() => {
+    const todayKey = toLocalDateKey(new Date())
+
+    return (
+      allSessions.find((sessionItem) => sessionItem.date === todayKey) || null
+    )
+  }, [allSessions])
+
+  const totalDaysExercised = useMemo(
+    () => new Set(allSessions.map((sessionItem) => sessionItem.date)).size,
+    [allSessions]
+  )
 
   useEffect(() => {
     const node = exerciseListRef.current
@@ -460,7 +431,7 @@ function DashboardPage() {
         return counts
       }, {})
       const category = Object.entries(categoryCounts)
-        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'general'
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'cardio'
 
       return {
         key,
@@ -547,7 +518,7 @@ function DashboardPage() {
                 {totalDaysExercised}
               </strong>
 
-              <span className="dash-stat-unit">days</span>
+              <span className="dash-stat-unit">days logged</span>
             </article>
 
             <article className="dash-stat" data-tone="indigo">

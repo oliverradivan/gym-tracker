@@ -38,17 +38,17 @@ export function getExerciseCategory(name = '') {
     return 'leg'
   }
 
-  return 'general'
+  return 'cardio'
 }
 
 export const CATEGORY_COLORS = {
   leg: '#b7791f',
   push: '#b91c1c',
   pull: '#1d4ed8',
-  general: '#39904d',
+  cardio: '#39904d',
 }
 
 export function getExerciseCategoryColor(name = '') {
   const category = getExerciseCategory(name)
-  return CATEGORY_COLORS[category] || CATEGORY_COLORS.general
+  return CATEGORY_COLORS[category] || CATEGORY_COLORS.cardio
 }

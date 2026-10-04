@@ -1,17 +1,16 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../context/authContext'
+import { useWorkouts } from '../context/workoutsContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './history.css'
-
-const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 /* Display names for the exercise categories returned by getExerciseCategory. */
 const CATEGORY_LABELS = {
   push: 'Push',
   pull: 'Pull',
   leg: 'Legs',
+  cardio: 'Cardio',
 }
 
 const kgFormatter = new Intl.NumberFormat('en-US', {
@@ -52,56 +51,15 @@ function getDateParts(isoDate) {
 }
 
 function HistoryPage() {
-  const { session } = useAuth()
-  const [sessions, setSessions] = useState([])
-  const [loading, setLoading] = useState(true)
+  /*
+   * Sessions come from the shared workouts store, so a workout logged on the
+   * Log Workout page shows up here immediately. Refreshing after a delete
+   * doesn't toggle `loading`, so the list stays mounted and keeps its
+   * scroll position.
+   */
+  const { sessions, loading, deleteLog } = useWorkouts()
   const [message, setMessage] = useState('')
   const [deletingId, setDeletingId] = useState(null)
-
-  /*
-   * Single source of truth for loading workout history.
-   *
-   * The initial load shows the full-page spinner. Refreshing after a delete
-   * passes showSpinner: false so the list stays mounted and the scroll
-   * position is kept instead of the whole page flashing to a spinner.
-   */
-  const loadSessions = useCallback(
-    async ({ showSpinner = true } = {}) => {
-      if (!session?.access_token) {
-        setSessions([])
-        setLoading(false)
-        return
-      }
-
-      if (showSpinner) {
-        setLoading(true)
-      }
-
-      try {
-        const response = await fetch(`${API_URL}/workout-sessions`, {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error('Unable to load workout history.')
-        }
-
-        const result = await response.json()
-        setSessions(result.sessions || [])
-      } catch {
-        // History load error handled silently.
-      } finally {
-        setLoading(false)
-      }
-    },
-    [session?.access_token]
-  )
-
-  useEffect(() => {
-    loadSessions()
-  }, [loadSessions])
 
   // The message is shown as a toast, so it clears itself after a few seconds.
   useEffect(() => {
@@ -112,8 +70,8 @@ function HistoryPage() {
   }, [message])
 
   const handleDeleteWorkout = async (logId) => {
-    if (!logId || !session?.access_token) {
-      setMessage('Unable to delete — missing workout ID or session.')
+    if (!logId) {
+      setMessage('Unable to delete — missing workout ID.')
       return
     }
 
@@ -121,20 +79,7 @@ function HistoryPage() {
     setMessage('')
 
     try {
-      const response = await fetch(`${API_URL}/workout-logs/${logId}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      })
-
-      const result = await response.json().catch(() => ({}))
-
-      if (!response.ok) {
-        throw new Error(result.detail || 'Unable to delete workout.')
-      }
-
-      await loadSessions({ showSpinner: false })
+      await deleteLog(logId)
       setMessage('Workout deleted successfully.')
     } catch (error) {
       setMessage(error.message || 'Failed to delete workout.')

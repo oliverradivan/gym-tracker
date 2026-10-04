@@ -51,6 +51,8 @@
   --h-pull-ink: #1d4fd8;
   --h-leg: #d97706;
   --h-leg-ink: #b45309;
+  --h-cardio: #39904d;
+  --h-cardio-ink: #2f743e;
 
   /* Row tint strengths (share of category colour mixed into the surface) */
   --h-tint: 11%;
@@ -75,6 +77,8 @@
   --h-pull-ink: #7aa9ff;
   --h-leg: #f5a524;
   --h-leg-ink: #f7b84b;
+  --h-cardio: #57a567;
+  --h-cardio-ink: #8bd39b;
 
   --h-tint: 16%;
   --h-tint-hover: 22%;
@@ -108,6 +112,15 @@
   --h-entry-hover: color-mix(in srgb, var(--h-leg) var(--h-tint-hover), var(--h-surface));
   --h-entry-press: color-mix(in srgb, var(--h-leg) var(--h-tint-press), var(--h-surface));
   --h-entry-line: color-mix(in srgb, var(--h-leg) var(--h-divider-mix), var(--h-surface));
+}
+
+.history-page [data-category='cardio'] {
+  --h-category: var(--h-cardio);
+  --h-category-ink: var(--h-cardio-ink);
+  --h-entry-bg: color-mix(in srgb, var(--h-cardio) var(--h-tint), var(--h-surface));
+  --h-entry-hover: color-mix(in srgb, var(--h-cardio) var(--h-tint-hover), var(--h-surface));
+  --h-entry-press: color-mix(in srgb, var(--h-cardio) var(--h-tint-press), var(--h-surface));
+  --h-entry-line: color-mix(in srgb, var(--h-cardio) var(--h-divider-mix), var(--h-surface));
 }
 
 .history-shell {

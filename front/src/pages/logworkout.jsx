@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
+import { useWorkouts } from '../context/workoutsContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './logworkout.css'
@@ -33,6 +34,7 @@ function LogWorkoutPage() {
   const selectRef = useRef(null)
   const navigate = useNavigate()
   const { session, setMessage: setGlobalMessage } = useAuth()
+  const { addLog } = useWorkouts()
 
   useEffect(() => {
     const loadExercises = async () => {
@@ -132,25 +134,14 @@ function LogWorkoutPage() {
     const startedAt = Date.now()
 
     try {
-      const response = await fetch(`${API_URL}/workout-logs`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          exercise_id: form.exercise_id,
-          weight: Number(form.weight),
-          reps: Number(form.reps),
-          log_date: form.date,
-        }),
+      // Saves the workout and refreshes the shared store, so Dashboard,
+      // History and Progress update straight away.
+      await addLog({
+        exercise_id: form.exercise_id,
+        weight: Number(form.weight),
+        reps: Number(form.reps),
+        log_date: form.date,
       })
-
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.detail || 'Failed to save workout.')
-      }
 
       // Keep the spinner up for a minimum stretch so the swap back to the
       // button doesn't feel like a flicker on fast connections.

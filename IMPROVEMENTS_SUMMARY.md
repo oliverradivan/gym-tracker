@@ -73,7 +73,7 @@ test_workout_feature.py::test_build_forecast_avoids_overreacting_to_a_single_big
 The concern about "duplicated logic: Exercise categorization differs slightly between frontend/backend" was analyzed:
 
 - **Backend** (`EXERCISE_MOVEMENT_CATEGORIES`): Uses compound/isolation classification for the forecasting model (to determine growth rates k values)
-- **Frontend** (`getExerciseCategory`): Uses leg/push/pull/general classification for UI styling and color coding
+- **Frontend** (`getExerciseCategory`): Uses leg/push/pull/cardio classification for UI styling and color coding
 
 These serve different purposes:
 - Backend classification drives the mathematical forecasting model

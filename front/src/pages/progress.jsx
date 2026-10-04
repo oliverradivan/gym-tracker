@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
+import { useWorkouts } from '../context/workoutsContext'
 import { getExerciseCategory, getExerciseCategoryColor } from '../utils/exerciseCategory'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ProjectionLine from '@/components/charts/projection-line'
@@ -26,6 +27,8 @@ const formatDisplayDate = (date) => {
 
 function ProgressPage() {
   const { session, authFetch } = useAuth()
+  // `version` bumps whenever a workout is logged or deleted anywhere in the app.
+  const { version } = useWorkouts()
   const { exerciseId } = useParams()
   const { pathname } = useLocation()
 
@@ -41,6 +44,9 @@ function ProgressPage() {
   const [selectOpen, setSelectOpen] = useState(false)
   const selectRef = useRef(null)
   const chartScrollRef = useRef(null)
+  // Remembers which exercise's progress is on screen, so a background refetch
+  // (after logging a workout) updates the chart without a spinner flash.
+  const loadedExerciseRef = useRef('')
   const [chartScrollPosition, setChartScrollPosition] = useState(0)
   const [chartScrollMax, setChartScrollMax] = useState(0)
 
@@ -120,16 +126,21 @@ function ProgressPage() {
     let cancelled = false
     const loadProgress = async () => {
       if (!session || !selectedExerciseId) {
+        loadedExerciseRef.current = ''
         setProgress([])
         setLoading(false)
         return
       }
       try {
-        setLoading(true)
+        // Only show the spinner when switching to a different exercise.
+        if (loadedExerciseRef.current !== selectedExerciseId) setLoading(true)
         const response = await authFetch(`/workout-logs/progress?exercise_id=${selectedExerciseId}`)
         if (!response.ok) throw new Error('Unable to load progress.')
         const result = await response.json()
-        if (!cancelled) setProgress(result.progress || [])
+        if (!cancelled) {
+          loadedExerciseRef.current = selectedExerciseId
+          setProgress(result.progress || [])
+        }
       } catch (error) {
         console.error(error)
       } finally {
@@ -138,7 +149,7 @@ function ProgressPage() {
     }
     loadProgress()
     return () => { cancelled = true }
-  }, [selectedExerciseId, session, authFetch])
+  }, [selectedExerciseId, session, authFetch, version])
 
   // Load predictions.
   useEffect(() => {

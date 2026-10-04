@@ -359,7 +359,7 @@
   --week-wash: #fff9df;
 }
 
-.dash-week-day[data-category="general"] {
+.dash-week-day[data-category="cardio"] {
   --week-accent: #57a567;
   --week-wash: #edf8ef;
 }
@@ -444,20 +444,11 @@
   background: linear-gradient(135deg, #fff9df 0%, #fff3c4 100%);
 }
 
-.dash-row[data-category="general"] {
+.dash-row[data-category="cardio"] {
   --row-accent: #57a567;
   --row-wash: #edf8ef;
   border-color: rgba(57, 144, 77, 0.16);
   background: linear-gradient(135deg, #edf8ef 0%, #e3f3e6 100%);
-}
-
-.dash-row.exercise-card--general,
-.dash-row.exercise-card--general[data-category] {
-  border-color: #e2e8e5;
-  color: #172321;
-  background: #ffffff;
-  background-image: none;
-  box-shadow: 0 4px 14px rgb(26 51 42 / 7%);
 }
 
 .dash-row.exercise-card--run,
@@ -480,7 +471,7 @@
   place-items: center;
   border-radius: 12px;
   color: var(--row-accent);
-  background: var(--row-wash);
+  background: rgb(255 255 255 / 65%);
 }
 
 .dash-row-tile svg {
@@ -947,13 +938,41 @@
   --dash-shadow-hover: 0 12px 28px rgb(0 0 0 / 32%);
 }
 
-.dark .dash-row.exercise-card--general,
-.dark .dash-row.exercise-card--general[data-category] {
-  border-color: #343f39;
+.dark .dash-row {
   color: #e5ece8;
-  background: #15171c;
-  background-image: none;
   box-shadow: 0 4px 14px rgb(0 0 0 / 22%);
+}
+
+.dark .dash-row[data-category="push"] {
+  border-color: rgb(217 74 74 / 38%);
+  background:
+    linear-gradient(135deg, rgb(217 74 74 / 22%), rgb(217 74 74 / 9%)),
+    #15171c;
+}
+
+.dark .dash-row[data-category="pull"] {
+  border-color: rgb(76 130 220 / 38%);
+  background:
+    linear-gradient(135deg, rgb(76 130 220 / 22%), rgb(76 130 220 / 9%)),
+    #15171c;
+}
+
+.dark .dash-row[data-category="leg"] {
+  border-color: rgb(211 166 42 / 38%);
+  background:
+    linear-gradient(135deg, rgb(211 166 42 / 22%), rgb(211 166 42 / 9%)),
+    #15171c;
+}
+
+.dark .dash-row[data-category="cardio"] {
+  border-color: rgb(87 165 103 / 38%);
+  background:
+    linear-gradient(135deg, rgb(87 165 103 / 22%), rgb(87 165 103 / 9%)),
+    #15171c;
+}
+
+.dark .dash-row-tile {
+  background: rgb(255 255 255 / 8%);
 }
 
 .dark .dash-row.exercise-card--run,
