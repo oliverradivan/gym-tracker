@@ -3,7 +3,6 @@ import { localPoint } from "@visx/event";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
 import { DEFAULT_Y_AXIS_ID, normalizeYAxisId } from "./y-axis-scales";
-import { projectionDateExtents, projectionValueExtents } from "./projection-utils";
 
 export function useChartInteraction(
   {
@@ -81,10 +80,6 @@ export function useChartInteraction(
       }
 
       // Find the index in the combined data nearest to x0.
-      // Since combinedData is sorted (actuals first, then forecast), we can
-      // use a simple linear search or binary search. We'll use bisect on the
-      // x values of the combined data.
-      const combinedXValues = combinedData.map(d => xAccessor(d).getTime());
       const index = bisectDate(combinedData, x0, 1);
       const d0 = combinedData[index - 1];
       const d1 = combinedData[index];
@@ -95,7 +90,6 @@ export function useChartInteraction(
 
       let d = d0;
       let finalIndex = index - 1;
-      let pointType = "actual";
 
       if (d1) {
         const d0Time = xAccessor(d0).getTime();
@@ -103,11 +97,9 @@ export function useChartInteraction(
         if (x0.getTime() - d0Time > d1Time - x0.getTime()) {
           d = d1;
           finalIndex = index;
-          pointType = d1.type ?? "actual";
         }
-      } else {
-        pointType = d0.type ?? "actual";
       }
+      const pointType = d.type ?? "actual";
 
       // Compute yPositions for all lines (actual + forecast)
       const yPositions = {};
@@ -146,7 +138,10 @@ export function useChartInteraction(
         // Set it under the first line's dataKey so marker-rendering code
         // (which reads yPositions[line.dataKey]) can find it, but only if
         // that dataKey isn't already set from actual data.
-        if (lines.length > 0 && !yPositions[lines[0].dataKey]) {
+        if (
+          lines.length > 0 &&
+          yPositions[lines[0].dataKey] == null
+        ) {
           yPositions[lines[0].dataKey] = forecastScale(forecastValue) ?? 0;
         }
       }
@@ -155,7 +150,10 @@ export function useChartInteraction(
       // compute y-position from the scale using the point's value for any
       // line dataKey that doesn't have a position yet.
       for (const line of lines) {
-        if (!yPositions[line.dataKey] && d[line.dataKey] != null) {
+        if (
+          yPositions[line.dataKey] == null &&
+          typeof d[line.dataKey] === "number"
+        ) {
           const axisScale = yScales[normalizeYAxisId(line.yAxisId)] ?? yScale;
           yPositions[line.dataKey] = axisScale(d[line.dataKey]) ?? 0;
         }
@@ -169,7 +167,7 @@ export function useChartInteraction(
         pointType,
       };
     },
-    [xScale, yScale, yScales, data, lines, xAccessor, bisectDate, projectionConfigs, normalizeYAxisId]
+    [xScale, yScale, yScales, data, lines, xAccessor, bisectDate, projectionConfigs]
   );
 
   const resolveIndexFromX = useCallback(

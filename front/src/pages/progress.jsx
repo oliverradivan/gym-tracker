@@ -319,7 +319,7 @@ function ProgressPage() {
       animationDuration={1800}
       animationEasing="cubic-bezier(0.42, 0, 1, 1)"
       key={chartMetric}
-      style={{ touchAction: isMobile && graphScrollable ? 'pan-x' : 'none' }}
+      style={{ touchAction: isMobile && graphScrollable && !showForecast ? 'pan-x' : 'none' }}
     >
       <Grid horizontal vertical intervalDays={4} />
       <Line dataKey="actualValue" stroke={chartStroke} curve={curveLinear} fadeEdges showHighlight={true} showMarkers />
