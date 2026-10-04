@@ -4,7 +4,9 @@ import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/workoutsContext'
 import { getExerciseCategory, getExerciseCategoryColor } from '../utils/exerciseCategory'
+import { formatDuration } from '../utils/duration'
 import LoadingSpinner from '@/components/LoadingSpinner'
+import { useChartStable, useYScale } from '@/components/charts/chart-context'
 import ProjectionLine from '@/components/charts/projection-line'
 import LineChart from '@/components/charts/line-chart'
 import Line from '@/components/charts/line'
@@ -17,8 +19,28 @@ import './progress.css'
 
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
+const FLIP_CARDIO_Y_AXIS = false
 
 const METRICS = { volume: { label: 'Volume' }, weight: { label: 'Weight' }, reps: { label: 'Reps' } }
+
+function BestTimeMarker({ point, color }) {
+  const { xScale, xAccessor } = useChartStable()
+  const yScale = useYScale()
+
+  if (!point) return null
+
+  const x = xScale(xAccessor(point))
+  const y = yScale(point.actualValue)
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null
+
+  return (
+    <g transform={`translate(${x}, ${y})`} aria-hidden="true" pointerEvents="none">
+      <circle r="8" fill={color} stroke="white" strokeWidth="3" />
+    </g>
+  )
+}
+
+BestTimeMarker.__isPostOverlay = true
 
 const formatDisplayDate = (date) => {
   const [year, month, day] = String(date || '').slice(0, 10).split('-')
@@ -151,11 +173,15 @@ function ProgressPage() {
     return () => { cancelled = true }
   }, [selectedExerciseId, session, authFetch, version])
 
+  const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
+  const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
+  const chartStroke = getExerciseCategoryColor(selectedExercise?.name || '')
+
   // Load predictions.
   useEffect(() => {
     let mounted = true
     const loadPredictions = async () => {
-      if (!predictionEnabled || !selectedExerciseId || progress.length < 2) {
+      if (category === 'cardio' || !predictionEnabled || !selectedExerciseId || progress.length < 2) {
         if (mounted) {
           setPredictions([])
           setPredictionError('')
@@ -191,11 +217,7 @@ function ProgressPage() {
     }
     loadPredictions()
     return () => { mounted = false }
-  }, [predictionEnabled, selectedExerciseId, progress, session, authFetch])
-
-  const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
-  const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
-  const chartStroke = getExerciseCategoryColor(selectedExercise?.name || '')
+  }, [category, predictionEnabled, selectedExerciseId, progress, session, authFetch])
 
   // Sort dropdown options by category.
   const sortedExercises = useMemo(() => {
@@ -214,14 +236,33 @@ function ProgressPage() {
     setSelectOpen(false)
   }
 
-  const showForecast = selectedMetric === 'volume' && predictionEnabled && predictions.length > 0
+  const chartMetric = category === 'cardio' ? 'duration_seconds' : selectedMetric
+  const metricLabel = category === 'cardio' ? 'Time' : METRICS[chartMetric]?.label || 'Unknown'
+  const showForecast = category !== 'cardio' && chartMetric === 'volume' && predictionEnabled && predictions.length > 0
+
+  const bestTimePoint = useMemo(() => {
+    if (category !== 'cardio') return null
+    return progress.reduce((best, point, index) => {
+      const duration = Number(point.duration_seconds)
+      if (!Number.isFinite(duration) || duration <= 0) return best
+      if (!best || duration < best.duration) return { duration, index }
+      return best
+    }, null)
+  }, [category, progress])
 
   const chartData = useMemo(() => {
-    return progress.map((point) => ({
-      date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
-      actualValue: Number(point[selectedMetric] || 0),
-    }))
-  }, [progress, selectedMetric])
+    return progress.map((point) => {
+      const rawValue = category === 'cardio'
+        ? Number(point.duration_seconds || 0)
+        : Number(point[chartMetric] || 0)
+      return {
+        date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
+        actualValue: category === 'cardio' && FLIP_CARDIO_Y_AXIS ? -rawValue : rawValue,
+      }
+    })
+  }, [progress, chartMetric, category])
+
+  const bestTimeChartPoint = bestTimePoint ? chartData[bestTimePoint.index] : null
 
   const forecastData = useMemo(() => {
     if (!showForecast || predictions.length === 0) return []
@@ -263,7 +304,7 @@ function ProgressPage() {
       if (resizeObserver) resizeObserver.disconnect()
       cancelAnimationFrame(frame)
     }
-  }, [isMobile, graphScrollable, progress.length, selectedMetric, predictions.length, showForecast])
+  }, [isMobile, graphScrollable, progress.length, chartMetric, predictions.length, showForecast])
 
   const handleChartSliderChange = (event) => {
     const value = Number(event.target.value)
@@ -277,21 +318,34 @@ function ProgressPage() {
       xDataKey="date"
       animationDuration={1800}
       animationEasing="cubic-bezier(0.42, 0, 1, 1)"
-      key={selectedMetric}
+      key={chartMetric}
       style={{ touchAction: isMobile && graphScrollable ? 'pan-x' : 'none' }}
     >
       <Grid horizontal vertical intervalDays={4} />
       <Line dataKey="actualValue" stroke={chartStroke} curve={curveLinear} fadeEdges showHighlight={true} showMarkers />
+      {category === 'cardio' && (
+        <BestTimeMarker point={bestTimeChartPoint} color={chartStroke} />
+      )}
       {showForecast && predictions.length > 0 && (
         <ProjectionLine data={forecastData} dataKey="value" curveKind="linear" showEndMarker={false} stroke="var(--chart-3)" strokeWidth={2} strokeDasharray="6,4" showMarkers={true} />
       )}
-      <YAxis formatLargeNumbers={false} />
+      <YAxis
+        formatLargeNumbers={false}
+        formatValue={category === 'cardio' ? (value) => formatDuration(Math.abs(value)) : undefined}
+      />
       <XAxis tickMode="interval" intervalDays={4} />
       <ChartTooltip
         backgroundColor="var(--tooltip-bg)"
         animateCrosshair={false}
         indicatorFadeEdges="none"
-        rows={(point) => [{ label: METRICS[selectedMetric]?.label || 'Unknown', value: point.value ?? point.actualValue ?? 0, color: chartStroke }]}
+        rows={(point) => {
+          const value = point.value ?? point.actualValue ?? 0
+          return [{
+            label: metricLabel,
+            value: category === 'cardio' ? formatDuration(Math.abs(value)) : value,
+            color: chartStroke,
+          }]
+        }}
       />
     </LineChart>
   )
@@ -348,22 +402,30 @@ function ProgressPage() {
           <p className="status-message">No progress data yet for {selectedExercise.name}.</p>
         ) : (
           <>
-            <div className="metric-toggle" role="group" aria-label="Chart metric">
-              {Object.entries(METRICS).map(([value, details]) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={selectedMetric === value ? 'active' : ''}
-                  aria-pressed={selectedMetric === value}
-                  aria-label={selectedMetric === value ? `Selected: ${details.label} metric` : `Select ${details.label} metric`}
-                  onClick={() => setSelectedMetric(value)}
-                >
-                  {details.label}
-                </button>
-              ))}
-            </div>
+            {category !== 'cardio' && (
+              <div className="metric-toggle" role="group" aria-label="Chart metric">
+                {Object.entries(METRICS).map(([value, details]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    className={selectedMetric === value ? 'active' : ''}
+                    aria-pressed={selectedMetric === value}
+                    aria-label={selectedMetric === value ? `Selected: ${details.label} metric` : `Select ${details.label} metric`}
+                    onClick={() => setSelectedMetric(value)}
+                  >
+                    {details.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <div className="chart-box">
+              {category === 'cardio' && bestTimePoint && (
+                <p className="best-time-summary">
+                  <span>Best time</span>
+                  <strong>{formatDuration(bestTimePoint.duration)}</strong>
+                </p>
+              )}
               {isMobile && graphScrollable ? (
                 <>
                   <div className="chart-scroll-wrapper" ref={chartScrollRef} data-swipe-ignore>
@@ -393,7 +455,7 @@ function ProgressPage() {
                 <div className="chart-legend" aria-label="Chart legend">
                   <span className="legend-item">
                     <span className="legend-line actual-line" />
-                    Actual {METRICS[selectedMetric].label.toLowerCase()}
+                    Actual {metricLabel.toLowerCase()}
                   </span>
                   {showForecast && (
                     <span className="legend-item">
@@ -409,22 +471,32 @@ function ProgressPage() {
 
             <table className="progress-table">
               <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Weight</th>
-                  <th>Reps</th>
-                  <th>Volume</th>
-                </tr>
+                {category === 'cardio' ? (
+                  <tr><th>Date</th><th>Time</th></tr>
+                ) : (
+                  <tr>
+                    <th>Date</th>
+                    <th>Weight</th>
+                    <th>Reps</th>
+                    <th>Volume</th>
+                  </tr>
+                )}
               </thead>
               <tbody>
                 {[...progress]
                   .sort((a, b) => String(b.date).localeCompare(String(a.date)))
-                  .map((point) => (
-                    <tr key={point.date}>
+                  .map((point, index) => (
+                    <tr key={`${point.date}-${index}`}>
                       <td>{formatDisplayDate(point.date)}</td>
-                      <td>{Number(point.weight || 0).toFixed(1)}</td>
-                      <td>{(Number(point.reps) || 0) % 1 === 0 ? Number(point.reps) || 0 : (Number(point.reps) || 0).toFixed(1)}</td>
-                      <td>{Number(point.volume || 0).toFixed(1)}</td>
+                      {category === 'cardio' ? (
+                        <td>{formatDuration(point.duration_seconds)}</td>
+                      ) : (
+                        <>
+                          <td>{Number(point.weight || 0).toFixed(1)}</td>
+                          <td>{(Number(point.reps) || 0) % 1 === 0 ? Number(point.reps) || 0 : (Number(point.reps) || 0).toFixed(1)}</td>
+                          <td>{Number(point.volume || 0).toFixed(1)}</td>
+                        </>
+                      )}
                     </tr>
                   ))}
               </tbody>

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useWorkouts } from '../context/workoutsContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
+import { formatDuration } from '../utils/duration'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './history.css'
 
@@ -207,18 +208,28 @@ function HistoryPage() {
                               )}
 
                               <span>
-                                {entry.weight} kg
-                                <span aria-hidden="true"> × </span>
-                                {entry.reps} reps
+                                {category === 'cardio'
+                                  ? entry.duration_seconds == null
+                                    ? 'Time not recorded'
+                                    : formatDuration(entry.duration_seconds)
+                                  : (
+                                    <>
+                                      {entry.weight} kg
+                                      <span aria-hidden="true"> × </span>
+                                      {entry.reps} reps
+                                    </>
+                                  )}
                               </span>
                             </span>
                           </div>
 
-                          <div className="entry-volume">
-                            <span className="history-sr-only">Volume </span>
-                            <strong>{formatKg(entry.volume)}</strong>
-                            <small>kg</small>
-                          </div>
+                          {category !== 'cardio' && (
+                            <div className="entry-volume">
+                              <span className="history-sr-only">Volume </span>
+                              <strong>{formatKg(entry.volume)}</strong>
+                              <small>kg</small>
+                            </div>
+                          )}
 
                           <div
                             className={`delete-action${

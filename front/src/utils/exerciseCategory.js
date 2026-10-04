@@ -1,6 +1,10 @@
 export function getExerciseCategory(name = '') {
   const value = name.toLowerCase()
 
+  if (/\b(run(?:ning)?|jog(?:ging)?|treadmill|bike|cycling|cycle|row(?:ing)? machine|rower|swim(?:ming)?|walk(?:ing)?|elliptical|stair\w*|jump rope|skipping|cardio)\b/i.test(value)) {
+    return 'cardio'
+  }
+
   const explicitLeg = [
     'bed hamstring curl',
     'crunch machine',

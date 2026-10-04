@@ -144,6 +144,12 @@
   gap: 18px;
 }
 
+.duration-inputs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .logworkout-form label {
   display: flex;
   flex-direction: column;
@@ -322,6 +328,10 @@
 
   .logworkout-form {
     gap: 14px;
+  }
+
+  .duration-inputs {
+    gap: 8px;
   }
 }
 

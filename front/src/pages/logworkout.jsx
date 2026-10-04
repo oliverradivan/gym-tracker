@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/workoutsContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
+import { toSeconds } from '../utils/duration'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './logworkout.css'
 
@@ -21,6 +22,9 @@ const buildInitialForm = () => ({
   exercise_id: '',
   weight: '',
   reps: '',
+  hours: '',
+  minutes: '',
+  seconds: '',
   date: getTodayKey(),
 })
 
@@ -90,7 +94,19 @@ function LogWorkoutPage() {
   const handleSelectExercise = (event, exerciseId) => {
     event.preventDefault()
     event.stopPropagation()
-    setForm(prev => ({ ...prev, exercise_id: exerciseId }))
+    setForm(prev => ({
+      ...prev,
+      exercise_id: exerciseId,
+      ...(prev.exercise_id === exerciseId
+        ? {}
+        : {
+          weight: '',
+          reps: '',
+          hours: '',
+          minutes: '',
+          seconds: '',
+        }),
+    }))
     setSelectOpen(false)
   }
 
@@ -129,6 +145,12 @@ function LogWorkoutPage() {
       return
     }
 
+    const durationSeconds = toSeconds(form)
+    if (selectedCategory === 'cardio' && durationSeconds <= 0) {
+      setMessage('Enter a duration greater than zero.')
+      return
+    }
+
     setMessage('')
     setIsSaving(true)
     const startedAt = Date.now()
@@ -136,12 +158,17 @@ function LogWorkoutPage() {
     try {
       // Saves the workout and refreshes the shared store, so Dashboard,
       // History and Progress update straight away.
-      await addLog({
+      const logPayload = {
         exercise_id: form.exercise_id,
-        weight: Number(form.weight),
-        reps: Number(form.reps),
         log_date: form.date,
-      })
+      }
+      if (selectedCategory === 'cardio') {
+        logPayload.duration_seconds = durationSeconds
+      } else {
+        logPayload.weight = Number(form.weight)
+        logPayload.reps = Number(form.reps)
+      }
+      await addLog(logPayload)
 
       // Keep the spinner up for a minimum stretch so the swap back to the
       // button doesn't feel like a flicker on fast connections.
@@ -206,33 +233,59 @@ function LogWorkoutPage() {
               </div>
             </label>
 
-            <label>
-              Weight (kg/notches)
-              <input
-                type="number"
-                name="weight"
-                value={form.weight}
-                onChange={handleChange}
-                placeholder=""
-                min="0"
-                step="any"
-                required
-              />
-            </label>
+            {selectedCategory === 'cardio' ? (
+              <div className="duration-inputs">
+                {[
+                  { name: 'hours', label: 'Hours', min: 0 },
+                  { name: 'minutes', label: 'Minutes', min: 0, max: 59 },
+                  { name: 'seconds', label: 'Seconds', min: 0, max: 59 },
+                ].map(({ name, label, min, max }) => (
+                  <label key={name}>
+                    {label}
+                    <input
+                      type="number"
+                      name={name}
+                      value={form[name]}
+                      onChange={handleChange}
+                      min={min}
+                      max={max}
+                      step="1"
+                      inputMode="numeric"
+                    />
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <>
+                <label>
+                  Weight (kg/notches)
+                  <input
+                    type="number"
+                    name="weight"
+                    value={form.weight}
+                    onChange={handleChange}
+                    placeholder=""
+                    min="0"
+                    step="any"
+                    required
+                  />
+                </label>
 
-            <label>
-              Reps
-              <input
-                type="number"
-                name="reps"
-                value={form.reps}
-                onChange={handleChange}
-                placeholder=""
-                min="0.5"
-                step="any"
-                required
-              />
-            </label>
+                <label>
+                  Reps
+                  <input
+                    type="number"
+                    name="reps"
+                    value={form.reps}
+                    onChange={handleChange}
+                    placeholder=""
+                    min="0.5"
+                    step="any"
+                    required
+                  />
+                </label>
+              </>
+            )}
 
             <label>
               Date

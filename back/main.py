@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 from fastapi import APIRouter, FastAPI, Body, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from postgrest.exceptions import APIError
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from supabase import Client, create_client
 from supabase_auth.errors import AuthApiError
 
@@ -224,8 +224,84 @@ class ExerciseUpdatePayload(BaseModel):
 class WorkoutLogPayload(BaseModel):
     exercise_id: str
     log_date: str
-    weight: float
-    reps: float
+    weight: float | None = None
+    reps: float | None = None
+    duration_seconds: int | None = Field(default=None, strict=True)
+
+
+CARDIO_EXERCISE_PATTERN = re.compile(
+    r"\b(run(?:ning)?|jog(?:ging)?|treadmill|bike|cycling|cycle|"
+    r"row(?:ing)? machine|rower|swim(?:ming)?|walk(?:ing)?|elliptical|"
+    r"stair\w*|jump rope|skipping|cardio)\b",
+    re.IGNORECASE,
+)
+
+
+def get_exercise_category(name: str = "") -> str:
+    value = (name or "").lower()
+    if CARDIO_EXERCISE_PATTERN.search(value):
+        return "cardio"
+
+    explicit_leg = [
+        "bed hamstring curl",
+        "crunch machine",
+        "crunches",
+        "leg press",
+        "manchester hamstring curl",
+        "reverse leg press",
+        "leg extensions",
+        "sitting calf raises",
+        "inside leg",
+        "outside leg",
+        "squat",
+        "hamstring",
+        "calf",
+        "lunge",
+    ]
+    if any(entry in value for entry in explicit_leg):
+        return "leg"
+    if re.search(
+        r"(cable tricep pull[- ]?down(?:s)?|tricep pull[- ]?down(?:s)?|"
+        r"single arm tricep pulldown(?:s)?|straight bar tricep pulldown(?:s)?)",
+        value,
+        re.IGNORECASE,
+    ):
+        return "push"
+    if re.search(r"(rear delt|rear delts|pull|row|lat|curl|shrug|pulldown|pull up|bicep)", value, re.IGNORECASE):
+        return "pull"
+    if re.search(
+        r"(bench|press|shoulder|chest|tricep|push|dip|fly|incline|dumbbell bench|"
+        r"smith bench|machine bench|machine push press|dumbbell shoulder press|"
+        r"machine shoulder press|cable machine shoulder press|delt cable flys|"
+        r"delt machine flys)",
+        value,
+        re.IGNORECASE,
+    ):
+        return "push"
+    if re.search(r"(leg|squat|hamstring|calf|extension|lunge)", value, re.IGNORECASE):
+        return "leg"
+    return "cardio"
+
+
+def validate_workout_log_payload(payload: WorkoutLogPayload, exercise_name: str) -> None:
+    category = get_exercise_category(exercise_name)
+    if category == "cardio":
+        if payload.duration_seconds is None or payload.duration_seconds <= 0:
+            raise ValueError("Duration must be greater than zero for cardio exercises.")
+        if payload.weight is not None or payload.reps is not None:
+            raise ValueError("Weight and reps are not accepted for cardio exercises.")
+        return
+
+    if payload.duration_seconds is not None:
+        raise ValueError("Duration is only accepted for cardio exercises.")
+    if payload.weight is None:
+        raise ValueError("Weight is required for non-cardio exercises.")
+    if payload.reps is None:
+        raise ValueError("Reps are required for non-cardio exercises.")
+    if payload.weight < 0:
+        raise ValueError("Weight must be zero or greater.")
+    if payload.reps <= 0:
+        raise ValueError("Reps must be greater than zero.")
 
 
 def normalize_exercise_name(raw_name: str) -> str:
@@ -242,7 +318,20 @@ def normalize_exercise_name(raw_name: str) -> str:
     return cleaned
 
 
-def build_progress_series(rows):
+def build_progress_series(rows, is_cardio: bool = False):
+    if is_cardio:
+        result = []
+        for row in rows or []:
+            date_value = row.get("log_date")
+            duration = row.get("duration_seconds")
+            if not date_value or duration is None or int(duration) <= 0:
+                continue
+            result.append({
+                "date": date_value,
+                "duration_seconds": int(duration),
+            })
+        return result
+
     grouped = {}
 
     for row in rows or []:
@@ -298,10 +387,13 @@ def build_session_summary(rows):
         if not exercise_name:
             exercise_name = "Unknown Exercise"
 
-        weight_val = float(row.get("weight") or 0)
-        reps_val = float(row.get("reps") or 0)
+        is_cardio = get_exercise_category(exercise_name) == "cardio"
+        weight_val = float(row.get("weight") or 0) if not is_cardio else 0
+        reps_val = float(row.get("reps") or 0) if not is_cardio else 0
         weight = int(weight_val) if weight_val.is_integer() else weight_val
         reps = int(reps_val) if reps_val.is_integer() else reps_val
+        duration = row.get("duration_seconds") if is_cardio else None
+        duration = int(duration) if duration is not None else None
         volume = weight_val * reps_val
         if float(volume).is_integer():
             volume = int(volume)
@@ -317,9 +409,10 @@ def build_session_summary(rows):
                 "log_id": log_id,
                 "exercise_id": exercise_id,
                 "exercise_name": exercise_name,
-                "weight": weight,
-                "reps": reps,
+                "weight": None if is_cardio else weight,
+                "reps": None if is_cardio else reps,
                 "volume": volume,
+                "duration_seconds": duration,
             }
         )
 
@@ -970,15 +1063,10 @@ def create_workout_log(
 
     user = get_authenticated_user(authorization)
 
-    if payload.weight < 0:
-        raise HTTPException(status_code=400, detail="Weight must be zero or greater.")
-    if payload.reps <= 0:
-        raise HTTPException(status_code=400, detail="Reps must be greater than zero.")
-
     try:
         existing_exercise = (
             supabase.table("exercises")
-            .select("id")
+            .select("id, name")
             .eq("id", payload.exercise_id)
             .limit(1)
             .execute()
@@ -987,6 +1075,12 @@ def create_workout_log(
             raise HTTPException(status_code=404, detail="Exercise not found.")
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Exercise validation failed: {exc.message}") from exc
+
+    exercise_name = existing_exercise.data[0].get("name") or ""
+    try:
+        validate_workout_log_payload(payload, exercise_name)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     try:
         created = (
@@ -998,6 +1092,7 @@ def create_workout_log(
                     "log_date": payload.log_date,
                     "weight": payload.weight,
                     "reps": payload.reps,
+                    "duration_seconds": payload.duration_seconds,
                     "set_number": 1,
                 }
             )
@@ -1068,7 +1163,7 @@ def get_workout_sessions(authorization: str | None = Header(default=None)):
     try:
         result = (
             supabase.table("workout_logs")
-            .select("id, exercise_id, log_date, weight, reps, exercises(name)")
+            .select("id, exercise_id, log_date, weight, reps, duration_seconds, exercises(name)")
             .eq("user_id", user.id)
             .order("log_date", desc=True)
             .execute()
@@ -1090,18 +1185,34 @@ def get_workout_progress(
     user = get_authenticated_user(authorization)
 
     try:
+        exercise_result = (
+            supabase.table("exercises")
+            .select("name")
+            .eq("id", exercise_id)
+            .limit(1)
+            .execute()
+        )
+    except APIError as exc:
+        raise HTTPException(status_code=400, detail=f"Failed to load exercise: {exc.message}") from exc
+
+    if not exercise_result.data:
+        raise HTTPException(status_code=404, detail="Exercise not found.")
+    is_cardio = get_exercise_category(exercise_result.data[0].get("name") or "") == "cardio"
+
+    try:
         result = (
             supabase.table("workout_logs")
-            .select("log_date, weight, reps")
+            .select("log_date, weight, reps, duration_seconds, created_at")
             .eq("user_id", user.id)
             .eq("exercise_id", exercise_id)
             .order("log_date", desc=False)
+            .order("created_at", desc=False)
             .execute()
         )
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to load workout progress: {exc.message}") from exc
 
-    return {"progress": build_progress_series(result.data or [])}
+    return {"progress": build_progress_series(result.data or [], is_cardio=is_cardio)}
 
 
 @router.post("/predictions")

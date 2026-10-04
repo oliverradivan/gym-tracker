@@ -48,11 +48,11 @@ export function WorkoutsProvider({ children }) {
 
   // Save a workout, then refetch so Dashboard, History and Progress all update
   const addLog = useCallback(
-    async ({ exercise_id, log_date, weight, reps }) => {
+    async ({ exercise_id, log_date, weight, reps, duration_seconds }) => {
       const res = await authFetchRef.current('/workout-logs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ exercise_id, log_date, weight, reps }),
+        body: JSON.stringify({ exercise_id, log_date, weight, reps, duration_seconds }),
       })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
