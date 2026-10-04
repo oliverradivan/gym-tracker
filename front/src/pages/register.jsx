@@ -33,21 +33,20 @@ function RegisterPage() {
 
   return (
     <div className="auth-shell register-page">
-      <div className="auth-card">
+      <div className="auth-card register-card">
         <div className="auth-header">
           <div className="brand-badge" aria-label="Workout Tracker">
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <g stroke="#ffffff" stroke-width="2.2" transform="rotate(45 12 12)">
-              <line x1="6" y1="12" x2="18" y2="12"/>
-              <line x1="6" y1="9" x2="6" y2="15"/>
-              <line x1="18" y1="9" x2="18" y2="15"/>
-              <line x1="4" y1="10.5" x2="4" y2="13.5"/>
-              <line x1="20" y1="10.5" x2="20" y2="13.5"/>
-              </g>
-            </svg>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" focusable="false">
+                <g transform="rotate(45 12 12)">
+                  <line x1="6" y1="12" x2="18" y2="12" />
+                  <line x1="6" y1="9" x2="6" y2="15" />
+                  <line x1="18" y1="9" x2="18" y2="15" />
+                  <line x1="4" y1="10.5" x2="4" y2="13.5" />
+                  <line x1="20" y1="10.5" x2="20" y2="13.5" />
+                </g>
+              </svg>
           </div>
           <h1>Create your account</h1>
-          <p>Choose a unique username and add your email.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">

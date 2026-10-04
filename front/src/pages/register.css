@@ -1,12 +1,13 @@
 .auth-shell {
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 32px 20px;
+  padding: 12px 20px 32px ;
 }
 
-.auth-card {
+.auth-card.register-card {
+  margin-top: -225px;
   width: min(100%, 440px);
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(17, 17, 17, 0.08);

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/authContext'
 import './login.css'
-import { Eye, EyeOff } from 'lucide-react'
 
 const initialForm = {
   username: '',
@@ -31,13 +31,13 @@ function LoginPage() {
   }
 
   return (
-    <div className="login-container">
+    <main className="login-container">
       <div className="auth-shell login-page">
-        <div className="auth-card">
+        <div className="auth-card login-card">
           <div className="auth-header">
-            <div className="brand-badge" aria-label="Workout Tracker">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <g stroke="currentColor" strokeWidth="2.2" transform="rotate(45 12 12)">
+            <div className="brand-badge" aria-hidden="true">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" focusable="false">
+                <g transform="rotate(45 12 12)">
                   <line x1="6" y1="12" x2="18" y2="12" />
                   <line x1="6" y1="9" x2="6" y2="15" />
                   <line x1="18" y1="9" x2="18" y2="15" />
@@ -50,52 +50,69 @@ function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
-            <label>
-              Username
+            <div className="field">
+              <label htmlFor="login-username">Username</label>
               <input
+                id="login-username"
                 type="text"
                 name="username"
                 value={form.username}
                 onChange={handleChange}
-                placeholder="Your username"
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                enterKeyHint="next"
                 required
               />
-            </label>
+            </div>
 
-            <label>
-              Password
-              <div>
+            <div className="field">
+              <label htmlFor="login-password">Password</label>
+              <div className="password-field">
                 <input
+                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   name="password"
                   value={form.password}
                   onChange={handleChange}
-                  placeholder="Your password"
+                  autoComplete="current-password"
+                  enterKeyHint="go"
                   required
                 />
-                <div
+                <button
+                  type="button"
                   className="password-toggle"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}
+                  aria-label="Show password"
+                  aria-pressed={showPassword}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </div>
+                  {showPassword ? (
+                    <EyeOff size={20} aria-hidden="true" />
+                  ) : (
+                    <Eye size={20} aria-hidden="true" />
+                  )}
+                </button>
               </div>
-            </label>
+            </div>
+
+            {message && (
+              <p className="status-message" role="alert">
+                {message}
+              </p>
+            )}
 
             <button type="submit" className="primary-btn" disabled={loading}>
-              {loading ? 'Please wait...' : 'Login'}
+              {loading ? 'Logging in…' : 'Log in'}
             </button>
           </form>
 
           <p className="auth-switch">
-            Don't have an account? <Link to="/register">Create one</Link>
+            New here? <Link to="/register">Create an account</Link>
           </p>
-
-          {message && <p className="status-message">{message}</p>}
         </div>
       </div>
-    </div>
+    </main>
   )
 }
 
