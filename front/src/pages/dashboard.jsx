@@ -700,13 +700,18 @@ function DashboardPage() {
                       role="region"
                       tabIndex={0}
                       aria-label="Past 30 days of workouts"
-                      tabIndex={0}
                     >
                       <div className="dash-calendar">
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
                           (weekday) => (
                             <span className="dash-calendar-weekday" key={weekday}>
-                              {weekday}
+                              <span className="dash-calendar-weekday-full" aria-hidden="true">
+                                {weekday}
+                              </span>
+                              <span className="dash-calendar-weekday-short" aria-hidden="true">
+                                {weekday.slice(0, 1)}
+                              </span>
+                              <span className="dash-sr-only">{weekday}</span>
                             </span>
                           )
                         )}
@@ -753,7 +758,7 @@ function DashboardPage() {
                           loadEarlierDays()
                         }
                       }}
-                      aria-label="Workout days, scroll left for older dates"
+                      aria-label="Workout days"
                     >
                       <ol className="dash-week" aria-label="Workout days">
                         {weekStats.days.map((day) => (
@@ -767,8 +772,11 @@ function DashboardPage() {
                                 data-today={day.isToday}
                                 aria-label={`${day.short} ${day.dayNumber}: workout`}
                               >
-                                <span className="dash-week-date" aria-hidden="true">
+                                <span className="dash-week-date dash-week-date-full" aria-hidden="true">
                                   {day.short} {day.dayNumber}
+                                </span>
+                                <span className="dash-week-date dash-week-date-compact" aria-hidden="true">
+                                  {day.short.slice(0, 1)} {day.dayNumber}
                                 </span>
                                 <span className="dash-week-dot" aria-hidden="true" />
                               </Link>
@@ -781,8 +789,11 @@ function DashboardPage() {
                                 data-today={day.isToday}
                                 aria-disabled="true"
                               >
-                                <span className="dash-week-date" aria-hidden="true">
+                                <span className="dash-week-date dash-week-date-full" aria-hidden="true">
                                   {day.short} {day.dayNumber}
+                                </span>
+                                <span className="dash-week-date dash-week-date-compact" aria-hidden="true">
+                                  {day.short.slice(0, 1)} {day.dayNumber}
                                 </span>
                                 <span className="dash-week-dot" aria-hidden="true" />
                                 <span className="dash-sr-only">
