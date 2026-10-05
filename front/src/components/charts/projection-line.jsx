@@ -57,7 +57,8 @@ export function ProjectionLine({
   className,
   showMarkers = false
 }) {
-  const { xScale, chartPhase, innerWidth } = useChartStable();
+  const { xScale, chartPhase, innerWidth, data: chartData, lines } =
+    useChartStable();
   const { setTooltipData } = useChartHover();
   const yScale = useYScale(yAxisId);
   const gradientId = useId().replace(/:/g, "");
@@ -73,8 +74,24 @@ export function ProjectionLine({
     [yScale, dataKey]
   );
   const handlePointClick = useCallback((point, index) => {
-    setTooltipData({ point, index, x: getX(point), yPositions: { [dataKey]: getY(point) } });
-  }, [dataKey, getX, getY, setTooltipData]);
+    const pointY = getY(point);
+    const matchingLine =
+      lines.find(
+        (line) => (line.yAxisId ?? "left") === (yAxisId ?? "left")
+      ) ?? lines[0];
+    const yPositions = { [dataKey]: pointY };
+    if (matchingLine) {
+      yPositions[matchingLine.dataKey] = pointY;
+    }
+
+    setTooltipData({
+      point: { ...point, type: "forecast" },
+      index: chartData.length + index,
+      pointType: "forecast",
+      x: getX(point),
+      yPositions,
+    });
+  }, [chartData.length, dataKey, getX, getY, lines, setTooltipData, yAxisId]);
 
   const startPoint = data[0];
   const endPoint = data.at(-1);

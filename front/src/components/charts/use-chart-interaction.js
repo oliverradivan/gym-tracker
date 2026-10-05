@@ -15,7 +15,8 @@ export function useChartInteraction(
     xAccessor,
     bisectDate,
     canInteract,
-    projectionConfigs
+    projectionConfigs,
+    containerRef
   }
 ) {
   const [selection, setSelection] = useState(null);
@@ -30,6 +31,7 @@ export function useChartInteraction(
   const isDraggingRef = useRef(false);
   const dragStartXRef = useRef(0);
   const lastHoveredXRef = useRef(null);
+  const debugPanelRef = useRef(null);
 
   const resolveTooltipFromX = useCallback(
     pixelX => {
@@ -217,10 +219,86 @@ export function useChartInteraction(
     [margin.left]
   );
 
+  const recordDebugEvent = useCallback(
+    (event, eventType, chartX, tooltip) => {
+      const panel = debugPanelRef.current;
+      if (!panel) {
+        return;
+      }
+
+      const touch = event.changedTouches?.[0] ?? event.touches?.[0];
+      const clientX = touch?.clientX ?? event.clientX ?? null;
+      const scrollWrapper =
+        containerRef?.current?.closest(".chart-scroll-wrapper");
+      const scrollOffset = scrollWrapper?.scrollLeft ?? 0;
+      const chartWidth = xScale.range?.()?.at(-1) ?? null;
+      const firstLine = lines[0];
+      const axisScale = firstLine
+        ? yScales[normalizeYAxisId(firstLine.yAxisId)] ?? yScale
+        : yScale;
+      const point = tooltip?.point;
+      const pointType = tooltip?.pointType ?? point?.type ?? "actual";
+      const rawValue =
+        pointType === "forecast"
+          ? point?.value
+          : firstLine
+            ? point?.[firstLine.dataKey]
+            : undefined;
+      const dotY = firstLine
+        ? tooltip?.yPositions?.[firstLine.dataKey]
+        : undefined;
+      const domain = axisScale?.domain?.() ?? [];
+      const distance =
+        chartX != null && tooltip?.x != null
+          ? Math.abs(tooltip.x - chartX)
+          : null;
+
+      panel.textContent = [
+        `event: ${eventType}`, // DEBUG: last event received
+        `clientX: ${clientX ?? "none"} | chartX: ${chartX ?? "none"}`, // DEBUG: raw and converted x
+        `scrollLeft: ${scrollOffset} | chartWidth: ${chartWidth ?? "none"}`, // DEBUG: scroll offset and x-scale width
+        `nearest: ${tooltip ? `${tooltip.index} (${pointType})` : "none"}`, // DEBUG: nearest hit-test point
+        `distance: ${distance ?? "none"}px | max: none (nearest-point snap)`, // DEBUG: distance and hit-test threshold
+        `dotY: ${dotY ?? "none"}px | value: ${rawValue ?? "none"}`, // DEBUG: dot y pixel and source value
+        `yDomain: [${domain.join(", ")}] | yScale: ${firstLine?.dataKey ?? "default"}`, // DEBUG: scale and domain used for dot
+      ].join("\n");
+    },
+    [containerRef, lines, xScale, yScale, yScales]
+  );
+
+  useEffect(() => {
+    if (projectionConfigs.length === 0 || debugPanelRef.current) {
+      return;
+    }
+
+    const panel = document.createElement("pre");
+    panel.setAttribute("aria-hidden", "true");
+    panel.style.cssText =
+      "position:fixed;top:8px;left:8px;z-index:99999;max-width:calc(100vw - 16px);margin:0;padding:8px;border:1px solid rgba(255,255,255,.35);border-radius:6px;background:rgba(0,0,0,.88);color:#fff;font:11px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;pointer-events:none;";
+    panel.textContent = "Chart diagnostics ready; touch or hover the chart.";
+    document.body.appendChild(panel);
+    debugPanelRef.current = panel;
+
+    return () => {
+      panel.remove();
+      debugPanelRef.current = null;
+    };
+  }, [projectionConfigs]);
+
+  const handlePointerDiagnostic = useCallback(
+    (event, eventType) => {
+      const chartX = getChartX(event);
+      const tooltip = chartX == null ? null : resolveTooltipFromX(chartX);
+      recordDebugEvent(event, eventType, chartX, tooltip);
+    },
+    [getChartX, recordDebugEvent, resolveTooltipFromX]
+  );
+
   const handleMouseMove = useCallback(
     (event) => {
       const chartX = getChartX(event);
       if (chartX === null) {
+        recordDebugEvent(event, "mousemove", null, null);
         return;
       }
 
@@ -239,21 +317,23 @@ export function useChartInteraction(
 
       lastHoveredXRef.current = chartX;
       const tooltip = resolveTooltipFromX(chartX);
+      recordDebugEvent(event, "mousemove", chartX, tooltip);
       if (tooltip) {
         scheduleTooltip(tooltip);
       }
     },
-    [getChartX, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
+    [getChartX, recordDebugEvent, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
   );
 
-  const handleMouseLeave = useCallback(() => {
+  const handleMouseLeave = useCallback((event) => {
+    recordDebugEvent(event, "pointerleave", null, null);
     lastHoveredXRef.current = null;
     clearTooltip();
     if (isDraggingRef.current) {
       isDraggingRef.current = false;
     }
     setSelection(null);
-  }, [clearTooltip]);
+  }, [clearTooltip, recordDebugEvent]);
 
   const handleMouseDown = useCallback(
     (event) => {
@@ -286,6 +366,7 @@ export function useChartInteraction(
         }
         lastHoveredXRef.current = chartX;
         const tooltip = resolveTooltipFromX(chartX);
+        recordDebugEvent(event, "touchstart", chartX, tooltip);
         if (tooltip) {
           scheduleTooltip(tooltip);
         }
@@ -311,6 +392,7 @@ export function useChartInteraction(
     },
     [
       getChartX,
+      recordDebugEvent,
       resolveTooltipFromX,
       resolveIndexFromX,
       scheduleTooltip,
@@ -329,6 +411,7 @@ export function useChartInteraction(
         }
         lastHoveredXRef.current = chartX;
         const tooltip = resolveTooltipFromX(chartX);
+        recordDebugEvent(event, "touchmove", chartX, tooltip);
         if (tooltip) {
           scheduleTooltip(tooltip);
         }
@@ -350,7 +433,27 @@ export function useChartInteraction(
         });
       }
     },
-    [getChartX, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
+    [getChartX, recordDebugEvent, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
+  );
+
+  const handleTouchCancel = useCallback(
+    (event) => recordDebugEvent(event, "touchcancel", null, null),
+    [recordDebugEvent]
+  );
+
+  const handlePointerCancel = useCallback(
+    (event) => handlePointerDiagnostic(event, "pointercancel"),
+    [handlePointerDiagnostic]
+  );
+
+  const handlePointerLeave = useCallback(
+    (event) => handlePointerDiagnostic(event, "pointerleave"),
+    [handlePointerDiagnostic]
+  );
+
+  const handlePointerMove = useCallback(
+    (event) => handlePointerDiagnostic(event, "pointermove"),
+    [handlePointerDiagnostic]
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -384,6 +487,10 @@ export function useChartInteraction(
         onTouchStart: handleTouchStart,
         onTouchMove: handleTouchMove,
         onTouchEnd: handleTouchEnd,
+        onTouchCancel: handleTouchCancel,
+        onPointerMove: handlePointerMove,
+        onPointerCancel: handlePointerCancel,
+        onPointerLeave: handlePointerLeave,
       }
     : {};
 
