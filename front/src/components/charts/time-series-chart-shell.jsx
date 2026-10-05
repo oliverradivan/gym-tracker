@@ -9,6 +9,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -149,6 +150,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
   onPhaseChange
 }) {
   const staticPreview = useStaticChartPreview();
+  const svgRef = useRef(null);
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
@@ -358,6 +360,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     selection,
     clearSelection,
     interactionHandlers,
+    touchInteractionHandlers,
     interactionStyle,
   } = useChartInteraction({
     bisectDate,
@@ -368,6 +371,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     margin,
     xAccessor,
     xScale,
+    svgRef,
     yScale,
     yScales,
     projectionConfigs,
@@ -596,7 +600,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
       value={referenceAreaRegistration}
     >
       <ChartProvider value={contextValue}>
-        <svg aria-hidden="true" height={height} width={width}>
+        <svg aria-hidden="true" height={height} ref={svgRef} width={width}>
           <defs>
             {defsChildren}
             {useClipReveal ? (
@@ -620,6 +624,9 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
           <g
             {...interactionHandlers}
+            {...(projectionConfigs.length === 0
+              ? touchInteractionHandlers
+              : undefined)}
             style={interactionStyle}
             transform={`translate(${margin.left},${margin.top})`}
           >
@@ -639,6 +646,17 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
               preOverlayChildren
             )}
             {postOverlayChildren}
+            {projectionConfigs.length > 0 ? (
+              <rect
+                {...touchInteractionHandlers}
+                fill="transparent"
+                height={innerHeight}
+                pointerEvents="all"
+                width={innerWidth}
+                x={0}
+                y={0}
+              />
+            ) : null}
           </g>
         </svg>
       </ChartProvider>

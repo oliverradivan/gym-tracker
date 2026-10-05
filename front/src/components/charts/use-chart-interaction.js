@@ -16,7 +16,8 @@ export function useChartInteraction(
     bisectDate,
     canInteract,
     projectionConfigs,
-    containerRef
+    containerRef,
+    svgRef
   }
 ) {
   const [selection, setSelection] = useState(null);
@@ -32,6 +33,8 @@ export function useChartInteraction(
   const dragStartXRef = useRef(0);
   const lastHoveredXRef = useRef(null);
   const debugPanelRef = useRef(null);
+  const debugBaseTextRef = useRef("");
+  const debugTouchTargetTextRef = useRef("");
 
   const resolveTooltipFromX = useCallback(
     pixelX => {
@@ -202,7 +205,7 @@ export function useChartInteraction(
         if (!touch) {
           return null;
         }
-        const svg = event.currentTarget.ownerSVGElement;
+        const svg = svgRef.current;
         if (!svg) {
           return null;
         }
@@ -216,7 +219,7 @@ export function useChartInteraction(
       }
       return point.x - margin.left;
     },
-    [margin.left]
+    [margin.left, svgRef]
   );
 
   const recordDebugEvent = useCallback(
@@ -253,7 +256,7 @@ export function useChartInteraction(
           ? Math.abs(tooltip.x - chartX)
           : null;
 
-      panel.textContent = [
+      debugBaseTextRef.current = [
         `event: ${eventType}`, // DEBUG: last event received
         `clientX: ${clientX ?? "none"} | chartX: ${chartX ?? "none"}`, // DEBUG: raw and converted x
         `scrollLeft: ${scrollOffset} | chartWidth: ${chartWidth ?? "none"}`, // DEBUG: scroll offset and x-scale width
@@ -262,8 +265,11 @@ export function useChartInteraction(
         `dotY: ${dotY ?? "none"}px | value: ${rawValue ?? "none"}`, // DEBUG: dot y pixel and source value
         `yDomain: [${domain.join(", ")}] | yScale: ${firstLine?.dataKey ?? "default"}`, // DEBUG: scale and domain used for dot
       ].join("\n");
+      panel.textContent = [debugBaseTextRef.current, debugTouchTargetTextRef.current]
+        .filter(Boolean)
+        .join("\n");
     },
-    [containerRef, lines, xScale, yScale, yScales]
+    [containerRef, debugBaseTextRef, debugTouchTargetTextRef, lines, xScale, yScale, yScales]
   );
 
   useEffect(() => {
@@ -279,11 +285,72 @@ export function useChartInteraction(
     document.body.appendChild(panel);
     debugPanelRef.current = panel;
 
+    let startTarget = null;
+    const describeTarget = (target) => {
+      if (!(target instanceof Element)) {
+        return "none";
+      }
+      const className =
+        typeof target.className === "string"
+          ? target.className
+          : target.className?.baseVal ?? "";
+      return `${target.tagName.toLowerCase()}${className ? `.${className.trim().replace(/\s+/g, ".")}` : ""}`;
+    };
+    const updateTouchTargetLog = (eventType, event) => {
+      const target = event.target;
+      const connected = target instanceof Node && target.isConnected;
+      const sameTarget = target === startTarget;
+      debugTouchTargetTextRef.current = [
+        `document ${eventType} target: ${describeTarget(target)}`, // DEBUG: document event target tag and class
+        `target connected: ${connected} | same as touchstart target: ${sameTarget}`, // DEBUG: target connectivity and identity
+      ].join("\n");
+      if (debugPanelRef.current) {
+        debugPanelRef.current.textContent = [
+          debugBaseTextRef.current,
+          debugTouchTargetTextRef.current,
+        ]
+          .filter(Boolean)
+          .join("\n");
+      }
+    };
+    const handleDocumentTouchStart = (event) => {
+      if (!containerRef?.current?.contains(event.target)) {
+        return;
+      }
+      startTarget = event.target;
+      updateTouchTargetLog("touchstart", event);
+    };
+    const handleDocumentTouchMove = (event) => {
+      if (startTarget) {
+        updateTouchTargetLog("touchmove", event);
+      }
+    };
+    const handleDocumentTouchEnd = (event) => {
+      if (startTarget) {
+        updateTouchTargetLog("touchend", event);
+        startTarget = null;
+      }
+    };
+    const handleDocumentTouchCancel = (event) => {
+      if (startTarget) {
+        updateTouchTargetLog("touchcancel", event);
+        startTarget = null;
+      }
+    };
+    document.addEventListener("touchstart", handleDocumentTouchStart, true);
+    document.addEventListener("touchmove", handleDocumentTouchMove, true);
+    document.addEventListener("touchend", handleDocumentTouchEnd, true);
+    document.addEventListener("touchcancel", handleDocumentTouchCancel, true);
+
     return () => {
+      document.removeEventListener("touchstart", handleDocumentTouchStart, true);
+      document.removeEventListener("touchmove", handleDocumentTouchMove, true);
+      document.removeEventListener("touchend", handleDocumentTouchEnd, true);
+      document.removeEventListener("touchcancel", handleDocumentTouchCancel, true);
       panel.remove();
       debugPanelRef.current = null;
     };
-  }, [projectionConfigs]);
+  }, [containerRef, debugBaseTextRef, debugTouchTargetTextRef, projectionConfigs]);
 
   const handlePointerDiagnostic = useCallback(
     (event, eventType) => {
@@ -484,13 +551,17 @@ export function useChartInteraction(
         onMouseLeave: handleMouseLeave,
         onMouseDown: handleMouseDown,
         onMouseUp: handleMouseUp,
+        onPointerMove: handlePointerMove,
+        onPointerCancel: handlePointerCancel,
+        onPointerLeave: handlePointerLeave,
+      }
+    : {};
+  const touchInteractionHandlers = canInteract
+    ? {
         onTouchStart: handleTouchStart,
         onTouchMove: handleTouchMove,
         onTouchEnd: handleTouchEnd,
         onTouchCancel: handleTouchCancel,
-        onPointerMove: handlePointerMove,
-        onPointerCancel: handlePointerCancel,
-        onPointerLeave: handlePointerLeave,
       }
     : {};
 
@@ -505,6 +576,7 @@ export function useChartInteraction(
     selection,
     clearSelection,
     interactionHandlers,
+    touchInteractionHandlers,
     interactionStyle,
   };
 };

@@ -234,12 +234,14 @@ function SeriesMarkersActiveHighlight({
     return null;
   }
   return (
-    <StaticSeriesPointMarker
-      cx={activePoint.cx}
-      cy={activePoint.cy}
-      scale={activeScale}
-      {...markerStyle}
-    />
+    <g pointerEvents="none">
+      <StaticSeriesPointMarker
+        cx={activePoint.cx}
+        cy={activePoint.cy}
+        scale={activeScale}
+        {...markerStyle}
+      />
+    </g>
   );
 }
 
