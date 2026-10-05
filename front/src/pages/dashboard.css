@@ -370,7 +370,7 @@
   margin: 1rem 0 0;
   padding: 0;
   display: grid;
-  grid-template-rows: 80px;
+  grid-template-rows: 120px;
   grid-auto-columns: calc((100% - 24px) / 7);
   grid-auto-flow: column;
   gap: 4px;
@@ -394,7 +394,8 @@
 .dash-week-day {
   width: 100%;
   min-width: 0;
-  height: 80px;
+  height: 120px;
+  min-height: 120px;
   padding: 9px 6px 10px;
   display: flex;
   flex-direction: column;
@@ -446,9 +447,10 @@
 }
 
 .dash-week-dot {
-  width: min(40px, 100%);
+  width: min(56px, 100%);
   aspect-ratio: 1;
-  flex: 0 1 40px;
+  flex: 0 1 56px;
+  margin-block: auto;
   display: block;
   border: 2px solid color-mix(in srgb, var(--dash-muted) 48%, var(--dash-surface));
   border-radius: 50%;
@@ -527,8 +529,8 @@
   margin: 1rem 0 0;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  grid-template-rows: 28px repeat(5, 80px);
-  grid-auto-rows: 80px;
+  grid-template-rows: 28px repeat(5, 100px);
+  grid-auto-rows: 100px;
   gap: 4px;
 }
 
@@ -569,7 +571,7 @@
 
 .dash-calendar-cell {
   min-width: 0;
-  min-height: 80px;
+  min-height: 100px;
   display: grid;
   place-items: center;
 }
@@ -577,7 +579,7 @@
 .dash-calendar-day {
   width: 100%;
   max-width: 100%;
-  height: 80px;
+  height: 100px;
   min-width: 0;
   padding: 8px 5px 9px;
   display: flex;
@@ -853,7 +855,7 @@ a.dash-calendar-day:hover {
 }
 
 .dash-row-compact.exercise-card {
-  min-height: 70px;
+  min-height: 66px;
 }
 
 .dash-row-compact .dash-row-tile {
@@ -1080,7 +1082,7 @@ a.dash-calendar-day:hover {
   }
 
   .dash-week-day {
-    height: 80px;
+    height: 110px;
     padding: 9px 6px 10px;
     gap: 10px;
     border-radius: 16px;
@@ -1113,13 +1115,13 @@ a.dash-calendar-day:hover {
   }
 
   .dash-calendar {
-    grid-template-rows: 28px repeat(5, 80px);
-    grid-auto-rows: 80px;
+    grid-template-rows: 28px repeat(5, 100px);
+    grid-auto-rows: 100px;
   }
 
   .dash-calendar-cell,
   .dash-calendar-day {
-    min-height: 80px;
+    min-height: 100px;
   }
 
   .dash-calendar-day {
