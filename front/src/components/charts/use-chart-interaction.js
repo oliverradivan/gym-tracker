@@ -35,6 +35,9 @@ export function useChartInteraction(
   const debugPanelRef = useRef(null);
   const debugBaseTextRef = useRef("");
   const debugTouchTargetTextRef = useRef("");
+  const touchMoveCountRef = useRef(0);
+  const documentTouchMoveCountRef = useRef(0);
+  const pointerEventCountRef = useRef(0);
 
   const resolveTooltipFromX = useCallback(
     pixelX => {
@@ -229,6 +232,10 @@ export function useChartInteraction(
         return;
       }
 
+      const timestamp = new Date().toISOString();
+      if (eventType.startsWith("pointer")) {
+        pointerEventCountRef.current += 1;
+      }
       const touch = event.changedTouches?.[0] ?? event.touches?.[0];
       const clientX = touch?.clientX ?? event.clientX ?? null;
       const scrollWrapper =
@@ -255,10 +262,17 @@ export function useChartInteraction(
         chartX != null && tooltip?.x != null
           ? Math.abs(tooltip.x - chartX)
           : null;
+      const eventCount =
+        eventType === "touchmove"
+          ? ` #${touchMoveCountRef.current}`
+          : eventType.startsWith("pointer")
+            ? ` #${pointerEventCountRef.current}`
+            : "";
 
       debugBaseTextRef.current = [
-        `event: ${eventType}`, // DEBUG: last event received
+        `[CHART] ${eventType}${eventCount} @ ${timestamp}`, // DEBUG: last event, count, and timestamp
         `clientX: ${clientX ?? "none"} | chartX: ${chartX ?? "none"}`, // DEBUG: raw and converted x
+        `cancelable: ${event.cancelable ?? "none"} | defaultPrevented: ${event.defaultPrevented ?? "none"}`, // DEBUG: whether the touch handler canceled native scrolling
         `scrollLeft: ${scrollOffset} | chartWidth: ${chartWidth ?? "none"}`, // DEBUG: scroll offset and x-scale width
         `nearest: ${tooltip ? `${tooltip.index} (${pointType})` : "none"}`, // DEBUG: nearest hit-test point
         `distance: ${distance ?? "none"}px | max: none (nearest-point snap)`, // DEBUG: distance and hit-test threshold
@@ -268,8 +282,27 @@ export function useChartInteraction(
       panel.textContent = [debugBaseTextRef.current, debugTouchTargetTextRef.current]
         .filter(Boolean)
         .join("\n");
+      if (
+        (eventType.startsWith("touch") && eventType !== "touchmove") ||
+        eventType.startsWith("pointer")
+      ) {
+        console.info(
+          `[CHART] ${eventType}${eventCount} @ ${timestamp}`,
+          { clientX, chartX, nearest: tooltip?.index ?? "none" }
+        );
+      }
     },
-    [containerRef, debugBaseTextRef, debugTouchTargetTextRef, lines, xScale, yScale, yScales]
+    [
+      containerRef,
+      debugBaseTextRef,
+      debugTouchTargetTextRef,
+      lines,
+      pointerEventCountRef,
+      touchMoveCountRef,
+      xScale,
+      yScale,
+      yScales,
+    ]
   );
 
   useEffect(() => {
@@ -297,13 +330,47 @@ export function useChartInteraction(
       return `${target.tagName.toLowerCase()}${className ? `.${className.trim().replace(/\s+/g, ".")}` : ""}`;
     };
     const updateTouchTargetLog = (eventType, event) => {
+      const timestamp = new Date().toISOString();
+      const count =
+        eventType === "touchmove"
+          ? ` #${++documentTouchMoveCountRef.current}`
+          : "";
       const target = event.target;
       const connected = target instanceof Node && target.isConnected;
       const sameTarget = target === startTarget;
+      const scrollOffset =
+        containerRef?.current?.closest(".chart-scroll-wrapper")?.scrollLeft ?? 0;
       debugTouchTargetTextRef.current = [
-        `document ${eventType} target: ${describeTarget(target)}`, // DEBUG: document event target tag and class
-        `target connected: ${connected} | same as touchstart target: ${sameTarget}`, // DEBUG: target connectivity and identity
+        `[CHART] document ${eventType}${count} @ ${timestamp} target: ${describeTarget(target)}`, // DEBUG: document event type, count, timestamp, tag, and class
+        `[CHART] target connected: ${connected} | same as touchstart target: ${sameTarget}`, // DEBUG: target connectivity and identity
+        `[CHART] document scrollLeft: ${scrollOffset}`, // DEBUG: scroll position sampled at document event time
       ].join("\n");
+      console.info(
+        `[CHART] document ${eventType}${count} @ ${timestamp}`,
+        {
+          target: describeTarget(target),
+          isConnected: connected,
+          sameAsTouchStartTarget: sameTarget,
+          scrollLeft: scrollOffset,
+        }
+      );
+      if (debugPanelRef.current) {
+        debugPanelRef.current.textContent = [
+          debugBaseTextRef.current,
+          debugTouchTargetTextRef.current,
+        ]
+          .filter(Boolean)
+          .join("\n");
+      }
+    };
+    const appendDebugError = (message) => {
+      debugTouchTargetTextRef.current = [
+        debugTouchTargetTextRef.current,
+        `[CHART] ${message}`,
+      ]
+        .filter(Boolean)
+        .slice(-4)
+        .join("\n");
       if (debugPanelRef.current) {
         debugPanelRef.current.textContent = [
           debugBaseTextRef.current,
@@ -337,20 +404,44 @@ export function useChartInteraction(
         startTarget = null;
       }
     };
+    const handleWindowError = (event) => {
+      console.error(
+        "[CHART] window error",
+        event.error?.stack ?? event.message
+      );
+      appendDebugError(`window error: ${event.message}`);
+    };
+    const handleUnhandledRejection = (event) => {
+      const reason = event.reason;
+      console.error("[CHART] unhandledrejection", reason?.stack ?? reason);
+      appendDebugError(
+        `unhandledrejection: ${reason?.message ?? String(reason)}`
+      );
+    };
     document.addEventListener("touchstart", handleDocumentTouchStart, true);
     document.addEventListener("touchmove", handleDocumentTouchMove, true);
     document.addEventListener("touchend", handleDocumentTouchEnd, true);
     document.addEventListener("touchcancel", handleDocumentTouchCancel, true);
+    window.addEventListener("error", handleWindowError);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
     return () => {
       document.removeEventListener("touchstart", handleDocumentTouchStart, true);
       document.removeEventListener("touchmove", handleDocumentTouchMove, true);
       document.removeEventListener("touchend", handleDocumentTouchEnd, true);
       document.removeEventListener("touchcancel", handleDocumentTouchCancel, true);
+      window.removeEventListener("error", handleWindowError);
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
       panel.remove();
       debugPanelRef.current = null;
     };
-  }, [containerRef, debugBaseTextRef, debugTouchTargetTextRef, projectionConfigs]);
+  }, [
+    containerRef,
+    debugBaseTextRef,
+    debugTouchTargetTextRef,
+    documentTouchMoveCountRef,
+    projectionConfigs,
+  ]);
 
   const handlePointerDiagnostic = useCallback(
     (event, eventType) => {
@@ -470,34 +561,52 @@ export function useChartInteraction(
 
   const handleTouchMove = useCallback(
     (event) => {
-      if (event.touches.length === 1) {
-        event.preventDefault();
-        const chartX = getChartX(event, 0);
-        if (chartX === null) {
-          return;
+      touchMoveCountRef.current += 1;
+      const timestamp = new Date().toISOString();
+      const touch = event.touches[0];
+      console.info(
+        `[CHART] touchmove handler #${touchMoveCountRef.current} @ ${timestamp}`,
+        { clientX: touch?.clientX ?? "none" }
+      );
+      recordDebugEvent(event, "touchmove", null, null);
+      try {
+        if (event.touches.length === 1) {
+          event.preventDefault();
+          const chartX = getChartX(event, 0);
+          if (chartX === null) {
+            recordDebugEvent(event, "touchmove", null, null);
+            return;
+          }
+          lastHoveredXRef.current = chartX;
+          const tooltip = resolveTooltipFromX(chartX);
+          recordDebugEvent(event, "touchmove", chartX, tooltip);
+          if (tooltip) {
+            scheduleTooltip(tooltip);
+          }
+        } else if (event.touches.length === 2) {
+          event.preventDefault();
+          const x0 = getChartX(event, 0);
+          const x1 = getChartX(event, 1);
+          if (x0 === null || x1 === null) {
+            recordDebugEvent(event, "touchmove", null, null);
+            return;
+          }
+          const startX = Math.min(x0, x1);
+          const endX = Math.max(x0, x1);
+          setSelection({
+            startX,
+            endX,
+            startIndex: resolveIndexFromX(startX),
+            endIndex: resolveIndexFromX(endX),
+            active: true,
+          });
         }
-        lastHoveredXRef.current = chartX;
-        const tooltip = resolveTooltipFromX(chartX);
-        recordDebugEvent(event, "touchmove", chartX, tooltip);
-        if (tooltip) {
-          scheduleTooltip(tooltip);
-        }
-      } else if (event.touches.length === 2) {
-        event.preventDefault();
-        const x0 = getChartX(event, 0);
-        const x1 = getChartX(event, 1);
-        if (x0 === null || x1 === null) {
-          return;
-        }
-        const startX = Math.min(x0, x1);
-        const endX = Math.max(x0, x1);
-        setSelection({
-          startX,
-          endX,
-          startIndex: resolveIndexFromX(startX),
-          endIndex: resolveIndexFromX(endX),
-          active: true,
-        });
+      } catch (error) {
+        console.error(
+          "[CHART] touchmove handler failed",
+          error instanceof Error ? error.stack : error
+        );
+        throw error;
       }
     },
     [getChartX, recordDebugEvent, resolveTooltipFromX, resolveIndexFromX, scheduleTooltip]
@@ -513,6 +622,11 @@ export function useChartInteraction(
     [handlePointerDiagnostic]
   );
 
+  const handlePointerDown = useCallback(
+    (event) => handlePointerDiagnostic(event, "pointerdown"),
+    [handlePointerDiagnostic]
+  );
+
   const handlePointerLeave = useCallback(
     (event) => handlePointerDiagnostic(event, "pointerleave"),
     [handlePointerDiagnostic]
@@ -523,10 +637,16 @@ export function useChartInteraction(
     [handlePointerDiagnostic]
   );
 
-  const handleTouchEnd = useCallback(() => {
+  const handlePointerUp = useCallback(
+    (event) => handlePointerDiagnostic(event, "pointerup"),
+    [handlePointerDiagnostic]
+  );
+
+  const handleTouchEnd = useCallback((event) => {
+    recordDebugEvent(event, "touchend", null, null);
     clearTooltip();
     setSelection(null);
-  }, [clearTooltip]);
+  }, [clearTooltip, recordDebugEvent]);
 
   const clearSelection = useCallback(() => {
     setSelection(null);
@@ -551,7 +671,9 @@ export function useChartInteraction(
         onMouseLeave: handleMouseLeave,
         onMouseDown: handleMouseDown,
         onMouseUp: handleMouseUp,
+        onPointerDown: handlePointerDown,
         onPointerMove: handlePointerMove,
+        onPointerUp: handlePointerUp,
         onPointerCancel: handlePointerCancel,
         onPointerLeave: handlePointerLeave,
       }
