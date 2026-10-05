@@ -1098,6 +1098,15 @@ a.dash-calendar-day:hover {
 }
 
 @media (max-width: 640px) {
+  .dash-week {
+    grid-template-rows: 90px;
+  }
+
+  .dash-week-day {
+    height: 90px;
+    min-height: 90px;
+  }
+
   .dash-week-value {
     font-size: 1.05rem;
   }
