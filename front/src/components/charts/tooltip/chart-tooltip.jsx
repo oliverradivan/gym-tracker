@@ -246,23 +246,29 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
           width="100%"
         >
           <g transform={`translate(${margin.left},${margin.top})`}>
-            {lines.map((line, index) => (
-              <TooltipDot
-                color={resolveDotColor(line, index)}
-                cornerRadiusFraction={
-                  dotVariant === "ring" ? dotRadiusFraction : undefined
-                }
-                key={line.dataKey}
-                size={resolvedDotSize}
-                springConfig={springConfig}
-                strokeColor={chartCssVars.background}
-                strokeWidth={dotVariant === "ring" ? dotStrokeWidth : undefined}
-                variant={dotVariant}
-                visible={visible}
-                x={tooltipData?.xPositions?.[line.dataKey] ?? x}
-                y={tooltipData?.yPositions[line.dataKey] ?? 0}
-              />
-            ))}
+            {lines.map((line, index) => {
+              const y = tooltipData?.yPositions?.[line.dataKey];
+              if (typeof y !== "number" || !Number.isFinite(y)) {
+                return null;
+              }
+              return (
+                <TooltipDot
+                  color={resolveDotColor(line, index)}
+                  cornerRadiusFraction={
+                    dotVariant === "ring" ? dotRadiusFraction : undefined
+                  }
+                  key={line.dataKey}
+                  size={resolvedDotSize}
+                  springConfig={springConfig}
+                  strokeColor={chartCssVars.background}
+                  strokeWidth={dotVariant === "ring" ? dotStrokeWidth : undefined}
+                  variant={dotVariant}
+                  visible={visible}
+                  x={tooltipData?.xPositions?.[line.dataKey] ?? x}
+                  y={y}
+                />
+              );
+            })}
           </g>
         </svg>
       )}

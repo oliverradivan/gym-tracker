@@ -197,6 +197,8 @@ export function ProjectionLine({
         <SeriesMarkers
           data={data.length > 1 ? data.slice(1) : data}
           dataKey={dataKey}
+          indexOffset={chartData.length}
+          pointType="forecast"
           stroke={stroke}
           strokeWidth={strokeWidth}
           fill={stroke}

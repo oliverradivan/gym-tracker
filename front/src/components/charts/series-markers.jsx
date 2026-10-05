@@ -21,6 +21,8 @@ export function SeriesMarkers({
   outlineWidth = 0,
   outlineColor,
   radius = 2,
+  pointType = "actual",
+  indexOffset = 0,
   animate = true,
   fadeOnHover = true,
   inactiveOpacity = 0.5,
@@ -78,7 +80,11 @@ export function SeriesMarkers({
   const getY = useCallback(
     (d) => {
       const value = d[dataKey];
-      return typeof value === "number" ? (yScale(value) ?? 0) : null;
+      if (typeof value !== "number") {
+        return null;
+      }
+      const y = yScale(value);
+      return typeof y === "number" && Number.isFinite(y) ? y : null;
     },
     [dataKey, yScale]
   );
@@ -175,7 +181,9 @@ export function SeriesMarkers({
       <SeriesMarkersActiveHighlight
         activeScale={activeScale}
         enabled={fadeOnHover}
+        indexOffset={indexOffset}
         markerStyle={markerStyle}
+        pointType={pointType}
         points={points}
       />
     </g>
@@ -221,15 +229,19 @@ function SeriesMarkersDimWrapper({
  */
 function SeriesMarkersActiveHighlight({
   enabled,
+  indexOffset,
   points,
   markerStyle,
+  pointType,
   activeScale
 }) {
   const { tooltipData } = useChartHover();
-  if (!enabled || tooltipData === null) {
+  if (!enabled || tooltipData === null || tooltipData.pointType !== pointType) {
     return null;
   }
-  const activePoint = points.find((point) => point.index === tooltipData.index);
+  const activePoint = points.find(
+    (point) => point.index + indexOffset === tooltipData.index
+  );
   if (!activePoint) {
     return null;
   }
