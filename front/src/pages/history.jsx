@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useWorkouts } from '../context/WorkoutsContext'
 import { getExerciseCategory } from '../utils/exerciseCategory'
 import { formatDuration } from '../utils/duration'
@@ -40,7 +40,15 @@ function getDateParts(isoDate) {
   const [year, month, day] = String(isoDate).split('-').map(Number)
   const date = new Date(year, month - 1, day)
 
-  if (!year || !month || !day || Number.isNaN(date.getTime())) {
+  if (
+    !year ||
+    !month ||
+    !day ||
+    Number.isNaN(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
     return null
   }
 
@@ -59,8 +67,40 @@ function HistoryPage() {
    * scroll position.
    */
   const { sessions, loading, deleteLog } = useWorkouts()
+  const location = useLocation()
+  const historyShellRef = useRef(null)
+  const lastScrolledLocationRef = useRef(null)
   const [message, setMessage] = useState('')
   const [deletingId, setDeletingId] = useState(null)
+
+  useLayoutEffect(() => {
+    if (loading || location.pathname !== '/history') return
+    if (lastScrolledLocationRef.current === location.key) return
+
+    const date = new URLSearchParams(location.search).get('date')
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return
+
+    const sessionExists = sessions.some((sessionItem) => sessionItem.date === date)
+    const target = historyShellRef.current?.querySelector(
+      `[data-session-date="${date}"]`
+    )
+    const scrollContainer = historyShellRef.current?.closest('.swipe-deck-page')
+
+    if (!sessionExists || !target || !scrollContainer) return
+
+    lastScrolledLocationRef.current = location.key
+    const targetTop =
+      target.getBoundingClientRect().top -
+      scrollContainer.getBoundingClientRect().top +
+      scrollContainer.scrollTop
+
+    scrollContainer.scrollTo({
+      top: targetTop,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? 'auto'
+        : 'smooth',
+    })
+  }, [loading, location.key, location.pathname, location.search, sessions])
 
   // The message is shown as a toast, so it clears itself after a few seconds.
   useEffect(() => {
@@ -94,7 +134,7 @@ function HistoryPage() {
 
   return (
     <div className="history-page">
-      <main className="history-shell">
+      <main className="history-shell" ref={historyShellRef}>
         <header className="history-header">
           <div>
             <h1 className="history-title">Workout history</h1>
@@ -148,7 +188,12 @@ function HistoryPage() {
               const legacyDate = sessionItem.date.split('-').reverse().join('/')
 
               return (
-                <section key={sessionItem.date} className="session">
+                <section
+                  key={sessionItem.date}
+                  id={`history-date-${sessionItem.date}`}
+                  data-session-date={sessionItem.date}
+                  className="session"
+                >
                   <div className="session-meta">
                     <h2 className="session-date">
                       <time dateTime={sessionItem.date}>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/WorkoutsContext'
@@ -27,8 +27,8 @@ const weekdayLongFormatter = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
 })
 
-const weekdayNarrowFormatter = new Intl.DateTimeFormat('en-US', {
-  weekday: 'narrow',
+const weekdayShortFormatter = new Intl.DateTimeFormat('en-US', {
+  weekday: 'short',
 })
 
 const decimalFormatter = new Intl.NumberFormat('en-US', {
@@ -55,8 +55,29 @@ function toLocalDateKey(date) {
   return new Date(date.getTime() - offset).toISOString().slice(0, 10)
 }
 
+function dateFromKey(key) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return null
+
+  const [year, month, day] = key.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+
+  return toLocalDateKey(date) === key ? date : null
+}
+
+function addDays(date, count) {
+  const result = new Date(date)
+  result.setDate(result.getDate() + count)
+  return result
+}
+
+function daysBetween(start, end) {
+  const startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())
+  const endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate())
+  return Math.round((endUtc - startUtc) / 86400000)
+}
+
 /*
- * First day of the week, as a JS weekday
+ * Sunday, the first day of the week, as a JS weekday
  * (0 = Sunday ... 6 = Saturday)
  */
 function getFirstWeekday() {
@@ -214,6 +235,8 @@ function ExerciseCategoryIcon({ category, className }) {
 
 function DashboardPage() {
   const [form, setForm] = useState(initialForm)
+  const [daysBeforeWeek, setDaysBeforeWeek] = useState(28)
+  const [calendarExpanded, setCalendarExpanded] = useState(false)
   const { user, session } = useAuth()
 
   /*
@@ -222,11 +245,13 @@ function DashboardPage() {
    * library is still fetched here.
    */
   const { sessions: allSessions, loading: sessionsLoading } = useWorkouts()
+  const weekScrollRef = useRef(null)
+  const positionedWeekRef = useRef(false)
+  const loadingEarlierRef = useRef(false)
+  const pendingScrollWidthRef = useRef(null)
 
   const [exercises, setExercises] = useState([])
-  const [exerciseListInView, setExerciseListInView] = useState(false)
   const [exercisesLoading, setExercisesLoading] = useState(true)
-  const exerciseListRef = useRef(null)
 
   const pageLoading = exercisesLoading || sessionsLoading
 
@@ -363,28 +388,6 @@ function DashboardPage() {
     [allSessions]
   )
 
-  useEffect(() => {
-    const node = exerciseListRef.current
-
-    if (!node) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setExerciseListInView(true)
-          observer.unobserve(entry.target)
-        }
-      },
-      {
-        threshold: 0.15,
-      }
-    )
-
-    observer.observe(node)
-
-    return () => observer.disconnect()
-  }, [pageLoading])
-
   const sortedExercises = useMemo(() => {
     return [...exercises].sort((a, b) => {
       const catA = getExerciseCategory(a.name || '')
@@ -402,29 +405,131 @@ function DashboardPage() {
 
   /*
    * This week's summary, derived from the sessions the page already loads
-   * (no extra request). The week starts on the user's locale first day.
+   * (no extra request). The week starts on Sunday.
    */
   const weekStats = useMemo(() => {
     const now = new Date()
     const todayKey = toLocalDateKey(now)
     const offset = (now.getDay() - getFirstWeekday() + 7) % 7
+    const weekStart = addDays(
+      new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+      -offset
+    )
+    const weekEnd = addDays(weekStart, 6)
+    const earliestSession = allSessions
+      .map((sessionItem) => sessionItem.date)
+      .filter(
+        (date) =>
+          dateFromKey(date) &&
+          date <= todayKey
+      )
+      .sort()[0]
+    const earliestDate = earliestSession ? dateFromKey(earliestSession) : null
+    const startDate = addDays(weekStart, -daysBeforeWeek)
+
+    if (earliestDate && startDate > earliestDate) {
+      startDate.setTime(earliestDate.getTime())
+    }
+
     const sessionsByDate = new Map(
       allSessions.map((sessionItem) => [sessionItem.date, sessionItem])
     )
 
-    let trained = 0
+    const days = Array.from(
+      { length: daysBetween(startDate, weekEnd) + 1 },
+      (_, index) => {
+        const date = addDays(startDate, index)
+        const key = toLocalDateKey(date)
+        const match = sessionsByDate.get(key)
 
-    const days = Array.from({ length: 7 }, (_, index) => {
-      const date = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() - offset + index
-      )
+        const categoryCounts = (match?.entries || []).reduce((counts, entry) => {
+          const category = getExerciseCategory(entry.exercise_name || '')
+          counts[category] = (counts[category] || 0) + 1
+          return counts
+        }, {})
+        const category = Object.entries(categoryCounts)
+          .sort((a, b) => b[1] - a[1])[0]?.[0] || 'cardio'
+
+        return {
+          key,
+          short: weekdayShortFormatter.format(date),
+          dayNumber: date.getDate(),
+          long: weekdayLongFormatter.format(date),
+          trained: Boolean(match),
+          clickable: Boolean(match) && key <= todayKey,
+          category,
+          isToday: key === todayKey,
+        }
+      }
+    )
+
+    return {
+      days,
+      trained: days.filter(
+        (day) =>
+          day.trained &&
+          day.key >= toLocalDateKey(weekStart) &&
+          day.key <= todayKey
+      ).length,
+      todayKey,
+      earliestKey: earliestSession || null,
+    }
+  }, [allSessions, daysBeforeWeek])
+
+  useLayoutEffect(() => {
+    if (calendarExpanded) {
+      positionedWeekRef.current = false
+      return
+    }
+
+    const container = weekScrollRef.current
+    if (!container) return
+
+    if (pendingScrollWidthRef.current !== null) {
+      container.scrollLeft +=
+        container.scrollWidth - pendingScrollWidthRef.current
+      pendingScrollWidthRef.current = null
+      loadingEarlierRef.current = false
+      return
+    }
+
+    if (!positionedWeekRef.current) {
+      container.scrollLeft = container.scrollWidth
+      positionedWeekRef.current = true
+    }
+  }, [calendarExpanded, weekStats.days])
+
+  const loadEarlierDays = () => {
+    const container = weekScrollRef.current
+    if (
+      !container ||
+      loadingEarlierRef.current ||
+      (weekStats.earliestKey &&
+        weekStats.days[0]?.key <= weekStats.earliestKey)
+    ) {
+      return
+    }
+
+    loadingEarlierRef.current = true
+    pendingScrollWidthRef.current = container.scrollWidth
+    setDaysBeforeWeek((days) => days + 28)
+  }
+
+  const calendarDays = useMemo(() => {
+    const today = dateFromKey(weekStats.todayKey)
+    const firstDay = addDays(today, -29)
+    const leadingDays = (firstDay.getDay() - getFirstWeekday() + 7) % 7
+    const cellCount = Math.ceil((leadingDays + 30) / 7) * 7
+    const sessionsByDate = new Map(
+      allSessions.map((sessionItem) => [sessionItem.date, sessionItem])
+    )
+
+    return Array.from({ length: cellCount }, (_, index) => {
+      if (index < leadingDays || index >= leadingDays + 30) return null
+
+      const date = addDays(firstDay, index - leadingDays)
       const key = toLocalDateKey(date)
       const match = sessionsByDate.get(key)
-
-      if (match) trained += 1
-
       const categoryCounts = (match?.entries || []).reduce((counts, entry) => {
         const category = getExerciseCategory(entry.exercise_name || '')
         counts[category] = (counts[category] || 0) + 1
@@ -435,16 +540,18 @@ function DashboardPage() {
 
       return {
         key,
-        short: weekdayNarrowFormatter.format(date),
-        long: weekdayLongFormatter.format(date),
+        dayNumber: date.getDate(),
+        short: weekdayShortFormatter.format(date),
         trained: Boolean(match),
+        clickable: Boolean(match) && key <= weekStats.todayKey,
         category,
-        isToday: key === todayKey,
+        isToday: key === weekStats.todayKey,
       }
     })
-
-    return { days, trained }
-  }, [allSessions])
+  }, [allSessions, weekStats.todayKey])
+  const calendarTrained = calendarDays.filter(
+    (day) => day?.trained && day.key <= weekStats.todayKey
+  ).length
 
   return (
     <div className="dash-page">
@@ -552,41 +659,143 @@ function DashboardPage() {
               <h2 id="dash-week-title" className="dash-section-title">
                 This week
               </h2>
+              <button
+                type="button"
+                className="dash-calendar-toggle"
+                aria-expanded={calendarExpanded}
+                aria-controls="dash-week-view"
+                onClick={() => setCalendarExpanded((expanded) => !expanded)}
+              >
+                {calendarExpanded ? 'Collapse calendar' : 'Expand calendar'}
+                <svg
+                  viewBox="0 0 20 20"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  aria-hidden="true"
+                >
+                  <path d={calendarExpanded ? 'm5 12 5-5 5 5' : 'm5 8 5 5 5-5'} />
+                </svg>
+              </button>
             </div>
 
             <div className="dash-week-cards">
               <article className="dash-card">
-                <span className="dash-card-label">Days trained</span>
+                <span className="dash-card-label">
+                  {calendarExpanded ? 'Days trained in the past 30 days' : 'Days trained'}
+                </span>
 
                 <strong className="dash-card-value">
-                  {weekStats.trained}
-                  <small>/ 7</small>
+                  {calendarExpanded ? calendarTrained : weekStats.trained}
+                  <small>/{calendarExpanded ? 30 : 7}</small>
                 </strong>
 
-                <ol
-                  className="dash-week"
-                  aria-label="Days trained this week"
-                >
-                  {weekStats.days.map((day) => (
-                    <li
-                      key={day.key}
-                      className="dash-week-day"
-                      data-trained={day.trained}
-                      data-category={day.category}
-                      data-today={day.isToday}
+                <div id="dash-week-view">
+                  {calendarExpanded ? (
+                    <div
+                      className="dash-calendar-scroll"
+                      data-swipe-ignore
+                      role="region"
+                      tabIndex={0}
+                      aria-label="Past 30 days of workouts"
+                      tabIndex={0}
                     >
-                      <span className="dash-week-dot" aria-hidden="true" />
-
-                      <span className="dash-week-label" aria-hidden="true">
-                        {day.short}
-                      </span>
-
-                      <span className="dash-sr-only">
-                        {day.long}: {day.trained ? `${day.category} workout` : 'no workout'}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+                      <div className="dash-calendar">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
+                          (weekday) => (
+                            <span className="dash-calendar-weekday" key={weekday}>
+                              {weekday}
+                            </span>
+                          )
+                        )}
+                        {calendarDays.map((day, index) => (
+                          <div className="dash-calendar-cell" key={day?.key || `blank-${index}`}>
+                            {day &&
+                              (day.clickable ? (
+                                <Link
+                                  to={`/history?date=${day.key}`}
+                                  className="dash-calendar-day"
+                                  data-swipe-ignore
+                                  data-trained={day.trained}
+                                  data-category={day.category}
+                                  data-today={day.isToday}
+                                  aria-label={`${day.short} ${day.dayNumber}: workout`}
+                                >
+                                  {day.dayNumber}
+                                </Link>
+                              ) : (
+                                <span
+                                  className="dash-calendar-day"
+                                  data-disabled="true"
+                                  data-trained={day.trained}
+                                  data-category={day.category}
+                                  data-today={day.isToday}
+                                  aria-disabled="true"
+                                  aria-label={`${day.short} ${day.dayNumber}: no workout`}
+                                >
+                                  {day.dayNumber}
+                                </span>
+                              ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      className="dash-week-scroll"
+                      ref={weekScrollRef}
+                      data-swipe-ignore
+                      role="region"
+                      onScroll={() => {
+                        if (weekScrollRef.current?.scrollLeft < 70) {
+                          loadEarlierDays()
+                        }
+                      }}
+                      aria-label="Workout days, scroll left for older dates"
+                    >
+                      <ol className="dash-week" aria-label="Workout days">
+                        {weekStats.days.map((day) => (
+                          <li key={day.key}>
+                            {day.clickable ? (
+                              <Link
+                                to={`/history?date=${day.key}`}
+                                className="dash-week-day"
+                                data-trained={day.trained}
+                                data-category={day.category}
+                                data-today={day.isToday}
+                                aria-label={`${day.short} ${day.dayNumber}: workout`}
+                              >
+                                <span className="dash-week-date" aria-hidden="true">
+                                  {day.short} {day.dayNumber}
+                                </span>
+                                <span className="dash-week-dot" aria-hidden="true" />
+                              </Link>
+                            ) : (
+                              <span
+                                className="dash-week-day"
+                                data-disabled="true"
+                                data-trained={day.trained}
+                                data-category={day.category}
+                                data-today={day.isToday}
+                                aria-disabled="true"
+                              >
+                                <span className="dash-week-date" aria-hidden="true">
+                                  {day.short} {day.dayNumber}
+                                </span>
+                                <span className="dash-week-dot" aria-hidden="true" />
+                                <span className="dash-sr-only">
+                                  {day.long}: {day.trained ? `${day.category} workout` : 'no workout'}
+                                </span>
+                              </span>
+                            )}
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                </div>
               </article>
 
 
@@ -598,13 +807,7 @@ function DashboardPage() {
               Exercise library
           ------------------------------------------------- */}
 
-          <section
-            className={`dash-exercises${
-              exerciseListInView ? ' in-view' : ''
-            }`}
-            ref={exerciseListRef}
-            aria-labelledby="dash-library-title"
-          >
+          <section className="dash-exercises" aria-labelledby="dash-library-title">
             <div className="dash-section-head">
               <h2 id="dash-library-title" className="dash-section-title">
                 Your exercises
@@ -615,7 +818,7 @@ function DashboardPage() {
 
             {sortedExercises.length ? (
               <div className="dash-rows dash-rows-grid">
-                {sortedExercises.map((exercise, index) => (
+                {sortedExercises.map((exercise) => (
                   <div
                     key={exercise.id}
                     className={`dash-row dash-row-compact activity-row exercise-card ${
@@ -626,9 +829,6 @@ function DashboardPage() {
                     data-category={getExerciseCategory(
                       exercise.name || ''
                     )}
-                    style={{
-                      '--reveal-delay': `${Math.min(index, 10) * 0.04}s`,
-                    }}
                   >
                     <span className="dash-row-tile" aria-hidden="true">
                       <ExerciseCategoryIcon category={getExerciseCategory(exercise.name || '')} />
