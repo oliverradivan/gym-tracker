@@ -6,6 +6,32 @@ import { cn } from "@/lib/utils";
 import { useChartConfig } from "../chart-config-context";
 import { chartCssVars } from "../chart-context";
 
+function resolveTooltipHorizontalPosition({
+  x,
+  tooltipWidth,
+  offset,
+  containerWidth,
+  viewportLeft = 0,
+  viewportRight = containerWidth,
+  isScrollViewport = false,
+}) {
+  const flipped = x + tooltipWidth + offset > viewportRight;
+  const preferredLeft = flipped
+    ? x - offset - tooltipWidth
+    : x + offset;
+
+  if (!isScrollViewport) {
+    return { left: preferredLeft, flipped };
+  }
+
+  const minLeft = viewportLeft + offset;
+  const maxLeft = Math.max(minLeft, viewportRight - tooltipWidth - offset);
+  return {
+    left: Math.max(minLeft, Math.min(maxLeft, preferredLeft)),
+    flipped,
+  };
+}
+
 // Inner-only-on-visible so `useSpring` initializes at the cursor's actual x/y
 // instead of (0, 0) on first hover.
 export function TooltipBox(props) {
@@ -51,10 +77,26 @@ function TooltipBoxInner({
   const tooltipHeightRef = useRef(80);
   const [staticPosition, setStaticPosition] = useState({ left: x, top: y });
 
+  const scrollViewport = container.closest(".chart-scroll-wrapper");
+  const viewportLeft = scrollViewport?.scrollLeft ?? 0;
+  const viewportRight = scrollViewport
+    ? Math.min(
+        containerWidth,
+        viewportLeft + scrollViewport.clientWidth
+      )
+    : containerWidth;
   const tw = tooltipWidthRef.current;
   const th = tooltipHeightRef.current;
-  const shouldFlipX = x + tw + offset > containerWidth;
-  const targetX = shouldFlipX ? x - offset - tw : x + offset;
+  const { left: targetX, flipped: shouldFlipX } =
+    resolveTooltipHorizontalPosition({
+      x,
+      tooltipWidth: tw,
+      offset,
+      containerWidth,
+      viewportLeft,
+      viewportRight,
+      isScrollViewport: scrollViewport !== null,
+    });
   const targetY = Math.max(
     offset,
     Math.min(y - th / 2, containerHeight - th - offset)
@@ -85,8 +127,15 @@ function TooltipBoxInner({
     }
     const w2 = tooltipWidthRef.current;
     const h2 = tooltipHeightRef.current;
-    const flip = x + w2 + offset > containerWidth;
-    const tx = flip ? x - offset - w2 : x + offset;
+    const { left: tx } = resolveTooltipHorizontalPosition({
+      x,
+      tooltipWidth: w2,
+      offset,
+      containerWidth,
+      viewportLeft,
+      viewportRight,
+      isScrollViewport: scrollViewport !== null,
+    });
     const ty = Math.max(
       offset,
       Math.min(y - h2 / 2, containerHeight - h2 - offset)
@@ -106,6 +155,9 @@ function TooltipBoxInner({
     y,
     containerWidth,
     containerHeight,
+    viewportLeft,
+    viewportRight,
+    scrollViewport,
     offset,
     leftOverride,
     topOverride,

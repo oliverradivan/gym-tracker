@@ -170,6 +170,7 @@ function HorizontalTooltipIndicatorInner({
   y,
   visible,
   width,
+  xEnd,
   colorEdge = chartCssVars.crosshair,
   colorMid = chartCssVars.crosshair,
   animate = true,
@@ -180,14 +181,18 @@ function HorizontalTooltipIndicatorInner({
   const effectiveSpring = springConfig ?? tooltipSpring;
 
   const animatedY = useSpring(y, effectiveSpring);
+  const lineEndX = xEnd ?? width;
+  const animatedXEnd = useSpring(lineEndX, effectiveSpring);
 
   if (animate) {
     animatedY.set(y);
+    animatedXEnd.set(lineEndX);
   }
 
   useEffect(() => {
     animatedY.set(y);
-  }, [animatedY, y, visible]);
+    animatedXEnd.set(lineEndX);
+  }, [animatedXEnd, animatedY, lineEndX, y, visible]);
 
   const indicatorFill = colorMid || colorEdge;
   const dashed = Boolean(strokeDasharray);
@@ -199,7 +204,7 @@ function HorizontalTooltipIndicatorInner({
         strokeDasharray={strokeDasharray}
         strokeWidth={1}
         x1={0}
-        x2={width}
+        x2={animatedXEnd}
         y1={animatedY}
         y2={animatedY}
       />
@@ -209,7 +214,7 @@ function HorizontalTooltipIndicatorInner({
         strokeDasharray={strokeDasharray}
         strokeWidth={1}
         x1={0}
-        x2={width}
+        x2={lineEndX}
         y1={y}
         y2={y}
       />
@@ -221,7 +226,7 @@ function HorizontalTooltipIndicatorInner({
       stroke={indicatorFill}
       strokeWidth={1}
       x1={0}
-      x2={width}
+      x2={animatedXEnd}
       y1={animatedY}
       y2={animatedY}
     />
@@ -230,7 +235,7 @@ function HorizontalTooltipIndicatorInner({
       stroke={indicatorFill}
       strokeWidth={1}
       x1={0}
-      x2={width}
+      x2={lineEndX}
       y1={y}
       y2={y}
     />

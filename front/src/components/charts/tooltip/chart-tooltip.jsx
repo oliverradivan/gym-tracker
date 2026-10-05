@@ -230,6 +230,7 @@ const ChartTooltipInner = memo(function ChartTooltipInner({
               strokeDasharray={indicatorDasharray}
               visible={visible}
               width={innerWidth}
+              xEnd={isHorizontal ? undefined : x}
               y={firstLineY}
             />
           </g>
