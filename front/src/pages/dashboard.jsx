@@ -546,6 +546,9 @@ function DashboardPage() {
         clickable: Boolean(match) && key <= weekStats.todayKey,
         category,
         isToday: key === weekStats.todayKey,
+        isOutsideMonth: date.getMonth() !== today.getMonth(),
+        workouts: match?.entries || [],
+        activities: Object.keys(categoryCounts).slice(0, 3),
       }
     })
   }, [allSessions, weekStats.todayKey])
@@ -687,9 +690,9 @@ function DashboardPage() {
                   {calendarExpanded ? 'Days trained in the past 30 days' : 'Days trained'}
                 </span>
 
-                <strong className="dash-card-value">
+                <strong className="dash-card-value dash-week-value">
                   {calendarExpanded ? calendarTrained : weekStats.trained}
-                  <small>/{calendarExpanded ? 30 : 7}</small>
+                  <small className="dash-week-count">/{calendarExpanded ? 30 : 7}</small>
                 </strong>
 
                 <div id="dash-week-view">
@@ -726,9 +729,19 @@ function DashboardPage() {
                                   data-trained={day.trained}
                                   data-category={day.category}
                                   data-today={day.isToday}
+                                  data-outside-month={day.isOutsideMonth}
+                                  data-future={day.key > weekStats.todayKey}
                                   aria-label={`${day.short} ${day.dayNumber}: workout`}
                                 >
-                                  {day.dayNumber}
+                                  <span className="dash-calendar-date">
+                                    {day.key.slice(8, 10)}/{day.key.slice(5, 7)}
+                                  </span>
+                                  <span className="dash-calendar-dots" aria-hidden="true">
+                                    <span
+                                      className="dash-calendar-dot"
+                                      data-category={day.category}
+                                    />
+                                  </span>
                                 </Link>
                               ) : (
                                 <span
@@ -737,15 +750,42 @@ function DashboardPage() {
                                   data-trained={day.trained}
                                   data-category={day.category}
                                   data-today={day.isToday}
+                                  data-outside-month={day.isOutsideMonth}
+                                  data-future={day.key > weekStats.todayKey}
                                   aria-disabled="true"
                                   aria-label={`${day.short} ${day.dayNumber}: no workout`}
                                 >
-                                  {day.dayNumber}
+                                  <span className="dash-calendar-date">
+                                    {day.key.slice(8, 10)}/{day.key.slice(5, 7)}
+                                  </span>
+                                  <span className="dash-calendar-dots" aria-hidden="true">
+                                    <span
+                                      className="dash-calendar-dot"
+                                      data-category={day.category}
+                                    />
+                                  </span>
                                 </span>
                               ))}
                           </div>
                         ))}
                       </div>
+                      <ul className="dash-calendar-legend" aria-label="Workout category legend">
+                        {[
+                          ['push', 'Push'],
+                          ['pull', 'Pull'],
+                          ['leg', 'Legs'],
+                          ['cardio', 'Cardio'],
+                        ].map(([category, label]) => (
+                          <li key={category}>
+                            <span
+                              className="dash-calendar-legend-dot"
+                              data-category={category}
+                              aria-hidden="true"
+                            />
+                            {label}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   ) : (
                     <div
@@ -770,6 +810,7 @@ function DashboardPage() {
                                 data-trained={day.trained}
                                 data-category={day.category}
                                 data-today={day.isToday}
+                                data-future={day.key > weekStats.todayKey}
                                 aria-label={`${day.short} ${day.dayNumber}: workout`}
                               >
                                 <span className="dash-week-date dash-week-date-full" aria-hidden="true">
@@ -787,6 +828,7 @@ function DashboardPage() {
                                 data-trained={day.trained}
                                 data-category={day.category}
                                 data-today={day.isToday}
+                                data-future={day.key > weekStats.todayKey}
                                 aria-disabled="true"
                               >
                                 <span className="dash-week-date dash-week-date-full" aria-hidden="true">
