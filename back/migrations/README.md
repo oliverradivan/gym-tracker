@@ -7,6 +7,8 @@ once, in this order:
 1. `0001_baseline.sql`
 2. `0002_rls.sql`
 3. `0003_restrict_exercise_reads.sql`
+4. `0004_exercise_category_check.sql` — restricts `exercises.category` to
+   `Push`, `Pull`, `Leg`, `Cardio`, or `Other`.
 
 Do not run these files, individually or as a set, on an existing database.
 They are not an automatic migration runner and are not designed to upgrade a
