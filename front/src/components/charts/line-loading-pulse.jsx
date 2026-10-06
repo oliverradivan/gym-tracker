@@ -14,19 +14,6 @@ import {
 
 const CLIP_PADDING = 10;
 
-export function resolveLineLoadingPulseMode(phase) {
-  switch (phase) {
-    case "loading":
-      return "loop";
-    case "exiting":
-      return "exit";
-    case "revealingLoading":
-      return "enter";
-    default:
-      return null;
-  }
-}
-
 function useGrowExitClip(
   innerWidth,
   mode,

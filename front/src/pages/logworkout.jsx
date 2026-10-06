@@ -2,12 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/WorkoutsContext'
-import { getExerciseCategory } from '../utils/exerciseCategory'
+import {
+  EXERCISE_CATEGORIES,
+  getExerciseCategory,
+} from '../utils/exerciseCategory'
 import { toSeconds } from '../utils/duration'
+import { sortExercisesByCategory } from '../utils/exerciseSorting'
+import { useClickOutside } from '../hooks/useClickOutside'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './logworkout.css'
-
-const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 // Minimum time the spinner stays visible, so a very fast save doesn't just flash.
 const MIN_SPINNER_MS = 450
@@ -37,15 +40,22 @@ function LogWorkoutPage() {
   const dateInputRef = useRef(null)
   const selectRef = useRef(null)
   const navigate = useNavigate()
-  const { session, setMessage: setGlobalMessage } = useAuth()
+  const { session, authFetch, setMessage: setGlobalMessage } = useAuth()
   const { addLog } = useWorkouts()
+  const authFetchRef = useRef(authFetch)
+
+  useEffect(() => {
+    authFetchRef.current = authFetch
+  }, [authFetch])
+
+  useClickOutside(selectRef, () => setSelectOpen(false))
 
   useEffect(() => {
     const loadExercises = async () => {
       if (!session?.access_token) return
 
       try {
-        const response = await fetch(`${API_URL}/exercises`, {
+        const response = await authFetchRef.current('/exercises', {
           headers: { Authorization: `Bearer ${session.access_token}` },
         })
 
@@ -62,34 +72,18 @@ function LogWorkoutPage() {
     loadExercises()
   }, [session])
 
-  // Close the custom dropdown on outside click
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) {
-        setSelectOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-
   const handleChange = (event) => {
     const { name, value } = event.target
     setForm(prev => ({ ...prev, [name]: value }))
   }
 
   const selectedExercise = exerciseOptions.find(opt => opt.id === form.exercise_id)
-  const selectedCategory = selectedExercise ? getExerciseCategory(selectedExercise.name || '') : ''
+  const selectedCategory = getExerciseCategory(selectedExercise)
 
-  const sortedExerciseOptions = useMemo(() => {
-    return [...exerciseOptions].sort((a, b) => {
-      const catA = getExerciseCategory(a.name || '')
-      const catB = getExerciseCategory(b.name || '')
-      if (catA !== catB) return catA.localeCompare(catB)
-      return (a.name || '').localeCompare(b.name || '')
-    })
-  }, [exerciseOptions])
+  const sortedExerciseOptions = useMemo(
+    () => sortExercisesByCategory(exerciseOptions),
+    [exerciseOptions]
+  )
 
   const handleSelectExercise = (event, exerciseId) => {
     event.preventDefault()
@@ -123,7 +117,7 @@ function LogWorkoutPage() {
     if (typeof input.showPicker === 'function') {
       try {
         input.showPicker()
-      } catch (error) {
+      } catch {
         input.focus()
       }
     } else {
@@ -146,7 +140,7 @@ function LogWorkoutPage() {
     }
 
     const durationSeconds = toSeconds(form)
-    if (selectedCategory === 'cardio' && durationSeconds <= 0) {
+    if (selectedCategory === EXERCISE_CATEGORIES.CARDIO && durationSeconds <= 0) {
       setMessage('Enter a duration greater than zero.')
       return
     }
@@ -162,7 +156,7 @@ function LogWorkoutPage() {
         exercise_id: form.exercise_id,
         log_date: form.date,
       }
-      if (selectedCategory === 'cardio') {
+      if (selectedCategory === EXERCISE_CATEGORIES.CARDIO) {
         logPayload.duration_seconds = durationSeconds
       } else {
         logPayload.weight = Number(form.weight)
@@ -217,11 +211,11 @@ function LogWorkoutPage() {
                 {selectOpen && (
                   <ul className="custom-select-list">
                     {sortedExerciseOptions.map(exercise => {
-                      const category = getExerciseCategory(exercise.name || '')
+                      const category = getExerciseCategory(exercise)
                       return (
                         <li
                           key={exercise.id}
-                          className={`custom-select-option option-${category}${exercise.id === form.exercise_id ? ' selected' : ''}`}
+                          className={`custom-select-option option-${category.toLowerCase()}${exercise.id === form.exercise_id ? ' selected' : ''}`}
                           onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
                         >
                           {exercise.name}
@@ -233,7 +227,7 @@ function LogWorkoutPage() {
               </div>
             </label>
 
-            {selectedCategory === 'cardio' ? (
+            {selectedCategory === EXERCISE_CATEGORIES.CARDIO ? (
               <div className="duration-inputs">
                 {[
                   { name: 'hours', label: 'Hours', min: 0 },

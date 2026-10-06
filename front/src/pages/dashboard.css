@@ -475,36 +475,44 @@
 
 /* These category styles apply when each day has data-category set in the JSX. */
 
-.dash-week-day[data-category="push"],
-.dash-calendar-day[data-category="push"],
-.dash-calendar-dot[data-category="push"],
-.dash-calendar-legend-dot[data-category="push"] {
+.dash-week-day[data-category="Push"],
+.dash-calendar-day[data-category="Push"],
+.dash-calendar-dot[data-category="Push"],
+.dash-calendar-legend-dot[data-category="Push"] {
   --week-accent: #d94a4a;
   --week-wash: #fff0f0;
 }
 
-.dash-week-day[data-category="pull"],
-.dash-calendar-day[data-category="pull"],
-.dash-calendar-dot[data-category="pull"],
-.dash-calendar-legend-dot[data-category="pull"] {
+.dash-week-day[data-category="Pull"],
+.dash-calendar-day[data-category="Pull"],
+.dash-calendar-dot[data-category="Pull"],
+.dash-calendar-legend-dot[data-category="Pull"] {
   --week-accent: #4c82dc;
   --week-wash: #eef5ff;
 }
 
-.dash-week-day[data-category="leg"],
-.dash-calendar-day[data-category="leg"],
-.dash-calendar-dot[data-category="leg"],
-.dash-calendar-legend-dot[data-category="leg"] {
+.dash-week-day[data-category="Leg"],
+.dash-calendar-day[data-category="Leg"],
+.dash-calendar-dot[data-category="Leg"],
+.dash-calendar-legend-dot[data-category="Leg"] {
   --week-accent: #d3a62a;
   --week-wash: #fff9df;
 }
 
-.dash-week-day[data-category="cardio"],
-.dash-calendar-day[data-category="cardio"],
-.dash-calendar-dot[data-category="cardio"],
-.dash-calendar-legend-dot[data-category="cardio"] {
+.dash-week-day[data-category="Cardio"],
+.dash-calendar-day[data-category="Cardio"],
+.dash-calendar-dot[data-category="Cardio"],
+.dash-calendar-legend-dot[data-category="Cardio"] {
   --week-accent: #57a567;
   --week-wash: #edf8ef;
+}
+
+.dash-week-day[data-category="Other"],
+.dash-calendar-day[data-category="Other"],
+.dash-calendar-dot[data-category="Other"],
+.dash-calendar-legend-dot[data-category="Other"] {
+  --week-accent: #64748b;
+  --week-wash: #f1f5f9;
 }
 
 .dash-week-day[data-today="true"] {
@@ -744,32 +752,39 @@ a.dash-calendar-day:hover {
   box-shadow: 0 9px 22px rgb(26 51 42 / 8%);
 }
 
-.dash-row[data-category="push"] {
+.dash-row[data-category="Push"] {
   --row-accent: #d94a4a;
   --row-wash: #fff0f0;
   border-color: rgba(185, 28, 28, 0.16);
   background: linear-gradient(135deg, #fff0f0 0%, #ffe5e5 100%);
 }
 
-.dash-row[data-category="pull"] {
+.dash-row[data-category="Pull"] {
   --row-accent: #4c82dc;
   --row-wash: #eef5ff;
   border-color: rgba(29, 78, 216, 0.15);
   background: linear-gradient(135deg, #eef5ff 0%, #e3efff 100%);
 }
 
-.dash-row[data-category="leg"] {
+.dash-row[data-category="Leg"] {
   --row-accent: #d3a62a;
   --row-wash: #fff9df;
   border-color: rgba(180, 132, 0, 0.17);
   background: linear-gradient(135deg, #fff9df 0%, #fff3c4 100%);
 }
 
-.dash-row[data-category="cardio"] {
+.dash-row[data-category="Cardio"] {
   --row-accent: #57a567;
   --row-wash: #edf8ef;
   border-color: rgba(57, 144, 77, 0.16);
   background: linear-gradient(135deg, #edf8ef 0%, #e3f3e6 100%);
+}
+
+.dash-row[data-category="Other"] {
+  --row-accent: #64748b;
+  --row-wash: #f1f5f9;
+  border-color: rgba(100, 116, 139, 0.2);
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
 .dash-row.exercise-card--run,
@@ -1331,32 +1346,39 @@ a.dash-calendar-day:hover {
   box-shadow: 0 4px 14px rgb(0 0 0 / 22%);
 }
 
-.dark .dash-row[data-category="push"] {
+.dark .dash-row[data-category="Push"] {
   border-color: rgb(217 74 74 / 38%);
   background:
     linear-gradient(135deg, rgb(217 74 74 / 22%), rgb(217 74 74 / 9%)),
     #15171c;
 }
 
-.dark .dash-row[data-category="pull"] {
+.dark .dash-row[data-category="Pull"] {
   border-color: rgb(76 130 220 / 38%);
   background:
     linear-gradient(135deg, rgb(76 130 220 / 22%), rgb(76 130 220 / 9%)),
     #15171c;
 }
 
-.dark .dash-row[data-category="leg"] {
+.dark .dash-row[data-category="Leg"] {
   border-color: rgb(211 166 42 / 38%);
   background:
     linear-gradient(135deg, rgb(211 166 42 / 22%), rgb(211 166 42 / 9%)),
     #15171c;
 }
 
-.dark .dash-row[data-category="cardio"] {
+.dark .dash-row[data-category="Cardio"] {
   border-color: rgb(87 165 103 / 38%);
   background:
     linear-gradient(135deg, rgb(87 165 103 / 22%), rgb(87 165 103 / 9%)),
     #15171c;
+}
+
+.dark .dash-row[data-category="Other"] {
+  --row-accent: #cbd5e1;
+  --row-wash: #334155;
+  border-color: rgba(148, 163, 184, 0.28);
+  background: linear-gradient(135deg, #334155 0%, #273449 100%);
 }
 
 .dark .dash-row-tile {

@@ -5,7 +5,8 @@ import { LinePath } from "@visx/shape";
 import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { chartCssVars, useChartStable, useYScale } from "./chart-context";
 import { fadeGradientStops, resolveFadeSides, viewportFadeGradientAttrs } from "./fade-edges";
-import { LineLoadingPulseStroke, resolveLineLoadingPulseMode } from "./line-loading-pulse";
+import { LineLoadingPulseStroke } from "./line-loading-pulse";
+import { resolveLineLoadingPulseMode } from "./line-loading-utils";
 import { LINE_LOADING_LOOP_PAUSE_MS } from "./line-loading-timing";
 import { LineLoadingSweep } from "./loading-sweep";
 import {

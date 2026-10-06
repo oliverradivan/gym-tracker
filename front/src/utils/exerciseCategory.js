@@ -1,58 +1,28 @@
-export function getExerciseCategory(name = '') {
-  const value = name.toLowerCase()
-
-  if (/\b(run(?:ning)?|jog(?:ging)?|treadmill|bike|cycling|cycle|row(?:ing)? machine|rower|swim(?:ming)?|walk(?:ing)?|elliptical|stair\w*|jump rope|skipping|cardio)\b/i.test(value)) {
-    return 'cardio'
-  }
-
-  const explicitLeg = [
-    'bed hamstring curl',
-    'crunch machine',
-    'crunches',
-    'leg press',
-    'manchester hamstring curl',
-    'reverse leg press',
-    'leg extensions',
-    'sitting calf raises',
-    'inside leg',
-    'outside leg',
-    'squat',
-    'hamstring',
-    'calf',
-    'lunge',
-  ]
-
-  if (explicitLeg.some((entry) => value.includes(entry))) {
-    return 'leg'
-  }
-
-  if (/(cable tricep pull[- ]?down(?:s)?|tricep pull[- ]?down(?:s)?|single arm tricep pulldown(?:s)?|straight bar tricep pulldown(?:s)?)/i.test(value)) {
-    return 'push'
-  }
-
-  if (/(rear delt|rear delts|pull|row|lat|curl|shrug|pulldown|pull up|bicep)/i.test(value)) {
-    return 'pull'
-  }
-
-  if (/(bench|press|shoulder|chest|tricep|push|dip|fly|incline|dumbbell bench|smith bench|machine bench|machine push press|dumbbell shoulder press|machine shoulder press|cable machine shoulder press|delt cable flys|delt machine flys)/i.test(value)) {
-    return 'push'
-  }
-
-  if (/(leg|squat|hamstring|calf|extension|lunge)/i.test(value)) {
-    return 'leg'
-  }
-
-  return 'cardio'
-}
+export const EXERCISE_CATEGORIES = Object.freeze({
+  PUSH: 'Push',
+  PULL: 'Pull',
+  LEG: 'Leg',
+  CARDIO: 'Cardio',
+  OTHER: 'Other',
+})
 
 export const CATEGORY_COLORS = {
-  leg: '#b7791f',
-  push: '#b91c1c',
-  pull: '#1d4ed8',
-  cardio: '#39904d',
+  [EXERCISE_CATEGORIES.LEG]: '#b7791f',
+  [EXERCISE_CATEGORIES.PUSH]: '#b91c1c',
+  [EXERCISE_CATEGORIES.PULL]: '#1d4ed8',
+  [EXERCISE_CATEGORIES.CARDIO]: '#39904d',
+  [EXERCISE_CATEGORIES.OTHER]: '#64748b',
 }
 
-export function getExerciseCategoryColor(name = '') {
-  const category = getExerciseCategory(name)
-  return CATEGORY_COLORS[category] || CATEGORY_COLORS.cardio
+export function getExerciseCategory(exercise) {
+  const category = exercise?.exercise_category
+  const normalized =
+    typeof category === 'string' ? category.trim().toLowerCase() : ''
+  return Object.values(EXERCISE_CATEGORIES).find(
+    (allowed) => allowed.toLowerCase() === normalized
+  ) || EXERCISE_CATEGORIES.OTHER
+}
+
+export function getExerciseCategoryColor(category) {
+  return CATEGORY_COLORS[category] || CATEGORY_COLORS[EXERCISE_CATEGORIES.OTHER]
 }

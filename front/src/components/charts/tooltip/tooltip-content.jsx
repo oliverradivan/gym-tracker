@@ -20,9 +20,6 @@ export function TooltipContent({
             const rowClassName = row.isForecast
               ? "text-chart-tooltip-muted"
               : "text-chart-tooltip-foreground";
-            const valueStyle = row.isForecast
-              ? { opacity: 0.7 }
-              : undefined;
 
             return (
               <div

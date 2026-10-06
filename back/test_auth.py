@@ -3,7 +3,14 @@ from types import SimpleNamespace
 import pytest
 from fastapi import HTTPException
 
-from main import RATE_LIMIT_BUCKETS, DeleteAccountPayload, check_rate_limit, delete_account, get_auth_client, normalize_username
+from back.data_access import get_auth_client
+from back.routers import auth as auth_router
+from back.schemas import DeleteAccountPayload, UpdatePasswordPayload
+
+RATE_LIMIT_BUCKETS = auth_router.RATE_LIMIT_BUCKETS
+check_rate_limit = auth_router.check_rate_limit
+delete_account = auth_router.delete_account
+normalize_username = auth_router.normalize_username
 
 
 class DummyProfileTable:
@@ -78,9 +85,10 @@ def test_delete_account_restores_profile_when_auth_delete_fails(monkeypatch):
                 return self._profile_table
             raise AssertionError(f"Unexpected table: {name}")
 
-    monkeypatch.setattr("main.supabase", DummySupabase())
+    monkeypatch.setattr(auth_router, "get_supabase", lambda: DummySupabase())
     monkeypatch.setattr(
-        "main.get_authenticated_user",
+        auth_router,
+        "get_authenticated_user",
         lambda authorization: SimpleNamespace(
             id="user-123",
             email="alex@example.com",
@@ -88,7 +96,8 @@ def test_delete_account_restores_profile_when_auth_delete_fails(monkeypatch):
         ),
     )
     monkeypatch.setattr(
-        "main.get_auth_client",
+        auth_router,
+        "create_auth_client",
         lambda: SimpleNamespace(auth=SimpleNamespace(sign_in_with_password=lambda payload: object())),
     )
 
@@ -117,8 +126,6 @@ def test_get_auth_client_requires_supabase_env(monkeypatch):
 
 
 def test_update_password_uses_admin_api(monkeypatch):
-    from main import UpdatePasswordPayload, update_password
-
     admin_updated = {}
 
     class DummyAdmin:
@@ -129,17 +136,19 @@ def test_update_password_uses_admin_api(monkeypatch):
         def __init__(self):
             self.auth = SimpleNamespace(admin=DummyAdmin())
 
-    monkeypatch.setattr("main.supabase", DummySupabase())
+    monkeypatch.setattr(auth_router, "get_supabase", lambda: DummySupabase())
     monkeypatch.setattr(
-        "main.get_authenticated_user",
+        auth_router,
+        "get_authenticated_user",
         lambda authorization: SimpleNamespace(id="user-123", email="alex@example.com"),
     )
     monkeypatch.setattr(
-        "main.get_auth_client",
+        auth_router,
+        "create_auth_client",
         lambda: SimpleNamespace(auth=SimpleNamespace(sign_in_with_password=lambda payload: object())),
     )
 
-    res = update_password(
+    res = auth_router.update_password(
         UpdatePasswordPayload(current_password="old", new_password="newpassword123"),
         authorization="Bearer token",
     )

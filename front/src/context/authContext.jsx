@@ -3,6 +3,8 @@ import { createContext, useContext, useMemo, useState, useEffect, useRef } from 
 
 const AuthContext = createContext(null)
 const API_URL = import.meta.env.VITE_API_URL || '/api'
+// localStorage keeps sessions available across reloads but is readable by page
+// JavaScript; an XSS vulnerability could expose the stored access/refresh tokens.
 const AUTH_STORAGE_KEY = 'workout-tracker-auth'
 // Refresh a bit before actual expiry so an in-flight request never lands
 // on a token that expires mid-request.

@@ -1,3 +1,4 @@
+-- Base exercise catalog; ownership is added after the profiles table exists.
 create extension if not exists pgcrypto;
 
 create table if not exists public.exercises (

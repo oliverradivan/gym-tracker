@@ -1,4 +1,4 @@
-from main import build_forecast
+from back.services.forecast import build_forecast
 
 # Test case that previously produced negative values
 points = [

@@ -1,19 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { curveLinear } from '@visx/curve'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/WorkoutsContext'
-import { getExerciseCategory, getExerciseCategoryColor } from '../utils/exerciseCategory'
-import { formatDuration } from '../utils/duration'
+import {
+  EXERCISE_CATEGORIES,
+  getExerciseCategory,
+  getExerciseCategoryColor,
+} from '../utils/exerciseCategory'
+import { sortExercisesByCategory } from '../utils/exerciseSorting'
+import { useClickOutside } from '../hooks/useClickOutside'
 import LoadingSpinner from '@/components/LoadingSpinner'
-import { useChartStable, useYScale } from '@/components/charts/chart-context'
-import ProjectionLine from '@/components/charts/projection-line'
-import LineChart from '@/components/charts/line-chart'
-import Line from '@/components/charts/line'
-import Grid from '@/components/charts/grid'
-import XAxis from '@/components/charts/x-axis'
-import YAxis from '@/components/charts/y-axis'
-import ChartTooltip from '@/components/charts/tooltip/chart-tooltip'
+import ProgressChartPanel from './components/ProgressChartPanel'
+import ProgressHistoryTable from './components/ProgressHistoryTable'
 
 import './progress.css'
 
@@ -22,25 +20,6 @@ const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 const FLIP_CARDIO_Y_AXIS = false
 
 const METRICS = { volume: { label: 'Volume' }, weight: { label: 'Weight' }, reps: { label: 'Reps' } }
-
-function BestTimeMarker({ point, color }) {
-  const { xScale, xAccessor } = useChartStable()
-  const yScale = useYScale()
-
-  if (!point) return null
-
-  const x = xScale(xAccessor(point))
-  const y = yScale(point.actualValue)
-  if (!Number.isFinite(x) || !Number.isFinite(y)) return null
-
-  return (
-    <g transform={`translate(${x}, ${y})`} aria-hidden="true" pointerEvents="none">
-      <circle r="8" fill={color} stroke="white" strokeWidth="3" />
-    </g>
-  )
-}
-
-BestTimeMarker.__isPostOverlay = true
 
 const formatDisplayDate = (date) => {
   const [year, month, day] = String(date || '').slice(0, 10).split('-')
@@ -72,19 +51,13 @@ function ProgressPage() {
   const [chartScrollPosition, setChartScrollPosition] = useState(0)
   const [chartScrollMax, setChartScrollMax] = useState(0)
 
+  useClickOutside(selectRef, () => setSelectOpen(false))
+
   useEffect(() => {
     const mediaQuery = window.matchMedia('(max-width: 640px)')
     const handler = (event) => setIsMobile(event.matches)
     mediaQuery.addEventListener('change', handler)
     return () => mediaQuery.removeEventListener('change', handler)
-  }, [])
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (selectRef.current && !selectRef.current.contains(event.target)) setSelectOpen(false)
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
   const [predictionEnabled, setPredictionEnabled] = useState(() => {
@@ -105,7 +78,9 @@ function ProgressPage() {
         setPredictionEnabled(localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false')
         const savedScroll = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
         setGraphScrollable(savedScroll === null ? true : savedScroll === 'true')
-      } catch {}
+      } catch {
+        // Storage can be unavailable in restricted browser contexts.
+      }
     }
     syncSettings()
     window.addEventListener('storage', syncSettings)
@@ -174,14 +149,14 @@ function ProgressPage() {
   }, [selectedExerciseId, session, authFetch, version])
 
   const selectedExercise = exercises.find((exercise) => exercise.id === selectedExerciseId)
-  const category = useMemo(() => getExerciseCategory(selectedExercise?.name || ''), [selectedExercise])
-  const chartStroke = getExerciseCategoryColor(selectedExercise?.name || '')
+  const category = getExerciseCategory(selectedExercise)
+  const chartStroke = getExerciseCategoryColor(category)
 
   // Load predictions.
   useEffect(() => {
     let mounted = true
     const loadPredictions = async () => {
-      if (category === 'cardio' || !predictionEnabled || !selectedExerciseId || progress.length < 2) {
+      if (category === EXERCISE_CATEGORIES.CARDIO || !predictionEnabled || !selectedExerciseId || progress.length < 2) {
         if (mounted) {
           setPredictions([])
           setPredictionError('')
@@ -220,14 +195,10 @@ function ProgressPage() {
   }, [category, predictionEnabled, selectedExerciseId, progress, session, authFetch])
 
   // Sort dropdown options by category.
-  const sortedExercises = useMemo(() => {
-    return [...exercises].sort((a, b) => {
-      const catA = getExerciseCategory(a.name || '')
-      const catB = getExerciseCategory(b.name || '')
-      if (catA !== catB) return catA.localeCompare(catB)
-      return (a.name || '').localeCompare(b.name || '')
-    })
-  }, [exercises])
+  const sortedExercises = useMemo(
+    () => sortExercisesByCategory(exercises),
+    [exercises]
+  )
 
   const handleSelectExercise = (event, exerciseId) => {
     event.preventDefault()
@@ -236,12 +207,12 @@ function ProgressPage() {
     setSelectOpen(false)
   }
 
-  const chartMetric = category === 'cardio' ? 'duration_seconds' : selectedMetric
-  const metricLabel = category === 'cardio' ? 'Time' : METRICS[chartMetric]?.label || 'Unknown'
-  const showForecast = category !== 'cardio' && chartMetric === 'volume' && predictionEnabled && predictions.length > 0
+  const chartMetric = category === EXERCISE_CATEGORIES.CARDIO ? 'duration_seconds' : selectedMetric
+  const metricLabel = category === EXERCISE_CATEGORIES.CARDIO ? 'Time' : METRICS[chartMetric]?.label || 'Unknown'
+  const showForecast = category !== EXERCISE_CATEGORIES.CARDIO && chartMetric === 'volume' && predictionEnabled && predictions.length > 0
 
   const bestTimePoint = useMemo(() => {
-    if (category !== 'cardio') return null
+    if (category !== EXERCISE_CATEGORIES.CARDIO) return null
     return progress.reduce((best, point, index) => {
       const duration = Number(point.duration_seconds)
       if (!Number.isFinite(duration) || duration <= 0) return best
@@ -252,12 +223,12 @@ function ProgressPage() {
 
   const chartData = useMemo(() => {
     return progress.map((point) => {
-      const rawValue = category === 'cardio'
+      const rawValue = category === EXERCISE_CATEGORIES.CARDIO
         ? Number(point.duration_seconds || 0)
         : Number(point[chartMetric] || 0)
       return {
         date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
-        actualValue: category === 'cardio' && FLIP_CARDIO_Y_AXIS ? -rawValue : rawValue,
+        actualValue: category === EXERCISE_CATEGORIES.CARDIO && FLIP_CARDIO_Y_AXIS ? -rawValue : rawValue,
       }
     })
   }, [progress, chartMetric, category])
@@ -312,47 +283,9 @@ function ProgressPage() {
     setChartScrollPosition(value)
   }
 
-  const renderChart = () => (
-    <LineChart
-      data={chartData}
-      xDataKey="date"
-      animationDuration={1800}
-      animationEasing="cubic-bezier(0.42, 0, 1, 1)"
-      key={chartMetric}
-      style={{ touchAction: isMobile && graphScrollable && !showForecast ? 'pan-x' : 'none' }}
-    >
-      <Grid horizontal vertical intervalDays={4} />
-      <Line dataKey="actualValue" stroke={chartStroke} curve={curveLinear} fadeEdges showHighlight={true} showMarkers />
-      {category === 'cardio' && (
-        <BestTimeMarker point={bestTimeChartPoint} color={chartStroke} />
-      )}
-      {showForecast && predictions.length > 0 && (
-        <ProjectionLine data={forecastData} dataKey="value" curveKind="linear" showEndMarker={false} stroke="var(--chart-3)" strokeWidth={2} strokeDasharray="6,4" showMarkers={true} />
-      )}
-      <YAxis
-        formatLargeNumbers={false}
-        formatValue={category === 'cardio' ? (value) => formatDuration(Math.abs(value)) : undefined}
-      />
-      <XAxis tickMode="interval" intervalDays={4} />
-      <ChartTooltip
-        backgroundColor="var(--tooltip-bg)"
-        animateCrosshair={false}
-        indicatorFadeEdges="none"
-        rows={(point) => {
-          const value = point.value ?? point.actualValue ?? 0
-          return [{
-            label: metricLabel,
-            value: category === 'cardio' ? formatDuration(Math.abs(value)) : value,
-            color: chartStroke,
-          }]
-        }}
-      />
-    </LineChart>
-  )
-
   return (
-    <div className={`progress-page ${category}`}>
-      <div className={`progress-card ${category}`}>
+      <div className={`progress-page ${category.toLowerCase()}`}>
+      <div className={`progress-card ${category.toLowerCase()}`}>
         <div className="progress-header">
           <div>
             <p className="eyebrow">Workout Tracker</p>
@@ -365,7 +298,7 @@ function ProgressPage() {
           <div className="custom-select" ref={selectRef}>
             <button
               type="button"
-              className={`custom-select-trigger ${category ? `select-${category}` : ''}`}
+              className={`custom-select-trigger ${category ? `select-${category.toLowerCase()}` : ''}`}
               onClick={() => setSelectOpen((prev) => !prev)}
             >
               <span>{selectedExercise ? selectedExercise.name : 'Pick a workout'}</span>
@@ -378,11 +311,11 @@ function ProgressPage() {
             {selectOpen && (
               <ul className="custom-select-list">
                 {sortedExercises.map((exercise) => {
-                  const optionCategory = getExerciseCategory(exercise.name || '')
+                  const optionCategory = getExerciseCategory(exercise)
                   return (
                     <li
                       key={exercise.id}
-                      className={`custom-select-option option-${optionCategory}${exercise.id === selectedExerciseId ? ' selected' : ''}`}
+                      className={`custom-select-option option-${optionCategory.toLowerCase()}${exercise.id === selectedExerciseId ? ' selected' : ''}`}
                       onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
                     >
                       {exercise.name}
@@ -402,7 +335,7 @@ function ProgressPage() {
           <p className="status-message">No progress data yet for {selectedExercise.name}.</p>
         ) : (
           <>
-            {category !== 'cardio' && (
+            {category !== EXERCISE_CATEGORIES.CARDIO && (
               <div className="metric-toggle" role="group" aria-label="Chart metric">
                 {Object.entries(METRICS).map(([value, details]) => (
                   <button
@@ -419,88 +352,33 @@ function ProgressPage() {
               </div>
             )}
 
-            <div className="chart-box">
-              {category === 'cardio' && bestTimePoint && (
-                <p className="best-time-summary">
-                  <span>Best time</span>
-                  <strong>{formatDuration(bestTimePoint.duration)}</strong>
-                </p>
-              )}
-              {isMobile && graphScrollable ? (
-                <>
-                  <div className="chart-scroll-wrapper" ref={chartScrollRef} data-swipe-ignore>
-                    <div style={{ width: `${Math.max(800, progress.length * 45)}px`, height: '400px' }}>
-                      {renderChart()}
-                    </div>
-                  </div>
-                  {chartScrollMax > 0 && (
-                    <div className="chart-scroll-control" data-swipe-ignore>
-                      <input
-                        type="range"
-                        min="0"
-                        max={chartScrollMax}
-                        step="1"
-                        value={Math.min(chartScrollPosition, chartScrollMax)}
-                        onChange={handleChartSliderChange}
-                        aria-label="Scroll progress chart horizontally"
-                      />
-                    </div>
-                  )}
-                </>
-              ) : (
-                renderChart()
-              )}
+            <ProgressChartPanel
+              bestTimeChartPoint={bestTimeChartPoint}
+              bestTimePoint={bestTimePoint}
+              category={category}
+              chartData={chartData}
+              chartMetric={chartMetric}
+              chartScrollMax={chartScrollMax}
+              chartScrollPosition={chartScrollPosition}
+              chartScrollRef={chartScrollRef}
+              chartStroke={chartStroke}
+              forecastData={forecastData}
+              graphScrollable={graphScrollable}
+              handleChartSliderChange={handleChartSliderChange}
+              isMobile={isMobile}
+              isPredicting={isPredicting}
+              metricLabel={metricLabel}
+              predictionError={predictionError}
+              predictions={predictions}
+              progressLength={progress.length}
+              showForecast={showForecast}
+            />
 
-              <div className="chart-footer">
-                <div className="chart-legend" aria-label="Chart legend">
-                  <span className="legend-item">
-                    <span className="legend-line actual-line" />
-                    Actual {metricLabel.toLowerCase()}
-                  </span>
-                  {showForecast && (
-                    <span className="legend-item">
-                      <span className="legend-line forecast-line" />
-                      Forecast
-                    </span>
-                  )}
-                </div>
-                {isPredicting && <p className="status-message">Generating forecast...</p>}
-                {predictionError && <p className="status-message error-message">{predictionError}</p>}
-              </div>
-            </div>
-
-            <table className="progress-table">
-              <thead>
-                {category === 'cardio' ? (
-                  <tr><th>Date</th><th>Time</th></tr>
-                ) : (
-                  <tr>
-                    <th>Date</th>
-                    <th>Weight</th>
-                    <th>Reps</th>
-                    <th>Volume</th>
-                  </tr>
-                )}
-              </thead>
-              <tbody>
-                {[...progress]
-                  .sort((a, b) => String(b.date).localeCompare(String(a.date)))
-                  .map((point, index) => (
-                    <tr key={`${point.date}-${index}`}>
-                      <td>{formatDisplayDate(point.date)}</td>
-                      {category === 'cardio' ? (
-                        <td>{formatDuration(point.duration_seconds)}</td>
-                      ) : (
-                        <>
-                          <td>{Number(point.weight || 0).toFixed(1)}</td>
-                          <td>{(Number(point.reps) || 0) % 1 === 0 ? Number(point.reps) || 0 : (Number(point.reps) || 0).toFixed(1)}</td>
-                          <td>{Number(point.volume || 0).toFixed(1)}</td>
-                        </>
-                      )}
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
+            <ProgressHistoryTable
+              category={category}
+              formatDisplayDate={formatDisplayDate}
+              progress={progress}
+            />
           </>
         )}
       </div>

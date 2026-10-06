@@ -1,17 +1,21 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useWorkouts } from '../context/WorkoutsContext'
-import { getExerciseCategory } from '../utils/exerciseCategory'
+import {
+  EXERCISE_CATEGORIES,
+  getExerciseCategory,
+} from '../utils/exerciseCategory'
 import { formatDuration } from '../utils/duration'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './history.css'
 
 /* Display names for the exercise categories returned by getExerciseCategory. */
 const CATEGORY_LABELS = {
-  push: 'Push',
-  pull: 'Pull',
-  leg: 'Legs',
-  cardio: 'Cardio',
+  [EXERCISE_CATEGORIES.PUSH]: 'Push',
+  [EXERCISE_CATEGORIES.PULL]: 'Pull',
+  [EXERCISE_CATEGORIES.LEG]: 'Legs',
+  [EXERCISE_CATEGORIES.CARDIO]: 'Cardio',
+  [EXERCISE_CATEGORIES.OTHER]: 'Other',
 }
 
 const kgFormatter = new Intl.NumberFormat('en-US', {
@@ -225,7 +229,7 @@ function HistoryPage() {
                   <ul className="session-entries">
                     {sessionItem.entries.map((entry, index) => {
                       const isDeleting = deletingId === entry.log_id
-                      const category = getExerciseCategory(entry.exercise_name)
+                      const category = getExerciseCategory(entry)
 
                       return (
                         <li
@@ -253,7 +257,7 @@ function HistoryPage() {
                               )}
 
                               <span>
-                                {category === 'cardio'
+                                {category === EXERCISE_CATEGORIES.CARDIO
                                   ? entry.duration_seconds == null
                                     ? 'Time not recorded'
                                     : formatDuration(entry.duration_seconds)
@@ -268,7 +272,7 @@ function HistoryPage() {
                             </span>
                           </div>
 
-                          {category !== 'cardio' && (
+                          {category !== EXERCISE_CATEGORIES.CARDIO && (
                             <div className="entry-volume">
                               <span className="history-sr-only">Volume </span>
                               <strong>{formatKg(entry.volume)}</strong>

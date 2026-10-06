@@ -1,4 +1,4 @@
--- Add category field to exercises table for grouping
+-- Add category field to exercises table for grouping.
 
 ALTER TABLE public.exercises ADD COLUMN IF NOT EXISTS category text DEFAULT 'Other';
 

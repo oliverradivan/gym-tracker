@@ -262,7 +262,7 @@ function isBetterTickLayout(next, best, nextCountDistance, bestCountDistance) {
  * Picks tick indices with the most even on-screen spacing. Tries
  * `targetCount ± 1` and evaluates every gap layout when feasible.
  */
-export function selectEvenlySpacedIndices(length, targetCount, options) {
+function selectEvenlySpacedIndices(length, targetCount, options) {
   if (length <= 0) {
     return [];
   }

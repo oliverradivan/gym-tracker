@@ -2,14 +2,18 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/WorkoutsContext'
-import { getExerciseCategory } from '../utils/exerciseCategory'
+import {
+  EXERCISE_CATEGORIES,
+  getExerciseCategory,
+} from '../utils/exerciseCategory'
+import { sortExercisesByCategory } from '../utils/exerciseSorting'
+import DashboardCalendarSection from './components/DashboardCalendarSection'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './dashboard.css'
 
-const API_URL = import.meta.env.VITE_API_URL || '/api'
-
 const initialForm = {
   exercise_name: '',
+  category: EXERCISE_CATEGORIES.OTHER,
 }
 
 /* -------------------------------------------------------
@@ -117,7 +121,7 @@ function Icon({ children, className }) {
  *   cardio -> legs, side view (running / cardio)
  */
 const CATEGORY_ARTWORK = {
-  push: {
+  [EXERCISE_CATEGORIES.PUSH]: {
     viewBox: '0 0 1179 1137',
     strokeWidth: 28,
     strokes: [
@@ -141,7 +145,7 @@ const CATEGORY_ARTWORK = {
     ],
   },
 
-  pull: {
+  [EXERCISE_CATEGORIES.PULL]: {
     viewBox: '0 0 1179 1240',
     strokeWidth: 26,
     strokes: [
@@ -166,7 +170,7 @@ const CATEGORY_ARTWORK = {
     fills: [],
   },
 
-  leg: {
+  [EXERCISE_CATEGORIES.LEG]: {
     viewBox: '0 0 470 500',
     strokeWidth: 14,
     strokes: [
@@ -182,7 +186,7 @@ const CATEGORY_ARTWORK = {
     fills: [],
   },
 
-  cardio: {
+  [EXERCISE_CATEGORIES.CARDIO]: {
     viewBox: '0 40 550 560',
     strokeWidth: 12,
     strokes: [
@@ -203,7 +207,8 @@ const CATEGORY_ARTWORK = {
 }
 
 function ExerciseCategoryIcon({ category, className }) {
-  const artwork = CATEGORY_ARTWORK[category] || CATEGORY_ARTWORK.cardio
+  const artwork =
+    CATEGORY_ARTWORK[category] || CATEGORY_ARTWORK[EXERCISE_CATEGORIES.CARDIO]
 
   return (
     <svg
@@ -237,7 +242,12 @@ function DashboardPage() {
   const [form, setForm] = useState(initialForm)
   const [daysBeforeWeek, setDaysBeforeWeek] = useState(28)
   const [calendarExpanded, setCalendarExpanded] = useState(false)
-  const { user, session } = useAuth()
+  const { user, session, authFetch } = useAuth()
+  const authFetchRef = useRef(authFetch)
+
+  useEffect(() => {
+    authFetchRef.current = authFetch
+  }, [authFetch])
 
   /*
    * Workout sessions live in the shared store, so logging or deleting a
@@ -271,7 +281,7 @@ function DashboardPage() {
     if (!form.exercise_name.trim() || !session?.access_token) return
 
     try {
-      const response = await fetch(`${API_URL}/exercises`, {
+      const response = await authFetchRef.current('/exercises', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -279,6 +289,7 @@ function DashboardPage() {
         },
         body: JSON.stringify({
           name: form.exercise_name.trim(),
+          category: form.category,
         }),
       })
 
@@ -306,7 +317,7 @@ function DashboardPage() {
     if (!session?.access_token || deletingExerciseId) return
 
     const confirmed = window.confirm(
-      `Remove "${exercise.name}"? This can't be undone.`
+      `Remove "${exercise.name}"? Its workout logs will also be permanently deleted. This can't be undone.`
     )
 
     if (!confirmed) return
@@ -314,8 +325,8 @@ function DashboardPage() {
     setDeletingExerciseId(exercise.id)
 
     try {
-      const response = await fetch(
-        `${API_URL}/exercises/${exercise.id}`,
+      const response = await authFetch(
+        `/exercises/${exercise.id}`,
         {
           method: 'DELETE',
           headers: {
@@ -351,7 +362,7 @@ function DashboardPage() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/exercises`, {
+        const response = await authFetch('/exercises', {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },
@@ -388,20 +399,10 @@ function DashboardPage() {
     [allSessions]
   )
 
-  const sortedExercises = useMemo(() => {
-    return [...exercises].sort((a, b) => {
-      const catA = getExerciseCategory(a.name || '')
-      const catB = getExerciseCategory(b.name || '')
-
-      if (catA !== catB) {
-        return catA.localeCompare(catB)
-      }
-
-      return (a.name || '').localeCompare(
-        b.name || ''
-      )
-    })
-  }, [exercises])
+  const sortedExercises = useMemo(
+    () => sortExercisesByCategory(exercises),
+    [exercises]
+  )
 
   /*
    * This week's summary, derived from the sessions the page already loads
@@ -443,12 +444,12 @@ function DashboardPage() {
         const match = sessionsByDate.get(key)
 
         const categoryCounts = (match?.entries || []).reduce((counts, entry) => {
-          const category = getExerciseCategory(entry.exercise_name || '')
+          const category = getExerciseCategory(entry)
           counts[category] = (counts[category] || 0) + 1
           return counts
         }, {})
         const category = Object.entries(categoryCounts)
-          .sort((a, b) => b[1] - a[1])[0]?.[0] || 'cardio'
+          .sort((a, b) => b[1] - a[1])[0]?.[0] || EXERCISE_CATEGORIES.OTHER
 
         return {
           key,
@@ -531,12 +532,12 @@ function DashboardPage() {
       const key = toLocalDateKey(date)
       const match = sessionsByDate.get(key)
       const categoryCounts = (match?.entries || []).reduce((counts, entry) => {
-        const category = getExerciseCategory(entry.exercise_name || '')
+        const category = getExerciseCategory(entry)
         counts[category] = (counts[category] || 0) + 1
         return counts
       }, {})
       const category = Object.entries(categoryCounts)
-        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'cardio'
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || EXERCISE_CATEGORIES.OTHER
 
       return {
         key,
@@ -653,207 +654,15 @@ function DashboardPage() {
           </section>
 
 
-          {/* -------------------------------------------------
-              This week
-          ------------------------------------------------- */}
-
-          <section aria-labelledby="dash-week-title">
-            <div className="dash-section-head">
-              <h2 id="dash-week-title" className="dash-section-title">
-                This week
-              </h2>
-              <button
-                type="button"
-                className="dash-calendar-toggle"
-                aria-expanded={calendarExpanded}
-                aria-controls="dash-week-view"
-                onClick={() => setCalendarExpanded((expanded) => !expanded)}
-              >
-                {calendarExpanded ? 'Collapse calendar' : 'Expand calendar'}
-                <svg
-                  viewBox="0 0 20 20"
-                  width="16"
-                  height="16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.8"
-                  aria-hidden="true"
-                >
-                  <path d={calendarExpanded ? 'm5 12 5-5 5 5' : 'm5 8 5 5 5-5'} />
-                </svg>
-              </button>
-            </div>
-
-            <div className="dash-week-cards">
-              <article className="dash-card">
-                <span className="dash-card-label">
-                  {calendarExpanded ? 'Days trained in the past 30 days' : 'Days trained'}
-                </span>
-
-                <strong className="dash-card-value dash-week-value">
-                  {calendarExpanded ? calendarTrained : weekStats.trained}
-                  <small className="dash-week-count">/{calendarExpanded ? 30 : 7}</small>
-                </strong>
-
-                <div id="dash-week-view">
-                  {calendarExpanded ? (
-                    <div
-                      className="dash-calendar-scroll"
-                      data-swipe-ignore
-                      role="region"
-                      tabIndex={0}
-                      aria-label="Past 30 days of workouts"
-                    >
-                      <div className="dash-calendar">
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
-                          (weekday) => (
-                            <span className="dash-calendar-weekday" key={weekday}>
-                              <span className="dash-calendar-weekday-full" aria-hidden="true">
-                                {weekday}
-                              </span>
-                              <span className="dash-calendar-weekday-short" aria-hidden="true">
-                                {weekday.slice(0, 1)}
-                              </span>
-                              <span className="dash-sr-only">{weekday}</span>
-                            </span>
-                          )
-                        )}
-                        {calendarDays.map((day, index) => (
-                          <div className="dash-calendar-cell" key={day?.key || `blank-${index}`}>
-                            {day &&
-                              (day.clickable ? (
-                                <Link
-                                  to={`/history?date=${day.key}`}
-                                  className="dash-calendar-day"
-                                  data-swipe-ignore
-                                  data-trained={day.trained}
-                                  data-category={day.category}
-                                  data-today={day.isToday}
-                                  data-outside-month={day.isOutsideMonth}
-                                  data-future={day.key > weekStats.todayKey}
-                                  aria-label={`${day.short} ${day.dayNumber}: workout`}
-                                >
-                                  <span className="dash-calendar-date">
-                                    {day.key.slice(8, 10)}/{day.key.slice(5, 7)}
-                                  </span>
-                                  <span className="dash-calendar-dots" aria-hidden="true">
-                                    <span
-                                      className="dash-calendar-dot"
-                                      data-category={day.category}
-                                    />
-                                  </span>
-                                </Link>
-                              ) : (
-                                <span
-                                  className="dash-calendar-day"
-                                  data-disabled="true"
-                                  data-trained={day.trained}
-                                  data-category={day.category}
-                                  data-today={day.isToday}
-                                  data-outside-month={day.isOutsideMonth}
-                                  data-future={day.key > weekStats.todayKey}
-                                  aria-disabled="true"
-                                  aria-label={`${day.short} ${day.dayNumber}: no workout`}
-                                >
-                                  <span className="dash-calendar-date">
-                                    {day.key.slice(8, 10)}/{day.key.slice(5, 7)}
-                                  </span>
-                                  <span className="dash-calendar-dots" aria-hidden="true">
-                                    <span
-                                      className="dash-calendar-dot"
-                                      data-category={day.category}
-                                    />
-                                  </span>
-                                </span>
-                              ))}
-                          </div>
-                        ))}
-                      </div>
-                      <ul className="dash-calendar-legend" aria-label="Workout category legend">
-                        {[
-                          ['push', 'Push'],
-                          ['pull', 'Pull'],
-                          ['leg', 'Legs'],
-                          ['cardio', 'Cardio'],
-                        ].map(([category, label]) => (
-                          <li key={category}>
-                            <span
-                              className="dash-calendar-legend-dot"
-                              data-category={category}
-                              aria-hidden="true"
-                            />
-                            {label}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ) : (
-                    <div
-                      className="dash-week-scroll"
-                      ref={weekScrollRef}
-                      data-swipe-ignore
-                      role="region"
-                      onScroll={() => {
-                        if (weekScrollRef.current?.scrollLeft < 70) {
-                          loadEarlierDays()
-                        }
-                      }}
-                      aria-label="Workout days"
-                    >
-                      <ol className="dash-week" aria-label="Workout days">
-                        {weekStats.days.map((day) => (
-                          <li key={day.key}>
-                            {day.clickable ? (
-                              <Link
-                                to={`/history?date=${day.key}`}
-                                className="dash-week-day"
-                                data-trained={day.trained}
-                                data-category={day.category}
-                                data-today={day.isToday}
-                                data-future={day.key > weekStats.todayKey}
-                                aria-label={`${day.short} ${day.dayNumber}: workout`}
-                              >
-                                <span className="dash-week-date dash-week-date-full" aria-hidden="true">
-                                  {day.short} {day.dayNumber}
-                                </span>
-                                <span className="dash-week-date dash-week-date-compact" aria-hidden="true">
-                                  {day.short.slice(0, 1)} {day.dayNumber}
-                                </span>
-                                <span className="dash-week-dot" aria-hidden="true" />
-                              </Link>
-                            ) : (
-                              <span
-                                className="dash-week-day"
-                                data-disabled="true"
-                                data-trained={day.trained}
-                                data-category={day.category}
-                                data-today={day.isToday}
-                                data-future={day.key > weekStats.todayKey}
-                                aria-disabled="true"
-                              >
-                                <span className="dash-week-date dash-week-date-full" aria-hidden="true">
-                                  {day.short} {day.dayNumber}
-                                </span>
-                                <span className="dash-week-date dash-week-date-compact" aria-hidden="true">
-                                  {day.short.slice(0, 1)} {day.dayNumber}
-                                </span>
-                                <span className="dash-week-dot" aria-hidden="true" />
-                                <span className="dash-sr-only">
-                                  {day.long}: {day.trained ? `${day.category} workout` : 'no workout'}
-                                </span>
-                              </span>
-                            )}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                </div>
-              </article>
-
-
-            </div>
-          </section>
+          <DashboardCalendarSection
+            calendarDays={calendarDays}
+            calendarExpanded={calendarExpanded}
+            calendarTrained={calendarTrained}
+            loadEarlierDays={loadEarlierDays}
+            setCalendarExpanded={setCalendarExpanded}
+            weekScrollRef={weekScrollRef}
+            weekStats={weekStats}
+          />
 
 
           {/* -------------------------------------------------
@@ -879,12 +688,10 @@ function DashboardPage() {
                         ? 'exercise-card--run'
                         : 'exercise-card--general'
                     }`}
-                    data-category={getExerciseCategory(
-                      exercise.name || ''
-                    )}
+                    data-category={getExerciseCategory(exercise)}
                   >
                     <span className="dash-row-tile" aria-hidden="true">
-                      <ExerciseCategoryIcon category={getExerciseCategory(exercise.name || '')} />
+                      <ExerciseCategoryIcon category={getExerciseCategory(exercise)} />
                     </span>
 
                     <Link
@@ -959,6 +766,22 @@ function DashboardPage() {
                   placeholder="e.g. Incline Bench Press"
                   required
                 />
+              </div>
+
+              <div className="dash-field">
+                <label htmlFor="exercise_category">Category</label>
+                <select
+                  id="exercise_category"
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                >
+                  {Object.values(EXERCISE_CATEGORIES).map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <button type="submit" className="dash-btn">

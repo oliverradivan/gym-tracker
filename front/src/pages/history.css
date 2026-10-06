@@ -53,6 +53,8 @@
   --h-leg-ink: #b45309;
   --h-cardio: #39904d;
   --h-cardio-ink: #2f743e;
+  --h-other: #64748b;
+  --h-other-ink: #475569;
 
   /* Row tint strengths (share of category colour mixed into the surface) */
   --h-tint: 11%;
@@ -79,6 +81,8 @@
   --h-leg-ink: #f7b84b;
   --h-cardio: #57a567;
   --h-cardio-ink: #8bd39b;
+  --h-other: #94a3b8;
+  --h-other-ink: #cbd5e1;
 
   --h-tint: 16%;
   --h-tint-hover: 22%;
@@ -87,7 +91,7 @@
 }
 
 /* Category colour hooks, shared by the legend and the entry rows */
-.history-page [data-category='push'] {
+.history-page [data-category='Push'] {
   --h-category: var(--h-push);
   --h-category-ink: var(--h-push-ink);
   --h-entry-bg: color-mix(in srgb, var(--h-push) var(--h-tint), var(--h-surface));
@@ -96,7 +100,7 @@
   --h-entry-line: color-mix(in srgb, var(--h-push) var(--h-divider-mix), var(--h-surface));
 }
 
-.history-page [data-category='pull'] {
+.history-page [data-category='Pull'] {
   --h-category: var(--h-pull);
   --h-category-ink: var(--h-pull-ink);
   --h-entry-bg: color-mix(in srgb, var(--h-pull) var(--h-tint), var(--h-surface));
@@ -105,7 +109,7 @@
   --h-entry-line: color-mix(in srgb, var(--h-pull) var(--h-divider-mix), var(--h-surface));
 }
 
-.history-page [data-category='leg'] {
+.history-page [data-category='Leg'] {
   --h-category: var(--h-leg);
   --h-category-ink: var(--h-leg-ink);
   --h-entry-bg: color-mix(in srgb, var(--h-leg) var(--h-tint), var(--h-surface));
@@ -114,13 +118,22 @@
   --h-entry-line: color-mix(in srgb, var(--h-leg) var(--h-divider-mix), var(--h-surface));
 }
 
-.history-page [data-category='cardio'] {
+.history-page [data-category='Cardio'] {
   --h-category: var(--h-cardio);
   --h-category-ink: var(--h-cardio-ink);
   --h-entry-bg: color-mix(in srgb, var(--h-cardio) var(--h-tint), var(--h-surface));
   --h-entry-hover: color-mix(in srgb, var(--h-cardio) var(--h-tint-hover), var(--h-surface));
   --h-entry-press: color-mix(in srgb, var(--h-cardio) var(--h-tint-press), var(--h-surface));
   --h-entry-line: color-mix(in srgb, var(--h-cardio) var(--h-divider-mix), var(--h-surface));
+}
+
+.history-page [data-category='Other'] {
+  --h-category: var(--h-other);
+  --h-category-ink: var(--h-other-ink);
+  --h-entry-bg: color-mix(in srgb, var(--h-other) var(--h-tint), var(--h-surface));
+  --h-entry-hover: color-mix(in srgb, var(--h-other) var(--h-tint-hover), var(--h-surface));
+  --h-entry-press: color-mix(in srgb, var(--h-other) var(--h-tint-press), var(--h-surface));
+  --h-entry-line: color-mix(in srgb, var(--h-other) var(--h-divider-mix), var(--h-surface));
 }
 
 .history-shell {

@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useTheme } from '../context/themeContext'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
+import { parseApiResponse } from '../utils/apiRequest'
 import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle, Sparkles, Eye, EyeOff } from 'lucide-react'
 import './settings.css'
 
-const API_URL = import.meta.env.VITE_API_URL || '/api'
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 
@@ -20,7 +20,7 @@ const TABS = [
 
 function SettingsPage() {
   const navigate = useNavigate()
-  const { user, session, setUser, handleLogout } = useAuth()
+  const { user, session, setUser, handleLogout, authFetch } = useAuth()
   const { theme, toggleTheme } = useTheme()
 
   // State for forms
@@ -29,7 +29,6 @@ function SettingsPage() {
   const [error, setError] = useState('')
 
   // Password visibility state
-  const [showPassword, setShowPassword] = useState(false)
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -103,7 +102,7 @@ function SettingsPage() {
     setMessage('')
 
     try {
-      const response = await fetch(`${API_URL}/profile/username`, {
+      const response = await authFetch('/profile/username', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -112,19 +111,7 @@ function SettingsPage() {
         body: JSON.stringify({ username: newUsername }),
       })
 
-      const rawText = await response.text()
-      let result = {}
-      if (rawText) {
-        try {
-          result = JSON.parse(rawText)
-        } catch {
-          result = { detail: rawText }
-        }
-      }
-
-      if (!response.ok) {
-        throw new Error(result.detail || result.message || 'Failed to update username')
-      }
+      await parseApiResponse(response, 'Failed to update username')
 
       setMessage('Username updated successfully')
       setUser((prev) => {
@@ -170,7 +157,7 @@ function SettingsPage() {
     setPasswordLoading(true)
 
     try {
-      const response = await fetch(`${API_URL}/profile/password`, {
+      const response = await authFetch('/profile/password', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -182,19 +169,7 @@ function SettingsPage() {
         }),
       })
 
-      const rawText = await response.text()
-      let result = {}
-      if (rawText) {
-        try {
-          result = JSON.parse(rawText)
-        } catch {
-          result = { detail: rawText }
-        }
-      }
-
-      if (!response.ok) {
-        throw new Error(result.detail || result.message || 'Failed to update password')
-      }
+      await parseApiResponse(response, 'Failed to update password')
 
       setMessage('Password updated successfully')
       setCurrentPassword('')
@@ -225,7 +200,7 @@ function SettingsPage() {
     setDeleteLoading(true)
 
     try {
-      const response = await fetch(`${API_URL}/profile`, {
+      const response = await authFetch('/profile', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -234,19 +209,7 @@ function SettingsPage() {
         body: JSON.stringify({ password: deletePassword }),
       })
 
-      const rawText = await response.text()
-      let result = {}
-      if (rawText) {
-        try {
-          result = JSON.parse(rawText)
-        } catch {
-          result = { detail: rawText }
-        }
-      }
-
-      if (!response.ok) {
-        throw new Error(result.detail || result.message || 'Failed to delete account')
-      }
+      await parseApiResponse(response, 'Failed to delete account')
 
       setMessage('Account deleted. Logging out...')
       setTimeout(() => {

@@ -8,7 +8,8 @@ import {
   useYScale,
 } from "./chart-context";
 import { useChartLegendHover } from "./chart-legend-hover";
-import { getSeriesMarkerVisualExtent, SeriesPointMarker, StaticSeriesPointMarker } from "./series-point-marker";
+import { SeriesPointMarker, StaticSeriesPointMarker } from "./series-point-marker";
+import { getSeriesMarkerVisualExtent } from "./series-marker-utils";
 
 export function SeriesMarkers({
   data: markerData,
