@@ -254,7 +254,11 @@ function DashboardPage() {
    * workout elsewhere updates this page without a reload. Only the exercise
    * library is still fetched here.
    */
-  const { sessions: allSessions, loading: sessionsLoading } = useWorkouts()
+  const {
+    sessions: allSessions,
+    loading: sessionsLoading,
+    notifyExerciseChange,
+  } = useWorkouts()
   const weekScrollRef = useRef(null)
   const positionedWeekRef = useRef(false)
   const loadingEarlierRef = useRef(false)
@@ -300,6 +304,7 @@ function DashboardPage() {
           ...prev,
           data.exercise || data,
         ])
+        notifyExerciseChange()
 
         setForm(initialForm)
       }
@@ -339,6 +344,7 @@ function DashboardPage() {
         setExercises((prev) =>
           prev.filter((item) => item.id !== exercise.id)
         )
+        notifyExerciseChange()
       } else {
         const data = await response.json().catch(() => null)
 

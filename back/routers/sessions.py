@@ -136,7 +136,7 @@ def get_workout_sessions(authorization: str | None = Header(default=None)):
     try:
         result = (
             client.table("workout_logs")
-            .select("id, exercise_id, log_date, weight, reps, duration_seconds, exercises(name)")
+            .select("id, exercise_id, log_date, weight, reps, duration_seconds, exercises(name, category)")
             .eq("user_id", user.id)
             .order("log_date", desc=True)
             .execute()
@@ -171,10 +171,10 @@ def get_workout_progress(
 
     if not exercise_result.data:
         raise HTTPException(status_code=404, detail="Exercise not found.")
-    is_cardio = (
-        normalize_exercise_category(exercise_result.data[0].get("category"))
-        == CARDIO_CATEGORY
+    exercise_category = normalize_exercise_category(
+        exercise_result.data[0].get("category")
     )
+    is_cardio = exercise_category == CARDIO_CATEGORY
 
     try:
         result = (
@@ -189,4 +189,7 @@ def get_workout_progress(
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to load workout progress: {exc.message}") from exc
 
-    return {"progress": build_progress_series(result.data or [], is_cardio=is_cardio)}
+    return {
+        "progress": build_progress_series(result.data or [], is_cardio=is_cardio),
+        "exercise_category": exercise_category,
+    }

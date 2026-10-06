@@ -41,7 +41,7 @@ function LogWorkoutPage() {
   const selectRef = useRef(null)
   const navigate = useNavigate()
   const { session, authFetch, setMessage: setGlobalMessage } = useAuth()
-  const { addLog } = useWorkouts()
+  const { addLog, exerciseVersion } = useWorkouts()
   const authFetchRef = useRef(authFetch)
 
   useEffect(() => {
@@ -70,7 +70,7 @@ function LogWorkoutPage() {
     }
 
     loadExercises()
-  }, [session])
+  }, [session, exerciseVersion])
 
   const handleChange = (event) => {
     const { name, value } = event.target

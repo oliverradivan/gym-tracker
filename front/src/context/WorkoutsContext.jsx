@@ -8,43 +8,57 @@ export function WorkoutsProvider({ children }) {
   const { user, authFetch } = useAuth()
 
   const [sessions, setSessions] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [sessionsLoadedFor, setSessionsLoadedFor] = useState(null)
+  const [sessionsError, setSessionsError] = useState('')
   // Bumps whenever a workout is logged or deleted, so pages that keep
   // their own fetches (like Progress) know when to refetch.
   const [version, setVersion] = useState(0)
+  const [exerciseVersion, setExerciseVersion] = useState(0)
 
   // authFetch gets a new identity whenever the session refreshes. Keeping
   // it in a ref means a token refresh doesn't trigger a pointless refetch.
   const authFetchRef = useRef(authFetch)
+  const currentUserIdRef = useRef(user?.id)
   useEffect(() => {
     authFetchRef.current = authFetch
   }, [authFetch])
 
   const refresh = useCallback(async () => {
+    const requestUserId = currentUserIdRef.current
+    if (!requestUserId) return
     try {
       const res = await authFetchRef.current('/workout-sessions')
-      if (res.ok) {
-        const data = await res.json()
-        setSessions(data.sessions || [])
-      }
+      if (!res.ok) throw new Error('Failed to load workout sessions.')
+      const data = await res.json()
+      if (currentUserIdRef.current !== requestUserId) return
+      setSessionsError('')
+      setSessions(data.sessions || [])
+      setSessionsLoadedFor(requestUserId)
     } catch (err) {
       console.error(err)
-    } finally {
-      setLoading(false)
+      if (currentUserIdRef.current === requestUserId) {
+        setSessionsError('Unable to load workout history.')
+        setSessionsLoadedFor(requestUserId)
+      }
     }
   }, [])
 
-  // Load when a user logs in; clear everything when they log out
+  const notifyExerciseChange = useCallback(() => {
+    setExerciseVersion((current) => current + 1)
+  }, [])
+
+  // Load for each signed-in user and prevent late responses from crossing accounts.
   const userId = user?.id
   useEffect(() => {
+    currentUserIdRef.current = userId
     if (userId) {
-      setLoading(true)
       refresh()
     } else {
-      setSessions([])
-      setLoading(false)
+      setSessionsLoadedFor(null)
     }
   }, [userId, refresh])
+
+  const loading = Boolean(userId && sessionsLoadedFor !== userId)
 
   // Save a workout, then refetch so Dashboard, History and Progress all update
   const addLog = useCallback(
@@ -80,8 +94,21 @@ export function WorkoutsProvider({ children }) {
   )
 
   const value = useMemo(
-    () => ({ sessions, loading, version, refresh, addLog, deleteLog }),
-    [sessions, loading, version, refresh, addLog, deleteLog],
+    () => ({
+      sessions: sessionsLoadedFor === userId ? sessions : [],
+      loading,
+      sessionsError,
+      version,
+      exerciseVersion,
+      refresh,
+      addLog,
+      deleteLog,
+      notifyExerciseChange,
+    }),
+    [
+      sessions, sessionsLoadedFor, userId, loading, sessionsError, version, exerciseVersion, refresh,
+      addLog, deleteLog, notifyExerciseChange,
+    ],
   )
 
   return <WorkoutsContext.Provider value={value}>{children}</WorkoutsContext.Provider>

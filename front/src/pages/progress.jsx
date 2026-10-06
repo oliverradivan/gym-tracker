@@ -29,7 +29,7 @@ const formatDisplayDate = (date) => {
 function ProgressPage() {
   const { session, authFetch } = useAuth()
   // `version` bumps whenever a workout is logged or deleted anywhere in the app.
-  const { version } = useWorkouts()
+  const { version, exerciseVersion } = useWorkouts()
   const { exerciseId } = useParams()
   const { pathname } = useLocation()
 
@@ -116,7 +116,7 @@ function ProgressPage() {
     }
     loadExercises()
     return () => { cancelled = true }
-  }, [exerciseId, session, authFetch])
+  }, [exerciseId, session, authFetch, exerciseVersion])
 
   // Load progress for the selected exercise.
   useEffect(() => {

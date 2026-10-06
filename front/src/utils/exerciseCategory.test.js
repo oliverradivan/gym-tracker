@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  CATEGORY_COLORS,
   EXERCISE_CATEGORIES,
   getExerciseCategory,
   getExerciseCategoryColor,
@@ -28,4 +29,14 @@ describe('exercise category response helper', () => {
       .toBe('#1d4ed8')
     expect(getExerciseCategoryColor(EXERCISE_CATEGORIES.OTHER)).toBe('#64748b')
   })
+
+  it.each(['Push', 'Pull', 'Leg', 'Cardio'])(
+    'maps %s to a non-neutral color',
+    (category) => {
+      expect(CATEGORY_COLORS[category]).toBeDefined()
+      expect(getExerciseCategoryColor(category)).not.toBe(
+        CATEGORY_COLORS[EXERCISE_CATEGORIES.OTHER],
+      )
+    },
+  )
 })

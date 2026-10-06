@@ -267,6 +267,48 @@ def test_cardio_session_entries_are_excluded_from_volume_and_keep_legacy_rows():
     }]
 
 
+def test_workout_sessions_select_category_and_return_normalized_exercise_category(monkeypatch):
+    class FakeTable:
+        selected = None
+
+        def select(self, columns):
+            self.selected = columns
+            return self
+
+        def eq(self, *_args):
+            return self
+
+        def order(self, *_args, **_kwargs):
+            return self
+
+        def execute(self):
+            return SimpleNamespace(data=[{
+                "id": "log-1",
+                "exercise_id": "exercise-1",
+                "log_date": "2026-10-06",
+                "weight": 50,
+                "reps": 8,
+                "duration_seconds": None,
+                "exercises": {"name": "Bench Press", "category": "push"},
+            }])
+
+    table = FakeTable()
+
+    class FakeSupabase:
+        def table(self, _table_name):
+            return table
+
+    monkeypatch.setattr(sessions, "get_supabase", lambda: FakeSupabase())
+    monkeypatch.setattr(
+        sessions, "get_authenticated_user", lambda _authorization: SimpleNamespace(id="user-1")
+    )
+
+    result = sessions.get_workout_sessions(authorization=None)
+
+    assert "exercises(name, category)" in table.selected
+    assert result["sessions"][0]["entries"][0]["exercise_category"] == "Push"
+
+
 @pytest.mark.parametrize(
     ("exercise_category", "payload_data", "expected_values"),
     [

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Header, HTTPException
 from postgrest.exceptions import APIError
 
 from ..data_access import get_authenticated_user, get_supabase
+from ..exercise_categories import normalize_exercise_category
 from ..routers.exercises import validate_workout_log_payload
 from ..schemas import WorkoutLogPayload
 
@@ -86,7 +87,7 @@ def get_workout_logs(
 
     user = get_authenticated_user(authorization)
 
-    query = client.table("workout_logs").select("*, exercises(name)").eq("user_id", user.id)
+    query = client.table("workout_logs").select("*, exercises(name, category)").eq("user_id", user.id)
     if exercise_id:
         query = query.eq("exercise_id", exercise_id)
 
@@ -95,7 +96,16 @@ def get_workout_logs(
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to load workout logs: {exc.message}") from exc
 
-    return {"logs": result.data}
+    logs = []
+    for log in result.data or []:
+        exercise = log.get("exercises")
+        category = exercise.get("category") if isinstance(exercise, dict) else None
+        logs.append({
+            **log,
+            "exercise_category": normalize_exercise_category(category),
+        })
+
+    return {"logs": logs}
 
 
 @router.delete("/workout-logs/{log_id}")

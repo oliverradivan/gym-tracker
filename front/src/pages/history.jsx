@@ -70,7 +70,7 @@ function HistoryPage() {
    * doesn't toggle `loading`, so the list stays mounted and keeps its
    * scroll position.
    */
-  const { sessions, loading, deleteLog } = useWorkouts()
+  const { sessions, loading, sessionsError, deleteLog } = useWorkouts()
   const location = useLocation()
   const historyShellRef = useRef(null)
   const lastScrolledLocationRef = useRef(null)
@@ -164,6 +164,10 @@ function HistoryPage() {
         {loading ? (
           <div className="history-loading">
             <LoadingSpinner label="Loading workouts..." showLabel />
+          </div>
+        ) : sessionsError ? (
+          <div className="history-empty" role="alert">
+            <p>{sessionsError}</p>
           </div>
         ) : sessions.length === 0 ? (
           <div className="history-empty">

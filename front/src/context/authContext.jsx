@@ -98,6 +98,7 @@ export function AuthProvider({ children }) {
         return { success: true }
       }
 
+      sessionRef.current = result.session
       setUser(result.user)
       setSession(result.session)
       setMessage('Logged in successfully.')
@@ -111,6 +112,7 @@ export function AuthProvider({ children }) {
   }
 
   const handleLogout = () => {
+    sessionRef.current = null
     setUser(null)
     setSession(null)
     localStorage.removeItem(AUTH_STORAGE_KEY)
