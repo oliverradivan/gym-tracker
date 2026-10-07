@@ -13,3 +13,5 @@ The Vercel Python adapter imports the same application from `back.main`.
 Configure the required Supabase environment variables in your local environment
 without committing them; tests use mocked clients and do not require database
 access.
+
+Regenerate the root deployment `requirements.txt` from `back/uv.lock` with `make export-requirements`.
