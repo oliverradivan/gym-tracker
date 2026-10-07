@@ -243,7 +243,7 @@ function LogWorkoutPage() {
                       max={max}
                       step="1"
                       inputMode="numeric"
-                      placeholder="{label}"
+                      placeholder={label}
                     />
                   </label>
                 ))}
