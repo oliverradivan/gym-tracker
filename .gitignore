@@ -13,3 +13,12 @@ __pycache__/
 # Virtual environment
 .venv/
 venv/
+
+# Dependencies, generated output, and local artifacts
+node_modules/
+*.log
+__pycache__/
+.pytest_cache/
+dist/
+coverage/
+.DS_Store
