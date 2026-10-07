@@ -5,6 +5,7 @@ import HistoryPage from '../pages/history'
 import LogWorkoutPage from '../pages/logworkout'
 import ProgressPage from '../pages/progress'
 import SettingsPage from '../pages/settings'
+import { navigateForSwipe } from './swipe-navigation'
 import './SwipeDeck.css'
 
 const PAGES = [
@@ -15,9 +16,6 @@ const PAGES = [
   '/settings',
 ]
 
-const PASS_RATIO = 0.4
-const FLICK_MIN_VELOCITY = 0.55
-const FLICK_MIN_DISTANCE_RATIO = 0.15
 const EDGE_RESISTANCE = 0.3
 const MAX_EDGE_OVERSCROLL_PX = 48
 
@@ -235,27 +233,13 @@ function SwipeDeck() {
         const currentIndex =
           activeIndexRef.current
 
-        const passedThreshold =
-          Math.abs(deltaX) >
-          containerWidth * PASS_RATIO
-
-        const isConfidentFlick =
-          velocity > FLICK_MIN_VELOCITY &&
-          Math.abs(deltaX) >
-            containerWidth * FLICK_MIN_DISTANCE_RATIO
-
-        if (
-          passedThreshold ||
-          isConfidentFlick
-        ) {
-          if (deltaX < 0) {
-            drag.current.dispatched = true
-            goToIndex(currentIndex + 1)
-          } else if (deltaX > 0) {
-            drag.current.dispatched = true
-            goToIndex(currentIndex - 1)
-          }
-        }
+        drag.current.dispatched = navigateForSwipe({
+          deltaX,
+          containerWidth,
+          currentIndex,
+          goToIndex,
+          velocity,
+        })
       }
 
       resetDrag()
@@ -382,25 +366,12 @@ function SwipeDeck() {
             currentIndex === PAGES.length - 1
           )
 
-        const passedThreshold =
-          Math.abs(deltaX) >
-          containerWidth * PASS_RATIO
-
-        const isFlick =
-          Math.abs(deltaX) >
-          containerWidth *
-            FLICK_MIN_DISTANCE_RATIO
-
-        if (
-          passedThreshold ||
-          isFlick
-        ) {
-          if (deltaX < 0) {
-            goToIndex(currentIndex + 1)
-          } else if (deltaX > 0) {
-            goToIndex(currentIndex - 1)
-          }
-        }
+        navigateForSwipe({
+          deltaX,
+          containerWidth,
+          currentIndex,
+          goToIndex,
+        })
 
         accumulatedDeltaX = 0
         setDragPercent(0)

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/WorkoutsContext'
 import { getBestTimePoint } from '../lib/progressSummary'
@@ -10,6 +10,7 @@ import {
 } from '../utils/exerciseCategory'
 import { sortExercisesByCategory } from '../utils/exerciseSorting'
 import { useClickOutside } from '../hooks/useClickOutside'
+import { useLocalStorageState } from '../hooks/useLocalStorageState'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ProgressChartPanel from './components/ProgressChartPanel'
 import ProgressHistoryTable from './components/ProgressHistoryTable'
@@ -32,7 +33,6 @@ function ProgressPage() {
   // `version` bumps whenever a workout is logged or deleted anywhere in the app.
   const { version, exerciseVersion } = useWorkouts()
   const { exerciseId } = useParams()
-  const { pathname } = useLocation()
 
   const [exercises, setExercises] = useState([])
   const [selectedExerciseId, setSelectedExerciseId] = useState('')
@@ -61,32 +61,14 @@ function ProgressPage() {
     return () => mediaQuery.removeEventListener('change', handler)
   }, [])
 
-  const [predictionEnabled, setPredictionEnabled] = useState(() => {
-    try { return localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false' } catch { return true }
-  })
-
-  const [graphScrollable, setGraphScrollable] = useState(() => {
-    try {
-      const savedPreference = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
-      return savedPreference === null ? true : savedPreference === 'true'
-    } catch { return true }
-  })
-
-  // Re-read settings whenever this page is shown.
-  useEffect(() => {
-    const syncSettings = () => {
-      try {
-        setPredictionEnabled(localStorage.getItem(PREDICTION_SETTING_KEY) !== 'false')
-        const savedScroll = localStorage.getItem(GRAPH_SCROLL_SETTING_KEY)
-        setGraphScrollable(savedScroll === null ? true : savedScroll === 'true')
-      } catch {
-        // Storage can be unavailable in restricted browser contexts.
-      }
-    }
-    syncSettings()
-    window.addEventListener('storage', syncSettings)
-    return () => window.removeEventListener('storage', syncSettings)
-  }, [pathname])
+  const [predictionEnabled] = useLocalStorageState(
+    PREDICTION_SETTING_KEY,
+    true
+  )
+  const [graphScrollable] = useLocalStorageState(
+    GRAPH_SCROLL_SETTING_KEY,
+    () => window.matchMedia('(max-width: 640px)').matches
+  )
 
   // Load exercises.
   useEffect(() => {
