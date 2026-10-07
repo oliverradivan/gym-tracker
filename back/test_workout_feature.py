@@ -1,6 +1,8 @@
 import pytest
 from types import SimpleNamespace
+from fastapi.testclient import TestClient
 
+from back.dependencies import get_current_user_context
 from back.exercise_categories import (
     CARDIO_CATEGORY,
     EXERCISE_CATEGORIES,
@@ -9,6 +11,7 @@ from back.exercise_categories import (
     PUSH_CATEGORY,
     normalize_exercise_category,
 )
+from back.main import app
 from back.routers import exercises, sessions, workouts
 from back.schemas import ExercisePayload, WorkoutLogPayload
 from back.services.forecast import build_forecast
@@ -108,18 +111,20 @@ def test_create_exercise_saves_selected_canonical_category(monkeypatch):
             return self.exercise_table
 
     database = FakeSupabase()
-    monkeypatch.setattr(
-        exercises,
-        "get_user_context",
-        lambda _authorization: (database, SimpleNamespace(id="user-1")),
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, SimpleNamespace(id="user-1")),
     )
     monkeypatch.setattr(exercises, "get_admin_client", lambda: database)
 
-    result = exercises.create_exercise(
-        ExercisePayload(name="Custom movement", category="Cardio"),
-        authorization=None,
+    response = TestClient(app).post(
+        "/api/exercises",
+        json={"name": "Custom movement", "category": "Cardio"},
     )
+    result = response.json()
 
+    assert response.status_code == 200
     assert database.exercise_table.insert_data["category"] == "Cardio"
     assert result["exercise"]["category"] == "Cardio"
     assert result["exercise"]["exercise_category"] == "Cardio"
@@ -155,13 +160,15 @@ def test_list_exercises_returns_the_backend_classification(monkeypatch):
             return FakeTable()
 
     database = FakeSupabase()
-    monkeypatch.setattr(
-        exercises,
-        "get_user_context",
-        lambda _authorization: (database, SimpleNamespace(id="user-1")),
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, SimpleNamespace(id="user-1")),
     )
-    result = exercises.list_exercises(authorization=None)
+    response = TestClient(app).get("/api/exercises")
+    result = response.json()
 
+    assert response.status_code == 200
     assert result["exercises"] == [
         {
             "id": "ex-1",
@@ -303,14 +310,16 @@ def test_workout_sessions_select_category_and_return_normalized_exercise_categor
             return table
 
     database = FakeSupabase()
-    monkeypatch.setattr(
-        sessions,
-        "get_user_context",
-        lambda _authorization: (database, SimpleNamespace(id="user-1")),
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, SimpleNamespace(id="user-1")),
     )
 
-    result = sessions.get_workout_sessions(authorization=None)
+    response = TestClient(app).get("/api/workout-sessions")
+    result = response.json()
 
+    assert response.status_code == 200
     assert "exercises(name, category)" in table.selected
     assert result["sessions"][0]["entries"][0]["exercise_category"] == "Push"
 
@@ -364,18 +373,23 @@ def test_create_workout_log_inserts_type_specific_values(
             return FakeTable(table_name)
 
     database = FakeSupabase()
-    monkeypatch.setattr(
-        workouts,
-        "get_user_context",
-        lambda _authorization: (database, SimpleNamespace(id="user-id")),
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, SimpleNamespace(id="user-id")),
     )
     payload = WorkoutLogPayload(
         exercise_id="exercise-id",
         log_date="2026-01-01",
         **payload_data,
     )
-    result = workouts.create_workout_log(payload, authorization=None)
+    response = TestClient(app).post(
+        "/api/workout-logs",
+        json=payload.model_dump(),
+    )
+    result = response.json()
 
+    assert response.status_code == 200
     assert {key: result["log"][key] for key in expected_values} == expected_values
 
 

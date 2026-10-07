@@ -3,8 +3,8 @@ from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 
+from back.dependencies import get_current_user_context
 from back.main import app
-from back.routers import workouts
 
 
 client = TestClient(app)
@@ -101,10 +101,10 @@ def test_workout_logs_requires_authentication():
 
 def test_workout_create_and_read_are_scoped_to_authenticated_user(monkeypatch):
     database = FakeSupabase()
-    monkeypatch.setattr(
-        workouts,
-        "get_user_context",
-        lambda _authorization: (database, SimpleNamespace(id="user-1")),
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, SimpleNamespace(id="user-1")),
     )
 
     create_response = client.post(
@@ -137,10 +137,10 @@ def test_workout_create_and_read_are_scoped_to_authenticated_user(monkeypatch):
 
 def test_user_cannot_read_or_delete_another_users_workout(monkeypatch):
     database = FakeSupabase()
-    monkeypatch.setattr(
-        workouts,
-        "get_user_context",
-        lambda _authorization: (database, SimpleNamespace(id="user-1")),
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, SimpleNamespace(id="user-1")),
     )
 
     read_response = client.get(

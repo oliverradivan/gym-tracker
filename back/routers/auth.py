@@ -2,16 +2,17 @@ import logging
 import os
 import re
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from postgrest.exceptions import APIError
 from supabase_auth.errors import AuthApiError
 
 from ..data_access import (
     auth_client as create_auth_client,
     get_admin_client,
-    get_user_context,
     is_supabase_configured,
 )
+from ..dependencies import UserContext, get_current_user_context
+from ..exception_handlers import DatabaseOperationError, execute_query
 from ..schemas import (
     DeleteAccountPayload,
     LoginPayload,
@@ -112,18 +113,15 @@ def register_user(payload: RegisterPayload, request: Request):
         raise HTTPException(status_code=400, detail="A valid email is required.")
 
     # Check for existing username - uses the clean admin client, safe.
-    try:
-        existing_user = (
-            client.table("profiles")
-            .select("username")
-            .eq("username", username)
-            .limit(1)
-            .execute()
-        )
-        if existing_user.data:
-            raise HTTPException(status_code=409, detail="Username already exists.")
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Database error: {exc.message}") from exc
+    existing_user = execute_query(
+        client.table("profiles")
+        .select("username")
+        .eq("username", username)
+        .limit(1),
+        "Database error",
+    )
+    if existing_user.data:
+        raise HTTPException(status_code=409, detail="Username already exists.")
 
     # Create Supabase Auth account on a THROWAWAY client, not the admin one.
     # This is the fix: sign_up() attaches the new user's session to whatever
@@ -165,9 +163,7 @@ def register_user(payload: RegisterPayload, request: Request):
             # 23505 = unique violation (e.g. two people grabbed the same username at once).
             if getattr(exc, "code", None) == "23505":
                 raise HTTPException(status_code=409, detail="Username already exists.") from exc
-            raise HTTPException(
-                status_code=400, detail=f"Failed to create profile: {exc.message}"
-            ) from exc
+            raise DatabaseOperationError("Failed to create profile", exc.message) from exc
 
     # If email confirmation is required, Supabase returns a user but no session
     email_confirmation_required = (
@@ -205,19 +201,16 @@ def login_user(payload: LoginPayload, request: Request):
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-        try:
-            profile = (
-                client.table("profiles")
-                .select("email")
-                .eq("username", username)
-                .limit(1)
-                .execute()
-            )
-            if not profile.data:
-                raise HTTPException(status_code=401, detail="oops! something was incorrect.")
-            target_email = profile.data[0]["email"]
-        except APIError as exc:
-            raise HTTPException(status_code=400, detail=exc.message) from exc
+        profile = execute_query(
+            client.table("profiles")
+            .select("email")
+            .eq("username", username)
+            .limit(1),
+            "",
+        )
+        if not profile.data:
+            raise HTTPException(status_code=401, detail="oops! something was incorrect.")
+        target_email = profile.data[0]["email"]
 
     if not target_email:
         raise HTTPException(status_code=400, detail="Email or username is required.")
@@ -264,17 +257,19 @@ def refresh_session(payload: RefreshPayload):
 
 
 @router.get("/profile")
-def get_profile(authorization: str | None = Header(default=None)):
-    _, user = get_user_context(authorization)
+def get_profile(
+    user_context: UserContext = Depends(get_current_user_context),
+):
+    _, user = user_context
     return {"user": user}
 
 
 @router.patch("/profile/username")
 def update_username(
     payload: UpdateUsernamePayload,
-    authorization: str | None = Header(default=None),
+    user_context: UserContext = Depends(get_current_user_context),
 ):
-    user_client, user = get_user_context(authorization)
+    user_client, user = user_context
     admin_client = get_admin_client()
 
     try:
@@ -283,27 +278,24 @@ def update_username(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     # Check if username already exists
-    try:
-        existing_user = (
-            admin_client.table("profiles")
-            .select("username")
-            .eq("username", new_username)
-            .neq("id", user.id)
-            .limit(1)
-            .execute()
-        )
-        if existing_user.data:
-            raise HTTPException(status_code=409, detail="Username already exists.")
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Database error: {exc.message}") from exc
+    existing_user = execute_query(
+        admin_client.table("profiles")
+        .select("username")
+        .eq("username", new_username)
+        .neq("id", user.id)
+        .limit(1),
+        "Database error",
+    )
+    if existing_user.data:
+        raise HTTPException(status_code=409, detail="Username already exists.")
 
     # Update username in profiles table
-    try:
+    execute_query(
         user_client.table("profiles").update(
             {"username": new_username}
-        ).eq("id", user.id).execute()
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to update username: {exc.message}") from exc
+        ).eq("id", user.id),
+        "Failed to update username",
+    )
 
     # Update user metadata in auth via admin client
     try:
@@ -320,9 +312,9 @@ def update_username(
 @router.patch("/profile/password")
 def update_password(
     payload: UpdatePasswordPayload,
-    authorization: str | None = Header(default=None),
+    user_context: UserContext = Depends(get_current_user_context),
 ):
-    _, user = get_user_context(authorization)
+    _, user = user_context
     client = get_admin_client()
 
     if len(payload.new_password or "") < 10:
@@ -355,9 +347,9 @@ def update_password(
 @router.delete("/profile")
 def delete_account(
     payload: DeleteAccountPayload,
-    authorization: str | None = Header(default=None),
+    user_context: UserContext = Depends(get_current_user_context),
 ):
-    user_client, user = get_user_context(authorization)
+    user_client, user = user_context
     admin_client = get_admin_client()
 
     # Verify password
@@ -371,23 +363,20 @@ def delete_account(
         raise HTTPException(status_code=401, detail="Password is incorrect.") from exc
 
     profile_snapshot = None
-    try:
-        existing_profile = (
-            user_client.table("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .limit(1)
-            .execute()
-        )
-        if existing_profile.data:
-            profile_snapshot = existing_profile.data[0]
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to load profile: {exc.message}") from exc
+    existing_profile = execute_query(
+        user_client.table("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .limit(1),
+        "Failed to load profile",
+    )
+    if existing_profile.data:
+        profile_snapshot = existing_profile.data[0]
 
-    try:
-        user_client.table("profiles").delete().eq("id", user.id).execute()
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to delete profile: {exc.message}") from exc
+    execute_query(
+        user_client.table("profiles").delete().eq("id", user.id),
+        "Failed to delete profile",
+    )
 
     # Delete user from auth (admin operation using service role key). If the auth
     # deletion fails after we already removed the profile row, restore the profile

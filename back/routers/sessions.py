@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Header, HTTPException
-from postgrest.exceptions import APIError
+from fastapi import APIRouter, Depends, HTTPException
 
-from ..data_access import get_user_context
+from ..dependencies import UserContext, get_current_user_context
+from ..exception_handlers import execute_query
 from ..exercise_categories import CARDIO_CATEGORY, normalize_exercise_category
 
 router = APIRouter(prefix="/api")
@@ -126,19 +126,18 @@ def build_session_summary(rows):
 
 
 @router.get("/workout-sessions")
-def get_workout_sessions(authorization: str | None = Header(default=None)):
-    client, user = get_user_context(authorization)
+def get_workout_sessions(
+    user_context: UserContext = Depends(get_current_user_context),
+):
+    client, user = user_context
 
-    try:
-        result = (
-            client.table("workout_logs")
-            .select("id, exercise_id, log_date, weight, reps, duration_seconds, exercises(name, category)")
-            .eq("user_id", user.id)
-            .order("log_date", desc=True)
-            .execute()
-        )
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to load workout sessions: {exc.message}") from exc
+    result = execute_query(
+        client.table("workout_logs")
+        .select("id, exercise_id, log_date, weight, reps, duration_seconds, exercises(name, category)")
+        .eq("user_id", user.id)
+        .order("log_date", desc=True),
+        "Failed to load workout sessions",
+    )
 
     return {"sessions": build_session_summary(result.data or [])}
 
@@ -146,20 +145,17 @@ def get_workout_sessions(authorization: str | None = Header(default=None)):
 @router.get("/workout-logs/progress")
 def get_workout_progress(
     exercise_id: str,
-    authorization: str | None = Header(default=None),
+    user_context: UserContext = Depends(get_current_user_context),
 ):
-    client, user = get_user_context(authorization)
+    client, user = user_context
 
-    try:
-        exercise_result = (
-            client.table("exercises")
-            .select("category")
-            .eq("id", exercise_id)
-            .limit(1)
-            .execute()
-        )
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to load exercise: {exc.message}") from exc
+    exercise_result = execute_query(
+        client.table("exercises")
+        .select("category")
+        .eq("id", exercise_id)
+        .limit(1),
+        "Failed to load exercise",
+    )
 
     if not exercise_result.data:
         raise HTTPException(status_code=404, detail="Exercise not found.")
@@ -168,18 +164,15 @@ def get_workout_progress(
     )
     is_cardio = exercise_category == CARDIO_CATEGORY
 
-    try:
-        result = (
-            client.table("workout_logs")
-            .select("log_date, weight, reps, duration_seconds, created_at")
-            .eq("user_id", user.id)
-            .eq("exercise_id", exercise_id)
-            .order("log_date", desc=False)
-            .order("created_at", desc=False)
-            .execute()
-        )
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to load workout progress: {exc.message}") from exc
+    result = execute_query(
+        client.table("workout_logs")
+        .select("log_date, weight, reps, duration_seconds, created_at")
+        .eq("user_id", user.id)
+        .eq("exercise_id", exercise_id)
+        .order("log_date", desc=False)
+        .order("created_at", desc=False),
+        "Failed to load workout progress",
+    )
 
     return {
         "progress": build_progress_series(result.data or [], is_cardio=is_cardio),

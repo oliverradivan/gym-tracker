@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Header, HTTPException
-from postgrest.exceptions import APIError
+from fastapi import APIRouter, Depends, HTTPException
 
-from ..data_access import get_user_context
+from ..dependencies import UserContext, get_current_user_context
+from ..exception_handlers import execute_query
 from ..schemas import PredictionsPayload
 from ..services.forecast import (
     EXERCISE_MOVEMENT_CATEGORIES,
@@ -16,9 +16,9 @@ router = APIRouter(prefix="/api")
 @router.post("/predictions")
 def create_predictions(
     payload: PredictionsPayload,
-    authorization: str | None = Header(default=None),
+    user_context: UserContext = Depends(get_current_user_context),
 ):
-    client, _user = get_user_context(authorization)
+    client, _user = user_context
 
     points: list[dict] = payload.points
     if not points or len(points) < 2:
@@ -31,16 +31,13 @@ def create_predictions(
     interval_days = min(max(1, payload.interval_days), MAX_FORECAST_INTERVAL_DAYS)
     category = payload.category
     if payload.exercise_id:
-        try:
-            exercise_result = (
-                client.table("exercises")
-                .select("name")
-                .eq("id", payload.exercise_id)
-                .limit(1)
-                .execute()
-            )
-        except APIError as exc:
-            raise HTTPException(status_code=400, detail=f"Failed to load exercise: {exc.message}") from exc
+        exercise_result = execute_query(
+            client.table("exercises")
+            .select("name")
+            .eq("id", payload.exercise_id)
+            .limit(1),
+            "Failed to load exercise",
+        )
 
         exercise_name = (exercise_result.data[0].get("name") if exercise_result.data else "") or ""
         category = EXERCISE_MOVEMENT_CATEGORIES.get(exercise_name.strip().lower(), category)

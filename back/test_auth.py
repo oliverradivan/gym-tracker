@@ -2,14 +2,15 @@ from types import SimpleNamespace
 
 import pytest
 from fastapi import HTTPException
+from fastapi.testclient import TestClient
 
 from back.data_access import get_auth_client
+from back.dependencies import get_current_user_context
+from back.main import app
 from back import data_access
 from back.routers import auth as auth_router
-from back.schemas import DeleteAccountPayload, RegisterPayload, UpdatePasswordPayload
 
 check_rate_limit = auth_router.check_rate_limit
-delete_account = auth_router.delete_account
 normalize_username = auth_router.normalize_username
 
 
@@ -70,6 +71,7 @@ def test_normalize_username_empty_raises():
 def test_delete_account_restores_profile_when_auth_delete_fails(monkeypatch):
     expected_profile = {"id": "user-123", "username": "alex", "email": "alex@example.com"}
     profile_table = DummyProfileTable(expected_profile)
+    user = SimpleNamespace(id="user-123", email="alex@example.com")
 
     class DummyAuthAdmin:
         def delete_user(self, user_id):
@@ -87,17 +89,10 @@ def test_delete_account_restores_profile_when_auth_delete_fails(monkeypatch):
 
     database = DummySupabase()
     monkeypatch.setattr(auth_router, "get_admin_client", lambda: database)
-    monkeypatch.setattr(
-        auth_router,
-        "get_user_context",
-        lambda authorization: (
-            database,
-            SimpleNamespace(
-                id="user-123",
-                email="alex@example.com",
-                session=SimpleNamespace(access_token="abc"),
-            ),
-        ),
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, user),
     )
     monkeypatch.setattr(
         auth_router,
@@ -105,11 +100,15 @@ def test_delete_account_restores_profile_when_auth_delete_fails(monkeypatch):
         lambda: SimpleNamespace(auth=SimpleNamespace(sign_in_with_password=lambda payload: object())),
     )
 
-    with pytest.raises(HTTPException, match="Failed to delete account|restored"):
-        delete_account(DeleteAccountPayload(password="secret"), authorization="Bearer token")
+    response = TestClient(app).request(
+        "DELETE",
+        "/api/profile",
+        json={"password": "current-password"},
+        headers={"Authorization": "Bearer user-token"},
+    )
 
+    assert response.status_code == 500
     assert profile_table.restored == expected_profile
-
 
 def test_check_rate_limit_blocks_excessive_auth_attempts(monkeypatch):
     calls = []
@@ -188,10 +187,10 @@ def test_update_password_uses_admin_api(monkeypatch):
 
     database = DummySupabase()
     monkeypatch.setattr(auth_router, "get_admin_client", lambda: database)
-    monkeypatch.setattr(
-        auth_router,
-        "get_user_context",
-        lambda authorization: (database, SimpleNamespace(id="user-123", email="alex@example.com")),
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, SimpleNamespace(id="user-123", email="alex@example.com")),
     )
     monkeypatch.setattr(
         auth_router,
@@ -199,39 +198,41 @@ def test_update_password_uses_admin_api(monkeypatch):
         lambda: SimpleNamespace(auth=SimpleNamespace(sign_in_with_password=lambda payload: object())),
     )
 
-    res = auth_router.update_password(
-        UpdatePasswordPayload(current_password="old", new_password="newpassword123"),
-        authorization="Bearer token",
+    response = TestClient(app).patch(
+        "/api/profile/password",
+        json={"current_password": "old", "new_password": "newpassword123"},
+        headers={"Authorization": "Bearer user-token"},
     )
 
-    assert res == {"message": "Password updated successfully"}
+    assert response.status_code == 200
+    assert response.json() == {"message": "Password updated successfully"}
     assert admin_updated["user-123"] == {"password": "newpassword123"}
-
 
 def test_registration_rejects_password_under_ten_characters(monkeypatch):
     monkeypatch.setattr(auth_router, "get_admin_client", lambda: object())
-    monkeypatch.setattr(auth_router, "get_client_ip", lambda _request: "127.0.0.1")
     monkeypatch.setattr(auth_router, "check_rate_limit", lambda *_args, **_kwargs: None)
 
-    with pytest.raises(HTTPException) as error:
-        auth_router.register_user(
-            RegisterPayload(username="alex", email="alex@example.com", password="123456789"),
-            request=object(),
-        )
+    response = TestClient(app).post(
+        "/api/auth/register",
+        json={"username": "alex", "email": "alex@example.com", "password": "123456789"},
+    )
 
-    assert error.value.status_code == 400
-    assert "at least 10 characters" in error.value.detail
-
+    assert response.status_code == 400
+    assert "at least 10 characters" in response.json()["detail"]
 
 def test_password_update_rejects_password_under_ten_characters(monkeypatch):
     user = SimpleNamespace(id="user-123", email="alex@example.com")
-    monkeypatch.setattr(auth_router, "get_user_context", lambda _authorization: (object(), user))
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (object(), user),
+    )
 
-    with pytest.raises(HTTPException) as error:
-        auth_router.update_password(
-            UpdatePasswordPayload(current_password="old", new_password="123456789"),
-            authorization="Bearer user-token",
-        )
+    response = TestClient(app).patch(
+        "/api/profile/password",
+        json={"current_password": "old", "new_password": "123456789"},
+        headers={"Authorization": "Bearer user-token"},
+    )
 
-    assert error.value.status_code == 400
-    assert "at least 10 characters" in error.value.detail
+    assert response.status_code == 400
+    assert "at least 10 characters" in response.json()["detail"]

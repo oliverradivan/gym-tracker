@@ -1,9 +1,11 @@
 import re
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from postgrest.exceptions import APIError
 
-from ..data_access import get_admin_client, get_user_context
+from ..data_access import get_admin_client
+from ..dependencies import UserContext, get_current_user_context
+from ..exception_handlers import DatabaseOperationError, execute_query
 from ..exercise_categories import (
     CARDIO_CATEGORY,
     normalize_exercise_category,
@@ -60,21 +62,19 @@ def normalize_exercise_name(raw_name: str) -> str:
 
 
 @router.get("/exercises")
-def list_exercises(authorization: str | None = Header(default=None)):
-    client, user = get_user_context(authorization)
-
-    try:
-        result = (
-            client.table("exercises")
-            .select("*")
-            # Global exercises (created_by is null) plus this user's own custom ones.
-            .or_(f"created_by.is.null,created_by.eq.{user.id}")
-            .order("category")
-            .order("name")
-            .execute()
-        )
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to load exercises: {exc.message}") from exc
+def list_exercises(
+    user_context: UserContext = Depends(get_current_user_context),
+):
+    client, user = user_context
+    result = execute_query(
+        client.table("exercises")
+        .select("*")
+        # Global exercises (created_by is null) plus this user's own custom ones.
+        .or_(f"created_by.is.null,created_by.eq.{user.id}")
+        .order("category")
+        .order("name"),
+        "Failed to load exercises",
+    )
 
     return {"exercises": [serialize_exercise(exercise) for exercise in (result.data or [])]}
 
@@ -82,62 +82,52 @@ def list_exercises(authorization: str | None = Header(default=None)):
 @router.post("/exercises")
 def create_exercise(
     payload: ExercisePayload,
-    authorization: str | None = Header(default=None),
+    user_context: UserContext = Depends(get_current_user_context),
 ):
-    client, user = get_user_context(authorization)
+    client, user = user_context
 
     try:
         name = normalize_exercise_name(payload.name)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    try:
-        visible = (
-            get_admin_client().table("exercises")
-            .select("name")
-            .execute()
+    visible = execute_query(
+        get_admin_client().table("exercises").select("name"),
+        "Failed to check exercise name",
+    )
+    # Compare in Python instead of using ilike: ilike treats % and _ as
+    # wildcards, so a name like "b%" would match "Bench Press". Names are
+    # unique globally, including exercises owned by other users.
+    wanted = name.casefold()
+    match = next(
+        (
+            row
+            for row in (visible.data or [])
+            if (row.get("name") or "").strip().casefold() == wanted
+        ),
+        None,
+    )
+    if match:
+        raise HTTPException(
+            status_code=409,
+            detail="An exercise with this name already exists.",
         )
-        # Compare in Python instead of using ilike: ilike treats % and _ as
-        # wildcards, so a name like "b%" would match "Bench Press". Names are
-        # unique globally, including exercises owned by other users.
-        wanted = name.casefold()
-        match = next(
-            (
-                row
-                for row in (visible.data or [])
-                if (row.get("name") or "").strip().casefold() == wanted
-            ),
-            None,
-        )
-        if match:
-            raise HTTPException(
-                status_code=409,
-                detail="An exercise with this name already exists.",
-            )
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to check exercise name: {exc.message}") from exc
 
     try:
-        created = (
-            get_admin_client().table("exercises")
-            # created_by makes this exercise private to the user who added it -
-            # it will not show up in anyone else's exercise list.
-            .insert(
-                {
-                    "name": name,
-                    "category": payload.category,
-                    "created_by": user.id,
-                }
-            )
-            .execute()
-        )
+        created = get_admin_client().table("exercises").insert(
+            {
+                "name": name,
+                "category": payload.category,
+                "created_by": user.id,
+            }
+        ).execute()
     except APIError as exc:
         if getattr(exc, "code", None) == "23505":
             raise HTTPException(
                 status_code=409,
                 detail="An exercise with this name already exists.",
             ) from exc
-        raise HTTPException(status_code=400, detail=f"Failed to create exercise: {exc.message}") from exc
+        raise DatabaseOperationError("Failed to create exercise", exc.message) from exc
 
     return {"exercise": serialize_exercise(created.data[0]), "created": True}
 
@@ -146,30 +136,25 @@ def create_exercise(
 def update_exercise(
     exercise_id: str,
     payload: ExerciseUpdatePayload,
-    authorization: str | None = Header(default=None),
+    _user_context: UserContext = Depends(get_current_user_context),
 ):
-    get_user_context(authorization)
-
     raise HTTPException(status_code=403, detail="Exercise updates are not allowed. Exercises are managed globally.")
 
 
 @router.delete("/exercises/{exercise_id}")
 def delete_exercise(
     exercise_id: str,
-    authorization: str | None = Header(default=None),
+    user_context: UserContext = Depends(get_current_user_context),
 ):
-    client, user = get_user_context(authorization)
+    client, user = user_context
 
-    try:
-        existing = (
-            client.table("exercises")
-            .select("id, created_by")
-            .eq("id", exercise_id)
-            .limit(1)
-            .execute()
-        )
-    except APIError as exc:
-        raise HTTPException(status_code=400, detail=f"Failed to look up exercise: {exc.message}") from exc
+    existing = execute_query(
+        client.table("exercises")
+        .select("id, created_by")
+        .eq("id", exercise_id)
+        .limit(1),
+        "Failed to look up exercise",
+    )
 
     if not existing.data:
         raise HTTPException(status_code=404, detail="Exercise not found.")
@@ -183,14 +168,13 @@ def delete_exercise(
             detail="You can only delete exercises you created yourself.",
         )
 
-    try:
-        get_admin_client().table("exercises").delete().eq("id", exercise_id).eq(
-            "created_by", user.id
-        ).execute()
-    except APIError as exc:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Failed to delete exercise: {exc.message}",
-        ) from exc
+    execute_query(
+        get_admin_client()
+        .table("exercises")
+        .delete()
+        .eq("id", exercise_id)
+        .eq("created_by", user.id),
+        "Failed to delete exercise",
+    )
 
     return {"message": "Exercise deleted successfully."}

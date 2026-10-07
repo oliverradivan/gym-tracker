@@ -2,7 +2,13 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from postgrest.exceptions import APIError
 
+from .exception_handlers import (
+    DatabaseOperationError,
+    api_error_handler,
+    database_operation_error_handler,
+)
 from .routers.auth import router as auth_router
 from .routers.exercises import router as exercises_router
 from .routers.forecast import router as forecast_router
@@ -10,6 +16,8 @@ from .routers.sessions import router as sessions_router
 from .routers.workouts import router as workouts_router
 
 app = FastAPI(title="Workout Tracker API")
+app.add_exception_handler(DatabaseOperationError, database_operation_error_handler)
+app.add_exception_handler(APIError, api_error_handler)
 
 LOCAL_CORS_ORIGINS = [
     "http://localhost:5173",
