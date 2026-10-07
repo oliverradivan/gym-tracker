@@ -1,37 +1,82 @@
-/* ---------- Theme and page frame ---------- */
+/* =========================================================
+   DASHBOARD — PREMIUM GLASS / MINIMAL FITNESS UI
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* ---------- Theme ---------- */
 
 .dash-page {
-  --dash-ink: #172321;
-  --dash-muted: #52645d;
-  --dash-soft: #667770;
-  --dash-line: #dce6e1;
+  --dash-ink: #17201d;
+  --dash-muted: #65736d;
+  --dash-soft: #89958f;
+
+  --dash-line: #e1e6e3;
   --dash-surface: #ffffff;
+  --dash-surface-soft: #f8faf9;
+
   --dash-green: #176b52;
   --dash-green-dark: #10523f;
   --dash-green-wash: #e7f3ed;
+
   --dash-orange: #c65e18;
   --dash-orange-wash: #fff0e3;
+
   --dash-teal: #087b78;
   --dash-teal-wash: #e1f3f1;
+
   --dash-indigo: #5255ae;
   --dash-indigo-wash: #ececff;
-  --dash-shadow: 0 8px 24px rgb(26 51 42 / 6%);
-  --dash-shadow-hover: 0 12px 28px rgb(26 51 42 / 10%);
-  --dash-glass: rgb(255 255 255 / 78%);
-  --dash-glass-edge: rgb(255 255 255 / 90%);
-  --dash-calendar-cell-gap: clamp(3px, 1vw, 8px);
-  --dash-calendar-radius: 10px;
-  --dash-calendar-line: color-mix(in srgb, var(--dash-line) 88%, transparent);
-  --dash-calendar-hover: color-mix(in srgb, var(--dash-green-wash) 72%, var(--dash-surface));
+
+  --dash-shadow:
+    0 8px 24px rgb(25 45 38 / 6%);
+
+  --dash-shadow-hover:
+    0 14px 32px rgb(25 45 38 / 10%);
+
+  --dash-glass:
+    rgb(255 255 255 / 82%);
+
+  --dash-glass-edge:
+    rgb(255 255 255 / 92%);
+
+  /* Calendar */
+  --calendar-gap: clamp(5px, 0.65vw, 8px);
+  --calendar-radius: 15px;
+  --calendar-bg: #f7f9f8;
+  --calendar-cell-bg: rgb(255 255 255 / 88%);
+  --calendar-cell-hover: #ffffff;
+  --calendar-border: rgb(30 50 43 / 9%);
+  --calendar-number: #25312c;
+  --calendar-label: #829089;
+
+  /* Add exercise */
+  --create-bg: #f7f5ef;
+  --create-border: #e7e3d9;
+  --create-button-bg: #171717;
+  --create-button-text: #ffffff;
 
   min-height: 100%;
   padding: clamp(24px, 4vw, 48px) 24px 64px;
+
   color: var(--dash-ink);
+
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
   font-size: 15px;
   line-height: 1.5;
+
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -45,23 +90,29 @@
 .dash-shell {
   width: min(100%, 1080px);
   margin-inline: auto;
+
   display: grid;
   gap: 24px;
 }
 
 .dash-loading {
   min-height: min(70vh, 620px);
+
   display: grid;
   place-items: center;
+
   color: var(--dash-muted);
 }
 
-/* ---------- Header ---------- */
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .dash-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 24px;
   padding: 4px 2px 0;
 }
@@ -72,36 +123,49 @@
 
 .dash-greeting {
   margin: 0;
+
   color: var(--dash-ink);
+
   font-size: clamp(2rem, 4vw, 2.8rem);
   font-weight: 760;
   letter-spacing: -0.055em;
   line-height: 1.08;
+
   overflow-wrap: anywhere;
 }
 
 .dash-date {
   margin: 10px 0 0;
+
   color: var(--dash-muted);
+
   font-size: 0.96rem;
   font-weight: 530;
-  letter-spacing: 0.005em;
 }
 
 .dash-avatar {
   display: block;
+
   flex: 0 0 auto;
+
   width: 66px;
   height: 66px;
   padding: 5px;
+
   border: 1px solid rgb(23 107 82 / 16%);
   border-radius: 19px;
+
   background: var(--dash-surface);
-  box-shadow: 0 5px 16px rgb(26 51 42 / 9%);
+
+  box-shadow:
+    0 5px 16px rgb(26 51 42 / 9%);
+
   object-fit: cover;
 }
 
-/* ---------- Overview statistics ---------- */
+/* =========================================================
+   OVERVIEW STATS
+   ========================================================= */
 
 .dash-stats {
   display: grid;
@@ -114,30 +178,55 @@
   --stat-wash: var(--dash-green-wash);
 
   position: relative;
+
   min-width: 0;
   min-height: 138px;
+
   padding: 17px 18px;
+
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 32px;
-  grid-template-rows: auto 1fr auto;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    32px;
+
+  grid-template-rows:
+    auto
+    1fr
+    auto;
+
   align-items: center;
+
   column-gap: 8px;
   row-gap: 4px;
+
   overflow: hidden;
+
   border: 1px solid var(--dash-glass-edge);
   border-radius: 22px;
+
   background:
     linear-gradient(
       145deg,
-      color-mix(in srgb, var(--stat-wash) 38%, var(--dash-glass)),
+      color-mix(
+        in srgb,
+        var(--stat-wash) 38%,
+        var(--dash-glass)
+      ),
       var(--dash-glass) 72%
     );
+
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 85%),
     inset 0 -1px 0 rgb(255 255 255 / 22%),
     var(--dash-shadow);
-  -webkit-backdrop-filter: blur(18px) saturate(155%);
-  backdrop-filter: blur(18px) saturate(155%);
+
+  -webkit-backdrop-filter:
+    blur(18px) saturate(155%);
+
+  backdrop-filter:
+    blur(18px) saturate(155%);
+
   transition:
     transform 180ms ease,
     box-shadow 180ms ease,
@@ -161,21 +250,39 @@
 
 .dash-stat:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--stat-accent) 28%, var(--dash-line));
+
+  border-color:
+    color-mix(
+      in srgb,
+      var(--stat-accent) 28%,
+      var(--dash-line)
+    );
+
   box-shadow: var(--dash-shadow-hover);
 }
 
 .dash-stat-icon {
   grid-column: 2;
   grid-row: 1;
+
   width: 32px;
   height: 32px;
+
   display: grid;
   place-items: center;
+
   border: 1px solid rgb(255 255 255 / 72%);
   border-radius: 11px;
+
   color: var(--stat-accent);
-  background: color-mix(in srgb, var(--stat-wash) 78%, white);
+
+  background:
+    color-mix(
+      in srgb,
+      var(--stat-wash) 78%,
+      white
+    );
+
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 85%),
     0 3px 9px rgb(26 51 42 / 7%);
@@ -189,7 +296,9 @@
 .dash-stat-label,
 .dash-stat-unit {
   min-width: 0;
+
   color: var(--dash-muted);
+
   font-size: 0.84rem;
   font-weight: 620;
   line-height: 1.3;
@@ -198,33 +307,42 @@
 .dash-stat-label {
   grid-column: 1;
   grid-row: 1;
-  align-self: center;
 }
 
 .dash-stat-value {
   grid-column: 1 / -1;
   grid-row: 2;
-  align-self: end;
+
   min-width: 0;
+
   margin-top: 3px;
+
   color: var(--dash-ink);
+
   font-size: clamp(1.7rem, 3.1vw, 2.2rem);
   font-weight: 760;
+
   letter-spacing: -0.045em;
   line-height: 1.15;
+
   font-variant-numeric: tabular-nums;
 }
 
 .dash-stat-unit {
   grid-column: 1 / -1;
   grid-row: 3;
+
   margin-top: 3px;
+
   color: var(--stat-accent);
+
   font-size: 0.78rem;
   font-weight: 700;
 }
 
-/* ---------- Section headings and links ---------- */
+/* =========================================================
+   SECTION HEADINGS
+   ========================================================= */
 
 .dash-shell > section {
   min-width: 0;
@@ -232,30 +350,42 @@
 
 .dash-section-head {
   min-height: 34px;
+
   margin-bottom: 13px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 14px;
 }
 
 .dash-section-title {
   margin: 0;
+
   color: var(--dash-ink);
+
   font-size: 1.16rem;
   font-weight: 730;
+
   letter-spacing: -0.025em;
   line-height: 1.3;
 }
 
 .dash-section-link {
   flex: 0 0 auto;
+
   padding: 7px 11px;
+
   border-radius: 9px;
+
   color: var(--dash-green-dark);
+
   font-size: 0.84rem;
   font-weight: 700;
+
   text-decoration: none;
+
   transition:
     background-color 150ms ease,
     color 150ms ease;
@@ -264,28 +394,46 @@
 .dash-section-link:hover {
   color: #0a4635;
   background: var(--dash-green-wash);
-  text-decoration: none;
 }
 
+/* =========================================================
+   CALENDAR TOGGLE
+   ========================================================= */
+
 .dash-calendar-toggle {
-  min-height: 44px;
-  flex: 0 0 auto;
+  min-height: 40px;
+
   display: inline-flex;
   align-items: center;
+
   gap: 6px;
-  padding: 7px 10px;
-  border: 0;
-  border-radius: 9px;
-  color: var(--dash-green-dark);
+
+  padding: 7px 11px;
+
+  border: 1px solid transparent;
+  border-radius: 10px;
+
+  color: var(--dash-muted);
   background: transparent;
+
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
+
   cursor: pointer;
+
+  transition:
+    color 150ms ease,
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 .dash-calendar-toggle:hover {
-  background: var(--dash-green-wash);
+  color: var(--dash-ink);
+
+  border-color: var(--dash-line);
+
+  background: var(--dash-surface-soft);
 }
 
 .dash-calendar-toggle:focus-visible {
@@ -293,52 +441,66 @@
   outline-offset: 2px;
 }
 
-/* ---------- Week summary ---------- */
+/* =========================================================
+   WEEK SUMMARY
+   ========================================================= */
 
 .dash-week-cards {
   display: block;
   width: 100%;
 }
 
-/* The JSX still renders the average-volume card; hide it. */
 .dash-week-cards > .dash-card-split {
   display: none;
 }
 
 .dash-card {
   min-width: 0;
+
   padding: 21px 24px;
+
   border: 1px solid var(--dash-line);
-  border-radius: 17px;
+  border-radius: 19px;
+
   background: var(--dash-surface);
+
   box-shadow: var(--dash-shadow);
 }
 
 .dash-card-label {
   display: block;
+
   color: var(--dash-muted);
+
   font-size: 0.83rem;
   font-weight: 650;
 }
 
 .dash-card-value {
   display: block;
+
   margin-top: 4px;
+
   color: var(--dash-ink);
+
   font-size: 1.9rem;
   font-weight: 760;
+
   letter-spacing: -0.045em;
   line-height: 1.2;
+
   font-variant-numeric: tabular-nums;
+
   overflow-wrap: anywhere;
 }
 
 .dash-card-value small {
   margin-left: 5px;
+
   color: var(--dash-soft);
+
   font-size: 0.9rem;
   font-weight: 650;
-  letter-spacing: 0;
 }
 
 .dash-week-value {
@@ -349,28 +511,51 @@
   font-size: 0.72rem;
 }
 
-.dash-week {
-  width: 100%;
-  min-width: 100%;
-  flex: 0 0 100%;
-  margin: 1rem 0 0;
-  padding: 0;
-  display: grid;
-  grid-template-rows: 120px;
-  grid-auto-columns: calc((100% - 24px) / 7);
-  grid-auto-flow: column;
-  gap: 4px;
-  list-style: none;
-}
+/* =========================================================
+   7-DAY WEEK STRIP
+   ========================================================= */
 
 .dash-week-scroll {
   width: 100%;
   max-width: 100%;
+
   overflow-x: auto;
+
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
+
+  scrollbar-width: none;
+
   -webkit-overflow-scrolling: touch;
+
   scroll-snap-type: x proximity;
+}
+
+.dash-week-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.dash-week {
+  width: 100%;
+  min-width: 100%;
+
+  margin: 17px 0 0;
+  padding: 0;
+
+  display: grid;
+
+  /*
+   * Seven equal cards with controlled spacing.
+   * This prevents the final card from becoming visually
+   * compressed at smaller desktop widths.
+   */
+  grid-template-columns:
+    repeat(7, minmax(0, 1fr));
+
+  grid-auto-flow: row;
+
+  gap: var(--calendar-gap);
+
+  list-style: none;
 }
 
 .dash-week li {
@@ -379,33 +564,64 @@
 
 .dash-week-day {
   width: 100%;
+
   min-width: 0;
-  height: 120px;
-  min-height: 120px;
-  padding: 9px 6px 10px;
+  height: 108px;
+
+  padding: 10px 6px;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  border: 1px solid var(--dash-calendar-line);
-  border-radius: 16px;
-  background: var(--dash-surface);
+
+  gap: 7px;
+
+  border:
+    1px solid
+    var(--calendar-border);
+
+  border-radius: var(--calendar-radius);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 96%),
+      rgb(248 250 249 / 90%)
+    );
+
   color: inherit;
+
   text-decoration: none;
-  scroll-snap-align: end;
+
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 90%),
+    0 4px 13px rgb(26 51 42 / 4%);
+
+  scroll-snap-align: start;
+
   transition:
-    border-color 150ms ease,
-    background-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
+    transform 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .dash-week-day:not([data-disabled="true"]):hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--dash-green) 36%, var(--dash-line));
-  background: var(--dash-calendar-hover);
-  box-shadow: 0 3px 10px rgb(26 51 42 / 8%);
+  transform: translateY(-2px);
+
+  border-color:
+    color-mix(
+      in srgb,
+      var(--week-accent, var(--dash-green)) 30%,
+      var(--calendar-border)
+    );
+
+  background: #ffffff;
+
+  box-shadow:
+    0 9px 22px rgb(26 51 42 / 8%);
 }
 
 .dash-week-day[data-disabled="true"] {
@@ -413,14 +629,17 @@
 }
 
 .dash-week-day[data-future="true"] {
-  opacity: 0.65;
+  opacity: 0.55;
 }
 
 .dash-week-date {
-  color: var(--dash-muted);
-  font-size: 0.67rem;
-  font-weight: 700;
+  color: var(--calendar-label);
+
+  font-size: 0.66rem;
+  font-weight: 720;
+
   line-height: 1;
+
   white-space: nowrap;
 }
 
@@ -432,34 +651,49 @@
   display: none;
 }
 
+/* Main training indicator */
+
 .dash-week-dot {
-  width: min(56px, 100%);
-  aspect-ratio: 1;
-  flex: 0 1 56px;
-  margin-block: auto;
+  width: 34px;
+  height: 34px;
+
+  flex: 0 0 34px;
+
+  margin: auto 0;
+
   display: block;
-  border: 2px solid color-mix(in srgb, var(--dash-muted) 48%, var(--dash-surface));
+
+  border:
+    1.5px solid
+    color-mix(
+      in srgb,
+      var(--dash-muted) 32%,
+      transparent
+    );
+
   border-radius: 50%;
-  background: color-mix(in srgb, var(--dash-line) 54%, var(--dash-surface));
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #eef2f0
+    );
+
+  box-shadow:
+    inset 0 1px 2px rgb(255 255 255 / 90%),
+    0 2px 5px rgb(30 50 43 / 5%);
+
   transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
-.dash-week-day[data-trained="true"] {
-  border-color: color-mix(in srgb, var(--week-accent, var(--dash-green)) 25%, #fff);
-  background: color-mix(in srgb, var(--week-accent, var(--dash-green)) 10%, #fff);
-}
-
-.dash-week-day[data-trained="true"] .dash-week-dot {
-  border-color: #fff;
-  background: color-mix(in srgb, var(--week-accent, var(--dash-green)) 88%, var(--dash-surface));
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--week-accent, var(--dash-green)) 88%, var(--dash-surface));
-}
-
-/* These category styles apply when each day has data-category set in the JSX. */
+/* =========================================================
+   CATEGORY COLORS
+   ========================================================= */
 
 .dash-week-day[data-category="Push"],
 .dash-calendar-day[data-category="Push"],
@@ -477,10 +711,26 @@
   --week-wash: #eef5ff;
 }
 
+.dash-week-day[data-category="Back"],
+.dash-calendar-day[data-category="Back"],
+.dash-calendar-dot[data-category="Back"],
+.dash-calendar-legend-dot[data-category="Back"] {
+  --week-accent: #4c82dc;
+  --week-wash: #eef5ff;
+}
+
 .dash-week-day[data-category="Leg"],
 .dash-calendar-day[data-category="Leg"],
 .dash-calendar-dot[data-category="Leg"],
 .dash-calendar-legend-dot[data-category="Leg"] {
+  --week-accent: #d3a62a;
+  --week-wash: #fff9df;
+}
+
+.dash-week-day[data-category="Legs"],
+.dash-calendar-day[data-category="Legs"],
+.dash-calendar-dot[data-category="Legs"],
+.dash-calendar-legend-dot[data-category="Legs"] {
   --week-accent: #d3a62a;
   --week-wash: #fff9df;
 }
@@ -501,58 +751,138 @@
   --week-wash: #f1f5f9;
 }
 
-.dash-week-day[data-today="true"] {
-  border-color: var(--dash-teal);
-  background: #eef7f4;
+/* Trained state */
+
+.dash-week-day[data-trained="true"] {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--week-accent, var(--dash-green)) 30%,
+      var(--calendar-border)
+    );
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 9%,
+        #ffffff
+      ),
+      #ffffff
+    );
 }
 
-.dash-week-day[data-today="true"]:not([data-trained="true"]) .dash-week-dot {
+.dash-week-day[data-trained="true"] .dash-week-dot {
+  border-color: #ffffff;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 90%,
+        white
+      ),
+      var(--week-accent, var(--dash-green))
+    );
+
   box-shadow:
-    0 0 0 2px #eef7f4,
-    0 0 0 5px rgb(0 128 110 / 15%);
+    0 0 0 3px
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 16%,
+        transparent
+      ),
+    0 4px 9px
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 24%,
+        transparent
+      );
 }
 
-.dash-week-day:focus-visible {
-  outline: 2px solid var(--dash-green);
-  outline-offset: 2px;
+/* Today */
+
+.dash-week-day[data-today="true"] {
+  border-color: #79a99a;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f2faf6,
+      #ffffff
+    );
 }
 
-.dash-calendar {
-  width: 100%;
-  min-width: 0;
-  margin: 1rem 0 0;
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  grid-template-rows: 28px repeat(5, 100px);
-  grid-auto-rows: 100px;
-  gap: 4px;
+.dash-week-day[data-today="true"] .dash-week-date {
+  color: var(--dash-green-dark);
 }
+
+.dash-week-day[data-today="true"]:not([data-trained="true"])
+  .dash-week-dot {
+  box-shadow:
+    0 0 0 3px rgb(23 107 82 / 10%),
+    inset 0 1px 2px rgb(255 255 255 / 90%);
+}
+
+/* =========================================================
+   FULL CALENDAR
+   ========================================================= */
 
 .dash-calendar-scroll {
   width: 100%;
   max-width: 100%;
+
   overflow-x: auto;
+
   overscroll-behavior-x: contain;
-  scrollbar-width: thin;
+
+  scrollbar-width: none;
+
   -webkit-overflow-scrolling: touch;
+}
+
+.dash-calendar-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .dash-calendar-scroll:focus-visible {
   outline: 2px solid var(--dash-green);
   outline-offset: 4px;
-  border-radius: var(--dash-calendar-radius);
+  border-radius: var(--calendar-radius);
+}
+
+.dash-calendar {
+  width: 100%;
+  min-width: 0;
+
+  margin: 16px 0 0;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(7, minmax(0, 1fr));
+
+  grid-template-rows:
+    24px repeat(5, minmax(76px, 1fr));
+
+  gap: var(--calendar-gap);
 }
 
 .dash-calendar-weekday {
   min-width: 0;
+
   display: grid;
   place-items: center;
-  color: var(--dash-soft);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-align: center;
+
+  color: var(--calendar-label);
+
+  font-size: 0.67rem;
+  font-weight: 760;
+
+  letter-spacing: 0.055em;
   text-transform: uppercase;
-  letter-spacing: 0.045em;
 }
 
 .dash-calendar-weekday-short {
@@ -565,63 +895,116 @@
 
 .dash-calendar-cell {
   min-width: 0;
-  min-height: 100px;
+  min-height: 76px;
+
   display: grid;
-  place-items: center;
+  place-items: stretch;
 }
 
 .dash-calendar-day {
   width: 100%;
-  max-width: 100%;
-  height: 100px;
+  height: 100%;
+
   min-width: 0;
-  padding: 8px 5px 9px;
+
+  padding: 8px 5px;
+
   display: flex;
   flex-direction: column;
+
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  border: 1px solid var(--dash-calendar-line);
-  border-radius: 16px;
-  background: var(--dash-surface);
-  color: var(--dash-muted);
-  font-size: 0.72rem;
+
+  gap: 4px;
+
+  border:
+    1px solid
+    var(--calendar-border);
+
+  border-radius: var(--calendar-radius);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 96%),
+      rgb(248 250 249 / 92%)
+    );
+
+  color: var(--calendar-label);
+
+  font-size: 0.68rem;
   font-weight: 650;
+
   text-decoration: none;
+
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 90%),
+    0 3px 9px rgb(26 51 42 / 4%);
+
   transition:
+    transform 150ms ease,
     border-color 150ms ease,
-    background-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
+    background 150ms ease,
+    box-shadow 150ms ease;
 }
 
 a.dash-calendar-day:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--dash-green) 36%, var(--dash-line));
-  background: var(--dash-calendar-hover);
-  box-shadow: 0 3px 10px rgb(26 51 42 / 8%);
+  transform: translateY(-2px);
+
+  border-color:
+    color-mix(
+      in srgb,
+      var(--week-accent, var(--dash-green)) 28%,
+      var(--calendar-border)
+    );
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 18px rgb(26 51 42 / 7%);
 }
 
 .dash-calendar-date {
   display: block;
-  color: var(--dash-ink);
+
+  color: var(--calendar-number);
+
   font-size: 0.68rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  font-weight: 750;
+
   line-height: 1;
-  white-space: nowrap;
+
+  font-variant-numeric: tabular-nums;
 }
 
 .dash-calendar-day[data-trained="true"] {
-  border-color: color-mix(in srgb, var(--week-accent, var(--dash-green)) 25%, #fff);
-  background: color-mix(in srgb, var(--week-accent, var(--dash-green)) 10%, #fff);
+  border-color:
+    color-mix(
+      in srgb,
+      var(--week-accent, var(--dash-green)) 27%,
+      var(--calendar-border)
+    );
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 8%,
+        #ffffff
+      ),
+      #ffffff
+    );
 }
 
 .dash-calendar-dots {
+  width: 29px;
+  height: 29px;
+
+  flex: 0 0 29px;
+
   display: flex;
-  width: min(40px, 100%);
-  aspect-ratio: 1;
-  flex: 0 1 40px;
+
   align-items: center;
   justify-content: center;
 }
@@ -629,46 +1012,129 @@ a.dash-calendar-day:hover {
 .dash-calendar-dot {
   width: 100%;
   height: 100%;
-  flex: 0 1 40px;
-  border: 2px solid color-mix(in srgb, var(--dash-muted) 48%, var(--dash-surface));
+
+  border:
+    1.5px solid
+    color-mix(
+      in srgb,
+      var(--dash-muted) 30%,
+      transparent
+    );
+
   border-radius: 50%;
-  background: color-mix(in srgb, var(--dash-line) 54%, var(--dash-surface));
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #eef2f0
+    );
+
+  box-shadow:
+    inset 0 1px 2px rgb(255 255 255 / 90%),
+    0 2px 5px rgb(30 50 43 / 5%);
+
   transition:
-    background-color 150ms ease,
+    background 150ms ease,
     border-color 150ms ease,
-    box-shadow 150ms ease,
-    transform 150ms ease;
+    box-shadow 150ms ease;
 }
 
-.dash-calendar-day[data-trained="true"] .dash-calendar-dot {
-  border-color: #fff;
-  background: color-mix(in srgb, var(--week-accent, var(--dash-green)) 88%, var(--dash-surface));
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--week-accent, var(--dash-green)) 88%, var(--dash-surface));
+.dash-calendar-day[data-trained="true"]
+  .dash-calendar-dot {
+  border-color: #ffffff;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 90%,
+        white
+      ),
+      var(--week-accent, var(--dash-green))
+    );
+
+  box-shadow:
+    0 0 0 3px
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 14%,
+        transparent
+      ),
+    0 3px 8px
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 22%,
+        transparent
+      );
 }
 
-.dash-calendar-legend-dot {
-  width: 6px;
-  height: 6px;
-  flex: 0 0 6px;
-  border-radius: 50%;
-  background: var(--week-accent, var(--dash-green));
+/* Today */
+
+.dash-calendar-day[data-today="true"] {
+  border-color: #79a99a;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f2faf6,
+      #ffffff
+    );
 }
+
+.dash-calendar-day[data-today="true"]
+  .dash-calendar-date {
+  color: var(--dash-green-dark);
+}
+
+.dash-calendar-day[data-today="true"]:not(
+    [data-trained="true"]
+  )
+  .dash-calendar-dot {
+  box-shadow:
+    0 0 0 3px rgb(23 107 82 / 10%),
+    inset 0 1px 2px rgb(255 255 255 / 90%);
+}
+
+/* =========================================================
+   CALENDAR LEGEND
+   ========================================================= */
 
 .dash-calendar-legend {
   display: flex;
+
   flex-wrap: wrap;
-  gap: 8px 16px;
+
+  gap: 7px 16px;
+
   margin: 12px 0 0;
   padding: 0;
+
   color: var(--dash-muted);
-  font-size: 0.72rem;
+
+  font-size: 0.71rem;
+
   list-style: none;
 }
 
 .dash-calendar-legend li {
   display: inline-flex;
+
   align-items: center;
+
   gap: 6px;
+}
+
+.dash-calendar-legend-dot {
+  width: 7px;
+  height: 7px;
+
+  flex: 0 0 7px;
+
+  border-radius: 50%;
+
+  background: var(--week-accent, var(--dash-green));
 }
 
 .dash-calendar-day[data-disabled="true"] {
@@ -677,38 +1143,26 @@ a.dash-calendar-day:hover {
 }
 
 .dash-calendar-day[data-future="true"] {
-  opacity: 0.65;
+  opacity: 0.55;
 }
 
-.dash-calendar-day[data-today="true"] {
-  border-color: var(--dash-teal);
-  background: #eef7f4;
-}
-
-.dash-calendar-day[data-today="true"]:not([data-trained="true"]) .dash-calendar-dot {
-  box-shadow:
-    0 0 0 2px #eef7f4,
-    0 0 0 5px rgb(0 128 110 / 15%);
-}
-
-.dash-calendar-day:focus-visible {
+.dash-calendar-day:focus-visible,
+.dash-week-day:focus-visible {
   outline: 2px solid var(--dash-green);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
-/* ---------- Hide Today's session section ---------- */
-
-.dash-shell > section[aria-labelledby="dash-today-title"] {
-  display: none;
-}
-
-/* ---------- Workout and exercise rows ---------- */
+/* =========================================================
+   WORKOUT / EXERCISE ROWS
+   ========================================================= */
 
 .dash-rows {
   margin: 0;
   padding: 0;
+
   display: grid;
   gap: 9px;
+
   list-style: none;
 }
 
@@ -718,81 +1172,125 @@ a.dash-calendar-day:hover {
 
   min-width: 0;
   min-height: 70px;
+
   padding: 10px 14px;
+
   display: flex;
   align-items: center;
+
   gap: 13px;
-  border: 1px solid rgba(57, 144, 77, 0.16);
+
+  border: 1px solid rgb(57 144 77 / 16%);
   border-radius: 14px;
-  background: linear-gradient(135deg, #edf8ef 0%, #e3f3e6 100%);
-  box-shadow: 0 4px 14px rgb(26 51 42 / 4%);
+
+  background:
+    linear-gradient(
+      135deg,
+      #edf8ef 0%,
+      #e3f3e6 100%
+    );
+
+  box-shadow:
+    0 4px 14px rgb(26 51 42 / 4%);
+
   transition:
     transform 160ms ease,
     border-color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease;
+    box-shadow 160ms ease;
 }
 
 .dash-row:hover {
   transform: translateY(-1px);
-  box-shadow: 0 9px 22px rgb(26 51 42 / 8%);
+
+  box-shadow:
+    0 9px 22px rgb(26 51 42 / 8%);
 }
 
 .dash-row[data-category="Push"] {
   --row-accent: #d94a4a;
   --row-wash: #fff0f0;
-  border-color: rgba(185, 28, 28, 0.16);
-  background: linear-gradient(135deg, #fff0f0 0%, #ffe5e5 100%);
+
+  border-color: rgb(185 28 28 / 16%);
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff0f0 0%,
+      #ffe5e5 100%
+    );
 }
 
-.dash-row[data-category="Pull"] {
+.dash-row[data-category="Pull"],
+.dash-row[data-category="Back"] {
   --row-accent: #4c82dc;
   --row-wash: #eef5ff;
-  border-color: rgba(29, 78, 216, 0.15);
-  background: linear-gradient(135deg, #eef5ff 0%, #e3efff 100%);
+
+  border-color: rgb(29 78 216 / 15%);
+
+  background:
+    linear-gradient(
+      135deg,
+      #eef5ff 0%,
+      #e3efff 100%
+    );
 }
 
-.dash-row[data-category="Leg"] {
+.dash-row[data-category="Leg"],
+.dash-row[data-category="Legs"] {
   --row-accent: #d3a62a;
   --row-wash: #fff9df;
-  border-color: rgba(180, 132, 0, 0.17);
-  background: linear-gradient(135deg, #fff9df 0%, #fff3c4 100%);
+
+  border-color: rgb(180 132 0 / 17%);
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff9df 0%,
+      #fff3c4 100%
+    );
 }
 
 .dash-row[data-category="Cardio"] {
   --row-accent: #57a567;
   --row-wash: #edf8ef;
-  border-color: rgba(57, 144, 77, 0.16);
-  background: linear-gradient(135deg, #edf8ef 0%, #e3f3e6 100%);
+
+  border-color: rgb(57 144 77 / 16%);
+
+  background:
+    linear-gradient(
+      135deg,
+      #edf8ef 0%,
+      #e3f3e6 100%
+    );
 }
 
 .dash-row[data-category="Other"] {
   --row-accent: #64748b;
   --row-wash: #f1f5f9;
-  border-color: rgba(100, 116, 139, 0.2);
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-}
 
-.dash-row.exercise-card--run,
-.dash-row.exercise-card--run[data-category] {
-  border-color: #86efac;
-  color: #14532d;
-  background: #dcfce7;
-  background-image: none;
-}
+  border-color: rgb(100 116 139 / 20%);
 
-.exercise-card .dash-row-title {
-  color: inherit;
+  background:
+    linear-gradient(
+      135deg,
+      #f1f5f9 0%,
+      #e2e8f0 100%
+    );
 }
 
 .dash-row-tile {
   flex: 0 0 auto;
+
   width: 42px;
   height: 42px;
+
   display: grid;
   place-items: center;
+
   border-radius: 12px;
+
   color: var(--row-accent);
+
   background: rgb(255 255 255 / 65%);
 }
 
@@ -803,60 +1301,73 @@ a.dash-calendar-day:hover {
 
 .dash-row-main {
   min-width: 0;
+
   flex: 1 1 auto;
+
   display: grid;
+
   justify-items: start;
+
   gap: 2px;
 }
 
 .dash-row-title {
   min-width: 0;
   max-width: 100%;
+
   color: var(--dash-ink);
+
   font-size: 0.94rem;
   font-weight: 700;
+
   line-height: 1.35;
+
   text-align: left;
+
   overflow-wrap: anywhere;
 }
 
 .dash-row-meta {
   color: var(--dash-muted);
+
   font-size: 0.8rem;
   font-weight: 540;
+
   font-variant-numeric: tabular-nums;
 }
 
 .dash-row-link {
   text-decoration: none;
-  text-underline-offset: 3px;
 }
 
 .dash-row-link:hover {
   color: var(--row-accent, var(--dash-green-dark));
+
   text-decoration: underline;
 }
 
 .dash-row-chevron {
   flex: 0 0 auto;
+
   width: 19px;
   height: 19px;
+
   color: #687b73;
 }
 
 .dash-rows-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
   gap: 10px;
 }
 
 .dash-row-compact {
   min-height: 62px;
-  padding: 9px 11px;
-  gap: 10px;
-}
 
-.dash-row-compact.exercise-card {
-  min-height: 66px;
+  padding: 9px 11px;
+
+  gap: 10px;
 }
 
 .dash-row-compact .dash-row-tile {
@@ -869,25 +1380,32 @@ a.dash-calendar-day:hover {
   height: 19px;
 }
 
-.dash-row-compact > .dash-row-title {
-  flex: 1 1 auto;
-}
+/* =========================================================
+   DELETE BUTTON
+   ========================================================= */
 
 .dash-remove-btn {
   flex: 0 0 auto;
+
   width: 34px;
   height: 34px;
+
   padding: 7px;
+
   display: grid;
   place-items: center;
+
   border: 1px solid transparent;
   border-radius: 10px;
+
   color: #596b64;
   background: transparent;
+
   cursor: pointer;
+
   transition:
     color 150ms ease,
-    background-color 150ms ease,
+    background 150ms ease,
     border-color 150ms ease,
     transform 150ms ease;
 }
@@ -899,7 +1417,9 @@ a.dash-calendar-day:hover {
 
 .dash-remove-btn:hover:not(:disabled) {
   transform: scale(1.04);
+
   border-color: #f0c9c3;
+
   color: #a83327;
   background: #fff0ed;
 }
@@ -909,245 +1429,357 @@ a.dash-calendar-day:hover {
   cursor: wait;
 }
 
-/* ---------- Empty state and buttons ---------- */
+/* =========================================================
+   EMPTY STATES
+   ========================================================= */
 
 .dash-empty {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 18px;
+
   padding: 18px 20px;
 }
 
 .dash-empty p {
   margin: 0;
+
   color: var(--dash-muted);
+
   font-weight: 550;
 }
 
 .dash-empty-note {
   margin: 0;
+
   padding: 17px 19px;
+
   border: 1px dashed #c7d5ce;
   border-radius: 14px;
+
   color: var(--dash-muted);
+
   background: rgb(255 255 255 / 66%);
+
   font-size: 0.9rem;
 }
 
+/* =========================================================
+   STANDARD BUTTON
+   ========================================================= */
+
 .dash-btn {
-  min-height: 42px;
-  padding: 10px 16px;
+  min-height: 43px;
+
+  padding: 10px 17px;
+
   display: inline-flex;
+
   flex: 0 0 auto;
+
   align-items: center;
   justify-content: center;
+
   border: 1px solid var(--dash-green);
   border-radius: 11px;
-  color: #fff;
+
+  color: #ffffff;
   background: var(--dash-green);
-  box-shadow: 0 4px 10px rgb(23 107 82 / 15%);
+
+  box-shadow:
+    0 4px 10px rgb(23 107 82 / 15%);
+
   font: inherit;
   font-size: 0.86rem;
   font-weight: 700;
+
   line-height: 1.2;
+
   text-align: center;
   text-decoration: none;
+
   cursor: pointer;
+
   transition:
     transform 150ms ease,
-    background-color 150ms ease,
+    background 150ms ease,
     border-color 150ms ease,
     box-shadow 150ms ease;
 }
 
 .dash-btn:hover {
   transform: translateY(-1px);
+
   border-color: var(--dash-green-dark);
-  color: #fff;
+
+  color: #ffffff;
   background: var(--dash-green-dark);
-  box-shadow: 0 7px 15px rgb(23 107 82 / 22%);
-  text-decoration: none;
+
+  box-shadow:
+    0 7px 15px rgb(23 107 82 / 22%);
 }
 
 .dash-btn:active {
   transform: translateY(0);
 }
 
-/* ---------- Add exercise form ---------- */
+/* =========================================================
+   ADD EXERCISE / ADD WORKOUT
+   ========================================================= */
+
+/*
+ * Intentionally NOT green.
+ *
+ * Psychology:
+ * - warm off-white = calm / neutral / premium
+ * - black CTA = decisive action
+ * - removing green prevents the creation action from
+ *   competing with workout category colours.
+ */
 
 .dash-create {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1.1fr);
+
+  grid-template-columns:
+    minmax(0, 0.88fr)
+    minmax(300px, 1.12fr);
+
   align-items: center;
-  gap: 26px;
-  padding: 22px 24px;
+
+  gap: 30px;
+
+  padding: 25px 27px;
+
+  border:
+    1px solid
+    var(--create-border);
+
+  border-radius: 22px;
+
   background:
-    linear-gradient(115deg, rgb(231 243 237 / 70%), transparent 60%),
-    var(--dash-surface);
+    radial-gradient(
+      circle at 0% 0%,
+      rgb(255 255 255 / 85%),
+      transparent 42%
+    ),
+    linear-gradient(
+      135deg,
+      #faf9f5,
+      var(--create-bg)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 92%),
+    0 8px 24px rgb(30 30 25 / 5%);
+}
+
+.dash-create .dash-section-title {
+  color: #171717;
 }
 
 .dash-create-copy {
   max-width: 38ch;
+
   margin: 7px 0 0;
-  color: var(--dash-muted);
+
+  color: #77746c;
+
   font-size: 0.86rem;
+
   line-height: 1.55;
 }
 
 .dash-create-form {
+  min-width: 0;
+
   display: flex;
+
   align-items: end;
+
   gap: 11px;
 }
 
 .dash-field {
   min-width: 0;
+
   flex: 1 1 auto;
+
   display: grid;
+
   gap: 6px;
 }
 
 .dash-field label {
-  color: #40534c;
-  font-size: 0.78rem;
-  font-weight: 700;
+  color: #55534d;
+
+  font-size: 0.77rem;
+  font-weight: 720;
 }
 
-.dash-field input {
+/* Inputs + category selector */
+
+.dash-field input,
+.dash-field select {
   width: 100%;
+
   min-width: 0;
-  min-height: 43px;
+  min-height: 44px;
+
   padding: 10px 12px;
-  border: 1px solid #cbd9d2;
-  border-radius: 10px;
+
+  border:
+    1px solid
+    #d9d6cd;
+
+  border-radius: 11px;
+
   outline: none;
-  color: var(--dash-ink);
-  background: #fff;
+
+  color: #222222;
+
+  background:
+    rgb(255 255 255 / 84%);
+
   font: inherit;
   font-size: 0.87rem;
+
   transition:
     border-color 150ms ease,
     box-shadow 150ms ease,
-    background-color 150ms ease;
+    background 150ms ease;
 }
 
 .dash-field input::placeholder {
-  color: #687a72;
+  color: #89867d;
 }
 
-.dash-field input:hover {
-  border-color: #9eb9aa;
+.dash-field input:hover,
+.dash-field select:hover {
+  border-color: #bbb8af;
+  background: #ffffff;
 }
 
-.dash-field input:focus-visible {
-  border-color: var(--dash-green);
-  box-shadow: 0 0 0 3px rgb(23 107 82 / 16%);
+.dash-field input:focus-visible,
+.dash-field select:focus-visible {
+  border-color: #222222;
+
+  box-shadow:
+    0 0 0 3px rgb(0 0 0 / 8%);
 }
 
-/* ---------- Accessibility ---------- */
+/* Native dropdown options */
+
+.dash-field select option {
+  color: #202020;
+  background: #ffffff;
+
+  font-weight: 650;
+}
+
+/*
+ * Category option colours.
+ * Supported by modern Chromium/WebKit implementations.
+ */
+
+.dash-field select option[value="Push"] {
+  color: #c63f3f;
+  background: #fff0f0;
+}
+
+.dash-field select option[value="Cardio"] {
+  color: #39864a;
+  background: #edf8ef;
+}
+
+.dash-field select option[value="Pull"],
+.dash-field select option[value="Back"] {
+  color: #3c6fbe;
+  background: #eef5ff;
+}
+
+.dash-field select option[value="Leg"],
+.dash-field select option[value="Legs"] {
+  color: #a27c00;
+  background: #fff8dc;
+}
+
+.dash-field select option[value="Other"] {
+  color: #596575;
+  background: #f1f4f7;
+}
+
+/*
+ * Add Exercise CTA:
+ * intentionally black instead of green.
+ */
+
+.dash-create .dash-btn {
+  min-width: 118px;
+  min-height: 44px;
+
+  padding-inline: 19px;
+
+  border-color: var(--create-button-bg);
+
+  color: var(--create-button-text);
+  background: var(--create-button-bg);
+
+  box-shadow:
+    0 5px 12px rgb(0 0 0 / 13%);
+}
+
+.dash-create .dash-btn:hover {
+  border-color: #000000;
+
+  color: #ffffff;
+  background: #000000;
+
+  box-shadow:
+    0 8px 18px rgb(0 0 0 / 18%);
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
 
 .dash-page a:focus-visible,
 .dash-page button:focus-visible,
-.dash-page input:focus-visible {
+.dash-page input:focus-visible,
+.dash-page select:focus-visible {
   outline: 3px solid #297e62;
   outline-offset: 3px;
 }
 
 .dash-page a:focus:not(:focus-visible),
 .dash-page button:focus:not(:focus-visible),
-.dash-page input:focus:not(:focus-visible) {
+.dash-page input:focus:not(:focus-visible),
+.dash-page select:focus:not(:focus-visible) {
   outline: none;
 }
 
 .dash-sr-only {
   position: absolute;
+
   width: 1px;
   height: 1px;
+
   padding: 0;
+
   overflow: hidden;
+
   clip: rect(0, 0, 0, 0);
+
   white-space: nowrap;
+
   border: 0;
 }
 
-/* ---------- Responsive layouts ---------- */
-
-@media (min-width: 641px) {
-  .dash-week {
-    gap: 4px;
-  }
-
-  .dash-week-scroll {
-    scroll-snap-type: x proximity;
-  }
-
-  .dash-week-day {
-    height: 110px;
-    padding: 9px 6px 10px;
-    gap: 10px;
-    border-radius: 16px;
-  }
-
-  .dash-calendar-weekday-full {
-    display: none;
-  }
-
-  .dash-calendar-day {
-    padding: 8px 5px 9px;
-  }
-}
-
-@media (max-width: 640px) {
-  .dash-week {
-    grid-template-rows: 90px;
-  }
-
-  .dash-week-day {
-    height: 90px;
-    min-height: 90px;
-  }
-
-  .dash-week-value {
-    font-size: 1.05rem;
-  }
-
-  .dash-week-value .dash-week-count {
-    font-size: 0.65rem;
-  }
-
-  .dash-week-date-full {
-    display: none;
-  }
-
-  .dash-week-date-compact {
-    display: inline;
-  }
-
-  .dash-calendar {
-    grid-template-rows: 28px repeat(5, 100px);
-    grid-auto-rows: 100px;
-  }
-
-  .dash-calendar-cell,
-  .dash-calendar-day {
-    min-height: 100px;
-  }
-
-  .dash-calendar-day {
-    padding: 8px 5px 9px;
-    gap: 8px;
-  }
-
-  .dash-calendar-date {
-    font-size: 0.68rem;
-  }
-
-  .dash-calendar-legend {
-    gap: 7px 12px;
-    font-size: 0.68rem;
-  }
-}
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 760px) {
   .dash-page {
@@ -1164,9 +1796,14 @@ a.dash-calendar-day:hover {
 
   .dash-create {
     grid-template-columns: 1fr;
-    gap: 18px;
+
+    gap: 20px;
   }
 }
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 560px) {
   .dash-page {
@@ -1176,6 +1813,8 @@ a.dash-calendar-day:hover {
   .dash-shell {
     gap: 25px;
   }
+
+  /* ---------- Header ---------- */
 
   .dash-header {
     gap: 16px;
@@ -1193,27 +1832,36 @@ a.dash-calendar-day:hover {
   .dash-avatar {
     width: 56px;
     height: 56px;
+
     border-radius: 18px;
   }
 
+  /* ---------- Stats ---------- */
+
   .dash-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+
     gap: 8px;
   }
 
   .dash-stat {
     min-height: 116px;
-    padding: 13px 10px 11px;
-    grid-template-columns: minmax(0, 1fr) 26px;
-    grid-template-rows: auto 1fr auto;
-    column-gap: 3px;
-    row-gap: 3px;
+
+    padding:
+      13px 10px 11px;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      26px;
+
     border-radius: 18px;
   }
 
   .dash-stat-icon {
     width: 26px;
     height: 26px;
+
     border-radius: 9px;
   }
 
@@ -1224,11 +1872,9 @@ a.dash-calendar-day:hover {
 
   .dash-stat-label {
     font-size: 0.72rem;
-    overflow-wrap: anywhere;
   }
 
   .dash-stat-value {
-    max-width: 100%;
     font-size: clamp(1.15rem, 5vw, 1.5rem);
   }
 
@@ -1236,8 +1882,10 @@ a.dash-calendar-day:hover {
     font-size: 0.64rem;
   }
 
+  /* ---------- Sections ---------- */
+
   .dash-section-head {
-    margin-bottom: 10px;
+    margin-bottom: 9px;
   }
 
   .dash-section-title {
@@ -1248,9 +1896,128 @@ a.dash-calendar-day:hover {
     padding: 17px;
   }
 
+  /* =====================================================
+     MOBILE WEEK STRIP
+
+     The critical fix:
+     Never let the week cards inherit desktop height.
+     Seven compact cards are kept visually proportional.
+     ===================================================== */
+
   .dash-week {
-    margin-top: 18px;
+    width: 100%;
+
+    margin-top: 14px;
+
+    grid-template-columns:
+      repeat(7, minmax(0, 1fr));
+
+    gap: 4px;
   }
+
+  .dash-week-day {
+    height: 76px;
+    min-height: 76px;
+
+    padding:
+      8px 3px 7px;
+
+    gap: 3px;
+
+    border-radius: 11px;
+  }
+
+  .dash-week-date {
+    font-size: 0.58rem;
+
+    letter-spacing: -0.01em;
+  }
+
+  .dash-week-date-full {
+    display: none;
+  }
+
+  .dash-week-date-compact {
+    display: inline;
+  }
+
+  .dash-week-dot {
+    width: 25px;
+    height: 25px;
+
+    flex-basis: 25px;
+
+    border-width: 1.5px;
+  }
+
+  /* ---------- Full calendar ---------- */
+
+  .dash-calendar {
+    margin-top: 13px;
+
+    grid-template-columns:
+      repeat(7, minmax(0, 1fr));
+
+    grid-template-rows:
+      21px repeat(5, minmax(55px, 1fr));
+
+    gap: 4px;
+  }
+
+  .dash-calendar-weekday {
+    font-size: 0.56rem;
+
+    letter-spacing: 0.035em;
+  }
+
+  .dash-calendar-cell {
+    min-height: 55px;
+  }
+
+  .dash-calendar-day {
+    min-height: 55px;
+
+    padding:
+      6px 2px 6px;
+
+    gap: 2px;
+
+    border-radius: 10px;
+
+    font-size: 0.58rem;
+  }
+
+  .dash-calendar-date {
+    font-size: 0.58rem;
+  }
+
+  .dash-calendar-dots {
+    width: 22px;
+    height: 22px;
+
+    flex-basis: 22px;
+  }
+
+  .dash-calendar-dot {
+    border-width: 1.5px;
+  }
+
+  .dash-calendar-legend {
+    gap: 6px 10px;
+
+    margin-top: 10px;
+
+    font-size: 0.63rem;
+  }
+
+  .dash-calendar-legend-dot {
+    width: 6px;
+    height: 6px;
+
+    flex-basis: 6px;
+  }
+
+  /* ---------- Exercise rows ---------- */
 
   .dash-rows-grid {
     grid-template-columns: 1fr;
@@ -1258,28 +2025,49 @@ a.dash-calendar-day:hover {
 
   .dash-row {
     min-height: 64px;
-    padding: 9px 11px;
+
+    padding:
+      9px 11px;
   }
 
-  .dash-empty {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 13px;
-  }
+  /* ---------- Add exercise ---------- */
 
   .dash-create {
-    padding: 19px 17px;
+    padding:
+      21px 17px;
+
+    border-radius: 19px;
+
+    gap: 18px;
+  }
+
+  .dash-create-copy {
+    max-width: 42ch;
   }
 
   .dash-create-form {
     align-items: stretch;
+
     flex-direction: column;
+
+    gap: 10px;
   }
 
   .dash-create-form .dash-btn {
     width: 100%;
+
+    min-height: 45px;
+  }
+
+  .dash-field input,
+  .dash-field select {
+    min-height: 45px;
   }
 }
+
+/* =========================================================
+   VERY SMALL PHONES
+   ========================================================= */
 
 @media (max-width: 360px) {
   .dash-page {
@@ -1292,8 +2080,9 @@ a.dash-calendar-day:hover {
 
   .dash-stat {
     min-height: 108px;
-    padding: 12px 7px 10px;
-    column-gap: 2px;
+
+    padding:
+      12px 7px 10px;
   }
 
   .dash-stat-label {
@@ -1304,134 +2093,435 @@ a.dash-calendar-day:hover {
     font-size: 0.6rem;
   }
 
-  .dash-section-link {
-    padding-inline: 7px;
-    font-size: 0.78rem;
+  /*
+   * Even tighter calendar for genuinely narrow devices.
+   */
+
+  .dash-week {
+    gap: 3px;
+  }
+
+  .dash-week-day {
+    height: 70px;
+    min-height: 70px;
+
+    padding:
+      7px 2px 6px;
+
+    border-radius: 9px;
+  }
+
+  .dash-week-date {
+    font-size: 0.54rem;
+  }
+
+  .dash-week-dot {
+    width: 22px;
+    height: 22px;
+
+    flex-basis: 22px;
+  }
+
+  .dash-calendar {
+    gap: 3px;
+
+    grid-template-rows:
+      20px repeat(5, minmax(50px, 1fr));
+  }
+
+  .dash-calendar-cell {
+    min-height: 50px;
+  }
+
+  .dash-calendar-day {
+    min-height: 50px;
+
+    padding:
+      5px 1px;
+
+    border-radius: 8px;
+  }
+
+  .dash-calendar-date {
+    font-size: 0.54rem;
+  }
+
+  .dash-calendar-dots {
+    width: 19px;
+    height: 19px;
+
+    flex-basis: 19px;
+  }
+
+  .dash-calendar-legend {
+    gap: 5px 8px;
+
+    font-size: 0.59rem;
   }
 }
 
+/* =========================================================
+   DARK MODE
+   ========================================================= */
+
 .dark .dash-page {
-  --dash-ink: #e5ece8;
-  --dash-muted: #aab9b2;
-  --dash-soft: #94a59d;
-  --dash-line: #343f39;
+  --dash-ink: #edf2ef;
+  --dash-muted: #aab8b1;
+  --dash-soft: #899891;
+
+  --dash-line: #303833;
   --dash-surface: #15171c;
+  --dash-surface-soft: #1b1f23;
+
   --dash-green-wash: #1b3529;
+
   --dash-orange-wash: #3a281c;
   --dash-teal-wash: #173432;
   --dash-indigo-wash: #292943;
-  --dash-shadow: 0 8px 24px rgb(0 0 0 / 24%);
-  --dash-shadow-hover: 0 12px 28px rgb(0 0 0 / 32%);
-  --dash-glass: rgb(30 36 40 / 76%);
-  --dash-glass-edge: rgb(255 255 255 / 18%);
+
+  --dash-shadow:
+    0 8px 24px rgb(0 0 0 / 25%);
+
+  --dash-shadow-hover:
+    0 14px 30px rgb(0 0 0 / 35%);
+
+  --dash-glass:
+    rgb(30 36 40 / 78%);
+
+  --dash-glass-edge:
+    rgb(255 255 255 / 14%);
+
+  --calendar-bg: #171a1e;
+  --calendar-cell-bg: #1b1f24;
+  --calendar-cell-hover: #22272d;
+  --calendar-border: rgb(255 255 255 / 8%);
+  --calendar-number: #edf2ef;
+  --calendar-label: #84928b;
+
+  /*
+   * Reverse the Add Exercise visual hierarchy.
+   *
+   * Dark card + warm-white CTA.
+   */
+  --create-bg: #17191d;
+  --create-border: #30353a;
+
+  --create-button-bg: #f4f1e9;
+  --create-button-text: #111111;
+
   --dash-green-dark: #92d5b3;
 }
 
+/* ---------- Dark add exercise ---------- */
+
+.dark .dash-create {
+  border-color: var(--create-border);
+
+  background:
+    radial-gradient(
+      circle at 0% 0%,
+      rgb(255 255 255 / 4%),
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      #1b1e22,
+      #15171c
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 5%),
+    0 9px 25px rgb(0 0 0 / 22%);
+}
+
+.dark .dash-create .dash-section-title {
+  color: #f0f1ed;
+}
+
+.dark .dash-create-copy {
+  color: #929b96;
+}
+
+.dark .dash-field label {
+  color: #aab4ae;
+}
+
+.dark .dash-field input,
+.dark .dash-field select {
+  border-color: #3a4147;
+
+  color: #edf2ef;
+
+  background:
+    rgb(255 255 255 / 4%);
+}
+
+.dark .dash-field input::placeholder {
+  color: #7f8984;
+}
+
+.dark .dash-field input:hover,
+.dark .dash-field select:hover {
+  border-color: #505960;
+
+  background:
+    rgb(255 255 255 / 6%);
+}
+
+.dark .dash-field input:focus-visible,
+.dark .dash-field select:focus-visible {
+  border-color: #f4f1e9;
+
+  box-shadow:
+    0 0 0 3px rgb(244 241 233 / 8%);
+}
+
+.dark .dash-field select option {
+  color: #eeeeee;
+  background: #1b1f24;
+}
+
+.dark .dash-field select option[value="Push"] {
+  color: #ff8585;
+  background: #301f21;
+}
+
+.dark .dash-field select option[value="Cardio"] {
+  color: #7bd18d;
+  background: #1c3022;
+}
+
+.dark .dash-field select option[value="Pull"],
+.dark .dash-field select option[value="Back"] {
+  color: #82aef0;
+  background: #1d2839;
+}
+
+.dark .dash-field select option[value="Leg"],
+.dark .dash-field select option[value="Legs"] {
+  color: #e7c95c;
+  background: #342e1a;
+}
+
+.dark .dash-field select option[value="Other"] {
+  color: #b8c1cc;
+  background: #252b32;
+}
+
+/* Reversed CTA */
+
+.dark .dash-create .dash-btn {
+  border-color: #f4f1e9;
+
+  color: #111111;
+  background: #f4f1e9;
+
+  box-shadow:
+    0 5px 14px rgb(0 0 0 / 25%);
+}
+
+.dark .dash-create .dash-btn:hover {
+  border-color: #ffffff;
+
+  color: #000000;
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 20px rgb(0 0 0 / 30%);
+}
+
+/* ---------- Dark calendar ---------- */
+
+.dark .dash-week-day,
+.dark .dash-calendar-day {
+  border-color: var(--calendar-border);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgb(31 35 40 / 96%),
+      rgb(25 29 34 / 96%)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 4px 12px rgb(0 0 0 / 16%);
+}
+
+.dark .dash-week-day:not([data-disabled="true"]):hover,
+.dark a.dash-calendar-day:hover {
+  border-color: #4a5450;
+
+  background:
+    linear-gradient(
+      145deg,
+      #252a30,
+      #20252a
+    );
+
+  box-shadow:
+    0 9px 20px rgb(0 0 0 / 28%);
+}
+
+.dark .dash-week-day[data-trained="true"],
+.dark .dash-calendar-day[data-trained="true"] {
+  border-color:
+    color-mix(
+      in srgb,
+      var(--week-accent, var(--dash-green)) 36%,
+      #303833
+    );
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 14%,
+        #1b1f24
+      ),
+      #1a1e23
+    );
+}
+
+.dark .dash-week-dot,
+.dark .dash-calendar-dot {
+  border-color: rgb(255 255 255 / 12%);
+
+  background:
+    linear-gradient(
+      145deg,
+      #24292e,
+      #171b20
+    );
+
+  box-shadow:
+    inset 0 1px 2px rgb(255 255 255 / 4%);
+}
+
+.dark .dash-week-day[data-trained="true"]
+  .dash-week-dot,
+.dark .dash-calendar-day[data-trained="true"]
+  .dash-calendar-dot {
+  border-color: #1a1e23;
+
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 78%,
+        #ffffff
+      ),
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 60%,
+        #1a1e23
+      )
+    );
+
+  box-shadow:
+    0 0 0 3px
+      color-mix(
+        in srgb,
+        var(--week-accent, var(--dash-green)) 25%,
+        transparent
+      );
+}
+
+.dark .dash-week-day[data-today="true"],
+.dark .dash-calendar-day[data-today="true"] {
+  border-color: #567364;
+
+  background:
+    linear-gradient(
+      145deg,
+      #1d2a23,
+      #1a211e
+    );
+}
+
+.dark .dash-week-day[data-today="true"]
+  .dash-week-date,
+.dark .dash-calendar-day[data-today="true"]
+  .dash-calendar-date {
+  color: #ffffff;
+}
+
+/* ---------- Dark rows ---------- */
+
 .dark .dash-row {
   color: #e5ece8;
-  box-shadow: 0 4px 14px rgb(0 0 0 / 22%);
+
+  box-shadow:
+    0 4px 14px rgb(0 0 0 / 22%);
 }
 
 .dark .dash-row[data-category="Push"] {
   border-color: rgb(217 74 74 / 38%);
+
   background:
-    linear-gradient(135deg, rgb(217 74 74 / 22%), rgb(217 74 74 / 9%)),
+    linear-gradient(
+      135deg,
+      rgb(217 74 74 / 22%),
+      rgb(217 74 74 / 9%)
+    ),
     #15171c;
 }
 
-.dark .dash-row[data-category="Pull"] {
+.dark .dash-row[data-category="Pull"],
+.dark .dash-row[data-category="Back"] {
   border-color: rgb(76 130 220 / 38%);
+
   background:
-    linear-gradient(135deg, rgb(76 130 220 / 22%), rgb(76 130 220 / 9%)),
+    linear-gradient(
+      135deg,
+      rgb(76 130 220 / 22%),
+      rgb(76 130 220 / 9%)
+    ),
     #15171c;
 }
 
-.dark .dash-row[data-category="Leg"] {
+.dark .dash-row[data-category="Leg"],
+.dark .dash-row[data-category="Legs"] {
   border-color: rgb(211 166 42 / 38%);
+
   background:
-    linear-gradient(135deg, rgb(211 166 42 / 22%), rgb(211 166 42 / 9%)),
+    linear-gradient(
+      135deg,
+      rgb(211 166 42 / 22%),
+      rgb(211 166 42 / 9%)
+    ),
     #15171c;
 }
 
 .dark .dash-row[data-category="Cardio"] {
   border-color: rgb(87 165 103 / 38%);
+
   background:
-    linear-gradient(135deg, rgb(87 165 103 / 22%), rgb(87 165 103 / 9%)),
+    linear-gradient(
+      135deg,
+      rgb(87 165 103 / 22%),
+      rgb(87 165 103 / 9%)
+    ),
     #15171c;
 }
 
 .dark .dash-row[data-category="Other"] {
   --row-accent: #cbd5e1;
-  --row-wash: #334155;
-  border-color: rgba(148, 163, 184, 0.28);
-  background: linear-gradient(135deg, #334155 0%, #273449 100%);
+
+  border-color: rgb(148 163 184 / 28%);
+
+  background:
+    linear-gradient(
+      135deg,
+      #334155,
+      #273449
+    );
 }
 
 .dark .dash-row-tile {
   background: rgb(255 255 255 / 8%);
-}
-
-.dark .dash-row.exercise-card--run,
-.dark .dash-row.exercise-card--run[data-category] {
-  border-color: #3d8156;
-  color: #bbf7d0;
-  background: #183725;
-  background-image: none;
-}
-
-.dark .dash-week-day {
-  border-color: #343f39;
-  background: #1a1e23;
-}
-
-.dark .dash-calendar-day {
-  border-color: #343f39;
-  background: #1a1e23;
-}
-
-.dark .dash-week-day[data-trained="true"] {
-  border-color: color-mix(in srgb, var(--week-accent, var(--dash-green)) 35%, #343f39);
-  background: color-mix(in srgb, var(--week-accent, var(--dash-green)) 14%, #1a1e23);
-}
-
-.dark .dash-calendar-day[data-trained="true"] {
-  border-color: color-mix(in srgb, var(--week-accent, var(--dash-green)) 35%, #343f39);
-  background: color-mix(in srgb, var(--week-accent, var(--dash-green)) 14%, #1a1e23);
-}
-
-.dark .dash-week-day:not([data-disabled="true"]):hover,
-.dark a.dash-calendar-day:hover {
-  border-color: #53665b;
-  background: #222a26;
-}
-
-.dark .dash-week-day[data-today="true"] {
-  border-color: #5b806a;
-  background: #1b2b22;
-}
-
-.dark .dash-calendar-day[data-today="true"] {
-  border-color: #5b806a;
-  background: #1b2b22;
-}
-
-.dark .dash-week-dot {
-  background: color-mix(in srgb, var(--week-accent, var(--dash-line)) 24%, var(--dash-surface));
-}
-
-.dark .dash-week-day[data-trained="true"] .dash-week-dot,
-.dark .dash-calendar-day[data-trained="true"] .dash-calendar-dot {
-  border-color: #1a1e23;
-  background: color-mix(in srgb, var(--week-accent, var(--dash-green)) 68%, #1a1e23);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--week-accent, var(--dash-green)) 55%, #1a1e23);
-}
-
-.dark .dash-calendar-day[data-today="true"] .dash-calendar-date {
-  color: #ffffff;
-}
-
-.dark .dash-section-link:hover {
-  color: #92d5b3;
 }
 
 .dark .dash-empty-note {
@@ -1439,36 +2529,19 @@ a.dash-calendar-day:hover {
   background: #1a1e23;
 }
 
-.dark .dash-field label {
-  color: var(--dash-muted);
-}
-
-.dark .dash-field input {
-  border-color: #454d55;
-  color: var(--dash-ink);
-  background: #1a1e23;
-}
-
-.dark .dash-field input::placeholder {
-  color: #aab9b2;
-}
-
-@media (max-width: 360px) {
-  .dash-calendar {
-    gap: 3px;
-  }
-}
-
-/* ---------- Motion preferences ---------- */
+/* =========================================================
+   MOTION
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   .dash-page *,
   .dash-page *::before,
   .dash-page *::after {
     scroll-behavior: auto !important;
+
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+
     transition-duration: 0.01ms !important;
   }
-
 }
