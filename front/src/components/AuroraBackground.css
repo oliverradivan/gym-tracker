@@ -1,101 +1,113 @@
-/* ---------- Colours (your exercise categories) ---------- */
-
-.aurora {
-  --aurora-push: #e04f4f;
-  --aurora-pull: #4c82dc;
-  --aurora-leg: #e0b21f;
-  --aurora-cardio: #3fae62;
-
-  --aurora-bg: #f4f6f5;
-  --aurora-blob-opacity: 0.45;
-  --aurora-blob-blur: 90px;
-}
-
-.dark .aurora {
-  --aurora-bg: #0c0e11;
-  --aurora-blob-opacity: 0.5;
-}
-
-/* ---------- Frame ---------- */
-
-.aurora {
+.swirl-container {
   position: relative;
+  width: 100%;
+  min-height: 100vh;
   overflow: hidden;
-  isolation: isolate;
-  min-height: 100%;
-  background: var(--aurora-bg);
+  background-color: #0d0f18;
 }
 
-.aurora__content {
-  position: relative;
-  z-index: 1; /* keeps your real page content above the glow */
-}
-
-/* ---------- The glowing blobs ---------- */
-
-.aurora__blob {
+.swirl-background {
   position: absolute;
-  width: 60vmax;
-  height: 60vmax;
-  border-radius: 50%;
-  filter: blur(var(--aurora-blob-blur));
-  opacity: var(--aurora-blob-opacity);
-  will-change: transform;
-  z-index: 0;
-  pointer-events: none;
+  inset: -20%; /* Expanded boundary to keep blur/rotation smooth at edges */
+  filter: blur(60px);
+  opacity: 0.85;
 }
 
-.aurora__blob--push {
-  background: var(--aurora-push);
-  top: -20%;
-  left: -15%;
-  animation: aurora-drift-a 18s ease-in-out infinite alternate;
+.swirl-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 40%;
+  mix-blend-mode: screen;
 }
 
-.aurora__blob--pull {
-  background: var(--aurora-pull);
-  top: 10%;
-  right: -25%;
-  animation: aurora-drift-b 22s ease-in-out infinite alternate;
+/* Layer 1: Warm Violet & Coral Swirl */
+.layer-1 {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 99, 132, 0.8),
+    rgba(147, 51, 234, 0.6) 40%,
+    transparent 70%
+  );
+  animation: rotateSwirl 18s linear infinite;
 }
 
-.aurora__blob--leg {
-  background: var(--aurora-leg);
-  bottom: -25%;
-  left: 5%;
-  animation: aurora-drift-c 20s ease-in-out infinite alternate;
+/* Layer 2: Cool Cyan & Indigo Swirl */
+.layer-2 {
+  background: radial-gradient(
+    circle at 70% 70%,
+    rgba(56, 189, 248, 0.8),
+    rgba(79, 70, 229, 0.6) 45%,
+    transparent 75%
+  );
+  animation: pulseRotate 24s ease-in-out infinite alternate;
 }
 
-.aurora__blob--cardio {
-  background: var(--aurora-cardio);
-  bottom: -20%;
-  right: -10%;
-  animation: aurora-drift-a 26s ease-in-out infinite alternate-reverse;
+/* Layer 3: Emerald & Gold Highlight Swirl */
+.layer-3 {
+  background: radial-gradient(
+    circle at 50% 20%,
+    rgba(251, 191, 36, 0.7),
+    rgba(16, 185, 129, 0.5) 35%,
+    transparent 65%
+  );
+  animation: reverseSwirl 20s ease-in-out infinite;
 }
 
-@keyframes aurora-drift-a {
-  from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(18vmax, 12vmax) scale(1.25); }
+/* Subtle Overlay to smooth gradients and add depth */
+.swirl-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    transparent 20%,
+    rgba(13, 15, 24, 0.4) 100%
+  );
 }
 
-@keyframes aurora-drift-b {
-  from { transform: translate(0, 0) scale(1.1); }
-  to   { transform: translate(-20vmax, 14vmax) scale(0.9); }
+.swirl-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: #ffffff;
 }
 
-@keyframes aurora-drift-c {
-  from { transform: translate(0, 0) scale(0.9); }
-  to   { transform: translate(14vmax, -18vmax) scale(1.2); }
+/* --- Animations --- */
+
+@keyframes rotateSwirl {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.15);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
 }
 
-/* "Thinking" mode: same motion, just faster */
-.aurora--active .aurora__blob {
-  animation-duration: 7s;
+@keyframes pulseRotate {
+  0% {
+    transform: rotate(0deg) translate(0, 0) scale(1);
+  }
+  50% {
+    transform: rotate(-120deg) translate(-5%, 8%) scale(1.2);
+  }
+  100% {
+    transform: rotate(-240deg) translate(5%, -5%) scale(0.9);
+  }
 }
 
-/* Respect people who turn off motion in their OS settings */
-@media (prefers-reduced-motion: reduce) {
-  .aurora__blob {
-    animation: none;
+@keyframes reverseSwirl {
+  0% {
+    transform: rotate(360deg) translate(0, 0);
+  }
+  50% {
+    transform: rotate(180deg) translate(8%, -6%) scale(1.1);
+  }
+  100% {
+    transform: rotate(0deg) translate(-4%, 4%);
   }
 }
