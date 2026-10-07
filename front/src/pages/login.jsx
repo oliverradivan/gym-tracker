@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/authContext'
 import './login.css'
+import AuroraBackground from "../components/AuroraBackground";
 
 const initialForm = {
   username: '',
@@ -31,6 +32,7 @@ function LoginPage() {
   }
 
   return (
+   <AuroraBackground>
     <main className="login-container">
       <div className="auth-shell login-page">
         <div className="auth-card login-card">
@@ -114,6 +116,7 @@ function LoginPage() {
         </div>
       </div>
     </main>
+   </AuroraBackground>
   )
 }
 

@@ -1,0 +1,101 @@
+/* ---------- Colours (your exercise categories) ---------- */
+
+.aurora {
+  --aurora-push: #e04f4f;
+  --aurora-pull: #4c82dc;
+  --aurora-leg: #e0b21f;
+  --aurora-cardio: #3fae62;
+
+  --aurora-bg: #f4f6f5;
+  --aurora-blob-opacity: 0.45;
+  --aurora-blob-blur: 90px;
+}
+
+.dark .aurora {
+  --aurora-bg: #0c0e11;
+  --aurora-blob-opacity: 0.5;
+}
+
+/* ---------- Frame ---------- */
+
+.aurora {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 100%;
+  background: var(--aurora-bg);
+}
+
+.aurora__content {
+  position: relative;
+  z-index: 1; /* keeps your real page content above the glow */
+}
+
+/* ---------- The glowing blobs ---------- */
+
+.aurora__blob {
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  filter: blur(var(--aurora-blob-blur));
+  opacity: var(--aurora-blob-opacity);
+  will-change: transform;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.aurora__blob--push {
+  background: var(--aurora-push);
+  top: -20%;
+  left: -15%;
+  animation: aurora-drift-a 18s ease-in-out infinite alternate;
+}
+
+.aurora__blob--pull {
+  background: var(--aurora-pull);
+  top: 10%;
+  right: -25%;
+  animation: aurora-drift-b 22s ease-in-out infinite alternate;
+}
+
+.aurora__blob--leg {
+  background: var(--aurora-leg);
+  bottom: -25%;
+  left: 5%;
+  animation: aurora-drift-c 20s ease-in-out infinite alternate;
+}
+
+.aurora__blob--cardio {
+  background: var(--aurora-cardio);
+  bottom: -20%;
+  right: -10%;
+  animation: aurora-drift-a 26s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes aurora-drift-a {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(18vmax, 12vmax) scale(1.25); }
+}
+
+@keyframes aurora-drift-b {
+  from { transform: translate(0, 0) scale(1.1); }
+  to   { transform: translate(-20vmax, 14vmax) scale(0.9); }
+}
+
+@keyframes aurora-drift-c {
+  from { transform: translate(0, 0) scale(0.9); }
+  to   { transform: translate(14vmax, -18vmax) scale(1.2); }
+}
+
+/* "Thinking" mode: same motion, just faster */
+.aurora--active .aurora__blob {
+  animation-duration: 7s;
+}
+
+/* Respect people who turn off motion in their OS settings */
+@media (prefers-reduced-motion: reduce) {
+  .aurora__blob {
+    animation: none;
+  }
+}

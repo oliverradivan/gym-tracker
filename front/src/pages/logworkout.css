@@ -1,11 +1,3 @@
-/* =========================================================
-   Log workout — frosted-glass redesign
-   Same palette as the dashboard (green base, black/off-white
-   action button, Push/Pull/Leg/Cardio/Other category colours).
-   Everything is scoped under .logworkout-page so it can't leak.
-   ========================================================= */
-
-/* Lets the accent colour glide between categories instead of snapping. */
 @property --lw-accent {
   syntax: '<color>';
   inherits: true;

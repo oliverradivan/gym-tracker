@@ -192,7 +192,6 @@ function LogWorkoutPage() {
     <div className="logworkout-page" data-category={selectedCategory || undefined}>
       <div className="logworkout-card">
         <div className="logworkout-header">
-          <p className="eyebrow">Workout Tracker</p>
           <h1>Log new workout</h1>
         </div>
 
