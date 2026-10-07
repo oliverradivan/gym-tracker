@@ -11,8 +11,9 @@ from ..data_access import (
     get_admin_client,
     is_supabase_configured,
 )
+from ..data import profiles
 from ..dependencies import UserContext, get_current_user_context
-from ..exception_handlers import DatabaseOperationError, execute_query
+from ..exception_handlers import DatabaseOperationError
 from ..schemas import (
     DeleteAccountPayload,
     LoginPayload,
@@ -113,14 +114,7 @@ def register_user(payload: RegisterPayload, request: Request):
         raise HTTPException(status_code=400, detail="A valid email is required.")
 
     # Check for existing username - uses the clean admin client, safe.
-    existing_user = execute_query(
-        client.table("profiles")
-        .select("username")
-        .eq("username", username)
-        .limit(1),
-        "Database error",
-    )
-    if existing_user.data:
+    if profiles.username_exists(client, username):
         raise HTTPException(status_code=409, detail="Username already exists.")
 
     # Create Supabase Auth account on a THROWAWAY client, not the admin one.
@@ -145,14 +139,14 @@ def register_user(payload: RegisterPayload, request: Request):
     # Insert Profile - back on the clean admin client, so this still bypasses RLS.
     if auth_response.user is not None:
         try:
-            client.table("profiles").upsert(
+            profiles.create_profile(
+                client,
                 {
                     "id": auth_response.user.id,
                     "username": username,
                     "email": email,
                 },
-                on_conflict="id",
-            ).execute()
+            )
         except APIError as exc:
             # Don't leave an auth account behind with no profile.
             try:
@@ -201,16 +195,9 @@ def login_user(payload: LoginPayload, request: Request):
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-        profile = execute_query(
-            client.table("profiles")
-            .select("email")
-            .eq("username", username)
-            .limit(1),
-            "",
-        )
-        if not profile.data:
+        target_email = profiles.get_email_for_username(client, username)
+        if not target_email:
             raise HTTPException(status_code=401, detail="oops! something was incorrect.")
-        target_email = profile.data[0]["email"]
 
     if not target_email:
         raise HTTPException(status_code=400, detail="Email or username is required.")
@@ -278,24 +265,11 @@ def update_username(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     # Check if username already exists
-    existing_user = execute_query(
-        admin_client.table("profiles")
-        .select("username")
-        .eq("username", new_username)
-        .neq("id", user.id)
-        .limit(1),
-        "Database error",
-    )
-    if existing_user.data:
+    if profiles.username_exists(admin_client, new_username, user.id):
         raise HTTPException(status_code=409, detail="Username already exists.")
 
     # Update username in profiles table
-    execute_query(
-        user_client.table("profiles").update(
-            {"username": new_username}
-        ).eq("id", user.id),
-        "Failed to update username",
-    )
+    profiles.update_profile_username(user_client, user.id, new_username)
 
     # Update user metadata in auth via admin client
     try:
@@ -363,20 +337,9 @@ def delete_account(
         raise HTTPException(status_code=401, detail="Password is incorrect.") from exc
 
     profile_snapshot = None
-    existing_profile = execute_query(
-        user_client.table("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .limit(1),
-        "Failed to load profile",
-    )
-    if existing_profile.data:
-        profile_snapshot = existing_profile.data[0]
+    profile_snapshot = profiles.get_profile(user_client, user.id)
 
-    execute_query(
-        user_client.table("profiles").delete().eq("id", user.id),
-        "Failed to delete profile",
-    )
+    profiles.delete_profile(user_client, user.id)
 
     # Delete user from auth (admin operation using service role key). If the auth
     # deletion fails after we already removed the profile row, restore the profile
@@ -387,8 +350,8 @@ def delete_account(
         logger.exception("Auth user deletion failed")
         if profile_snapshot:
             try:
-                admin_client.table("profiles").upsert(profile_snapshot, on_conflict="id").execute()
-            except APIError as restore_exc:
+                profiles.restore_profile(admin_client, profile_snapshot)
+            except DatabaseOperationError as restore_exc:
                 logger.error("Profile recovery failed: %s", restore_exc.message)
                 raise HTTPException(
                     status_code=500,

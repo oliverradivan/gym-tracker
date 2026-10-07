@@ -17,3 +17,5 @@ the caller's JWT, while tests use mocked clients and do not require database
 access.
 
 Regenerate the root deployment `requirements.txt` from `back/uv.lock` with `make export-requirements`.
+
+Supabase table queries are centralized in the matching modules under `back/data/`.

@@ -1,11 +1,9 @@
 import re
 
 from fastapi import APIRouter, Depends, HTTPException
-from postgrest.exceptions import APIError
-
 from ..data_access import get_admin_client
+from ..data import exercises as exercise_data
 from ..dependencies import UserContext, get_current_user_context
-from ..exception_handlers import DatabaseOperationError, execute_query
 from ..exercise_categories import (
     CARDIO_CATEGORY,
     normalize_exercise_category,
@@ -66,15 +64,7 @@ def list_exercises(
     user_context: UserContext = Depends(get_current_user_context),
 ):
     client, user = user_context
-    result = execute_query(
-        client.table("exercises")
-        .select("*")
-        # Global exercises (created_by is null) plus this user's own custom ones.
-        .or_(f"created_by.is.null,created_by.eq.{user.id}")
-        .order("category")
-        .order("name"),
-        "Failed to load exercises",
-    )
+    result = exercise_data.list_visible_exercises(client, user.id)
 
     return {"exercises": [serialize_exercise(exercise) for exercise in (result.data or [])]}
 
@@ -91,43 +81,14 @@ def create_exercise(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    visible = execute_query(
-        get_admin_client().table("exercises").select("name"),
-        "Failed to check exercise name",
+    admin_client = get_admin_client()
+    exercise_data.ensure_exercise_name_available(admin_client, name)
+    created = exercise_data.create_custom_exercise(
+        admin_client,
+        name,
+        payload.category,
+        user.id,
     )
-    # Compare in Python instead of using ilike: ilike treats % and _ as
-    # wildcards, so a name like "b%" would match "Bench Press". Names are
-    # unique globally, including exercises owned by other users.
-    wanted = name.casefold()
-    match = next(
-        (
-            row
-            for row in (visible.data or [])
-            if (row.get("name") or "").strip().casefold() == wanted
-        ),
-        None,
-    )
-    if match:
-        raise HTTPException(
-            status_code=409,
-            detail="An exercise with this name already exists.",
-        )
-
-    try:
-        created = get_admin_client().table("exercises").insert(
-            {
-                "name": name,
-                "category": payload.category,
-                "created_by": user.id,
-            }
-        ).execute()
-    except APIError as exc:
-        if getattr(exc, "code", None) == "23505":
-            raise HTTPException(
-                status_code=409,
-                detail="An exercise with this name already exists.",
-            ) from exc
-        raise DatabaseOperationError("Failed to create exercise", exc.message) from exc
 
     return {"exercise": serialize_exercise(created.data[0]), "created": True}
 
@@ -148,11 +109,10 @@ def delete_exercise(
 ):
     client, user = user_context
 
-    existing = execute_query(
-        client.table("exercises")
-        .select("id, created_by")
-        .eq("id", exercise_id)
-        .limit(1),
+    existing = exercise_data.get_exercise(
+        client,
+        exercise_id,
+        "id, created_by",
         "Failed to look up exercise",
     )
 
@@ -168,13 +128,10 @@ def delete_exercise(
             detail="You can only delete exercises you created yourself.",
         )
 
-    execute_query(
-        get_admin_client()
-        .table("exercises")
-        .delete()
-        .eq("id", exercise_id)
-        .eq("created_by", user.id),
-        "Failed to delete exercise",
+    exercise_data.delete_custom_exercise(
+        get_admin_client(),
+        exercise_id,
+        user.id,
     )
 
     return {"message": "Exercise deleted successfully."}

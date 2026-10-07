@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from ..data import exercises as exercise_data
+from ..data import workout_logs
 from ..dependencies import UserContext, get_current_user_context
-from ..exception_handlers import execute_query
 from ..exercise_categories import normalize_exercise_category
 from ..routers.exercises import validate_workout_log_payload
 from ..schemas import WorkoutLogPayload
@@ -16,12 +17,8 @@ def create_workout_log(
 ):
     client, user = user_context
 
-    existing_exercise = execute_query(
-        client.table("exercises")
-        .select("id, category")
-        .eq("id", payload.exercise_id)
-        .limit(1),
-        "Exercise validation failed",
+    existing_exercise = exercise_data.get_exercise(
+        client, payload.exercise_id, "id, category", "Exercise validation failed"
     )
     if not existing_exercise.data:
         raise HTTPException(status_code=404, detail="Exercise not found.")
@@ -33,33 +30,21 @@ def create_workout_log(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     # Next set number for this exercise on this day (instead of always 1).
-    last_set = execute_query(
-        client.table("workout_logs")
-        .select("set_number")
-        .eq("user_id", user.id)
-        .eq("exercise_id", payload.exercise_id)
-        .eq("log_date", payload.log_date)
-        .order("set_number", desc=True)
-        .limit(1),
-        "Failed to save workout log",
-    )
-    next_set_number = (
-        (last_set.data[0].get("set_number") or 0) + 1 if last_set.data else 1
+    next_set_number = workout_logs.get_next_set_number(
+        client, user.id, payload.exercise_id, payload.log_date
     )
 
-    created = execute_query(
-        client.table("workout_logs").insert(
-            {
-                "user_id": user.id,
-                "exercise_id": payload.exercise_id,
-                "log_date": payload.log_date,
-                "weight": payload.weight,
-                "reps": payload.reps,
-                "duration_seconds": payload.duration_seconds,
-                "set_number": next_set_number,
-            }
-        ),
-        "Failed to save workout log",
+    created = workout_logs.create_workout_log(
+        client,
+        {
+            "user_id": user.id,
+            "exercise_id": payload.exercise_id,
+            "log_date": payload.log_date,
+            "weight": payload.weight,
+            "reps": payload.reps,
+            "duration_seconds": payload.duration_seconds,
+            "set_number": next_set_number,
+        },
     )
 
     return {"message": "Workout logged successfully.", "log": created.data[0] if created.data else None}
@@ -72,14 +57,7 @@ def get_workout_logs(
 ):
     client, user = user_context
 
-    query = client.table("workout_logs").select("*, exercises(name, category)").eq("user_id", user.id)
-    if exercise_id:
-        query = query.eq("exercise_id", exercise_id)
-
-    result = execute_query(
-        query.order("log_date", desc=True).order("created_at", desc=True),
-        "Failed to load workout logs",
-    )
+    result = workout_logs.list_user_workout_logs(client, user.id, exercise_id)
 
     logs = []
     for log in result.data or []:
@@ -100,13 +78,7 @@ def delete_workout_log(
 ):
     client, user = user_context
 
-    deleted = execute_query(
-        client.table("workout_logs")
-        .delete()
-        .eq("id", log_id)
-        .eq("user_id", user.id),
-        "Failed to delete workout",
-    )
+    deleted = workout_logs.delete_user_workout_log(client, user.id, log_id)
 
     if not deleted.data:
         raise HTTPException(status_code=404, detail="Workout not found.")

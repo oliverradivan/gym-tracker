@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 
+from ..data import exercises as exercise_data
+from ..data import workout_logs
 from ..dependencies import UserContext, get_current_user_context
-from ..exception_handlers import execute_query
 from ..exercise_categories import CARDIO_CATEGORY, normalize_exercise_category
 
 router = APIRouter(prefix="/api")
@@ -131,13 +132,7 @@ def get_workout_sessions(
 ):
     client, user = user_context
 
-    result = execute_query(
-        client.table("workout_logs")
-        .select("id, exercise_id, log_date, weight, reps, duration_seconds, exercises(name, category)")
-        .eq("user_id", user.id)
-        .order("log_date", desc=True),
-        "Failed to load workout sessions",
-    )
+    result = workout_logs.list_user_session_logs(client, user.id)
 
     return {"sessions": build_session_summary(result.data or [])}
 
@@ -149,12 +144,8 @@ def get_workout_progress(
 ):
     client, user = user_context
 
-    exercise_result = execute_query(
-        client.table("exercises")
-        .select("category")
-        .eq("id", exercise_id)
-        .limit(1),
-        "Failed to load exercise",
+    exercise_result = exercise_data.get_exercise(
+        client, exercise_id, "category", "Failed to load exercise"
     )
 
     if not exercise_result.data:
@@ -164,14 +155,8 @@ def get_workout_progress(
     )
     is_cardio = exercise_category == CARDIO_CATEGORY
 
-    result = execute_query(
-        client.table("workout_logs")
-        .select("log_date, weight, reps, duration_seconds, created_at")
-        .eq("user_id", user.id)
-        .eq("exercise_id", exercise_id)
-        .order("log_date", desc=False)
-        .order("created_at", desc=False),
-        "Failed to load workout progress",
+    result = workout_logs.list_user_exercise_progress(
+        client, user.id, exercise_id
     )
 
     return {
