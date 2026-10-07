@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Header, HTTPException
 from postgrest.exceptions import APIError
 
-from ..data_access import get_authenticated_user, get_supabase
+from ..data_access import get_user_context
 from ..exercise_categories import normalize_exercise_category
 from ..routers.exercises import validate_workout_log_payload
 from ..schemas import WorkoutLogPayload
@@ -14,11 +14,7 @@ def create_workout_log(
     payload: WorkoutLogPayload,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    client, user = get_user_context(authorization)
 
     try:
         existing_exercise = (
@@ -81,11 +77,7 @@ def get_workout_logs(
     exercise_id: str | None = None,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    client, user = get_user_context(authorization)
 
     query = client.table("workout_logs").select("*, exercises(name, category)").eq("user_id", user.id)
     if exercise_id:
@@ -113,11 +105,7 @@ def delete_workout_log(
     log_id: str,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    client, user = get_user_context(authorization)
 
     try:
         deleted = (

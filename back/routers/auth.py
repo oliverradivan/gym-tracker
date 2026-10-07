@@ -7,7 +7,12 @@ from fastapi import APIRouter, Header, HTTPException, Request
 from postgrest.exceptions import APIError
 from supabase_auth.errors import AuthApiError
 
-from ..data_access import auth_client as create_auth_client, get_authenticated_user, get_supabase
+from ..data_access import (
+    auth_client as create_auth_client,
+    get_admin_client,
+    get_user_context,
+    is_supabase_configured,
+)
 from ..schemas import (
     DeleteAccountPayload,
     LoginPayload,
@@ -89,15 +94,13 @@ def normalize_username(raw_username: str) -> str:
 def health_status():
     return {
         "status": "ok",
-        "supabase_connected": get_supabase() is not None,
+        "supabase_connected": is_supabase_configured(),
     }
 
 
 @router.post("/auth/register")
 def register_user(payload: RegisterPayload, request: Request):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
+    client = get_admin_client()
 
     client_ip = get_client_ip(request)
     email_key = (payload.email or "").strip().lower()
@@ -191,9 +194,7 @@ def register_user(payload: RegisterPayload, request: Request):
 
 @router.post("/auth/login")
 def login_user(payload: LoginPayload, request: Request):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
+    client = get_admin_client()
 
     client_ip = get_client_ip(request)
     check_rate_limit(f"auth:login:{client_ip}", max_requests=5, window_seconds=60)
@@ -253,8 +254,7 @@ def login_user(payload: LoginPayload, request: Request):
 
 @router.post("/auth/refresh")
 def refresh_session(payload: RefreshPayload):
-    client = get_supabase()
-    if client is None:
+    if not is_supabase_configured():
         raise HTTPException(status_code=500, detail="Supabase is not configured.")
 
     # Same reasoning as login/register: use a throwaway client so the
@@ -274,11 +274,7 @@ def refresh_session(payload: RefreshPayload):
 
 @router.get("/profile")
 def get_profile(authorization: str | None = Header(default=None)):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    _, user = get_user_context(authorization)
     return {"user": user}
 
 
@@ -287,11 +283,8 @@ def update_username(
     payload: UpdateUsernamePayload,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    user_client, user = get_user_context(authorization)
+    admin_client = get_admin_client()
 
     try:
         new_username = normalize_username(payload.username)
@@ -301,7 +294,7 @@ def update_username(
     # Check if username already exists
     try:
         existing_user = (
-            client.table("profiles")
+            admin_client.table("profiles")
             .select("username")
             .eq("username", new_username)
             .neq("id", user.id)
@@ -315,7 +308,7 @@ def update_username(
 
     # Update username in profiles table
     try:
-        client.table("profiles").update(
+        user_client.table("profiles").update(
             {"username": new_username}
         ).eq("id", user.id).execute()
     except APIError as exc:
@@ -323,7 +316,7 @@ def update_username(
 
     # Update user metadata in auth via admin client
     try:
-        client.auth.admin.update_user_by_id(
+        admin_client.auth.admin.update_user_by_id(
             user.id,
             {"user_metadata": {"username": new_username, "full_name": new_username}},
         )
@@ -338,11 +331,8 @@ def update_password(
     payload: UpdatePasswordPayload,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    _, user = get_user_context(authorization)
+    client = get_admin_client()
 
     if len(payload.new_password or "") < 6:
         raise HTTPException(status_code=400, detail="New password must be at least 6 characters long.")
@@ -376,11 +366,8 @@ def delete_account(
     payload: DeleteAccountPayload,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    user_client, user = get_user_context(authorization)
+    admin_client = get_admin_client()
 
     # Verify password
     user_email = user.email
@@ -395,7 +382,7 @@ def delete_account(
     profile_snapshot = None
     try:
         existing_profile = (
-            client.table("profiles")
+            user_client.table("profiles")
             .select("*")
             .eq("id", user.id)
             .limit(1)
@@ -407,7 +394,7 @@ def delete_account(
         raise HTTPException(status_code=400, detail=f"Failed to load profile: {exc.message}") from exc
 
     try:
-        client.table("profiles").delete().eq("id", user.id).execute()
+        user_client.table("profiles").delete().eq("id", user.id).execute()
     except APIError as exc:
         raise HTTPException(status_code=400, detail=f"Failed to delete profile: {exc.message}") from exc
 
@@ -415,12 +402,12 @@ def delete_account(
     # deletion fails after we already removed the profile row, restore the profile
     # so the user data is not lost unexpectedly.
     try:
-        client.auth.admin.delete_user(user.id)
+        admin_client.auth.admin.delete_user(user.id)
     except Exception as exc:
         logger.exception("Auth user deletion failed")
         if profile_snapshot:
             try:
-                client.table("profiles").upsert(profile_snapshot, on_conflict="id").execute()
+                admin_client.table("profiles").upsert(profile_snapshot, on_conflict="id").execute()
             except APIError as restore_exc:
                 logger.error("Profile recovery failed: %s", restore_exc.message)
                 raise HTTPException(

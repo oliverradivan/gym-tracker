@@ -1,7 +1,7 @@
 -- 0002_rls.sql
 -- Row-level security exactly as it exists on the live database.
--- The backend uses the Supabase service key, which bypasses RLS, so these policies
--- only matter for requests made with the public/anon or a user's own key.
+-- User-facing backend requests use the caller's JWT; administrative operations
+-- use the service key and bypass RLS.
 -- Run 0001_baseline.sql first.
 
 alter table public.profiles enable row level security;

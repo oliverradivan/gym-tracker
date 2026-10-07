@@ -108,12 +108,12 @@ def test_create_exercise_saves_selected_canonical_category(monkeypatch):
             return self.exercise_table
 
     database = FakeSupabase()
-    monkeypatch.setattr(exercises, "get_supabase", lambda: database)
     monkeypatch.setattr(
         exercises,
-        "get_authenticated_user",
-        lambda _authorization: SimpleNamespace(id="user-1"),
+        "get_user_context",
+        lambda _authorization: (database, SimpleNamespace(id="user-1")),
     )
+    monkeypatch.setattr(exercises, "get_admin_client", lambda: database)
 
     result = exercises.create_exercise(
         ExercisePayload(name="Custom movement", category="Cardio"),
@@ -154,8 +154,12 @@ def test_list_exercises_returns_the_backend_classification(monkeypatch):
         def table(self, _table_name):
             return FakeTable()
 
-    monkeypatch.setattr(exercises, "get_supabase", lambda: FakeSupabase())
-    monkeypatch.setattr(exercises, "get_authenticated_user", lambda _authorization: SimpleNamespace(id="user-1"))
+    database = FakeSupabase()
+    monkeypatch.setattr(
+        exercises,
+        "get_user_context",
+        lambda _authorization: (database, SimpleNamespace(id="user-1")),
+    )
     result = exercises.list_exercises(authorization=None)
 
     assert result["exercises"] == [
@@ -298,9 +302,11 @@ def test_workout_sessions_select_category_and_return_normalized_exercise_categor
         def table(self, _table_name):
             return table
 
-    monkeypatch.setattr(sessions, "get_supabase", lambda: FakeSupabase())
+    database = FakeSupabase()
     monkeypatch.setattr(
-        sessions, "get_authenticated_user", lambda _authorization: SimpleNamespace(id="user-1")
+        sessions,
+        "get_user_context",
+        lambda _authorization: (database, SimpleNamespace(id="user-1")),
     )
 
     result = sessions.get_workout_sessions(authorization=None)
@@ -357,8 +363,12 @@ def test_create_workout_log_inserts_type_specific_values(
         def table(self, table_name):
             return FakeTable(table_name)
 
-    monkeypatch.setattr(workouts, "get_supabase", lambda: FakeSupabase())
-    monkeypatch.setattr(workouts, "get_authenticated_user", lambda _authorization: SimpleNamespace(id="user-id"))
+    database = FakeSupabase()
+    monkeypatch.setattr(
+        workouts,
+        "get_user_context",
+        lambda _authorization: (database, SimpleNamespace(id="user-id")),
+    )
     payload = WorkoutLogPayload(
         exercise_id="exercise-id",
         log_date="2026-01-01",

@@ -3,7 +3,6 @@ from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 
-from back import data_access
 from back.main import app
 from back.routers import workouts
 
@@ -18,6 +17,7 @@ class FakeTable:
         self.filters = []
         self.insert_values = None
         self.selection = None
+        self.operation = "select"
 
     def select(self, columns):
         self.selection = columns
@@ -35,6 +35,11 @@ class FakeTable:
 
     def insert(self, values):
         self.insert_values = values
+        self.operation = "insert"
+        return self
+
+    def delete(self):
+        self.operation = "delete"
         return self
 
     def execute(self):
@@ -46,7 +51,7 @@ class FakeTable:
             ]
             return SimpleNamespace(data=deepcopy(matches))
 
-        if self.insert_values is not None:
+        if self.operation == "insert":
             row = {
                 **self.insert_values,
                 "id": "log-created",
@@ -59,6 +64,10 @@ class FakeTable:
             row for row in self.database.logs
             if all(row.get(key) == value for key, value in self.filters)
         ]
+        if self.operation == "delete":
+            self.database.logs = [
+                row for row in self.database.logs if row not in matches
+            ]
         return SimpleNamespace(data=deepcopy(matches))
 
 
@@ -83,9 +92,7 @@ class FakeSupabase:
         return FakeTable(self, table_name)
 
 
-def test_workout_logs_requires_authentication(monkeypatch):
-    monkeypatch.setattr(data_access, "supabase", FakeSupabase())
-
+def test_workout_logs_requires_authentication():
     response = client.get("/api/workout-logs")
 
     assert response.status_code == 401
@@ -94,11 +101,10 @@ def test_workout_logs_requires_authentication(monkeypatch):
 
 def test_workout_create_and_read_are_scoped_to_authenticated_user(monkeypatch):
     database = FakeSupabase()
-    monkeypatch.setattr(workouts, "get_supabase", lambda: database)
     monkeypatch.setattr(
         workouts,
-        "get_authenticated_user",
-        lambda _authorization: SimpleNamespace(id="user-1"),
+        "get_user_context",
+        lambda _authorization: (database, SimpleNamespace(id="user-1")),
     )
 
     create_response = client.post(
@@ -127,3 +133,26 @@ def test_workout_create_and_read_are_scoped_to_authenticated_user(monkeypatch):
     assert [log["id"] for log in logs] == ["log-created"]
     assert all(log["user_id"] == "user-1" for log in logs)
     assert ("workout_logs", [("user_id", "user-1")]) in database.queries
+
+
+def test_user_cannot_read_or_delete_another_users_workout(monkeypatch):
+    database = FakeSupabase()
+    monkeypatch.setattr(
+        workouts,
+        "get_user_context",
+        lambda _authorization: (database, SimpleNamespace(id="user-1")),
+    )
+
+    read_response = client.get(
+        "/api/workout-logs",
+        headers={"Authorization": "Bearer user-a-token"},
+    )
+    delete_response = client.delete(
+        "/api/workout-logs/other-user-log",
+        headers={"Authorization": "Bearer user-a-token"},
+    )
+
+    assert read_response.status_code == 200
+    assert read_response.json()["logs"] == []
+    assert delete_response.status_code == 404
+    assert [row["id"] for row in database.logs] == ["other-user-log"]

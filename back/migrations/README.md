@@ -13,6 +13,8 @@ once, in this order:
    `Push`, `Pull`, `Leg`, `Cardio`, or `Other`.
 5. `0005_profile_update_policy.sql` — allows users to update only their own
    profile.
+6. `0006_user_owned_table_rls.sql` — enforces owner-only CRUD on profiles,
+   workouts, and workout logs.
 
 Do not run these files, individually or as a set, on an existing database.
 They are not an automatic migration runner and are not designed to upgrade a
@@ -27,7 +29,9 @@ intended live schema before using the project.
 exercises"** policy with a read policy that allows signed-in users to see
 preset exercises and their own custom exercises. Presets have
 `exercises.created_by IS NULL`; a non-NULL `created_by` identifies the owning
-user. The backend uses the Supabase service key, which bypasses RLS.
+user. User-facing backend requests use the caller's JWT so these policies are
+enforced; administrative account operations and exercise writes use the service
+role client.
 
 The `old/` directory contains superseded, guessed migration files kept for
 historical reference only. Do not apply them.

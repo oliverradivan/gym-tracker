@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Header, HTTPException
 from postgrest.exceptions import APIError
 
-from ..data_access import get_authenticated_user, get_supabase
+from ..data_access import get_user_context
 from ..schemas import PredictionsPayload
 from ..services.forecast import (
     EXERCISE_MOVEMENT_CATEGORIES,
@@ -18,11 +18,7 @@ def create_predictions(
     payload: PredictionsPayload,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    client, _user = get_user_context(authorization)
 
     points: list[dict] = payload.points
     if not points or len(points) < 2:

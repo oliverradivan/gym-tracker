@@ -3,7 +3,7 @@ import re
 from fastapi import APIRouter, Header, HTTPException
 from postgrest.exceptions import APIError
 
-from ..data_access import get_authenticated_user, get_supabase
+from ..data_access import get_admin_client, get_user_context
 from ..exercise_categories import (
     CARDIO_CATEGORY,
     normalize_exercise_category,
@@ -61,11 +61,7 @@ def normalize_exercise_name(raw_name: str) -> str:
 
 @router.get("/exercises")
 def list_exercises(authorization: str | None = Header(default=None)):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    client, user = get_user_context(authorization)
 
     try:
         result = (
@@ -88,11 +84,7 @@ def create_exercise(
     payload: ExercisePayload,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    client, user = get_user_context(authorization)
 
     try:
         name = normalize_exercise_name(payload.name)
@@ -101,7 +93,7 @@ def create_exercise(
 
     try:
         visible = (
-            client.table("exercises")
+            get_admin_client().table("exercises")
             .select("name")
             .execute()
         )
@@ -127,7 +119,7 @@ def create_exercise(
 
     try:
         created = (
-            client.table("exercises")
+            get_admin_client().table("exercises")
             # created_by makes this exercise private to the user who added it -
             # it will not show up in anyone else's exercise list.
             .insert(
@@ -156,11 +148,7 @@ def update_exercise(
     payload: ExerciseUpdatePayload,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    get_authenticated_user(authorization)
+    get_user_context(authorization)
 
     raise HTTPException(status_code=403, detail="Exercise updates are not allowed. Exercises are managed globally.")
 
@@ -170,11 +158,7 @@ def delete_exercise(
     exercise_id: str,
     authorization: str | None = Header(default=None),
 ):
-    client = get_supabase()
-    if client is None:
-        raise HTTPException(status_code=500, detail="Supabase is not configured.")
-
-    user = get_authenticated_user(authorization)
+    client, user = get_user_context(authorization)
 
     try:
         existing = (
@@ -200,7 +184,7 @@ def delete_exercise(
         )
 
     try:
-        client.table("exercises").delete().eq("id", exercise_id).eq(
+        get_admin_client().table("exercises").delete().eq("id", exercise_id).eq(
             "created_by", user.id
         ).execute()
     except APIError as exc:

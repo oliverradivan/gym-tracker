@@ -4,6 +4,7 @@ import pytest
 from fastapi import HTTPException
 
 from back.data_access import get_auth_client
+from back import data_access
 from back.routers import auth as auth_router
 from back.schemas import DeleteAccountPayload, UpdatePasswordPayload
 
@@ -85,14 +86,18 @@ def test_delete_account_restores_profile_when_auth_delete_fails(monkeypatch):
                 return self._profile_table
             raise AssertionError(f"Unexpected table: {name}")
 
-    monkeypatch.setattr(auth_router, "get_supabase", lambda: DummySupabase())
+    database = DummySupabase()
+    monkeypatch.setattr(auth_router, "get_admin_client", lambda: database)
     monkeypatch.setattr(
         auth_router,
-        "get_authenticated_user",
-        lambda authorization: SimpleNamespace(
-            id="user-123",
-            email="alex@example.com",
-            session=SimpleNamespace(access_token="abc"),
+        "get_user_context",
+        lambda authorization: (
+            database,
+            SimpleNamespace(
+                id="user-123",
+                email="alex@example.com",
+                session=SimpleNamespace(access_token="abc"),
+            ),
         ),
     )
     monkeypatch.setattr(
@@ -119,10 +124,36 @@ def test_check_rate_limit_blocks_excessive_auth_attempts():
 
 def test_get_auth_client_requires_supabase_env(monkeypatch):
     monkeypatch.delenv("SUPABASE_URL", raising=False)
-    monkeypatch.delenv("SUPABASE_SERVICE_ROLE_KEY", raising=False)
+    monkeypatch.delenv("SUPABASE_ANON_KEY", raising=False)
 
     with pytest.raises(HTTPException, match="Supabase is not configured"):
         get_auth_client()
+
+
+def test_user_context_uses_anon_key_and_caller_jwt(monkeypatch):
+    token_calls = []
+    client_args = []
+    user = SimpleNamespace(id="user-123")
+
+    class DummyClient:
+        def __init__(self):
+            self.auth = SimpleNamespace(get_user=lambda token: (token_calls.append(token) or SimpleNamespace(user=user)))
+            self.postgrest = SimpleNamespace(auth=lambda token: token_calls.append(token))
+
+    monkeypatch.setenv("SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setenv("SUPABASE_ANON_KEY", "public-anon-key")
+    monkeypatch.setattr(
+        data_access,
+        "create_client",
+        lambda url, key: (client_args.append((url, key)) or DummyClient()),
+    )
+
+    client, authenticated_user = data_access.get_user_context("Bearer caller-jwt")
+
+    assert client_args == [("https://example.supabase.co", "public-anon-key")]
+    assert token_calls == ["caller-jwt", "caller-jwt"]
+    assert authenticated_user is user
+    assert client is not None
 
 
 def test_update_password_uses_admin_api(monkeypatch):
@@ -136,11 +167,12 @@ def test_update_password_uses_admin_api(monkeypatch):
         def __init__(self):
             self.auth = SimpleNamespace(admin=DummyAdmin())
 
-    monkeypatch.setattr(auth_router, "get_supabase", lambda: DummySupabase())
+    database = DummySupabase()
+    monkeypatch.setattr(auth_router, "get_admin_client", lambda: database)
     monkeypatch.setattr(
         auth_router,
-        "get_authenticated_user",
-        lambda authorization: SimpleNamespace(id="user-123", email="alex@example.com"),
+        "get_user_context",
+        lambda authorization: (database, SimpleNamespace(id="user-123", email="alex@example.com")),
     )
     monkeypatch.setattr(
         auth_router,

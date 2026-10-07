@@ -2,7 +2,8 @@
 -- Fix: "Anyone can view exercises" let every user (even logged-out ones holding the
 -- public key) read ALL exercises, including other users' custom ones.
 -- After this, signed-in users can read shared exercises (created_by IS NULL) and their own.
--- Writes stay denied for everyone but the service key, as before.
+-- Writes stay denied to authenticated users; the backend uses its admin client
+-- only for exercise writes.
 --
 -- Rollback (restores the old behavior):
 --   drop policy if exists "exercises: read shared and own" on public.exercises;
