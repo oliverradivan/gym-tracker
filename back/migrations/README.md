@@ -2,9 +2,16 @@
 
 These migrations are the single source of truth for database access rules. Do not add standalone policy files.
 
-These SQL files are for a human to run manually in the Supabase SQL Editor.
-Apply them only when creating a fresh, empty Supabase project, and run them
-once, in this order:
+Set `SUPABASE_DB_URL` and run `uv run --project back --group dev python -m back.run_migrations` from the repository root.
+
+The runner applies top-level numbered migrations in order and records each
+filename in `public.schema_migrations` in the same transaction as the SQL.
+It rejects numbering gaps, missing applied versions, and out-of-order history.
+Apply this initial baseline only to a fresh, empty Supabase project; an
+existing database must first have its schema reconciled and migration history
+baselined manually.
+
+The numbered sequence is:
 
 1. `0001_baseline.sql`
 2. `0002_rls.sql`
@@ -17,10 +24,6 @@ once, in this order:
    workouts, and workout logs.
 7. `0007_persistent_auth_rate_limits.sql` — stores authentication rate-limit
    windows atomically in Supabase.
-
-Do not run these files, individually or as a set, on an existing database.
-They are not an automatic migration runner and are not designed to upgrade a
-database that already has application tables or policies.
 
 After rebuilding a fresh project, verify the result against the live database:
 compare every table's columns and types, foreign keys and other constraints,
