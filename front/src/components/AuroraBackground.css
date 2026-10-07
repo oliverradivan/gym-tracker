@@ -1,3 +1,10 @@
+/* Lets the browser smoothly fade between colours (instead of snapping) */
+@property --blob-color {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
 /* ---------- Colours (your exercise categories) ---------- */
 
 .aurora {
@@ -5,6 +12,7 @@
   --aurora-pull: #4c82dc;
   --aurora-leg: #e0b21f;
   --aurora-cardio: #3fae62;
+  --aurora-other: #7a8798;
 
   --aurora-bg: #f7f8f7;
   --aurora-blob-opacity: 0.6;
@@ -19,6 +27,25 @@
 /* "Thinking" mode: same paths, just quicker */
 .aurora--active {
   --aurora-speed: 0.45;
+}
+
+/* ---------- Single-colour mode (when a tone is chosen) ---------- */
+
+.aurora[data-tone="push"]   { --aurora-tone: var(--aurora-push); }
+.aurora[data-tone="pull"]   { --aurora-tone: var(--aurora-pull); }
+.aurora[data-tone="leg"]    { --aurora-tone: var(--aurora-leg); }
+.aurora[data-tone="cardio"] { --aurora-tone: var(--aurora-cardio); }
+.aurora[data-tone="other"]  { --aurora-tone: var(--aurora-other); }
+
+/* Two blobs in the pure colour, two in a lighter shade of it */
+.aurora[data-tone] .aurora__blob--push,
+.aurora[data-tone] .aurora__blob--leg {
+  --blob-color: var(--aurora-tone);
+}
+
+.aurora[data-tone] .aurora__blob--pull,
+.aurora[data-tone] .aurora__blob--cardio {
+  --blob-color: color-mix(in srgb, var(--aurora-tone) 70%, white);
 }
 
 /* ---------- Frame ---------- */
@@ -46,9 +73,6 @@
   pointer-events: none;
   container-type: size; /* lets blobs use cqw / cqh (percent of this layer) */
 
-  /* Clear in the middle, full colour at the edges.
-     To let the colour reach further in, lower the first percentage
-     or raise the radii (62% 60%). */
   -webkit-mask-image: radial-gradient(
     ellipse 62% 60% at 50% 50%,
     transparent 25%,
@@ -71,12 +95,12 @@
   left: 0;
   width: var(--size);
   height: var(--size);
-  /* centre each blob on its own coordinates */
   margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
   border-radius: 50%;
   background: radial-gradient(closest-side, var(--blob-color), transparent);
   opacity: var(--aurora-blob-opacity);
   will-change: transform;
+  transition: --blob-color 700ms ease; /* the colour fade */
   animation-duration: calc(var(--dur) * var(--aurora-speed));
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;

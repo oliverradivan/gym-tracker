@@ -1,61 +1,82 @@
+/* ==========================================================
+   LOGIN PAGE — iOS 27 GLASS / AURORA EDITION
+   ========================================================== */
+
 .login-container,
 .auth-shell.login-page {
-  --auth-card-bg: #ffffff;
-  --auth-card-border: rgba(17, 17, 17, 0.08);
-  --auth-shadow:
-    0 20px 55px rgba(0, 0, 0, 0.08),
-    0 2px 8px rgba(0, 0, 0, 0.03);
-
   --auth-text: #111111;
-  --auth-text-muted: #66666b;
+  --auth-text-muted: rgba(17, 17, 17, 0.58);
 
-  --auth-input-bg: #ffffff;
-  --auth-input-border: #a0a0a5;
+  --auth-card-bg: rgba(255, 255, 255, 0.58);
+  --auth-card-bg-strong: rgba(255, 255, 255, 0.72);
+  --auth-card-border: rgba(255, 255, 255, 0.72);
+
+  --auth-input-bg: rgba(255, 255, 255, 0.42);
+  --auth-input-bg-focus: rgba(255, 255, 255, 0.62);
+  --auth-input-border: rgba(255, 255, 255, 0.72);
 
   --auth-focus: #111111;
-  --auth-ring: rgba(17, 17, 17, 0.14);
+  --auth-ring: rgba(255, 255, 255, 0.42);
 
-  --auth-btn-bg: #111111;
-  --auth-btn-bg-hover: #2b2b2b;
+  --auth-btn-bg: rgba(17, 17, 17, 0.92);
+  --auth-btn-bg-hover: rgba(35, 35, 35, 0.96);
   --auth-btn-text: #ffffff;
 
-  --auth-error-bg: #fef3f2;
-  --auth-error-border: #fda29b;
-  --auth-error-text: #b42318;
+  --auth-error-bg: rgba(255, 243, 242, 0.72);
+  --auth-error-border: rgba(253, 164, 155, 0.65);
+  --auth-error-text: #a32117;
+
+  --auth-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.14),
+    0 16px 40px rgba(0, 0, 0, 0.08),
+    0 3px 10px rgba(0, 0, 0, 0.04);
+
+  --auth-blur: 34px;
 }
+
+
+/* ==========================================================
+   DARK MODE
+   ========================================================== */
 
 .dark .login-container,
 .dark .auth-shell {
-  --auth-card-bg: #141414;
-  --auth-card-border: rgba(238, 238, 238, 0.1);
+  --auth-text: #f5f5f7;
+  --auth-text-muted: rgba(245, 245, 247, 0.62);
 
-  --auth-shadow:
-    0 22px 60px rgba(0, 0, 0, 0.5),
-    0 2px 10px rgba(0, 0, 0, 0.25);
+  --auth-card-bg: rgba(22, 22, 25, 0.50);
+  --auth-card-bg-strong: rgba(30, 30, 34, 0.64);
+  --auth-card-border: rgba(255, 255, 255, 0.16);
 
-  --auth-text: #eeeeee;
-  --auth-text-muted: #b2b2b0;
+  --auth-input-bg: rgba(255, 255, 255, 0.065);
+  --auth-input-bg-focus: rgba(255, 255, 255, 0.105);
+  --auth-input-border: rgba(255, 255, 255, 0.14);
 
-  --auth-input-bg: #0b0b0b;
-  --auth-input-border: #8e8e93;
+  --auth-focus: #ffffff;
+  --auth-ring: rgba(255, 255, 255, 0.16);
 
-  --auth-focus: #eeeeee;
-  --auth-ring: rgba(238, 238, 238, 0.22);
-
-  --auth-btn-bg: #eeeeee;
-  --auth-btn-bg-hover: #ffffff;
+  --auth-btn-bg: rgba(245, 245, 247, 0.92);
+  --auth-btn-bg-hover: rgba(255, 255, 255, 0.98);
   --auth-btn-text: #111111;
 
-  --auth-error-bg: #2a1311;
-  --auth-error-border: #7a2e27;
-  --auth-error-text: #fda29b;
+  --auth-error-bg: rgba(74, 20, 18, 0.48);
+  --auth-error-border: rgba(255, 110, 100, 0.28);
+  --auth-error-text: #ffaaa3;
+
+  --auth-shadow:
+    0 45px 110px rgba(0, 0, 0, 0.48),
+    0 20px 50px rgba(0, 0, 0, 0.32),
+    0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+
 /* ==========================================================
-   Page layout
+   PAGE
    ========================================================== */
 
 .login-container {
+  position: relative;
+
   min-height: 100vh;
   min-height: 100dvh;
 
@@ -70,8 +91,42 @@
   padding-bottom: max(32px, env(safe-area-inset-bottom));
 
   background: transparent;
+
   perspective: 1000px;
+
+  isolation: isolate;
 }
+
+
+/*
+ * Very subtle glass atmosphere.
+ * This doesn't replace the Aurora — it helps the card
+ * visually separate itself from the background.
+ */
+.login-container::before {
+  content: "";
+
+  position: fixed;
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 50% 15%,
+      rgba(255, 255, 255, 0.14),
+      transparent 38%
+    );
+
+  opacity: 0.8;
+
+  z-index: -1;
+}
+
+
+/* ==========================================================
+   SHELL
+   ========================================================== */
 
 .auth-shell.login-page {
   width: 100%;
@@ -85,45 +140,202 @@
   margin: 0;
 }
 
-.auth-shell.login-page {
-  min-height: auto;
-  align-items: flex-start;
-}
 
 /* ==========================================================
-   Main card
+   MAIN GLASS CARD
    ========================================================== */
 
-.auth-card.login-card{
+.auth-card.login-card {
+  position: relative;
+
   width: min(100%, 440px);
 
-  background: var(--auth-card-bg);
+  box-sizing: border-box;
+
+  /*
+   * The important part:
+   * translucent background + strong backdrop blur.
+   */
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.66),
+      rgba(255, 255, 255, 0.42)
+    );
 
   border: 1px solid var(--auth-card-border);
-  border-radius: 28px;
+
+  border-radius: 30px;
 
   padding: 32px 28px;
 
   box-shadow: var(--auth-shadow);
 
-  animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  backdrop-filter:
+    blur(var(--auth-blur))
+    saturate(145%);
+
+  -webkit-backdrop-filter:
+    blur(var(--auth-blur))
+    saturate(145%);
+
+  /*
+   * Creates the characteristic "thick glass"
+   * inner edge.
+   */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.16),
+    inset 1px 0 0 rgba(255, 255, 255, 0.22),
+    0 40px 100px rgba(0, 0, 0, 0.14),
+    0 16px 40px rgba(0, 0, 0, 0.08);
+
+  overflow: hidden;
+
+  animation:
+    floatIn 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+
+  transform: translateZ(0);
+
+  isolation: isolate;
 }
 
+
 /* ==========================================================
-   Header
+   GLASS SPECULAR HIGHLIGHT
+   ========================================================== */
+
+/*
+ * Large soft white reflection across the upper portion.
+ */
+.auth-card.login-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: -45%;
+  left: -25%;
+
+  width: 150%;
+  height: 75%;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.30),
+      rgba(255, 255, 255, 0.07) 42%,
+      transparent 68%
+    );
+
+  transform: rotate(-5deg);
+
+  opacity: 0.85;
+
+  z-index: -1;
+}
+
+
+/*
+ * Tiny bright edge reflection.
+ */
+.auth-card.login-card::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 9%;
+
+  width: 82%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.95) 20%,
+      rgba(255, 255, 255, 0.95) 80%,
+      transparent
+    );
+
+  opacity: 0.72;
+
+  pointer-events: none;
+}
+
+
+/* ==========================================================
+   DARK GLASS CARD
+   ========================================================== */
+
+.dark .auth-card.login-card {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(45, 45, 50, 0.58),
+      rgba(15, 15, 18, 0.48)
+    );
+
+  border-color: rgba(255, 255, 255, 0.15);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.19),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.035),
+    inset 1px 0 0 rgba(255, 255, 255, 0.055),
+    0 45px 110px rgba(0, 0, 0, 0.48),
+    0 20px 50px rgba(0, 0, 0, 0.32);
+}
+
+.dark .auth-card.login-card::before {
+  background:
+    linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.025) 42%,
+      transparent 68%
+    );
+
+  opacity: 0.75;
+}
+
+.dark .auth-card.login-card::after {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.34) 25%,
+      rgba(255, 255, 255, 0.34) 75%,
+      transparent
+    );
+
+  opacity: 0.6;
+}
+
+
+/* ==========================================================
+   HEADER
    ========================================================== */
 
 .auth-header {
+  position: relative;
+
   text-align: center;
 
-  margin-bottom: 24px;
+  margin-bottom: 26px;
+
+  z-index: 1;
 }
 
+
 /* ==========================================================
-   Brand badge
+   BRAND BADGE — GLASSY
    ========================================================== */
 
 .brand-badge {
+  position: relative;
+
   width: 56px;
   height: 56px;
 
@@ -131,27 +343,65 @@
 
   border-radius: 18px;
 
-  background: linear-gradient(
-    145deg,
-    #111111,
-    #474747
-  );
-
-  color: #ffffff;
-
   display: grid;
   place-items: center;
 
+  /*
+   * Slightly darker glass to give the icon
+   * a visual anchor.
+   */
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17, 17, 17, 0.92),
+      rgba(70, 70, 72, 0.72)
+    );
+
+  color: #ffffff;
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 14px 32px rgba(17, 17, 17, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+    0 18px 35px rgba(0, 0, 0, 0.17);
+
+  overflow: hidden;
 }
 
+
+/* Badge reflection */
+.brand-badge::before {
+  content: "";
+
+  position: absolute;
+
+  top: -35%;
+  left: -25%;
+
+  width: 150%;
+  height: 65%;
+
+  background:
+    linear-gradient(
+      110deg,
+      rgba(255, 255, 255, 0.28),
+      transparent 58%
+    );
+
+  transform: rotate(-8deg);
+
+  pointer-events: none;
+}
+
+
 /* ==========================================================
-   Dumbbell SVG
+   DUMBBELL SVG
    ========================================================== */
 
 .brand-badge svg {
+  position: relative;
+
   width: 90%;
   height: 90%;
 
@@ -163,19 +413,34 @@
   stroke-linecap: round;
 
   flex-shrink: 0;
+
+  z-index: 1;
 }
 
+
 /* ==========================================================
-   Header typography
+   HEADER TYPOGRAPHY
    ========================================================== */
 
 .auth-header h1 {
   margin: 0;
+
   color: var(--auth-text);
+
   font-size: 2.5rem;
   font-weight: 800;
+
   line-height: 1.15;
-  letter-spacing: -0.03em;
+
+  letter-spacing: -0.035em;
+
+  text-shadow:
+    0 1px 1px rgba(255, 255, 255, 0.22);
+}
+
+.dark .auth-header h1 {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .auth-header p {
@@ -186,16 +451,22 @@
   line-height: 1.45;
 }
 
+
 /* ==========================================================
-   Form
+   FORM
    ========================================================== */
 
 .auth-form {
+  position: relative;
+
   display: flex;
   flex-direction: column;
 
   gap: 18px;
+
+  z-index: 1;
 }
+
 
 .field {
   display: flex;
@@ -204,8 +475,9 @@
   gap: 8px;
 }
 
+
 /* ==========================================================
-   Labels
+   LABELS
    ========================================================== */
 
 .auth-form label {
@@ -222,8 +494,9 @@
   line-height: 1.3;
 }
 
+
 /* ==========================================================
-   Password field wrapper
+   PASSWORD WRAPPER
    ========================================================== */
 
 .password-field,
@@ -234,60 +507,172 @@
   align-items: center;
 }
 
+
 /* ==========================================================
-   Inputs
+   GLASS INPUTS
    ========================================================== */
 
 .auth-form input {
   width: 100%;
 
-  min-height: 47px;
+  min-height: 49px;
 
   box-sizing: border-box;
 
-  padding: 12px 14px;
+  padding: 12px 15px;
 
   border: 1px solid var(--auth-input-border);
-  border-radius: 12px;
 
-  background: var(--auth-input-bg);
+  border-radius: 15px;
+
+  /*
+   * Glass inside glass.
+   */
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.44),
+      rgba(255, 255, 255, 0.22)
+    );
+
   color: var(--auth-text);
 
   font: inherit;
   font-size: 1rem;
   font-weight: 400;
 
+  /*
+   * Gives the input its own little frosted surface.
+   */
+  backdrop-filter:
+    blur(16px)
+    saturate(135%);
+
+  -webkit-backdrop-filter:
+    blur(16px)
+    saturate(135%);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.52),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.025);
+
   transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
-/* Leave room for password visibility button */
+
+/* Password room */
 .auth-form input[name="password"] {
   padding-right: 52px;
 }
+
 
 .auth-form input::placeholder {
   color: var(--auth-text-muted);
 }
 
+
+/* ==========================================================
+   INPUT HOVER
+   ========================================================== */
+
+.auth-form input:hover {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.54),
+      rgba(255, 255, 255, 0.28)
+    );
+
+  border-color: rgba(255, 255, 255, 0.88);
+}
+
+
+/* ==========================================================
+   INPUT FOCUS
+   ========================================================== */
+
 .auth-form input:focus {
   outline: none;
 
-  border-color: var(--auth-focus);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.66),
+      rgba(255, 255, 255, 0.38)
+    );
+
+  border-color: rgba(17, 17, 17, 0.38);
 
   box-shadow:
-    0 0 0 4px var(--auth-ring);
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 0 0 4px var(--auth-ring),
+    0 8px 22px rgba(0, 0, 0, 0.045);
+
+  transform: translateY(-1px);
 }
 
+
 /* ==========================================================
-   Password toggle
+   DARK INPUTS
+   ========================================================== */
+
+.dark .auth-form input {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.035)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.16),
+    0 3px 12px rgba(0, 0, 0, 0.12);
+}
+
+
+.dark .auth-form input:hover {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.105),
+      rgba(255, 255, 255, 0.055)
+    );
+
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+
+.dark .auth-form input:focus {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.13),
+      rgba(255, 255, 255, 0.065)
+    );
+
+  border-color: rgba(255, 255, 255, 0.32);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    0 0 0 4px rgba(255, 255, 255, 0.095),
+    0 10px 28px rgba(0, 0, 0, 0.22);
+}
+
+
+/* ==========================================================
+   PASSWORD TOGGLE
    ========================================================== */
 
 .password-toggle {
   position: absolute;
 
-  right: 2px;
+  right: 3px;
   top: 50%;
 
   transform: translateY(-50%);
@@ -301,7 +686,7 @@
   padding: 0;
 
   border: none;
-  border-radius: 9px;
+  border-radius: 11px;
 
   background: transparent;
 
@@ -312,35 +697,62 @@
   touch-action: manipulation;
   user-select: none;
 
-  transition: color 0.15s ease;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    transform 0.15s ease;
 }
+
 
 .password-toggle:hover {
   color: var(--auth-text);
+
+  background: rgba(255, 255, 255, 0.22);
 }
+
+
+.password-toggle:active {
+  transform: translateY(-50%) scale(0.94);
+}
+
 
 .password-toggle:focus-visible {
   outline: 2px solid var(--auth-focus);
   outline-offset: 0;
 }
 
+
+.dark .password-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+
 /* ==========================================================
-   Primary button
+   PRIMARY BUTTON — BLACK GLASS
    ========================================================== */
 
 .primary-btn {
+  position: relative;
+
   width: 100%;
 
-  min-height: 47px;
+  min-height: 49px;
 
   margin-top: 2px;
 
   padding: 13px 18px;
 
-  border: none;
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
 
-  background: var(--auth-btn-bg);
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(20, 20, 20, 0.96),
+      rgba(45, 45, 47, 0.94)
+    );
+
   color: var(--auth-btn-text);
 
   font: inherit;
@@ -349,34 +761,142 @@
 
   cursor: pointer;
 
+  overflow: hidden;
+
   touch-action: manipulation;
 
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.25),
+    0 12px 26px rgba(0, 0, 0, 0.16);
+
   transition:
-    background-color 0.15s ease,
-    transform 0.1s ease;
+    background 0.2s ease,
+    transform 0.12s ease,
+    box-shadow 0.2s ease;
 }
 
-.primary-btn:hover:not(:disabled) {
-  background: var(--auth-btn-bg-hover);
+
+/* Button glossy reflection */
+.primary-btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -30%;
+
+  width: 55%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      105deg,
+      transparent,
+      rgba(255, 255, 255, 0.14),
+      transparent
+    );
+
+  transform: skewX(-18deg);
+
+  pointer-events: none;
+
+  transition:
+    left 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+
+.primary-btn:hover:not(:disabled)::before {
+  left: 110%;
+}
+
+
+.primary-btn:hover:not(:disabled) {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(30, 30, 30, 0.98),
+      rgba(55, 55, 57, 0.96)
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.19),
+    0 15px 32px rgba(0, 0, 0, 0.19);
+}
+
 
 .primary-btn:active:not(:disabled) {
   transform: scale(0.985);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 6px 15px rgba(0, 0, 0, 0.14);
 }
+
 
 .primary-btn:focus-visible {
   outline: 2px solid var(--auth-focus);
   outline-offset: 3px;
 }
 
+
 .primary-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.58;
 
   cursor: not-allowed;
 }
 
+
 /* ==========================================================
-   Error / status message
+   DARK MODE PRIMARY BUTTON
+   ========================================================== */
+
+.dark .primary-btn {
+  background:
+    linear-gradient(
+      145deg,
+      rgba(248, 248, 250, 0.96),
+      rgba(210, 210, 214, 0.92)
+    );
+
+  color: #111111;
+
+  border-color: rgba(255, 255, 255, 0.45);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 14px 30px rgba(0, 0, 0, 0.28);
+}
+
+
+.dark .primary-btn:hover:not(:disabled) {
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #e9e9ec
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    0 16px 35px rgba(0, 0, 0, 0.34);
+}
+
+
+.dark .primary-btn::before {
+  background:
+    linear-gradient(
+      105deg,
+      transparent,
+      rgba(255, 255, 255, 0.5),
+      transparent
+    );
+}
+
+
+/* ==========================================================
+   STATUS / ERROR
    ========================================================== */
 
 .status-message {
@@ -385,22 +905,38 @@
   padding: 11px 13px;
 
   border: 1px solid var(--auth-error-border);
-  border-radius: 11px;
 
-  background: var(--auth-error-bg);
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      var(--auth-error-bg),
+      rgba(255, 255, 255, 0.16)
+    );
+
   color: var(--auth-error-text);
 
   font-size: 0.9rem;
   line-height: 1.4;
 
   text-align: left;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
+
 /* ==========================================================
-   Register link
+   REGISTER LINK
    ========================================================== */
 
 .auth-switch {
+  position: relative;
+
   margin: 20px 0 0;
 
   text-align: center;
@@ -409,7 +945,10 @@
 
   font-size: 0.9rem;
   line-height: 1.4;
+
+  z-index: 1;
 }
+
 
 .auth-switch a {
   display: inline-block;
@@ -418,11 +957,20 @@
 
   color: var(--auth-text);
 
-  font-weight: 600;
+  font-weight: 650;
 
   text-decoration: underline;
   text-underline-offset: 3px;
+
+  transition:
+    opacity 0.18s ease;
 }
+
+
+.auth-switch a:hover {
+  opacity: 0.68;
+}
+
 
 .auth-switch a:focus-visible {
   outline: 2px solid var(--auth-focus);
@@ -431,26 +979,32 @@
   border-radius: 4px;
 }
 
+
 /* ==========================================================
-   Animation
+   FLOAT-IN
    ========================================================== */
 
 @keyframes floatIn {
   from {
     opacity: 0;
 
-    transform: translateY(12px);
+    transform:
+      translateY(18px)
+      scale(0.985);
   }
 
   to {
     opacity: 1;
 
-    transform: translateY(0);
+    transform:
+      translateY(0)
+      scale(1);
   }
 }
 
+
 /* ==========================================================
-   Reduced motion
+   REDUCED MOTION
    ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -460,26 +1014,43 @@
 
   .primary-btn,
   .auth-form input,
-  .password-toggle {
+  .password-toggle,
+  .auth-switch a {
     transition: none;
   }
 }
 
+
 /* ==========================================================
-   Small phones
+   SMALL PHONES
    ========================================================== */
 
 @media (max-width: 480px) {
   .login-container {
-    padding: 20px 12px max(24px, env(safe-area-inset-bottom));
+    padding:
+      20px
+      12px
+      max(24px, env(safe-area-inset-bottom));
   }
 
-  .auth-card {
+  .auth-card.login-card {
     width: 100%;
 
     padding: 22px 16px;
 
-    border-radius: 18px;
+    border-radius: 24px;
+
+    /*
+     * Slightly less blur on small devices.
+     * Keeps the Aurora visible without excessive GPU load.
+     */
+    backdrop-filter:
+      blur(27px)
+      saturate(140%);
+
+    -webkit-backdrop-filter:
+      blur(27px)
+      saturate(140%);
   }
 
   .auth-header {
@@ -518,8 +1089,9 @@
   }
 }
 
+
 /* ==========================================================
-   Very small phones
+   VERY SMALL PHONES
    ========================================================== */
 
 @media (max-width: 360px) {
@@ -528,26 +1100,43 @@
     padding-right: 10px;
   }
 
-  .auth-card {
+  .auth-card.login-card {
     padding-left: 17px;
     padding-right: 17px;
+
+    border-radius: 22px;
   }
 }
 
+
 /* ==========================================================
-   Dark mode badge
+   DARK MODE BRAND BADGE
    ========================================================== */
 
 .dark .brand-badge {
-  background: linear-gradient(
-    145deg,
-    #eeeeee,
-    #b8b8b8
-  );
+  background:
+    linear-gradient(
+      145deg,
+      rgba(250, 250, 252, 0.96),
+      rgba(185, 185, 190, 0.86)
+    );
 
   color: #000000;
 
+  border-color: rgba(255, 255, 255, 0.55);
+
   box-shadow:
-    inset 0 1px 0 rgba(0, 0, 0, 0.18),
-    0 14px 32px rgba(238, 238, 238, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    0 18px 38px rgba(0, 0, 0, 0.32);
+}
+
+
+.dark .brand-badge::before {
+  background:
+    linear-gradient(
+      110deg,
+      rgba(255, 255, 255, 0.62),
+      transparent 58%
+    );
 }

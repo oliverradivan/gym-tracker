@@ -11,6 +11,7 @@ import { sortExercisesByCategory } from '../utils/exerciseSorting'
 import { useClickOutside } from '../hooks/useClickOutside'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './logworkout.css'
+import AuroraBackground from "../components/AuroraBackground";
 
 // Minimum time the spinner stays visible, so a very fast save doesn't just flash.
 const MIN_SPINNER_MS = 450
@@ -189,6 +190,7 @@ function LogWorkoutPage() {
   return (
     // data-category tints the whole page (glow, focus rings, selected field)
     // with the colour of the chosen exercise, so the screen "reacts" to the choice.
+    <AuroraBackground tone={selectedExercise ? selectedCategory : undefined} active={isSaving}>
     <div className="logworkout-page" data-category={selectedCategory || undefined}>
       <div className="logworkout-card">
         <div className="logworkout-header">
@@ -371,6 +373,7 @@ function LogWorkoutPage() {
         )}
       </div>
     </div>
+    </AuroraBackground>
   )
 }
 
