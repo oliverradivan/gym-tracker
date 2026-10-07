@@ -289,10 +289,11 @@ def update_password(
     user_context: UserContext = Depends(get_current_user_context),
 ):
     _, user = user_context
-    client = get_admin_client()
 
     if len(payload.new_password or "") < 10:
         raise HTTPException(status_code=400, detail="New password must be at least 10 characters long.")
+
+    client = get_admin_client()
 
     # Verify current password by attempting login
     user_email = user.email

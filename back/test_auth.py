@@ -221,6 +221,7 @@ def test_registration_rejects_password_under_ten_characters(monkeypatch):
     assert "at least 10 characters" in response.json()["detail"]
 
 def test_password_update_rejects_password_under_ten_characters(monkeypatch):
+    monkeypatch.setattr(auth_router, "get_admin_client", lambda: object())
     user = SimpleNamespace(id="user-123", email="alex@example.com")
     monkeypatch.setitem(
         app.dependency_overrides,
