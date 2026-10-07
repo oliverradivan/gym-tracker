@@ -194,7 +194,6 @@ function LogWorkoutPage() {
         <form onSubmit={handleSubmit} className="logworkout-form">
           <fieldset disabled={isSaving} className="logworkout-fieldset">
             <label>
-              Exercise
               <div className="custom-select" ref={selectRef}>
                 <button
                   type="button"
@@ -235,7 +234,6 @@ function LogWorkoutPage() {
                   { name: 'seconds', label: 'Seconds', min: 0, max: 59 },
                 ].map(({ name, label, min, max }) => (
                   <label key={name}>
-                    {label}
                     <input
                       type="number"
                       name={name}
@@ -245,7 +243,7 @@ function LogWorkoutPage() {
                       max={max}
                       step="1"
                       inputMode="numeric"
-                      placeholder="0"
+                      placeholder="{label}"
                     />
                   </label>
                 ))}
@@ -253,13 +251,12 @@ function LogWorkoutPage() {
             ) : (
               <>
                 <label>
-                  Weight (kg/notches)
                   <input
                     type="number"
                     name="weight"
                     value={form.weight}
                     onChange={handleChange}
-                    placeholder=""
+                    placeholder="Weight (kg/notches)"
                     min="0"
                     step="any"
                     required
@@ -267,13 +264,12 @@ function LogWorkoutPage() {
                 </label>
 
                 <label>
-                  Reps
                   <input
                     type="number"
                     name="reps"
                     value={form.reps}
                     onChange={handleChange}
-                    placeholder=""
+                    placeholder="Reps"
                     min="0.5"
                     step="any"
                     required
@@ -283,7 +279,6 @@ function LogWorkoutPage() {
             )}
 
             <label>
-              Date
               <div className="date-picker-field" onClick={handleDateClick}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
