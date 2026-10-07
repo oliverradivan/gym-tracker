@@ -1,7 +1,7 @@
 import React from 'react';
-import './SwirlingColors.css';
+import './AuroraBackground.css';
 
-export default function SwirlingColors({ children }) {
+export default function AuroraBackground({ children }) {
   return (
     <div className="swirl-container">
       <div className="swirl-background">
