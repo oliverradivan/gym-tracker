@@ -1,18 +1,15 @@
-import React from 'react';
-import './AuroraBackground.css';
+import "./AuroraBackground.css";
 
-export default function AuroraBackground({ children }) {
+export default function AuroraBackground({ children, active = false }) {
   return (
-    <div className="swirl-container">
-      <div className="swirl-background">
-        <div className="swirl-layer layer-1" />
-        <div className="swirl-layer layer-2" />
-        <div className="swirl-layer layer-3" />
-        <div className="swirl-overlay" />
+    <div className={`aurora ${active ? "aurora--active" : ""}`}>
+      <div className="aurora__glow" aria-hidden="true">
+        <span className="aurora__blob aurora__blob--push" />
+        <span className="aurora__blob aurora__blob--pull" />
+        <span className="aurora__blob aurora__blob--leg" />
+        <span className="aurora__blob aurora__blob--cardio" />
       </div>
-      
-      {/* Optional foreground content */}
-      {children && <div className="swirl-content">{children}</div>}
+      <div className="aurora__content">{children}</div>
     </div>
   );
 }

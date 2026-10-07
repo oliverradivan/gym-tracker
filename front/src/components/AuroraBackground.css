@@ -1,113 +1,145 @@
-.swirl-container {
+/* ---------- Colours (your exercise categories) ---------- */
+
+.aurora {
+  --aurora-push: #e04f4f;
+  --aurora-pull: #4c82dc;
+  --aurora-leg: #e0b21f;
+  --aurora-cardio: #3fae62;
+
+  --aurora-bg: #f7f8f7;
+  --aurora-blob-opacity: 0.6;
+  --aurora-speed: 1; /* lower = faster */
+}
+
+.dark .aurora {
+  --aurora-bg: #0c0e11;
+  --aurora-blob-opacity: 0.65;
+}
+
+/* "Thinking" mode: same paths, just quicker */
+.aurora--active {
+  --aurora-speed: 0.45;
+}
+
+/* ---------- Frame ---------- */
+
+.aurora {
   position: relative;
-  width: 100%;
-  min-height: 100vh;
   overflow: hidden;
-  background-color: #0d0f18;
+  isolation: isolate;
+  min-height: 100%;
+  background: var(--aurora-bg);
 }
 
-.swirl-background {
-  position: absolute;
-  inset: -20%; /* Expanded boundary to keep blur/rotation smooth at edges */
-  filter: blur(60px);
-  opacity: 0.85;
-}
-
-.swirl-layer {
-  position: absolute;
-  inset: 0;
-  border-radius: 40%;
-  mix-blend-mode: screen;
-}
-
-/* Layer 1: Warm Violet & Coral Swirl */
-.layer-1 {
-  background: radial-gradient(
-    circle at 30% 30%,
-    rgba(255, 99, 132, 0.8),
-    rgba(147, 51, 234, 0.6) 40%,
-    transparent 70%
-  );
-  animation: rotateSwirl 18s linear infinite;
-}
-
-/* Layer 2: Cool Cyan & Indigo Swirl */
-.layer-2 {
-  background: radial-gradient(
-    circle at 70% 70%,
-    rgba(56, 189, 248, 0.8),
-    rgba(79, 70, 229, 0.6) 45%,
-    transparent 75%
-  );
-  animation: pulseRotate 24s ease-in-out infinite alternate;
-}
-
-/* Layer 3: Emerald & Gold Highlight Swirl */
-.layer-3 {
-  background: radial-gradient(
-    circle at 50% 20%,
-    rgba(251, 191, 36, 0.7),
-    rgba(16, 185, 129, 0.5) 35%,
-    transparent 65%
-  );
-  animation: reverseSwirl 20s ease-in-out infinite;
-}
-
-/* Subtle Overlay to smooth gradients and add depth */
-.swirl-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    circle at center,
-    transparent 20%,
-    rgba(13, 15, 24, 0.4) 100%
-  );
-}
-
-.swirl-content {
+.aurora__content {
   position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  color: #ffffff;
+  z-index: 1; /* real page content sits above the glow */
 }
 
-/* --- Animations --- */
+/* ---------- Glow layer: edges only ---------- */
 
-@keyframes rotateSwirl {
-  0% {
-    transform: rotate(0deg) scale(1);
-  }
-  50% {
-    transform: rotate(180deg) scale(1.15);
-  }
-  100% {
-    transform: rotate(360deg) scale(1);
-  }
+.aurora__glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  container-type: size; /* lets blobs use cqw / cqh (percent of this layer) */
+
+  /* Clear in the middle, full colour at the edges.
+     To let the colour reach further in, lower the first percentage
+     or raise the radii (62% 60%). */
+  -webkit-mask-image: radial-gradient(
+    ellipse 62% 60% at 50% 50%,
+    transparent 25%,
+    #000 80%
+  );
+  mask-image: radial-gradient(
+    ellipse 62% 60% at 50% 50%,
+    transparent 25%,
+    #000 80%
+  );
 }
 
-@keyframes pulseRotate {
-  0% {
-    transform: rotate(0deg) translate(0, 0) scale(1);
-  }
-  50% {
-    transform: rotate(-120deg) translate(-5%, 8%) scale(1.2);
-  }
-  100% {
-    transform: rotate(-240deg) translate(5%, -5%) scale(0.9);
-  }
+/* ---------- Blobs ---------- */
+
+.aurora__blob {
+  --size: clamp(300px, 90cqmin, 900px);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size);
+  height: var(--size);
+  /* centre each blob on its own coordinates */
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--blob-color), transparent);
+  opacity: var(--aurora-blob-opacity);
+  will-change: transform;
+  animation-duration: calc(var(--dur) * var(--aurora-speed));
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
 }
 
-@keyframes reverseSwirl {
-  0% {
-    transform: rotate(360deg) translate(0, 0);
-  }
-  50% {
-    transform: rotate(180deg) translate(8%, -6%) scale(1.1);
-  }
-  100% {
-    transform: rotate(0deg) translate(-4%, 4%);
+.aurora__blob--push {
+  --blob-color: var(--aurora-push);
+  --dur: 11s;
+  animation-name: aurora-push;
+}
+
+.aurora__blob--pull {
+  --blob-color: var(--aurora-pull);
+  --dur: 13s;
+  animation-name: aurora-pull;
+}
+
+.aurora__blob--leg {
+  --blob-color: var(--aurora-leg);
+  --dur: 15s;
+  animation-name: aurora-leg;
+}
+
+.aurora__blob--cardio {
+  --blob-color: var(--aurora-cardio);
+  --dur: 12s;
+  animation-name: aurora-cardio;
+}
+
+/* Each colour loops around the edges on its own route.
+   Numbers are x / y as a % of the screen, so (0,0) is the top-left corner. */
+
+@keyframes aurora-push {
+  0%, 100% { transform: translate(10cqw, 0cqh) scale(1); }
+  25%      { transform: translate(85cqw, 6cqh) scale(1.25); }
+  50%      { transform: translate(100cqw, 38cqh) scale(0.9); }
+  75%      { transform: translate(40cqw, 2cqh) scale(1.15); }
+}
+
+@keyframes aurora-pull {
+  0%, 100% { transform: translate(100cqw, 20cqh) scale(1); }
+  25%      { transform: translate(92cqw, 62cqh) scale(1.2); }
+  50%      { transform: translate(55cqw, 100cqh) scale(0.9); }
+  75%      { transform: translate(100cqw, 78cqh) scale(1.1); }
+}
+
+@keyframes aurora-leg {
+  0%, 100% { transform: translate(0cqw, 62cqh) scale(1); }
+  25%      { transform: translate(12cqw, 18cqh) scale(1.2); }
+  50%      { transform: translate(48cqw, 0cqh) scale(0.9); }
+  75%      { transform: translate(0cqw, 92cqh) scale(1.15); }
+}
+
+@keyframes aurora-cardio {
+  0%, 100% { transform: translate(0cqw, 100cqh) scale(1); }
+  25%      { transform: translate(50cqw, 100cqh) scale(1.2); }
+  50%      { transform: translate(100cqw, 88cqh) scale(0.9); }
+  75%      { transform: translate(30cqw, 100cqh) scale(1.1); }
+}
+
+/* People who turn on "Reduce motion" in their OS get a still glow */
+@media (prefers-reduced-motion: reduce) {
+  .aurora__blob {
+    animation: none;
   }
 }
