@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import './register.css'
 import { Eye, EyeOff } from 'lucide-react'
+import AuroraBackground from '@/components/AuroraBackground'
 
 const initialForm = {
   username: '',
@@ -33,6 +34,7 @@ function RegisterPage() {
   }
 
   return (
+   <AuroraBackground>
     <main className="register-container">
       <div className="register-shell">
         <div className="register-card">
@@ -139,6 +141,7 @@ function RegisterPage() {
         </div>
       </div>
     </main>
+   </AuroraBackground>
   )
 }
 
