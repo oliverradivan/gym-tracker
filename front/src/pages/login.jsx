@@ -51,11 +51,11 @@ function LoginPage() {
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="field">
-              <label htmlFor="login-username">Username</label>
               <input
                 id="login-username"
                 type="text"
                 name="username"
+                placeholder="Username"
                 value={form.username}
                 onChange={handleChange}
                 autoComplete="username"
@@ -68,12 +68,13 @@ function LoginPage() {
             </div>
 
             <div className="field">
-              <label htmlFor="login-password">Password</label>
+              <label htmlFor="login-password"></label>
               <div className="password-field">
                 <input
                   id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   name="password"
+                  placeholder="Password"
                   value={form.password}
                   onChange={handleChange}
                   autoComplete="current-password"

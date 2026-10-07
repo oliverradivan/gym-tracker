@@ -26,17 +26,27 @@ function RegisterPage() {
     setMessage('')
 
     const result = await handleAuth(form, 'register')
+
     if (result?.success) {
       navigate('/login')
     }
   }
 
   return (
-    <div className="auth-shell register-page">
-      <div className="auth-card register-card">
-        <div className="auth-header">
-          <div className="brand-badge" aria-label="Workout Tracker">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" focusable="false">
+    <main className="register-container">
+      <div className="register-shell">
+        <div className="register-card">
+          <div className="register-header">
+            <div
+              className="register-brand-badge"
+              aria-label="Workout Tracker"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                focusable="false"
+                aria-hidden="true"
+              >
                 <g transform="rotate(45 12 12)">
                   <line x1="6" y1="12" x2="18" y2="12" />
                   <line x1="6" y1="9" x2="6" y2="15" />
@@ -45,63 +55,90 @@ function RegisterPage() {
                   <line x1="20" y1="10.5" x2="20" y2="13.5" />
                 </g>
               </svg>
-          </div>
-          <h1>Create your account</h1>
-        </div>
+            </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <label>
-            Username
+            <h1>Create your account</h1>
+          </div>
+
+          <form onSubmit={handleSubmit} className="register-form">
             <input
               type="text"
               name="username"
+              placeholder="Username"
               value={form.username}
               onChange={handleChange}
+              autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               required
             />
-          </label>
 
-          <label>
-            Email
             <input
               type="email"
               name="email"
+              placeholder="Email"
               value={form.email}
               onChange={handleChange}
+              autoComplete="email"
               required
             />
-          </label>
 
-          <label>
-            Password
-            <div>
-            <input
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="At least 10 characters"
-              minLength={10}
-              required
-            />
-            <div className="password-toggle" onClick={() => setShowPassword((prev) => !prev)} style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}>
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            <div className="register-password-field">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Password (at least 10 characters)"
+                autoComplete="new-password"
+                minLength={10}
+                required
+              />
+
+              <button
+                type="button"
+                className="register-password-toggle"
+                onClick={() =>
+                  setShowPassword((prev) => !prev)
+                }
+                aria-label={
+                  showPassword
+                    ? 'Hide password'
+                    : 'Show password'
+                }
+                aria-pressed={showPassword}
+              >
+                {showPassword ? (
+                  <EyeOff size={18} aria-hidden="true" />
+                ) : (
+                  <Eye size={18} aria-hidden="true" />
+                )}
+              </button>
             </div>
-            </div>
-          </label>
 
-          <button type="submit" className="primary-btn" disabled={loading}>
-            {loading ? 'Please wait...' : 'Register'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="register-primary-btn"
+              disabled={loading}
+            >
+              {loading ? 'Please wait...' : 'Register'}
+            </button>
+          </form>
 
-        <p className="auth-switch">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
+          <p className="register-auth-switch">
+            Already have an account?{' '}
+            <Link to="/login">Login</Link>
+          </p>
 
-        {message && <p className="status-message">{message}</p>}
+          {message && (
+            <p className="register-status-message" role="alert">
+              {message}
+            </p>
+          )}
+        </div>
       </div>
-    </div>
+    </main>
   )
 }
 

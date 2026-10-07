@@ -159,20 +159,6 @@
   --stat-wash: var(--dash-indigo-wash);
 }
 
-.dash-stat::before {
-  position: absolute;
-  inset: 0 18px auto;
-  height: 3px;
-  border-radius: 0 0 99px 99px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in srgb, var(--stat-accent) 62%, white),
-    transparent
-  );
-  content: "";
-}
-
 .dash-stat:hover {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--stat-accent) 28%, var(--dash-line));
