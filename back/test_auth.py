@@ -6,9 +6,8 @@ from fastapi import HTTPException
 from back.data_access import get_auth_client
 from back import data_access
 from back.routers import auth as auth_router
-from back.schemas import DeleteAccountPayload, UpdatePasswordPayload
+from back.schemas import DeleteAccountPayload, RegisterPayload, UpdatePasswordPayload
 
-RATE_LIMIT_BUCKETS = auth_router.RATE_LIMIT_BUCKETS
 check_rate_limit = auth_router.check_rate_limit
 delete_account = auth_router.delete_account
 normalize_username = auth_router.normalize_username
@@ -112,14 +111,34 @@ def test_delete_account_restores_profile_when_auth_delete_fails(monkeypatch):
     assert profile_table.restored == expected_profile
 
 
-def test_check_rate_limit_blocks_excessive_auth_attempts():
-    RATE_LIMIT_BUCKETS.clear()
+def test_check_rate_limit_blocks_excessive_auth_attempts(monkeypatch):
+    calls = []
+
+    class DummyAdminClient:
+        def rpc(self, function_name, params):
+            calls.append((function_name, params))
+            return self
+
+        def execute(self):
+            return SimpleNamespace(data=len(calls) <= 3)
+
+    monkeypatch.setattr(auth_router, "get_admin_client", lambda: DummyAdminClient())
 
     for _ in range(3):
         check_rate_limit("test-user:127.0.0.1", max_requests=3, window_seconds=60)
 
     with pytest.raises(HTTPException, match="Too many requests"):
         check_rate_limit("test-user:127.0.0.1", max_requests=3, window_seconds=60)
+
+    assert len(calls) == 4
+    assert calls[0] == (
+        "consume_auth_rate_limit",
+        {
+            "p_bucket_key": "test-user:127.0.0.1",
+            "p_max_requests": 3,
+            "p_window_seconds": 60,
+        },
+    )
 
 
 def test_get_auth_client_requires_supabase_env(monkeypatch):
@@ -187,3 +206,32 @@ def test_update_password_uses_admin_api(monkeypatch):
 
     assert res == {"message": "Password updated successfully"}
     assert admin_updated["user-123"] == {"password": "newpassword123"}
+
+
+def test_registration_rejects_password_under_ten_characters(monkeypatch):
+    monkeypatch.setattr(auth_router, "get_admin_client", lambda: object())
+    monkeypatch.setattr(auth_router, "get_client_ip", lambda _request: "127.0.0.1")
+    monkeypatch.setattr(auth_router, "check_rate_limit", lambda *_args, **_kwargs: None)
+
+    with pytest.raises(HTTPException) as error:
+        auth_router.register_user(
+            RegisterPayload(username="alex", email="alex@example.com", password="123456789"),
+            request=object(),
+        )
+
+    assert error.value.status_code == 400
+    assert "at least 10 characters" in error.value.detail
+
+
+def test_password_update_rejects_password_under_ten_characters(monkeypatch):
+    user = SimpleNamespace(id="user-123", email="alex@example.com")
+    monkeypatch.setattr(auth_router, "get_user_context", lambda _authorization: (object(), user))
+
+    with pytest.raises(HTTPException) as error:
+        auth_router.update_password(
+            UpdatePasswordPayload(current_password="old", new_password="123456789"),
+            authorization="Bearer user-token",
+        )
+
+    assert error.value.status_code == 400
+    assert "at least 10 characters" in error.value.detail

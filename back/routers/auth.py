@@ -1,7 +1,6 @@
 import logging
 import os
 import re
-import time
 
 from fastapi import APIRouter, Header, HTTPException, Request
 from postgrest.exceptions import APIError
@@ -24,38 +23,30 @@ from ..schemas import (
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api")
-RATE_LIMIT_BUCKETS: dict[str, list[float]] = {}
-RATE_LIMIT_MAX_TRACKED = 5000
-RATE_LIMIT_MAX_AGE_SECONDS = 3600
-
-
-def prune_rate_limit_buckets(now: float) -> None:
-    stale_keys = [
-        key
-        for key, bucket in RATE_LIMIT_BUCKETS.items()
-        if not bucket or now - bucket[-1] > RATE_LIMIT_MAX_AGE_SECONDS
-    ]
-    for key in stale_keys:
-        del RATE_LIMIT_BUCKETS[key]
 
 
 def check_rate_limit(identifier: str, max_requests: int = 5, window_seconds: int = 60) -> None:
-    # NOTE: this limiter is in-memory, so each process / serverless instance
-    # keeps its own counters and they reset on restart or cold start. For a
-    # hard guarantee, move it to Redis/Upstash or a database table.
-    now = time.time()
-    if len(RATE_LIMIT_BUCKETS) > RATE_LIMIT_MAX_TRACKED:
-        prune_rate_limit_buckets(now)
-    bucket = RATE_LIMIT_BUCKETS.setdefault(identifier, [])
-    bucket[:] = [timestamp for timestamp in bucket if now - timestamp < window_seconds]
+    try:
+        response = get_admin_client().rpc(
+            "consume_auth_rate_limit",
+            {
+                "p_bucket_key": identifier,
+                "p_max_requests": max_requests,
+                "p_window_seconds": window_seconds,
+            },
+        ).execute()
+    except APIError as exc:
+        logger.error("Persistent authentication rate limit failed: %s", exc.message)
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication is temporarily unavailable. Please try again.",
+        ) from exc
 
-    if len(bucket) >= max_requests:
+    if response.data is not True:
         raise HTTPException(
             status_code=429,
             detail="Too many requests. Please wait a moment and try again.",
         )
-
-    bucket.append(now)
 
 
 def get_client_ip(request: Request) -> str:
@@ -113,8 +104,8 @@ def register_user(payload: RegisterPayload, request: Request):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    if len(payload.password or "") < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters long.")
+    if len(payload.password or "") < 10:
+        raise HTTPException(status_code=400, detail="Password must be at least 10 characters long.")
 
     email = (payload.email or "").strip()
     if not email or "@" not in email:
@@ -334,8 +325,8 @@ def update_password(
     _, user = get_user_context(authorization)
     client = get_admin_client()
 
-    if len(payload.new_password or "") < 6:
-        raise HTTPException(status_code=400, detail="New password must be at least 6 characters long.")
+    if len(payload.new_password or "") < 10:
+        raise HTTPException(status_code=400, detail="New password must be at least 10 characters long.")
 
     # Verify current password by attempting login
     user_email = user.email

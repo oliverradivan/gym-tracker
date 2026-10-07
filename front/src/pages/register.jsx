@@ -80,7 +80,8 @@ function RegisterPage() {
               name="password"
               value={form.password}
               onChange={handleChange}
-              placeholder="At least 6 characters"
+              placeholder="At least 10 characters"
+              minLength={10}
               required
             />
             <div className="password-toggle" onClick={() => setShowPassword((prev) => !prev)} style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}>

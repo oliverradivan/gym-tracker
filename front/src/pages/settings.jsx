@@ -149,8 +149,8 @@ function SettingsPage() {
       return
     }
 
-    if (newPassword.length < 6) {
-      setError('New password must be at least 6 characters')
+    if (newPassword.length < 10) {
+      setError('New password must be at least 10 characters')
       return
     }
 

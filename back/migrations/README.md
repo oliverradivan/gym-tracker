@@ -15,6 +15,8 @@ once, in this order:
    profile.
 6. `0006_user_owned_table_rls.sql` — enforces owner-only CRUD on profiles,
    workouts, and workout logs.
+7. `0007_persistent_auth_rate_limits.sql` — stores authentication rate-limit
+   windows atomically in Supabase.
 
 Do not run these files, individually or as a set, on an existing database.
 They are not an automatic migration runner and are not designed to upgrade a
