@@ -14,8 +14,8 @@ import { useLocalStorageState } from '../hooks/useLocalStorageState'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ProgressChartPanel from './components/ProgressChartPanel'
 import ProgressHistoryTable from './components/ProgressHistoryTable'
-
 import './progress.css'
+import AuroraBackground from '../components/AuroraBackground'
 
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
@@ -262,8 +262,9 @@ function ProgressPage() {
   }
 
   return (
+     <AuroraBackground tone={selectedExercise ? category : undefined}>
       <div className={`progress-page ${category.toLowerCase()}`}>
-      <div className={`progress-card ${category.toLowerCase()}`}>
+       <div className={`progress-card ${category.toLowerCase()}`}>
         <div className="progress-header">
           <div>
             <p className="eyebrow">Workout Tracker</p>
@@ -361,6 +362,7 @@ function ProgressPage() {
         )}
       </div>
     </div>
+   </AuroraBackground>
   )
 }
 

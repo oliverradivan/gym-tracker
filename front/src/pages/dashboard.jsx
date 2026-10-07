@@ -12,6 +12,7 @@ import DashboardHeaderSection from './components/DashboardHeaderSection'
 import DashboardOverviewSection from './components/DashboardOverviewSection'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './dashboard.css'
+import AuroraBackground from '../components/AuroraBackground'
 
 const initialForm = {
   exercise_name: '',
@@ -200,6 +201,7 @@ function DashboardPage() {
   )
 
   return (
+   <AuroraBackground>
     <div className="dash-page">
       {pageLoading ? (
         <div className="dash-loading">
@@ -246,6 +248,7 @@ function DashboardPage() {
         </main>
       )}
     </div>
+   </AuroraBackground>
   )
 }
 
