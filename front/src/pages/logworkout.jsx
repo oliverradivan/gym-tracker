@@ -226,6 +226,8 @@ function LogWorkoutPage() {
               </div>
             </label>
 
+            <hr></hr>
+
             {selectedCategory === EXERCISE_CATEGORIES.CARDIO ? (
               <div className="duration-inputs">
                 {[
@@ -263,6 +265,8 @@ function LogWorkoutPage() {
                   />
                 </label>
 
+                <hr></hr>
+
                 <label>
                   <input
                     type="number"
@@ -277,6 +281,8 @@ function LogWorkoutPage() {
                 </label>
               </>
             )}
+
+            <hr></hr>
 
             <label>
               <div className="date-picker-field" onClick={handleDateClick}>
