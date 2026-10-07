@@ -1,5 +1,7 @@
 # Supabase SQL migrations
 
+These migrations are the single source of truth for database access rules. Do not add standalone policy files.
+
 These SQL files are for a human to run manually in the Supabase SQL Editor.
 Apply them only when creating a fresh, empty Supabase project, and run them
 once, in this order:
@@ -9,6 +11,8 @@ once, in this order:
 3. `0003_restrict_exercise_reads.sql`
 4. `0004_exercise_category_check.sql` — restricts `exercises.category` to
    `Push`, `Pull`, `Leg`, `Cardio`, or `Other`.
+5. `0005_profile_update_policy.sql` — allows users to update only their own
+   profile.
 
 Do not run these files, individually or as a set, on an existing database.
 They are not an automatic migration runner and are not designed to upgrade a
