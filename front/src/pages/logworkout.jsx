@@ -14,6 +14,7 @@ import './logworkout.css'
 
 // Minimum time the spinner stays visible, so a very fast save doesn't just flash.
 const MIN_SPINNER_MS = 450
+const SUCCESS_MESSAGE = 'Workout saved!'
 
 const getTodayKey = () => {
   const date = new Date()
@@ -174,7 +175,7 @@ function LogWorkoutPage() {
 
       setForm(buildInitialForm())
       setGlobalMessage('Workout saved successfully.')
-      setMessage('Workout saved!')
+      setMessage(SUCCESS_MESSAGE)
       setIsSaving(false)
       setTimeout(() => setMessage(''), 2000)
     } catch (error) {
@@ -183,8 +184,12 @@ function LogWorkoutPage() {
     }
   }
 
+  const isSuccess = message === SUCCESS_MESSAGE
+
   return (
-    <div className="logworkout-page">
+    // data-category tints the whole page (glow, focus rings, selected field)
+    // with the colour of the chosen exercise, so the screen "reacts" to the choice.
+    <div className="logworkout-page" data-category={selectedCategory || undefined}>
       <div className="logworkout-card">
         <div className="logworkout-header">
           <p className="eyebrow">Workout Tracker</p>
@@ -193,12 +198,16 @@ function LogWorkoutPage() {
 
         <form onSubmit={handleSubmit} className="logworkout-form">
           <fieldset disabled={isSaving} className="logworkout-fieldset">
-            <label>
+            {/* Exercise */}
+            <div className="field">
+              <span className="field-label">Exercise</span>
               <div className="custom-select" ref={selectRef}>
                 <button
                   type="button"
                   className={`custom-select-trigger ${selectedCategory ? `select-${selectedCategory}` : ''}`}
                   onClick={() => setSelectOpen(prev => !prev)}
+                  aria-haspopup="listbox"
+                  aria-expanded={selectOpen}
                 >
                   <span>{selectedExercise ? selectedExercise.name : 'Select an exercise'}</span>
                   <span className={`custom-select-arrow ${selectOpen ? 'open' : ''}`} aria-hidden="true">
@@ -208,12 +217,14 @@ function LogWorkoutPage() {
                   </span>
                 </button>
                 {selectOpen && (
-                  <ul className="custom-select-list">
+                  <ul className="custom-select-list" role="listbox">
                     {sortedExerciseOptions.map(exercise => {
                       const category = getExerciseCategory(exercise)
                       return (
                         <li
                           key={exercise.id}
+                          role="option"
+                          aria-selected={exercise.id === form.exercise_id}
                           className={`custom-select-option option-${category.toLowerCase()}${exercise.id === form.exercise_id ? ' selected' : ''}`}
                           onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
                         >
@@ -224,69 +235,75 @@ function LogWorkoutPage() {
                   </ul>
                 )}
               </div>
-            </label>
+            </div>
 
-            <hr></hr>
-
+            {/* Numbers: duration for cardio, weight + reps for everything else */}
             {selectedCategory === EXERCISE_CATEGORIES.CARDIO ? (
-              <div className="duration-inputs">
-                {[
-                  { name: 'hours', label: 'Hours', min: 0 },
-                  { name: 'minutes', label: 'Minutes', min: 0, max: 59 },
-                  { name: 'seconds', label: 'Seconds', min: 0, max: 59 },
-                ].map(({ name, label, min, max }) => (
-                  <label key={name}>
-                    <input
-                      type="number"
-                      name={name}
-                      value={form[name]}
-                      onChange={handleChange}
-                      min={min}
-                      max={max}
-                      step="1"
-                      inputMode="numeric"
-                      placeholder={label}
-                    />
-                  </label>
-                ))}
+              <div className="field">
+                <span className="field-label">Duration</span>
+                <div className="duration-inputs">
+                  {[
+                    { name: 'hours', label: 'Hours', unit: 'hr', min: 0 },
+                    { name: 'minutes', label: 'Minutes', unit: 'min', min: 0, max: 59 },
+                    { name: 'seconds', label: 'Seconds', unit: 'sec', min: 0, max: 59 },
+                  ].map(({ name, label, unit, min, max }) => (
+                    <label key={name} className="unit-field">
+                      <input
+                        type="number"
+                        name={name}
+                        value={form[name]}
+                        onChange={handleChange}
+                        min={min}
+                        max={max}
+                        step="1"
+                        inputMode="numeric"
+                        placeholder="0"
+                        aria-label={label}
+                      />
+                      <span className="unit" aria-hidden="true">{unit}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             ) : (
-              <>
-                <label>
+              <div className="field-row">
+                <label className="field">
+                  <span className="field-label">Weight (kg/notches)</span>
                   <input
                     type="number"
                     name="weight"
                     value={form.weight}
                     onChange={handleChange}
-                    placeholder="Weight (kg/notches)"
+                    placeholder="0"
                     min="0"
                     step="any"
+                    inputMode="decimal"
                     required
                   />
                 </label>
 
-                <hr></hr>
-
-                <label>
+                <label className="field">
+                  <span className="field-label">Reps</span>
                   <input
                     type="number"
                     name="reps"
                     value={form.reps}
                     onChange={handleChange}
-                    placeholder="Reps"
+                    placeholder="0"
                     min="0.5"
                     step="any"
+                    inputMode="decimal"
                     required
                   />
                 </label>
-              </>
+              </div>
             )}
 
-            <hr></hr>
-
-            <label>
+            {/* Date */}
+            <div className="field">
+              <span className="field-label">Date</span>
               <div className="date-picker-field" onClick={handleDateClick}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                   <line x1="16" y1="2" x2="16" y2="6"></line>
                   <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -316,10 +333,11 @@ function LogWorkoutPage() {
                   onChange={handleChange}
                   onClick={handleDateClick}
                   required
+                  aria-label="Date"
                   className="date-native-input"
                 />
               </div>
-            </label>
+            </div>
 
             <div className="logworkout-actions">
               {/* Fixed-size wrapper so the button and spinner occupy the same
@@ -341,7 +359,17 @@ function LogWorkoutPage() {
             </div>
           </fieldset>
         </form>
-        {message && <p className="status-message">{message} <img className="proud" src="/proud.png" alt="proud" /></p>}
+
+        {message && (
+          <p
+            className={`status-message ${isSuccess ? 'is-success' : 'is-error'}`}
+            role="status"
+            aria-live="polite"
+          >
+            <span>{message}</span>
+            {isSuccess && <img className="proud" src="/proud.png" alt="proud" />}
+          </p>
+        )}
       </div>
     </div>
   )

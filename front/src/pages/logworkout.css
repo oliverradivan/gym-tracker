@@ -1,424 +1,864 @@
-/* Custom exercise dropdown */
-.custom-select {
-  position: relative;
+/* =========================================================
+   Log workout — frosted-glass redesign
+   Same palette as the dashboard (green base, black/off-white
+   action button, Push/Pull/Leg/Cardio/Other category colours).
+   Everything is scoped under .logworkout-page so it can't leak.
+   ========================================================= */
+
+/* Lets the accent colour glide between categories instead of snapping. */
+@property --lw-accent {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #176b52;
 }
 
-.custom-select-trigger {
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  background: rgba(255, 255, 255, 0.8);
-  color: #111111;
-  padding: 12px 14px;
-  font: inherit;
-  font-weight: 400;
-  cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.custom-select-trigger:focus {
-  outline: none;
-  border-color: rgba(17, 17, 17, 0.2);
-  box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06);
-}
-
-.custom-select-arrow {
-  transition: transform 0.15s ease;
-  margin-left: 8px;
-}
-
-.custom-select-arrow.open {
-  transform: rotate(180deg);
-}
-
-.custom-select-list {
-  position: absolute;
-  z-index: 20;
-  top: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  max-height: 260px;
-  overflow-y: auto;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
-  list-style: none;
-  margin: 0;
-  padding: 6px;
-}
-
-.custom-select-option {
-  padding: 10px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 400;
-}
-
-.custom-select-option.selected {
-  outline: 2px solid rgba(17, 17, 17, 0.3);
-}
-
-.custom-select-option:hover {
-  filter: brightness(0.96);
-}
-
-/* Category colors — dropdown options */
-.option-leg {
-  background-color: #fef3e2;
-  color: #b7791f;
-}
-
-.option-push {
-  background-color: #fee2e2;
-  color: #b91c1c;
-}
-
-.option-pull {
-  background-color: #dbeafe;
-  color: #1d4ed8;
-}
-
-.option-cardio {
-  background-color: #f3f4f6;
-  color: #6b7280;
-}
-
-/* Category colors — the trigger button, once an exercise is chosen */
-.select-leg {
-  border-color: rgba(180, 132, 0, 0.5);
-  color: #b7791f;
-}
-
-.select-push {
-  border-color: rgba(185, 28, 28, 0.5);
-  color: #b91c1c;
-}
-
-.select-pull {
-  border-color: rgba(29, 78, 216, 0.5);
-  color: #1d4ed8;
-}
-
-.select-cardio {
-  border-color: rgba(245, 21, 249, 0.5);
-  color: #db09b1;
-}
+/* ---------- Tokens ---------- */
 
 .logworkout-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 32px 18px;
+  --lw-ink: #172321;
+  --lw-muted: #52645d;
+  --lw-soft: #667770;
+  --lw-green: #176b52;
+  --lw-green-wash: #e7f3ed;
+  --lw-orange: #c65e18;
+  --lw-orange-wash: #fff0e3;
+
+  /* Accent follows the selected exercise's category (default: brand green) */
+  --lw-accent: #176b52;
+
+  /* Glass */
+  --lw-glass-top: rgb(255 255 255 / 74%);
+  --lw-glass-bottom: rgb(255 255 255 / 44%);
+  --lw-glass-edge: rgb(255 255 255 / 92%);
+  --lw-field-bg: rgb(255 255 255 / 66%);
+  --lw-field-bg-hover: rgb(255 255 255 / 84%);
+  --lw-field-edge: rgb(23 35 33 / 10%);
+  --lw-field-edge-hover: rgb(23 35 33 / 20%);
+  --lw-list-bg: rgb(255 255 255 / 90%);
+  --lw-shadow:
+    0 1px 2px rgb(16 24 20 / 4%),
+    0 24px 56px rgb(26 51 42 / 12%);
+
+  /* Primary action: glossy black (reversed in dark mode) */
+  --lw-action-top: #3a3a3a;
+  --lw-action-bottom: #0a0a0a;
+  --lw-action-edge: #0a0a0a;
+  --lw-action-ink: #ffffff;
+  --lw-action-shadow: rgb(10 10 10 / 24%);
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100%;
+  padding: clamp(24px, 5vw, 56px) 20px 64px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  color: var(--lw-ink);
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: --lw-accent 450ms ease;
 }
 
-.logworkout-card {
-  margin-top: -225px;
-  width: min(100%, 540px);
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(17, 17, 17, 0.08);
+.logworkout-page *,
+.logworkout-page *::before,
+.logworkout-page *::after {
+  box-sizing: border-box;
+}
+
+/* Category -> accent. Case-insensitive so "Push" and "push" both work. */
+.logworkout-page[data-category="Push" i]   { --lw-accent: #e04f4f; }
+.logworkout-page[data-category="Pull" i]   { --lw-accent: #4c82dc; }
+.logworkout-page[data-category="Leg" i]    { --lw-accent: #d9a915; }
+.logworkout-page[data-category="Cardio" i] { --lw-accent: #3fae62; }
+.logworkout-page[data-category="Other" i]  { --lw-accent: #7a8798; }
+
+/* ---------- Ambient glow behind the glass ----------
+   Glass only looks like glass when there is something colourful behind it. */
+
+.logworkout-page::before {
+  content: "";
+  position: absolute;
+  inset: -8% -4%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      42% 38% at 16% 18%,
+      color-mix(in srgb, var(--lw-accent) 38%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(38% 36% at 86% 82%, rgb(8 123 120 / 24%), transparent 72%),
+    radial-gradient(30% 30% at 84% 10%, rgb(82 85 174 / 16%), transparent 72%),
+    radial-gradient(
+      34% 32% at 12% 88%,
+      color-mix(in srgb, var(--lw-accent) 16%, transparent),
+      transparent 72%
+    );
+}
+
+/* ---------- Glass card ---------- */
+
+.logworkout-page .logworkout-card {
+  position: relative;
+  width: min(100%, 460px);
+  padding: 28px;
+  border: 1px solid var(--lw-glass-edge);
   border-radius: 28px;
-  padding: 32px 28px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(18px);
-  animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(145deg, var(--lw-glass-top), var(--lw-glass-bottom));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 95%),
+    inset 0 -1px 0 rgb(255 255 255 / 30%),
+    var(--lw-shadow);
+  -webkit-backdrop-filter: blur(26px) saturate(165%);
+  backdrop-filter: blur(26px) saturate(165%);
+  animation: lw-card-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
-.logworkout-header {
-  margin-bottom: 20px;
+/* Specular sheen: a soft diagonal highlight across the top-left, like light on glass */
+.logworkout-page .logworkout-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      118deg,
+      rgb(255 255 255 / 60%) 0%,
+      rgb(255 255 255 / 12%) 30%,
+      rgb(255 255 255 / 0%) 46%
+    );
+  opacity: 0.55;
 }
 
-.logworkout-header h1 {
+.logworkout-page .logworkout-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes lw-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Header ---------- */
+
+.logworkout-page .logworkout-header {
+  margin-bottom: 24px;
+}
+
+.logworkout-page .eyebrow {
+  margin: 0 0 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--lw-muted);
+  font-size: 0.84rem;
+  font-weight: 650;
+  letter-spacing: 0.005em;
+  text-transform: none;
+}
+
+/* A small glossy "jewel" in the current accent colour, echoing the dashboard dots */
+.logworkout-page .eyebrow::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgb(255 255 255 / 65%), rgb(255 255 255 / 0%) 55%),
+    var(--lw-accent);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--lw-accent) 45%, transparent);
+}
+
+.logworkout-page .logworkout-header h1 {
   margin: 0;
-  color: #111111;
+  color: var(--lw-ink);
+  font-size: clamp(1.7rem, 4vw, 2.1rem);
+  font-weight: 760;
+  letter-spacing: -0.05em;
+  line-height: 1.1;
 }
 
-.logworkout-form {
+/* ---------- Form layout (this is where the gaps come from) ---------- */
+
+.logworkout-page .logworkout-form {
+  margin: 0;
+}
+
+.logworkout-page .logworkout-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
 
-.duration-inputs {
+.logworkout-page .field {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.logworkout-page .field-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.logworkout-page .field-label {
+  color: #3d4744;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* ---------- Shared glass field look ---------- */
+
+.logworkout-page .field input[type="number"],
+.logworkout-page .unit-field input,
+.logworkout-page .custom-select-trigger,
+.logworkout-page .date-picker-field {
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+  border: 1px solid var(--lw-field-edge);
+  border-radius: 16px;
+  outline: none;
+  color: var(--lw-ink);
+  background: var(--lw-field-bg);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 90%),
+    0 1px 2px rgb(16 24 20 / 5%);
+  font: inherit;
+  font-size: 1rem; /* 16px: stops iOS Safari zooming on focus */
+  font-weight: 600;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.logworkout-page .field input[type="number"],
+.logworkout-page .unit-field input {
+  padding: 0 16px;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.logworkout-page input[type="number"]::-webkit-outer-spin-button,
+.logworkout-page input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.logworkout-page input::placeholder {
+  color: #8a9691;
+  font-weight: 500;
+}
+
+.logworkout-page .field input[type="number"]:hover,
+.logworkout-page .unit-field input:hover,
+.logworkout-page .custom-select-trigger:hover,
+.logworkout-page .date-picker-field:hover {
+  border-color: var(--lw-field-edge-hover);
+  background: var(--lw-field-bg-hover);
+}
+
+.logworkout-page .field input[type="number"]:focus,
+.logworkout-page .unit-field input:focus,
+.logworkout-page .custom-select-trigger:focus-visible,
+.logworkout-page .date-picker-field:focus-within {
+  border-color: color-mix(in srgb, var(--lw-accent) 70%, transparent);
+  background: rgb(255 255 255 / 92%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 100%),
+    0 0 0 4px color-mix(in srgb, var(--lw-accent) 20%, transparent);
+}
+
+/* ---------- Exercise select ---------- */
+
+.logworkout-page .custom-select {
+  position: relative;
+}
+
+.logworkout-page .custom-select-trigger {
+  padding: 0 14px 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.logworkout-page .custom-select-trigger > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Nothing chosen yet: muted prompt text */
+.logworkout-page:not([data-category]) .custom-select-trigger > span:first-child {
+  color: #7d8a85;
+  font-weight: 500;
+}
+
+/* Exercise chosen: the field takes on its category colour */
+.logworkout-page[data-category] .custom-select-trigger {
+  border-color: color-mix(in srgb, var(--lw-accent) 42%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--lw-accent) 16%, rgb(255 255 255 / 78%)),
+      color-mix(in srgb, var(--lw-accent) 10%, rgb(255 255 255 / 60%))
+    );
+}
+
+.logworkout-page .custom-select-arrow {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--lw-muted);
+  background: rgb(255 255 255 / 70%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%), 0 1px 3px rgb(16 24 20 / 8%);
+  transition: transform 220ms ease;
+}
+
+.logworkout-page .custom-select-arrow.open {
+  transform: rotate(180deg);
+}
+
+.logworkout-page .custom-select-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  max-height: 288px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+  border: 1px solid var(--lw-glass-edge);
+  border-radius: 20px;
+  background: var(--lw-list-bg);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 100%),
+    0 4px 10px rgb(16 24 20 / 6%),
+    0 22px 48px rgb(16 24 20 / 18%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+  transform-origin: top center;
+  animation: lw-list-in 160ms ease-out both;
+  scrollbar-width: thin;
+}
+
+@keyframes lw-list-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.logworkout-page .custom-select-option {
+  --opt: #7a8798;
+
+  min-height: 46px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 14px;
+  color: var(--lw-ink);
+  font-size: 0.96rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.logworkout-page .custom-select-option + .custom-select-option {
+  margin-top: 2px;
+}
+
+.logworkout-page .option-push   { --opt: #e04f4f; }
+.logworkout-page .option-pull   { --opt: #4c82dc; }
+.logworkout-page .option-leg    { --opt: #e0b21f; }
+.logworkout-page .option-cardio { --opt: #3fae62; }
+.logworkout-page .option-other  { --opt: #7a8798; }
+
+.logworkout-page .custom-select-option::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgb(255 255 255 / 62%), rgb(255 255 255 / 0%) 52%),
+    var(--opt);
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--opt) 40%, transparent);
+}
+
+.logworkout-page .custom-select-option:hover {
+  background: color-mix(in srgb, var(--opt) 13%, transparent);
+}
+
+.logworkout-page .custom-select-option.selected {
+  background: color-mix(in srgb, var(--opt) 20%, transparent);
+}
+
+/* Check mark on the chosen row */
+.logworkout-page .custom-select-option.selected::after {
+  content: "";
+  margin-left: auto;
+  width: 6px;
+  height: 11px;
+  border: solid var(--lw-ink);
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg);
+}
+
+/* ---------- Duration (cardio) ---------- */
+
+.logworkout-page .duration-inputs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
 }
 
-.logworkout-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: #111111;
-  font-weight: 600;
-}
-
-.logworkout-form input,
-.logworkout-form textarea {
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  background: rgba(255, 255, 255, 0.8);
-  color: #111111;
-  padding: 12px 14px;
-  font: inherit;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.logworkout-form textarea {
-  resize: vertical;
-}
-
-.logworkout-form input:focus,
-.logworkout-form textarea:focus {
-  outline: none;
-  border-color: rgba(17, 17, 17, 0.2);
-  box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06);
-}
-
-.logworkout-actions {
-  display: flex;
-  justify-content: center;
-  margin-top: 8px;
-}
-
-/* Save button ⇄ spinner swap. Both sit stacked in the same fixed-size box
-   and cross-fade — the button disappears, the spinner takes its place. */
-.save-action {
+.logworkout-page .unit-field {
   position: relative;
-  width: 100%;
-  height: 52px;
+  display: block;
 }
 
-.primary-btn {
-  width: 100%;
-  height: 100%;
-  border-radius: 14px;
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  opacity: 1;
-  transform: scale(1);
+.logworkout-page .unit-field input {
+  padding-right: 40px;
 }
 
-.save-spinner {
+.logworkout-page .unit-field .unit {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transform: scale(0.85);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  color: var(--lw-soft);
+  font-size: 0.78rem;
+  font-weight: 650;
   pointer-events: none;
 }
 
-.save-action.is-saving .primary-btn {
-  opacity: 0;
-  transform: scale(0.9);
-  pointer-events: none;
-}
+/* ---------- Date ---------- */
 
-.save-action.is-saving .save-spinner {
-  opacity: 1;
-  transform: scale(1);
-  transition-delay: 0.1s;
-  pointer-events: auto;
-}
-
-.eyebrow {
-  display: inline-block;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  font-size: 0.7rem;
-  color: #5f5f61;
-  margin-bottom: 8px;
-}
-
-.status-message {
-  margin-top: 16px;
-  color: #2f2f2f;
-  text-align: center;
-}
-
-/* Date picker field */
-.date-picker-field {
+.logworkout-page .date-picker-field {
   position: relative;
+  padding: 0 16px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 12px;
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  background: rgba(255, 255, 255, 0.8);
-  padding: 12px 14px;
+  gap: 12px;
+  overflow: hidden;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.date-picker-field:focus-within {
-  border-color: rgba(17, 17, 17, 0.2);
-  box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.06);
+.logworkout-page .date-picker-field > svg {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  color: var(--lw-accent);
 }
 
-.date-picker-field svg {
-  flex-shrink: 0;
-  color: #6b7280;
+.logworkout-page .date-display-input {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  padding: 0;
+  border: 0;
+  outline: none;
+  color: var(--lw-ink);
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
   pointer-events: none;
 }
 
-.date-display-input {
-  flex: 1;
-  width: auto;
-  border: none;
-  background: transparent;
-  padding: 0;
-  font: inherit;
-  color: #111111;
-  cursor: pointer;
-}
-
-.date-display-input:focus {
-  outline: none;
-  box-shadow: none;
-}
-
-.date-display-input::placeholder {
-  color: #8e8e93;
-}
-
-.date-native-input {
+/* Invisible real input on top, so the tap is a genuine gesture (see JSX comment) */
+.logworkout-page .date-native-input {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   margin: 0;
-  opacity: 0.0001;
-  cursor: pointer;
-  border: none;
   padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
-@keyframes floatIn {
+.logworkout-page .date-native-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* ---------- Save button: glossy, full width, big target ---------- */
+
+.logworkout-page .logworkout-actions {
+  margin-top: 6px;
+}
+
+.logworkout-page .save-action {
+  position: relative;
+  height: 54px;
+  display: grid;
+}
+
+.logworkout-page .save-action > * {
+  grid-area: 1 / 1;
+}
+
+.logworkout-page .primary-btn {
+  position: relative;
+  width: 100%;
+  height: 54px;
+  padding: 0 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--lw-action-edge);
+  border-radius: 16px;
+  color: var(--lw-action-ink);
+  background: linear-gradient(180deg, var(--lw-action-top) 0%, var(--lw-action-bottom) 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 28%),
+    inset 0 -1px 0 rgb(0 0 0 / 35%),
+    0 10px 22px var(--lw-action-shadow);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    opacity 200ms ease,
+    filter 160ms ease;
+}
+
+/* Glass gloss across the top half of the button */
+.logworkout-page .primary-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(255 255 255 / 22%), rgb(255 255 255 / 3%));
+}
+
+.logworkout-page .primary-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.12);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 32%),
+    inset 0 -1px 0 rgb(0 0 0 / 35%),
+    0 14px 28px var(--lw-action-shadow);
+}
+
+.logworkout-page .primary-btn:active {
+  transform: translateY(0);
+  filter: brightness(1);
+}
+
+.logworkout-page .primary-btn:focus-visible {
+  outline: 3px solid #297e62;
+  outline-offset: 3px;
+}
+
+/* Saving: the button melts into a glass bar holding the spinner */
+.logworkout-page .save-spinner {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--lw-field-edge);
+  border-radius: 16px;
+  color: var(--lw-ink);
+  background: var(--lw-field-bg);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 90%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 200ms ease;
+}
+
+.logworkout-page .save-action.is-saving .primary-btn {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.logworkout-page .save-action.is-saving .save-spinner {
+  opacity: 1;
+}
+
+/* Fields dim while saving so it's clear nothing can be edited */
+.logworkout-page .logworkout-fieldset:disabled .field,
+.logworkout-page .logworkout-fieldset:disabled .field-row {
+  opacity: 0.6;
+  transition: opacity 200ms ease;
+}
+
+/* ---------- Status message ---------- */
+
+.logworkout-page .status-message {
+  margin: 18px 0 0;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  font-size: 0.92rem;
+  font-weight: 650;
+  text-align: center;
+  animation: lw-pop 260ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+.logworkout-page .status-message.is-success {
+  border-color: rgb(23 107 82 / 22%);
+  color: #10523f;
+  background: linear-gradient(180deg, rgb(231 243 237 / 92%), rgb(231 243 237 / 60%));
+}
+
+.logworkout-page .status-message.is-error {
+  border-color: rgb(198 94 24 / 26%);
+  color: #8a3f0c;
+  background: linear-gradient(180deg, rgb(255 240 227 / 94%), rgb(255 240 227 / 62%));
+}
+
+.logworkout-page .status-message .proud {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+@keyframes lw-pop {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(6px) scale(0.96);
   }
-
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
   }
 }
 
-@media (max-width: 480px) {
+/* ---------- Small screens ---------- */
+
+@media (max-width: 420px) {
   .logworkout-page {
-    padding: 20px 12px;
+    padding: 20px 14px 48px;
   }
 
-  .logworkout-card {
-    padding: 22px 16px;
-    border-radius: 18px;
+  .logworkout-page .logworkout-card {
+    padding: 22px 18px;
+    border-radius: 24px;
   }
 
-  .logworkout-form {
-    gap: 14px;
+  .logworkout-page .logworkout-fieldset {
+    gap: 16px;
   }
 
-  .duration-inputs {
+  .logworkout-page .field-row {
+    gap: 10px;
+  }
+
+  .logworkout-page .duration-inputs {
     gap: 8px;
   }
 }
 
-/* Dark Mode Overrides */
-.dark .logworkout-card {
-  background: rgba(0, 0, 0, 0.7);
-  border-color: rgba(238, 238, 238, 0.08);
-  box-shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
+/* ---------- Dark mode ---------- */
+
+.dark .logworkout-page {
+  --lw-ink: #e5ece8;
+  --lw-muted: #aab9b2;
+  --lw-soft: #94a59d;
+  --lw-glass-top: rgb(255 255 255 / 10%);
+  --lw-glass-bottom: rgb(255 255 255 / 3.5%);
+  --lw-glass-edge: rgb(255 255 255 / 16%);
+  --lw-field-bg: rgb(255 255 255 / 6%);
+  --lw-field-bg-hover: rgb(255 255 255 / 10%);
+  --lw-field-edge: rgb(255 255 255 / 12%);
+  --lw-field-edge-hover: rgb(255 255 255 / 24%);
+  --lw-list-bg: rgb(24 28 33 / 90%);
+  --lw-shadow:
+    0 1px 2px rgb(0 0 0 / 30%),
+    0 28px 64px rgb(0 0 0 / 46%);
+
+  /* Reversed action colours: off-white gloss */
+  --lw-action-top: #ffffff;
+  --lw-action-bottom: #dcdcd7;
+  --lw-action-edge: #f4f4f1;
+  --lw-action-ink: #0a0a0a;
+  --lw-action-shadow: rgb(0 0 0 / 50%);
 }
 
-.dark .logworkout-header h1 {
-  color: #eeeeee;
+.dark .logworkout-page::before {
+  background:
+    radial-gradient(
+      42% 38% at 16% 18%,
+      color-mix(in srgb, var(--lw-accent) 30%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(38% 36% at 86% 82%, rgb(8 123 120 / 26%), transparent 72%),
+    radial-gradient(30% 30% at 84% 10%, rgb(82 85 174 / 22%), transparent 72%),
+    radial-gradient(
+      34% 32% at 12% 88%,
+      color-mix(in srgb, var(--lw-accent) 14%, transparent),
+      transparent 72%
+    );
 }
 
-.dark .logworkout-form label {
-  color: #eeeeee;
+.dark .logworkout-page .logworkout-card {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 18%),
+    inset 0 -1px 0 rgb(255 255 255 / 4%),
+    var(--lw-shadow);
 }
 
-.dark .logworkout-form input,
-.dark .logworkout-form textarea {
-  background: rgba(0, 0, 0, 0.7);
-  color: #eeeeee;
-  border-color: rgba(238, 238, 238, 0.14);
+.dark .logworkout-page .logworkout-card::before {
+  opacity: 0.18;
 }
 
-.dark .logworkout-form input:focus,
-.dark .logworkout-form textarea:focus {
-  border-color: rgba(238, 238, 238, 0.2);
-  box-shadow: 0 0 0 4px rgba(238, 238, 238, 0.06);
+.dark .logworkout-page .field-label {
+  color: var(--lw-muted);
 }
 
-.dark .custom-select-trigger {
-  background: rgba(0, 0, 0, 0.7);
-  color: #eeeeee;
-  border-color: rgba(238, 238, 238, 0.14);
+.dark .logworkout-page .field input[type="number"],
+.dark .logworkout-page .unit-field input,
+.dark .logworkout-page .custom-select-trigger,
+.dark .logworkout-page .date-picker-field {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 8%),
+    0 1px 2px rgb(0 0 0 / 30%);
 }
 
-.dark .custom-select-trigger:focus {
-  border-color: rgba(238, 238, 238, 0.2);
-  box-shadow: 0 0 0 4px rgba(238, 238, 238, 0.06);
+.dark .logworkout-page input::placeholder {
+  color: #7f8f88;
 }
 
-.dark .custom-select-list {
-  background: rgba(20, 20, 20, 0.96);
-  border-color: rgba(238, 238, 238, 0.14);
+.dark .logworkout-page .field input[type="number"]:focus,
+.dark .logworkout-page .unit-field input:focus,
+.dark .logworkout-page .custom-select-trigger:focus-visible,
+.dark .logworkout-page .date-picker-field:focus-within {
+  background: rgb(255 255 255 / 11%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 10%),
+    0 0 0 4px color-mix(in srgb, var(--lw-accent) 28%, transparent);
 }
 
-.dark .custom-select-option.selected {
-  outline-color: rgba(238, 238, 238, 0.4);
+.dark .logworkout-page:not([data-category]) .custom-select-trigger > span:first-child {
+  color: #8d9d96;
 }
 
-.dark .eyebrow {
-  color: #858585;
+.dark .logworkout-page[data-category] .custom-select-trigger {
+  border-color: color-mix(in srgb, var(--lw-accent) 50%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--lw-accent) 26%, rgb(255 255 255 / 6%)),
+      color-mix(in srgb, var(--lw-accent) 14%, rgb(255 255 255 / 3%))
+    );
 }
 
-.dark .status-message {
-  color: #b2b2b0;
+.dark .logworkout-page .custom-select-arrow {
+  background: rgb(255 255 255 / 10%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%);
 }
 
-.dark .date-picker-field {
-  background: rgba(0, 0, 0, 0.7);
-  border-color: rgba(238, 238, 238, 0.14);
+.dark .logworkout-page .custom-select-list {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 10%),
+    0 22px 48px rgb(0 0 0 / 55%);
 }
 
-.dark .date-picker-field:focus-within {
-  border-color: rgba(238, 238, 238, 0.2);
-  box-shadow: 0 0 0 4px rgba(238, 238, 238, 0.06);
+.dark .logworkout-page .custom-select-option:hover {
+  background: color-mix(in srgb, var(--opt) 22%, transparent);
 }
 
-.dark .date-picker-field svg {
-  color: #b2b2b0;
+.dark .logworkout-page .custom-select-option.selected {
+  background: color-mix(in srgb, var(--opt) 30%, transparent);
 }
 
-.dark .date-display-input {
-  color: #eeeeee;
+.dark .logworkout-page .primary-btn {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 70%),
+    inset 0 -1px 0 rgb(0 0 0 / 14%),
+    0 10px 24px var(--lw-action-shadow);
 }
 
-.dark .date-display-input::placeholder {
-  color: #666666;
+.dark .logworkout-page .primary-btn::after {
+  background: linear-gradient(180deg, rgb(255 255 255 / 55%), rgb(255 255 255 / 6%));
 }
 
-.proud {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 50px;
-  height: 50px;
+.dark .logworkout-page .primary-btn:hover {
+  filter: brightness(1.04);
+}
 
+.dark .logworkout-page .save-spinner {
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
+}
+
+.dark .logworkout-page .status-message.is-success {
+  border-color: rgb(146 213 179 / 30%);
+  color: #bfeed4;
+  background: linear-gradient(180deg, rgb(27 53 41 / 85%), rgb(27 53 41 / 55%));
+}
+
+.dark .logworkout-page .status-message.is-error {
+  border-color: rgb(240 160 100 / 32%);
+  color: #ffd2b0;
+  background: linear-gradient(180deg, rgb(58 40 28 / 88%), rgb(58 40 28 / 58%));
+}
+
+/* ---------- Motion preferences ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .logworkout-page,
+  .logworkout-page *,
+  .logworkout-page *::before,
+  .logworkout-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
