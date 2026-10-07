@@ -3,6 +3,11 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/WorkoutsContext'
 import {
+  buildCalendarDays,
+  buildWeekStats,
+  toLocalDateKey,
+} from '../lib/dashboardCalendar'
+import {
   EXERCISE_CATEGORIES,
   getExerciseCategory,
 } from '../utils/exerciseCategory'
@@ -27,14 +32,6 @@ const todayFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
 })
 
-const weekdayLongFormatter = new Intl.DateTimeFormat('en-US', {
-  weekday: 'long',
-})
-
-const weekdayShortFormatter = new Intl.DateTimeFormat('en-US', {
-  weekday: 'short',
-})
-
 const decimalFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 })
@@ -50,42 +47,6 @@ function formatVolume(value) {
   if (!Number.isFinite(number)) return '0'
 
   return (number >= 1000 ? wholeFormatter : decimalFormatter).format(number)
-}
-
-/* Local "YYYY-MM-DD" key, matching the dates returned by the API. */
-function toLocalDateKey(date) {
-  const offset = date.getTimezoneOffset() * 60000
-
-  return new Date(date.getTime() - offset).toISOString().slice(0, 10)
-}
-
-function dateFromKey(key) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return null
-
-  const [year, month, day] = key.split('-').map(Number)
-  const date = new Date(year, month - 1, day)
-
-  return toLocalDateKey(date) === key ? date : null
-}
-
-function addDays(date, count) {
-  const result = new Date(date)
-  result.setDate(result.getDate() + count)
-  return result
-}
-
-function daysBetween(start, end) {
-  const startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate())
-  const endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate())
-  return Math.round((endUtc - startUtc) / 86400000)
-}
-
-/*
- * Sunday, the first day of the week, as a JS weekday
- * (0 = Sunday ... 6 = Saturday)
- */
-function getFirstWeekday() {
-  return 0
 }
 
 /* -------------------------------------------------------
@@ -414,74 +375,10 @@ function DashboardPage() {
    * This week's summary, derived from the sessions the page already loads
    * (no extra request). The week starts on Sunday.
    */
-  const weekStats = useMemo(() => {
-    const now = new Date()
-    const todayKey = toLocalDateKey(now)
-    const offset = (now.getDay() - getFirstWeekday() + 7) % 7
-    const weekStart = addDays(
-      new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-      -offset
-    )
-    const weekEnd = addDays(weekStart, 6)
-    const earliestSession = allSessions
-      .map((sessionItem) => sessionItem.date)
-      .filter(
-        (date) =>
-          dateFromKey(date) &&
-          date <= todayKey
-      )
-      .sort()[0]
-    const earliestDate = earliestSession ? dateFromKey(earliestSession) : null
-    const startDate = addDays(weekStart, -daysBeforeWeek)
-
-    if (earliestDate && startDate > earliestDate) {
-      startDate.setTime(earliestDate.getTime())
-    }
-
-    const sessionsByDate = new Map(
-      allSessions.map((sessionItem) => [sessionItem.date, sessionItem])
-    )
-
-    const days = Array.from(
-      { length: daysBetween(startDate, weekEnd) + 1 },
-      (_, index) => {
-        const date = addDays(startDate, index)
-        const key = toLocalDateKey(date)
-        const match = sessionsByDate.get(key)
-
-        const categoryCounts = (match?.entries || []).reduce((counts, entry) => {
-          const category = getExerciseCategory(entry)
-          counts[category] = (counts[category] || 0) + 1
-          return counts
-        }, {})
-        const category = Object.entries(categoryCounts)
-          .sort((a, b) => b[1] - a[1])[0]?.[0] || EXERCISE_CATEGORIES.OTHER
-
-        return {
-          key,
-          short: weekdayShortFormatter.format(date),
-          dayNumber: date.getDate(),
-          long: weekdayLongFormatter.format(date),
-          trained: Boolean(match),
-          clickable: Boolean(match) && key <= todayKey,
-          category,
-          isToday: key === todayKey,
-        }
-      }
-    )
-
-    return {
-      days,
-      trained: days.filter(
-        (day) =>
-          day.trained &&
-          day.key >= toLocalDateKey(weekStart) &&
-          day.key <= todayKey
-      ).length,
-      todayKey,
-      earliestKey: earliestSession || null,
-    }
-  }, [allSessions, daysBeforeWeek])
+  const weekStats = useMemo(
+    () => buildWeekStats(allSessions, new Date(), daysBeforeWeek),
+    [allSessions, daysBeforeWeek]
+  )
 
   useLayoutEffect(() => {
     if (calendarExpanded) {
@@ -522,43 +419,10 @@ function DashboardPage() {
     setDaysBeforeWeek((days) => days + 28)
   }
 
-  const calendarDays = useMemo(() => {
-    const today = dateFromKey(weekStats.todayKey)
-    const firstDay = addDays(today, -29)
-    const leadingDays = (firstDay.getDay() - getFirstWeekday() + 7) % 7
-    const cellCount = Math.ceil((leadingDays + 30) / 7) * 7
-    const sessionsByDate = new Map(
-      allSessions.map((sessionItem) => [sessionItem.date, sessionItem])
-    )
-
-    return Array.from({ length: cellCount }, (_, index) => {
-      if (index < leadingDays || index >= leadingDays + 30) return null
-
-      const date = addDays(firstDay, index - leadingDays)
-      const key = toLocalDateKey(date)
-      const match = sessionsByDate.get(key)
-      const categoryCounts = (match?.entries || []).reduce((counts, entry) => {
-        const category = getExerciseCategory(entry)
-        counts[category] = (counts[category] || 0) + 1
-        return counts
-      }, {})
-      const category = Object.entries(categoryCounts)
-        .sort((a, b) => b[1] - a[1])[0]?.[0] || EXERCISE_CATEGORIES.OTHER
-
-      return {
-        key,
-        dayNumber: date.getDate(),
-        short: weekdayShortFormatter.format(date),
-        trained: Boolean(match),
-        clickable: Boolean(match) && key <= weekStats.todayKey,
-        category,
-        isToday: key === weekStats.todayKey,
-        isOutsideMonth: date.getMonth() !== today.getMonth(),
-        workouts: match?.entries || [],
-        activities: Object.keys(categoryCounts).slice(0, 3),
-      }
-    })
-  }, [allSessions, weekStats.todayKey])
+  const calendarDays = useMemo(
+    () => buildCalendarDays(allSessions, weekStats.todayKey),
+    [allSessions, weekStats.todayKey]
+  )
   const calendarTrained = calendarDays.filter(
     (day) => day?.trained && day.key <= weekStats.todayKey
   ).length

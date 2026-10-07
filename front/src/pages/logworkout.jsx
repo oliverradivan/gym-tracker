@@ -6,7 +6,7 @@ import {
   EXERCISE_CATEGORIES,
   getExerciseCategory,
 } from '../utils/exerciseCategory'
-import { toSeconds } from '../utils/duration'
+import { getValidCardioDuration } from '../lib/cardioDuration'
 import { sortExercisesByCategory } from '../utils/exerciseSorting'
 import { useClickOutside } from '../hooks/useClickOutside'
 import LoadingSpinner from '@/components/LoadingSpinner'
@@ -139,8 +139,8 @@ function LogWorkoutPage() {
       return
     }
 
-    const durationSeconds = toSeconds(form)
-    if (selectedCategory === EXERCISE_CATEGORIES.CARDIO && durationSeconds <= 0) {
+    const durationSeconds = getValidCardioDuration(form)
+    if (selectedCategory === EXERCISE_CATEGORIES.CARDIO && durationSeconds === null) {
       setMessage('Enter a duration greater than zero.')
       return
     }

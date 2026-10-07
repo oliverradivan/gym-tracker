@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import { useWorkouts } from '../context/WorkoutsContext'
+import { getBestTimePoint } from '../lib/progressSummary'
 import {
   EXERCISE_CATEGORIES,
   getExerciseCategory,
@@ -211,15 +212,10 @@ function ProgressPage() {
   const metricLabel = category === EXERCISE_CATEGORIES.CARDIO ? 'Time' : METRICS[chartMetric]?.label || 'Unknown'
   const showForecast = category !== EXERCISE_CATEGORIES.CARDIO && chartMetric === 'volume' && predictionEnabled && predictions.length > 0
 
-  const bestTimePoint = useMemo(() => {
-    if (category !== EXERCISE_CATEGORIES.CARDIO) return null
-    return progress.reduce((best, point, index) => {
-      const duration = Number(point.duration_seconds)
-      if (!Number.isFinite(duration) || duration <= 0) return best
-      if (!best || duration < best.duration) return { duration, index }
-      return best
-    }, null)
-  }, [category, progress])
+  const bestTimePoint = useMemo(
+    () => getBestTimePoint(progress, category === EXERCISE_CATEGORIES.CARDIO),
+    [category, progress]
+  )
 
   const chartData = useMemo(() => {
     return progress.map((point) => {
