@@ -231,10 +231,10 @@
 .register-password-toggle {
   position: absolute;
 
-  top: 50%;
-  right: 2px;
-
-  transform: translateY(-50%);
+  top: 3px;
+  right: 3px;
+  bottom: 0;
+  margin: auto 0;
 
   width: 43px;
   height: 43px;

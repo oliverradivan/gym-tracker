@@ -671,11 +671,10 @@
 
 .password-toggle {
   position: absolute;
-
   right: 3px;
-  top: 50%;
-
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
 
   width: 43px;
   height: 43px;
@@ -700,9 +699,7 @@
   transition:
     color 0.18s ease,
     background 0.18s ease,
-    transform 0.15s ease;
 }
-
 
 .password-toggle:hover {
   color: var(--auth-text);
@@ -712,7 +709,7 @@
 
 
 .password-toggle:active {
-  transform: translateY(-50%) scale(0.94);
+  transform: none;
 }
 
 
