@@ -52,7 +52,6 @@
 
 .aurora {
   position: relative;
-  overflow: hidden;
   isolation: isolate;
   min-height: 100%;
   background: var(--aurora-bg);
@@ -63,13 +62,12 @@
   z-index: 1; /* real page content sits above the glow */
 }
 
-/* ---------- Glow layer (one screen-sized tile) ---------- */
+/* ---------- Glow layer (ONE fixed, screen-sized layer) ---------- */
 
 .aurora__glow {
-  position: absolute;
-  left: 0;
-  right: 0;
-  /* top + height come from the component, one tile per screen */
+  position: fixed;
+  inset: 0;
+  height: 100lvh; /* iOS: don't resize when the toolbar collapses */
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
@@ -108,7 +106,8 @@
   animation-iteration-count: infinite;
   animation-delay:
     var(--shift, 0s),
-    calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0) + var(--shift, 0s));}
+    calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0) + var(--shift, 0s));
+}
 
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
