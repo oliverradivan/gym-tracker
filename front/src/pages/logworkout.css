@@ -1035,3 +1035,88 @@
     font-size: 1rem;
   }
 }
+
+/* ================================================================
+   Fixes: white button on hover/click, white box while saving
+   ================================================================ */
+
+/* ---------- Primary button: explicit colours in every state ---------- */
+.logworkout-page .primary-btn,
+.logworkout-page .primary-btn:hover,
+.logworkout-page .primary-btn:active,
+.logworkout-page .primary-btn:focus,
+.logworkout-page .primary-btn:focus-visible {
+  color: var(--lw-action-ink);
+  border-color: var(--lw-action-edge);
+  background-color: var(--lw-action-bottom);
+  background-image: linear-gradient(
+    180deg,
+    var(--lw-action-top) 0%,
+    var(--lw-action-bottom) 100%
+  );
+  filter: none; /* brightness() was washing the gloss out to white */
+}
+
+/* Hover/press feedback without filters: lift + shadow only */
+@media (hover: hover) {
+  .logworkout-page .primary-btn:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 32%),
+      inset 0 -1px 0 rgb(0 0 0 / 35%),
+      0 14px 28px var(--lw-action-shadow);
+  }
+}
+
+.logworkout-page .primary-btn:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 20%),
+    inset 0 -1px 0 rgb(0 0 0 / 35%),
+    0 4px 10px var(--lw-action-shadow);
+}
+
+/* Remove the tap flash on mobile and the native button chrome */
+.logworkout-page .primary-btn {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Dark mode keeps its off-white button, but dims slightly instead of brightening */
+.dark .logworkout-page .primary-btn:hover {
+  background-image: linear-gradient(180deg, #f2f2ee 0%, #cfcfca 100%);
+}
+
+/* ---------- Save spinner: clipped to its own box ---------- */
+.logworkout-page .save-action {
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.logworkout-page .save-spinner {
+  position: relative;
+  overflow: hidden;
+  contain: paint;       /* nothing inside can paint outside this box */
+  isolation: isolate;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Whatever LoadingSpinner renders: no own background, no overlay behaviour */
+.logworkout-page .save-spinner > * {
+  position: static !important;
+  inset: auto !important;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0;
+}
+
+@media (min-width: 768px) {
+  .logworkout-page .save-action {
+    border-radius: 18px;
+  }
+}
