@@ -5,6 +5,19 @@
   initial-value: transparent;
 }
 
+/* ---------- Page colour behind everything (CHANGED: new) ----------
+   Matches the aurora background so there's never a white strip
+   if the glow layer is a pixel short on iOS. */
+html,
+body {
+  background: #f7f8f7;
+}
+
+.dark,
+.dark body {
+  background: #0c0e11;
+}
+
 /* ---------- Colours (your exercise categories) ---------- */
 
 .aurora {
@@ -48,14 +61,25 @@
   --blob-color: color-mix(in srgb, var(--aurora-tone) 70%, white);
 }
 
-/* ---------- Frame ---------- */
+/* ---------- Frame ----------
+   CHANGED: the wrapper no longer paints the background or clips anything.
+   It was only as tall as the page content, so the colour stopped there.
+   Now the background and glow are pinned to the screen instead. */
 
 .aurora {
   position: relative;
-  overflow: hidden;
   isolation: isolate;
   min-height: 100%;
+}
+
+/* CHANGED (new): solid background pinned to the whole screen, behind the glow */
+.aurora::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
   background: var(--aurora-bg);
+  pointer-events: none;
 }
 
 .aurora__content {
@@ -66,7 +90,7 @@
 /* ---------- Glow layer: edges only ---------- */
 
 .aurora__glow {
-  position: absolute;
+  position: fixed; /* CHANGED: was absolute, so it stopped at the wrapper's edge */
   inset: 0;
   z-index: 0;
   overflow: hidden;
