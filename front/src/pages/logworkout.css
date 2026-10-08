@@ -854,3 +854,184 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ================================================================
+   Roomier card
+   Mobile: same width, taller, with the Save button anchored to the
+   bottom (thumb-friendly) and slightly more air between fields.
+   Desktop: whole card scaled up ~20% with proportional insides.
+   ================================================================ */
+
+/* Let the card stretch its form so extra height has somewhere to go */
+.logworkout-page .logworkout-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.logworkout-page .logworkout-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.logworkout-page .logworkout-fieldset {
+  flex: 1;
+}
+
+/* Button sits at the bottom of the card whenever there's spare height */
+.logworkout-page .logworkout-actions {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+/* ---------- Mobile: taller, same width ---------- */
+@media (max-width: 767px) {
+  .logworkout-page .logworkout-card {
+    min-height: clamp(560px, calc(100dvh - 190px), 800px);
+    padding-top: 28px;
+    padding-bottom: 24px;
+  }
+
+  .logworkout-page .logworkout-header {
+    margin-bottom: 30px;
+  }
+
+  .logworkout-page .logworkout-fieldset {
+    gap: 24px;
+  }
+
+  .logworkout-page .field {
+    gap: 10px;
+  }
+
+  .logworkout-page .field input[type="number"],
+  .logworkout-page .unit-field input,
+  .logworkout-page .custom-select-trigger,
+  .logworkout-page .date-picker-field {
+    min-height: 56px;
+  }
+
+  .logworkout-page .save-action,
+  .logworkout-page .primary-btn {
+    height: 58px;
+  }
+}
+
+/* ---------- Desktop: bigger in every direction ---------- */
+@media (min-width: 768px) {
+  .logworkout-page {
+    font-size: 16px;
+    padding-top: clamp(32px, 6vh, 72px);
+  }
+
+  .logworkout-page .logworkout-card {
+    width: min(100%, 560px);
+    padding: 40px;
+    border-radius: 34px;
+  }
+
+  .logworkout-page .logworkout-header {
+    margin-bottom: 32px;
+  }
+
+  .logworkout-page .logworkout-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .logworkout-page .eyebrow {
+    font-size: 0.92rem;
+  }
+
+  .logworkout-page .logworkout-fieldset {
+    gap: 24px;
+  }
+
+  .logworkout-page .field {
+    gap: 10px;
+  }
+
+  .logworkout-page .field-row {
+    gap: 18px;
+  }
+
+  .logworkout-page .field-label {
+    font-size: 0.88rem;
+  }
+
+  .logworkout-page .field input[type="number"],
+  .logworkout-page .unit-field input,
+  .logworkout-page .custom-select-trigger,
+  .logworkout-page .date-picker-field {
+    min-height: 60px;
+    border-radius: 18px;
+    font-size: 1.08rem;
+  }
+
+  .logworkout-page .field input[type="number"],
+  .logworkout-page .unit-field input {
+    padding: 0 20px;
+  }
+
+  .logworkout-page .custom-select-trigger {
+    padding: 0 16px 0 20px;
+  }
+
+  .logworkout-page .date-picker-field {
+    padding: 0 20px;
+  }
+
+  .logworkout-page .date-display-input {
+    font-size: 1.08rem;
+  }
+
+  .logworkout-page .date-picker-field > svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .logworkout-page .custom-select-arrow {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logworkout-page .custom-select-list {
+    max-height: 340px;
+    padding: 8px;
+    border-radius: 22px;
+  }
+
+  .logworkout-page .custom-select-option {
+    min-height: 52px;
+    padding: 12px 14px;
+    font-size: 1.02rem;
+    border-radius: 15px;
+  }
+
+  .logworkout-page .duration-inputs {
+    gap: 14px;
+  }
+
+  .logworkout-page .unit-field .unit {
+    font-size: 0.84rem;
+  }
+
+  .logworkout-page .save-action,
+  .logworkout-page .primary-btn {
+    height: 62px;
+  }
+
+  .logworkout-page .primary-btn {
+    font-size: 1.08rem;
+    border-radius: 18px;
+  }
+
+  .logworkout-page .save-spinner {
+    border-radius: 18px;
+  }
+
+  .logworkout-page .status-message {
+    margin-top: 22px;
+    padding: 13px 16px;
+    font-size: 1rem;
+  }
+}
