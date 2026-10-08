@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import './404.css'
-import AuroraBackground from '../components/AuroraBackground.css'
+import AuroraBackground from '../components/AuroraBackground'
 
 function NotFoundPage() {
   return (
