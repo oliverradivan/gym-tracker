@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import './404.css'
+import AuroraBackground from '../components/AuroraBackground.css'
 
 function NotFoundPage() {
   return (
+   <AuroraBackground>
     <div className="not-found-page">
       <div className="not-found-card">
         <h1>404</h1>
@@ -13,6 +15,7 @@ function NotFoundPage() {
         </Link>
       </div>
     </div>
+   </AuroraBackground>
   )
 }
 
