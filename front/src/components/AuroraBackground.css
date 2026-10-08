@@ -104,30 +104,36 @@
   animation-duration: calc(var(--dur) * var(--aurora-speed));
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+  /* path starts right away; the fade is shifted so the four blobs take turns */
+  animation-delay: 0s, calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0));
 }
 
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
   --dur: 11s;
-  animation-name: aurora-push;
+  --fade-phase: 0;
+  animation-name: aurora-push, aurora-fade;
 }
 
 .aurora__blob--pull {
   --blob-color: var(--aurora-pull);
   --dur: 13s;
-  animation-name: aurora-pull;
+  --fade-phase: -0.25;
+  animation-name: aurora-pull, aurora-fade;
 }
 
 .aurora__blob--leg {
   --blob-color: var(--aurora-leg);
   --dur: 15s;
-  animation-name: aurora-leg;
+  --fade-phase: -0.5;
+  animation-name: aurora-leg, aurora-fade;
 }
 
 .aurora__blob--cardio {
   --blob-color: var(--aurora-cardio);
   --dur: 12s;
-  animation-name: aurora-cardio;
+  --fade-phase: -0.75;
+  animation-name: aurora-cardio, aurora-fade;
 }
 
 /* Each colour loops around the edges on its own route.
@@ -159,6 +165,15 @@
   25%      { transform: translate(50cqw, 100cqh) scale(1.2); }
   50%      { transform: translate(100cqw, 88cqh) scale(0.9); }
   75%      { transform: translate(30cqw, 100cqh) scale(1.1); }
+}
+
+/* Presence: each blob is invisible for roughly half of its loop.
+   Gone 0-12%, fades in to 32%, fully there 32-48%, fades out by 68%, gone again.
+   Want them around even less? Shorten the 32%/48% hold. More? Widen it. */
+@keyframes aurora-fade {
+  0%, 12%  { opacity: 0; }
+  32%, 48% { opacity: var(--aurora-blob-opacity); }
+  68%, 100% { opacity: 0; }
 }
 
 /* People who turn on "Reduce motion" in their OS get a still glow */
