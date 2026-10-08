@@ -887,7 +887,7 @@
 /* ---------- Mobile: taller, same width ---------- */
 @media (max-width: 767px) {
   .logworkout-page .logworkout-card {
-    min-height: clamp(560px, calc(100dvh - 190px), 800px);
+    min-height: clamp(560px, calc(100dvh - 230px), 740px);
     padding-top: 28px;
     padding-bottom: 24px;
   }
