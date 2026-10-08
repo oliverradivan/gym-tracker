@@ -27,5 +27,19 @@
   overflow-y: auto;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+
+  /* Room so content can scroll up above the floating nav bar */
+  padding-bottom: calc(96px + var(--safe-bottom));
+}
+
+/* CHANGED: pages that use the aurora (Log Workout, Progress) get NO padding
+   on the page itself. That padding was an empty strip the aurora could not
+   paint into. The same space is added inside the aurora instead, so the
+   colour reaches the bottom of the screen and content still clears the nav. */
+.swipe-deck-page:has(> .aurora) {
+  padding-bottom: 0;
+}
+
+.swipe-deck-page > .aurora .aurora__content {
   padding-bottom: calc(96px + var(--safe-bottom));
 }
