@@ -63,15 +63,17 @@
   z-index: 1; /* real page content sits above the glow */
 }
 
-/* ---------- Glow layer: edges only ---------- */
+/* ---------- Glow layer (one screen-sized tile) ---------- */
 
 .aurora__glow {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* top + height come from the component, one tile per screen */
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  container-type: size; /* lets blobs use cqw / cqh (percent of this layer) */
+  container-type: size;
 
   -webkit-mask-image: radial-gradient(
     ellipse 62% 60% at 50% 50%,
@@ -104,9 +106,9 @@
   animation-duration: calc(var(--dur) * var(--aurora-speed));
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  /* path starts right away; the fade is shifted so the four blobs take turns */
-  animation-delay: 0s, calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0));
-}
+  animation-delay:
+    var(--shift, 0s),
+    calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0) + var(--shift, 0s));}
 
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
