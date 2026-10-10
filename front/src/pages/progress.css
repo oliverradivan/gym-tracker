@@ -148,9 +148,11 @@
 
   border-radius: var(--progress-radius-xl);
 
-  --card-shadow-color: #3E231B;
+  --card-glow: transparent; /* no glow until an exercise is picked */
 
-  box-shadow: 4px 4px 10px var(--card-shadow-color);
+  box-shadow:
+    var(--progress-shadow),
+    0 0 40px 4px var(--card-glow);
 
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -159,7 +161,7 @@
 
   animation: progressFloatIn 0.55s var(--progress-ease);
 
-  transition: box-shadow 0.25s ease;
+  transition: box-shadow 0.35s ease;
 }
 
 /* Subtle top highlight */
@@ -191,25 +193,25 @@
 .progress-card.push {
   border-color: rgba(217, 72, 72, 0.16);
 
-  --card-shadow-color: #3E1B1B;
+  --card-glow: rgb(217 72 72 / 50%);
 }
 
 .progress-card.pull {
   border-color: rgba(57, 118, 216, 0.16);
 
-  --card-shadow-color: #1B2A3E;
+  --card-glow: rgb(57 118 216 / 50%);
 }
 
 .progress-card.leg {
   border-color: rgba(185, 133, 32, 0.18);
 
-  --card-shadow-color: #3E2F1B;
+  --card-glow: rgb(185 133 32 / 50%);
 }
 
 .progress-card.cardio {
   border-color: rgba(77, 149, 96, 0.16);
 
-  --card-shadow-color: #1B3E26;
+  --card-glow: rgb(77 149 96 / 50%);
 }
 
 /* =========================================================
