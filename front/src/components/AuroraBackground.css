@@ -1,8 +1,11 @@
+/* Lets the browser smoothly fade between colours (instead of snapping) */
 @property --blob-color {
   syntax: "<color>";
   inherits: false;
   initial-value: transparent;
 }
+
+/* ---------- Colours (your exercise categories) ---------- */
 
 .aurora {
   --aurora-push: #e04f4f;
@@ -10,27 +13,23 @@
   --aurora-leg: #e0b21f;
   --aurora-cardio: #3fae62;
   --aurora-other: #7a8798;
-  --aurora-bg: #f7f8f7;
-  --aurora-blob-opacity: 0.35;
-  --aurora-intensity: 1;
-  --aurora-speed: 1;
 
-  position: relative;
-  z-index: auto;
-  isolation: isolate;
-  min-height: 100%;
-  overflow: visible;
-  background: transparent;
+  --aurora-bg: #f7f8f7;
+  --aurora-blob-opacity: 0.6;
+  --aurora-speed: 1; /* lower = faster */
 }
 
 .dark .aurora {
   --aurora-bg: #0c0e11;
-  --aurora-blob-opacity: 0.4;
+  --aurora-blob-opacity: 0.65;
 }
 
+/* "Thinking" mode: same paths, just quicker */
 .aurora--active {
   --aurora-speed: 0.45;
 }
+
+/* ---------- Single-colour mode (when a tone is chosen) ---------- */
 
 .aurora[data-tone="push"]   { --aurora-tone: var(--aurora-push); }
 .aurora[data-tone="pull"]   { --aurora-tone: var(--aurora-pull); }
@@ -38,6 +37,7 @@
 .aurora[data-tone="cardio"] { --aurora-tone: var(--aurora-cardio); }
 .aurora[data-tone="other"]  { --aurora-tone: var(--aurora-other); }
 
+/* Two blobs in the pure colour, two in a lighter shade of it */
 .aurora[data-tone] .aurora__blob--push,
 .aurora[data-tone] .aurora__blob--leg {
   --blob-color: var(--aurora-tone);
@@ -48,54 +48,44 @@
   --blob-color: color-mix(in srgb, var(--aurora-tone) 70%, white);
 }
 
+/* ---------- Frame ---------- */
+
+.aurora {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 100%;
+  background: var(--aurora-bg);
+}
+
 .aurora__content {
   position: relative;
-  z-index: 1;
+  z-index: 1; /* real page content sits above the glow */
 }
 
-.aurora__portal {
-  position: static;
-  z-index: auto;
-  isolation: isolate;
-  min-height: 0;
-  overflow: visible;
-  background: transparent;
-  pointer-events: none;
-}
+/* ---------- Glow layer: edges only ---------- */
 
 .aurora__glow {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  height: 100lvh;
-  overflow: hidden;
-  pointer-events: none;
-  container-type: size;
-
-  -webkit-mask-image: radial-gradient(
-    ellipse 54% 48% at 50% 50%,
-    transparent 34%,
-    rgb(0 0 0 / 0.08) 48%,
-    rgb(0 0 0 / 0.55) 72%,
-    #000 100%
-  );
-  mask-image: radial-gradient(
-    ellipse 54% 48% at 50% 50%,
-    transparent 34%,
-    rgb(0 0 0 / 0.08) 48%,
-    rgb(0 0 0 / 0.55) 72%,
-    #000 100%
-  );
-}
-
-.aurora__glow::after {
   position: absolute;
   inset: 0;
-  content: "";
+  z-index: 0;
+  overflow: hidden;
   pointer-events: none;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  container-type: size; /* lets blobs use cqw / cqh (percent of this layer) */
+
+  -webkit-mask-image: radial-gradient(
+    ellipse 62% 60% at 50% 50%,
+    transparent 25%,
+    #000 80%
+  );
+  mask-image: radial-gradient(
+    ellipse 62% 60% at 50% 50%,
+    transparent 25%,
+    #000 80%
+  );
 }
+
+/* ---------- Blobs ---------- */
 
 .aurora__blob {
   --size: clamp(300px, 90cqmin, 900px);
@@ -107,32 +97,20 @@
   height: var(--size);
   margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
   border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    var(--blob-color) 0%,
-    color-mix(in srgb, var(--blob-color) 78%, transparent) 12%,
-    color-mix(in srgb, var(--blob-color) 48%, transparent) 28%,
-    color-mix(in srgb, var(--blob-color) 20%, transparent) 48%,
-    color-mix(in srgb, var(--blob-color) 6%, transparent) 68%,
-    transparent 86%
-  );
-  filter: blur(40px);
-  opacity: calc(var(--aurora-blob-opacity) * var(--aurora-intensity));
-  translate: var(--react-x, 0px) var(--react-y, 0px);
-  will-change: transform, translate, opacity;
-  transition: --blob-color 700ms ease;
+  background: radial-gradient(closest-side, var(--blob-color), transparent);
+  opacity: var(--aurora-blob-opacity);
+  will-change: transform;
+  transition: --blob-color 700ms ease; /* the colour fade */
   animation-duration: calc(var(--dur) * var(--aurora-speed));
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  animation-delay:
-    0s,
-    calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0));
+  /* path starts right away; the fade is shifted so the four blobs take turns */
+  animation-delay: 0s, calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0));
 }
 
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
   --dur: 11s;
-  --depth: 0.48;
   --fade-phase: 0;
   animation-name: aurora-push, aurora-fade;
 }
@@ -140,7 +118,6 @@
 .aurora__blob--pull {
   --blob-color: var(--aurora-pull);
   --dur: 13s;
-  --depth: 0.78;
   --fade-phase: -0.25;
   animation-name: aurora-pull, aurora-fade;
 }
@@ -148,7 +125,6 @@
 .aurora__blob--leg {
   --blob-color: var(--aurora-leg);
   --dur: 15s;
-  --depth: -0.58;
   --fade-phase: -0.5;
   animation-name: aurora-leg, aurora-fade;
 }
@@ -156,57 +132,53 @@
 .aurora__blob--cardio {
   --blob-color: var(--aurora-cardio);
   --dur: 12s;
-  --depth: 1;
   --fade-phase: -0.75;
   animation-name: aurora-cardio, aurora-fade;
 }
 
-.dark .aurora__blob {
-  mix-blend-mode: screen;
-}
+/* Each colour loops around the edges on its own route.
+   Numbers are x / y as a % of the screen, so (0,0) is the top-left corner. */
 
 @keyframes aurora-push {
-  0%, 100% { transform: translate(18cqw, 12cqh) rotate(-9deg) scale(1, 0.88); }
-  25%      { transform: translate(77cqw, 15cqh) rotate(8deg) scale(1.22, 1.06); }
-  50%      { transform: translate(88cqw, 40cqh) rotate(15deg) scale(0.91, 0.8); }
-  75%      { transform: translate(43cqw, 13cqh) rotate(-7deg) scale(1.12, 0.98); }
+  0%, 100% { transform: translate(10cqw, 0cqh) scale(1); }
+  25%      { transform: translate(85cqw, 6cqh) scale(1.25); }
+  50%      { transform: translate(100cqw, 38cqh) scale(0.9); }
+  75%      { transform: translate(40cqw, 2cqh) scale(1.15); }
 }
 
 @keyframes aurora-pull {
-  0%, 100% { transform: translate(88cqw, 25cqh) rotate(11deg) scale(0.97, 0.86); }
-  25%      { transform: translate(81cqw, 62cqh) rotate(-8deg) scale(1.18, 1.04); }
-  50%      { transform: translate(55cqw, 88cqh) rotate(-15deg) scale(0.88, 0.78); }
-  75%      { transform: translate(88cqw, 72cqh) rotate(7deg) scale(1.08, 0.95); }
+  0%, 100% { transform: translate(100cqw, 20cqh) scale(1); }
+  25%      { transform: translate(92cqw, 62cqh) scale(1.2); }
+  50%      { transform: translate(55cqw, 100cqh) scale(0.9); }
+  75%      { transform: translate(100cqw, 78cqh) scale(1.1); }
 }
 
 @keyframes aurora-leg {
-  0%, 100% { transform: translate(12cqw, 62cqh) rotate(-8deg) scale(1.02, 0.9); }
-  25%      { transform: translate(20cqw, 25cqh) rotate(9deg) scale(1.17, 1.03); }
-  50%      { transform: translate(48cqw, 12cqh) rotate(14deg) scale(0.91, 0.8); }
-  75%      { transform: translate(12cqw, 82cqh) rotate(-7deg) scale(1.12, 0.98); }
+  0%, 100% { transform: translate(0cqw, 62cqh) scale(1); }
+  25%      { transform: translate(12cqw, 18cqh) scale(1.2); }
+  50%      { transform: translate(48cqw, 0cqh) scale(0.9); }
+  75%      { transform: translate(0cqw, 92cqh) scale(1.15); }
 }
 
 @keyframes aurora-cardio {
-  0%, 100% { transform: translate(12cqw, 88cqh) rotate(9deg) scale(0.98, 0.87); }
-  25%      { transform: translate(50cqw, 88cqh) rotate(-8deg) scale(1.18, 1.04); }
-  50%      { transform: translate(88cqw, 80cqh) rotate(-14deg) scale(0.9, 0.8); }
-  75%      { transform: translate(35cqw, 88cqh) rotate(7deg) scale(1.08, 0.95); }
+  0%, 100% { transform: translate(0cqw, 100cqh) scale(1); }
+  25%      { transform: translate(50cqw, 100cqh) scale(1.2); }
+  50%      { transform: translate(100cqw, 88cqh) scale(0.9); }
+  75%      { transform: translate(30cqw, 100cqh) scale(1.1); }
 }
 
+/* Presence: each blob is invisible for roughly half of its loop.
+   Gone 0-12%, fades in to 32%, fully there 32-48%, fades out by 68%, gone again.
+   Want them around even less? Shorten the 32%/48% hold. More? Widen it. */
 @keyframes aurora-fade {
-  0%, 12% { opacity: 0; }
-  32%, 48% { opacity: calc(var(--aurora-blob-opacity) * var(--aurora-intensity)); }
+  0%, 12%  { opacity: 0; }
+  32%, 48% { opacity: var(--aurora-blob-opacity); }
   68%, 100% { opacity: 0; }
 }
 
+/* People who turn on "Reduce motion" in their OS get a still glow */
 @media (prefers-reduced-motion: reduce) {
   .aurora__blob {
     animation: none;
-    opacity: calc(var(--aurora-blob-opacity) * var(--aurora-intensity));
   }
-
-  .aurora__blob--push { transform: translate(22cqw, 20cqh) scale(1.02, 0.98); }
-  .aurora__blob--pull { transform: translate(78cqw, 26cqh) scale(0.98, 1.04); }
-  .aurora__blob--leg { transform: translate(34cqw, 78cqh) scale(1.04, 0.98); }
-  .aurora__blob--cardio { transform: translate(78cqw, 78cqh) scale(0.98, 1.03); }
 }
