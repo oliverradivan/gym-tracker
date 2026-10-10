@@ -148,7 +148,9 @@
 
   border-radius: var(--progress-radius-xl);
 
-  box-shadow: var(--progress-shadow);
+  --card-shadow-color: #3E231B;
+
+  box-shadow: 4px 4px 10px var(--card-shadow-color);
 
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -156,6 +158,8 @@
   overflow: visible;
 
   animation: progressFloatIn 0.55s var(--progress-ease);
+
+  transition: box-shadow 0.25s ease;
 }
 
 /* Subtle top highlight */
@@ -186,18 +190,26 @@
 
 .progress-card.push {
   border-color: rgba(217, 72, 72, 0.16);
+
+  --card-shadow-color: #3E1B1B;
 }
 
 .progress-card.pull {
   border-color: rgba(57, 118, 216, 0.16);
+
+  --card-shadow-color: #1B2A3E;
 }
 
 .progress-card.leg {
   border-color: rgba(185, 133, 32, 0.18);
+
+  --card-shadow-color: #3E2F1B;
 }
 
 .progress-card.cardio {
   border-color: rgba(77, 149, 96, 0.16);
+
+  --card-shadow-color: #1B3E26;
 }
 
 /* =========================================================
