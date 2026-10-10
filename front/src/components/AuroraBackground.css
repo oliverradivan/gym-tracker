@@ -1,20 +1,5 @@
 /* Lets the browser smoothly fade between colours (instead of snapping) */
-@property --c1 {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: transparent;
-}
-@property --c2 {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: transparent;
-}
-@property --c3 {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: transparent;
-}
-@property --c4 {
+@property --blob-color {
   syntax: "<color>";
   inherits: false;
   initial-value: transparent;
@@ -30,20 +15,18 @@
   --aurora-other: #7a8798;
 
   --aurora-bg: #f7f8f7;
-  --aurora-opacity: 0.55;   /* how strong the glow is */
-  --aurora-height: 34vh;    /* how far down the glow reaches */
-  --aurora-speed: 1;        /* lower = faster */
+  --aurora-blob-opacity: 0.6;
+  --aurora-speed: 1; /* lower = faster */
 }
 
 .dark .aurora {
   --aurora-bg: #0c0e11;
-  --aurora-opacity: 0.8;
+  --aurora-blob-opacity: 0.65;
 }
 
-/* "Thinking" mode: faster, stronger, reaches further down */
+/* "Thinking" mode: same paths, just quicker */
 .aurora--active {
   --aurora-speed: 0.45;
-  --aurora-height: 48vh;
 }
 
 /* ---------- Single-colour mode (when a tone is chosen) ---------- */
@@ -53,6 +36,17 @@
 .aurora[data-tone="leg"]    { --aurora-tone: var(--aurora-leg); }
 .aurora[data-tone="cardio"] { --aurora-tone: var(--aurora-cardio); }
 .aurora[data-tone="other"]  { --aurora-tone: var(--aurora-other); }
+
+/* Two blobs in the pure colour, two in a lighter shade of it */
+.aurora[data-tone] .aurora__blob--push,
+.aurora[data-tone] .aurora__blob--leg {
+  --blob-color: var(--aurora-tone);
+}
+
+.aurora[data-tone] .aurora__blob--pull,
+.aurora[data-tone] .aurora__blob--cardio {
+  --blob-color: color-mix(in srgb, var(--aurora-tone) 70%, white);
+}
 
 /* ---------- Frame ---------- */
 
@@ -69,120 +63,122 @@
   z-index: 1; /* real page content sits above the glow */
 }
 
-/* ---------- Glow layer: pinned to the top of the screen ---------- */
+/* ---------- Glow layer: edges only ---------- */
 
 .aurora__glow {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--aurora-height);
+  position: absolute;
+  inset: 0;
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  opacity: var(--aurora-opacity);
-  transition: height 700ms ease;
-  animation: aurora-breathe calc(7s * var(--aurora-speed)) ease-in-out infinite alternate;
+  container-type: size; /* lets blobs use cqw / cqh (percent of this layer) */
 
-  /* strong at the very top, fading smoothly to nothing */
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    rgba(0, 0, 0, 0.6) 30%,
-    rgba(0, 0, 0, 0.18) 65%,
-    transparent 100%
+  -webkit-mask-image: radial-gradient(
+    ellipse 62% 60% at 50% 50%,
+    transparent 25%,
+    #000 80%
   );
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    rgba(0, 0, 0, 0.6) 30%,
-    rgba(0, 0, 0, 0.18) 65%,
-    transparent 100%
+  mask-image: radial-gradient(
+    ellipse 62% 60% at 50% 50%,
+    transparent 25%,
+    #000 80%
   );
 }
 
-/* ---------- Colour bands ---------- */
+/* ---------- Blobs ---------- */
 
-/* Each band is twice as wide as the screen and made of two identical
-   halves, so sliding it left by 50% loops with no visible jump. */
-.aurora__band {
-  --c1: var(--aurora-push);
-  --c2: var(--aurora-pull);
-  --c3: var(--aurora-leg);
-  --c4: var(--aurora-cardio);
+.aurora__blob {
+  --size: clamp(300px, 90cqmin, 900px);
 
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
-  width: 200%;
-  background: linear-gradient(
-    90deg,
-    var(--c1) 0%,
-    var(--c2) 12.5%,
-    var(--c3) 25%,
-    var(--c4) 37.5%,
-    var(--c1) 50%,
-    var(--c2) 62.5%,
-    var(--c3) 75%,
-    var(--c4) 87.5%,
-    var(--c1) 100%
-  );
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--blob-color), transparent);
+  opacity: var(--aurora-blob-opacity);
   will-change: transform;
-  transition: --c1 700ms ease, --c2 700ms ease, --c3 700ms ease, --c4 700ms ease;
-  animation: aurora-drift linear infinite;
+  transition: --blob-color 700ms ease; /* the colour fade */
+  animation-duration: calc(var(--dur) * var(--aurora-speed));
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  /* path starts right away; the fade is shifted so the four blobs take turns */
+  animation-delay: 0s, calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0));
 }
 
-/* Two bands at different speeds, one going the other way.
-   Where they overlap, colours blend (red + blue = purple). */
-.aurora__band--a {
-  opacity: 0.9;
-  animation-duration: calc(22s * var(--aurora-speed));
+.aurora__blob--push {
+  --blob-color: var(--aurora-push);
+  --dur: 11s;
+  --fade-phase: 0;
+  animation-name: aurora-push, aurora-fade;
 }
 
-.aurora__band--b {
-  opacity: 0.6;
-  /* start from a different colour order so the blends keep changing */
-  --c1: var(--aurora-cardio);
-  --c2: var(--aurora-push);
-  --c3: var(--aurora-pull);
-  --c4: var(--aurora-leg);
-  animation-duration: calc(31s * var(--aurora-speed));
-  animation-direction: reverse;
+.aurora__blob--pull {
+  --blob-color: var(--aurora-pull);
+  --dur: 13s;
+  --fade-phase: -0.25;
+  animation-name: aurora-pull, aurora-fade;
 }
 
-/* Single-colour mode: pure tone + a lighter shade of it */
-.aurora[data-tone] .aurora__band {
-  --c1: var(--aurora-tone);
-  --c2: color-mix(in srgb, var(--aurora-tone) 70%, white);
-  --c3: var(--aurora-tone);
-  --c4: color-mix(in srgb, var(--aurora-tone) 70%, white);
+.aurora__blob--leg {
+  --blob-color: var(--aurora-leg);
+  --dur: 15s;
+  --fade-phase: -0.5;
+  animation-name: aurora-leg, aurora-fade;
 }
 
-.aurora[data-tone] .aurora__band--b {
-  --c1: color-mix(in srgb, var(--aurora-tone) 70%, white);
-  --c2: var(--aurora-tone);
-  --c3: color-mix(in srgb, var(--aurora-tone) 70%, white);
-  --c4: var(--aurora-tone);
+.aurora__blob--cardio {
+  --blob-color: var(--aurora-cardio);
+  --dur: 12s;
+  --fade-phase: -0.75;
+  animation-name: aurora-cardio, aurora-fade;
 }
 
-/* ---------- Motion ---------- */
+/* Each colour loops around the edges on its own route.
+   Numbers are x / y as a % of the screen, so (0,0) is the top-left corner. */
 
-@keyframes aurora-drift {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+@keyframes aurora-push {
+  0%, 100% { transform: translate(10cqw, 0cqh) scale(1); }
+  25%      { transform: translate(85cqw, 6cqh) scale(1.25); }
+  50%      { transform: translate(100cqw, 38cqh) scale(0.9); }
+  75%      { transform: translate(40cqw, 2cqh) scale(1.15); }
 }
 
-/* Slow "breathing" so the glow feels alive even when colours are steady */
-@keyframes aurora-breathe {
-  from { opacity: calc(var(--aurora-opacity) * 0.8); }
-  to   { opacity: var(--aurora-opacity); }
+@keyframes aurora-pull {
+  0%, 100% { transform: translate(100cqw, 20cqh) scale(1); }
+  25%      { transform: translate(92cqw, 62cqh) scale(1.2); }
+  50%      { transform: translate(55cqw, 100cqh) scale(0.9); }
+  75%      { transform: translate(100cqw, 78cqh) scale(1.1); }
+}
+
+@keyframes aurora-leg {
+  0%, 100% { transform: translate(0cqw, 62cqh) scale(1); }
+  25%      { transform: translate(12cqw, 18cqh) scale(1.2); }
+  50%      { transform: translate(48cqw, 0cqh) scale(0.9); }
+  75%      { transform: translate(0cqw, 92cqh) scale(1.15); }
+}
+
+@keyframes aurora-cardio {
+  0%, 100% { transform: translate(0cqw, 100cqh) scale(1); }
+  25%      { transform: translate(50cqw, 100cqh) scale(1.2); }
+  50%      { transform: translate(100cqw, 88cqh) scale(0.9); }
+  75%      { transform: translate(30cqw, 100cqh) scale(1.1); }
+}
+
+/* Presence: each blob is invisible for roughly half of its loop.
+   Gone 0-12%, fades in to 32%, fully there 32-48%, fades out by 68%, gone again.
+   Want them around even less? Shorten the 32%/48% hold. More? Widen it. */
+@keyframes aurora-fade {
+  0%, 12%  { opacity: 0; }
+  32%, 48% { opacity: var(--aurora-blob-opacity); }
+  68%, 100% { opacity: 0; }
 }
 
 /* People who turn on "Reduce motion" in their OS get a still glow */
 @media (prefers-reduced-motion: reduce) {
-  .aurora__glow,
-  .aurora__band {
+  .aurora__blob {
     animation: none;
   }
 }
