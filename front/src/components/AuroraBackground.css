@@ -1,55 +1,43 @@
-/* Lets the browser smoothly fade between colours instead of snapping. */
 @property --blob-color {
   syntax: "<color>";
   inherits: false;
   initial-value: transparent;
 }
 
-/* Exercise category colours; adjust these to match the app's category palette. */
 .aurora {
   --aurora-push: #e04f4f;
   --aurora-pull: #4c82dc;
   --aurora-leg: #e0b21f;
   --aurora-cardio: #3fae62;
   --aurora-other: #7a8798;
-
-  /* Preserve the existing page backgrounds and opacity controls. */
   --aurora-bg: #f7f8f7;
-  --aurora-blob-opacity: 0.68;
-
-  /* Tune overall glow brightness without changing the category colours. */
-  --aurora-intensity: 0.92;
-
-  /* Lower values make the existing edge-hugging motion faster. */
+  --aurora-blob-opacity: 0.35;
+  --aurora-intensity: 1;
   --aurora-speed: 1;
 
   position: relative;
-  z-index: 1;
+  z-index: auto;
   isolation: isolate;
   min-height: 100%;
   overflow: visible;
   background: transparent;
 }
 
-/* Keep the original dark background and opacity settings. */
 .dark .aurora {
   --aurora-bg: #0c0e11;
-  --aurora-blob-opacity: 0.72;
+  --aurora-blob-opacity: 0.4;
 }
 
-/* "Thinking" mode speeds up the same paths. */
 .aurora--active {
   --aurora-speed: 0.45;
 }
 
-/* One selected category controls all four blobs while retaining two lighter ones. */
 .aurora[data-tone="push"]   { --aurora-tone: var(--aurora-push); }
 .aurora[data-tone="pull"]   { --aurora-tone: var(--aurora-pull); }
 .aurora[data-tone="leg"]    { --aurora-tone: var(--aurora-leg); }
 .aurora[data-tone="cardio"] { --aurora-tone: var(--aurora-cardio); }
 .aurora[data-tone="other"]  { --aurora-tone: var(--aurora-other); }
 
-/* Two blobs use the pure tone, and two use its lighter shade. */
 .aurora[data-tone] .aurora__blob--push,
 .aurora[data-tone] .aurora__blob--leg {
   --blob-color: var(--aurora-tone);
@@ -60,46 +48,46 @@
   --blob-color: color-mix(in srgb, var(--aurora-tone) 70%, white);
 }
 
-/* Content sits above the separately portaled, viewport-fixed glow. */
 .aurora__content {
   position: relative;
   z-index: 1;
 }
 
-/* The portal wrapper carries the existing tone and theme variables only. */
 .aurora__portal {
   position: static;
   z-index: auto;
-  isolation: auto;
+  isolation: isolate;
   min-height: 0;
   overflow: visible;
   background: transparent;
   pointer-events: none;
 }
 
-/* One fixed glow avoids transformed page ancestors and remains screen-pinned. */
 .aurora__glow {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   height: 100lvh;
   overflow: hidden;
   pointer-events: none;
   container-type: size;
 
   -webkit-mask-image: radial-gradient(
-    ellipse 62% 60% at 50% 50%,
-    transparent 25%,
-    #000 80%
+    ellipse 54% 48% at 50% 50%,
+    transparent 34%,
+    rgb(0 0 0 / 0.08) 48%,
+    rgb(0 0 0 / 0.55) 72%,
+    #000 100%
   );
   mask-image: radial-gradient(
-    ellipse 62% 60% at 50% 50%,
-    transparent 25%,
-    #000 80%
+    ellipse 54% 48% at 50% 50%,
+    transparent 34%,
+    rgb(0 0 0 / 0.08) 48%,
+    rgb(0 0 0 / 0.55) 72%,
+    #000 100%
   );
 }
 
-/* Fine low-opacity grain gently breaks up gradient colour banding. */
 .aurora__glow::after {
   position: absolute;
   inset: 0;
@@ -109,9 +97,7 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
 
-/* Each blob uses a soft gradient and separate translate motion for reactions. */
 .aurora__blob {
-  /* Tune blob size relative to the fixed screen-sized query container. */
   --size: clamp(300px, 90cqmin, 900px);
 
   position: absolute;
@@ -124,14 +110,13 @@
   background: radial-gradient(
     ellipse at center,
     var(--blob-color) 0%,
-    color-mix(in srgb, var(--blob-color) 85%, transparent) 15%,
-    color-mix(in srgb, var(--blob-color) 55%, transparent) 35%,
-    color-mix(in srgb, var(--blob-color) 25%, transparent) 58%,
-    color-mix(in srgb, var(--blob-color) 8%, transparent) 80%,
-    transparent 100%
+    color-mix(in srgb, var(--blob-color) 78%, transparent) 12%,
+    color-mix(in srgb, var(--blob-color) 48%, transparent) 28%,
+    color-mix(in srgb, var(--blob-color) 20%, transparent) 48%,
+    color-mix(in srgb, var(--blob-color) 6%, transparent) 68%,
+    transparent 86%
   );
-  /* A light blur softens the gradient edge; keep it modest for mobile rendering. */
-  filter: blur(38px);
+  filter: blur(40px);
   opacity: calc(var(--aurora-blob-opacity) * var(--aurora-intensity));
   translate: var(--react-x, 0px) var(--react-y, 0px);
   will-change: transform, translate, opacity;
@@ -144,7 +129,6 @@
     calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0));
 }
 
-/* Individual depth separates the mouse and scroll response into soft layers. */
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
   --dur: 11s;
@@ -177,12 +161,10 @@
   animation-name: aurora-cardio, aurora-fade;
 }
 
-/* Keep the warm yellow luminous where it overlaps cooler category colours. */
 .dark .aurora__blob {
   mix-blend-mode: screen;
 }
 
-/* Paths stay edge-biased but move inward slightly; rotation and oval scaling add life. */
 @keyframes aurora-push {
   0%, 100% { transform: translate(18cqw, 12cqh) rotate(-9deg) scale(1, 0.88); }
   25%      { transform: translate(77cqw, 15cqh) rotate(8deg) scale(1.22, 1.06); }
@@ -211,14 +193,12 @@
   75%      { transform: translate(35cqw, 88cqh) rotate(7deg) scale(1.08, 0.95); }
 }
 
-/* Presence animation: each colour fades in and out at its staggered phase. */
 @keyframes aurora-fade {
   0%, 12% { opacity: 0; }
   32%, 48% { opacity: calc(var(--aurora-blob-opacity) * var(--aurora-intensity)); }
   68%, 100% { opacity: 0; }
 }
 
-/* Reduced motion keeps all four blobs softly visible at distinct fixed positions. */
 @media (prefers-reduced-motion: reduce) {
   .aurora__blob {
     animation: none;
