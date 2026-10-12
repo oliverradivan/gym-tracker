@@ -215,7 +215,7 @@
   background: transparent;
 }
 
-.aurora--off .aurora__canvas,
-.aurora--off .aurora__glow {
+.aurora--off > .aurora__canvas,
+.aurora--off > .aurora__glow {
   opacity: 0;
 }
