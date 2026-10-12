@@ -4,8 +4,8 @@ import {
   EXERCISE_CATEGORIES,
   getExerciseCategory,
 } from '../../utils/exerciseCategory'
-import { ExerciseCategoryIcon } from './ExerciseCategoryIcon'
-import DashboardIcon from './DashboardIcon'
+import { ExerciseCategoryIcon } from './components/ExerciseCategoryIcon'
+import DashboardIcon from './components/DashboardIcon'
 
 const categories = Object.values(EXERCISE_CATEGORIES)
 
