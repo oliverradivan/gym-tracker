@@ -7,8 +7,8 @@ import { ExerciseCategoryIcon } from './ExerciseCategoryIcon'
 import DashboardIcon from './DashboardIcon'
 
 export default function DashboardExerciseSection({
-  exercises,
-  sortedExercises,
+  exercises = [],
+  sortedExercises = [],
   user,
   handleDeleteExercise,
   deletingExerciseId,
@@ -16,13 +16,46 @@ export default function DashboardExerciseSection({
   handleChange,
   handleCreateExercise,
 }) {
+  // Protect against missing or invalid data.
+  const exerciseList = Array.isArray(exercises)
+    ? exercises.filter(Boolean)
+    : []
+
+  const sortedExerciseList = Array.isArray(sortedExercises)
+    ? sortedExercises.filter(
+        (exercise) => exercise && typeof exercise === 'object'
+      )
+    : []
+
+  // The existing category configuration contains category strings.
+  const categories = Object.values(EXERCISE_CATEGORIES || {}).filter(
+    (category) => typeof category === 'string' && category.length > 0
+  )
+
+  const formName = form?.exercise_name ?? ''
+  const selectedCategory = form?.category ?? categories[0] ?? 'other'
+
+  // Resolve the category once and safely provide a fallback.
+  const getSafeCategory = (exercise) => {
+    if (!exercise || typeof exercise !== 'object') {
+      return 'other'
+    }
+
+    try {
+      return getExerciseCategory(exercise) || 'other'
+    } catch {
+      return exercise.category || 'other'
+    }
+  }
+
   return (
     <>
       <div className="dash-section-head">
         <h2 id="dash-library-title" className="dash-section-title">
           Your exercises
         </h2>
-        <span className="dash-count">{exercises.length}</span>
+
+        <span className="dash-count">{exerciseList.length}</span>
       </div>
 
       <section
@@ -33,38 +66,52 @@ export default function DashboardExerciseSection({
           <h2 id="dash-create-title" className="dash-section-title">
             Add an exercise
           </h2>
+
           <p className="dash-create-copy">
-            Can't find what you're looking for? Add it to your exercise library.
+            Can't find what you're looking for? Add it to your exercise
+            library.
           </p>
         </div>
-        <form onSubmit={handleCreateExercise} className="dash-create-form">
+
+        <form
+          onSubmit={handleCreateExercise}
+          className="dash-create-form"
+        >
           <div className="dash-field">
             <label htmlFor="exercise_name">Exercise name</label>
+
             <input
               id="exercise_name"
               type="text"
               name="exercise_name"
-              value={form.exercise_name}
+              value={formName}
               onChange={handleChange}
               placeholder="e.g. Incline Bench Press"
               required
             />
           </div>
+
           <div className="dash-field">
             <label htmlFor="exercise_category">Category</label>
+
             <select
               id="exercise_category"
               name="category"
-              value={form.category}
+              value={selectedCategory}
               onChange={handleChange}
             >
-              {Object.values(EXERCISE_CATEGORIES).map((category) => (
+              {categories.map((category) => (
                 <option key={category} value={category}>
-                  {category}
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
                 </option>
               ))}
+
+              {categories.length === 0 && (
+                <option value="other">Other</option>
+              )}
             </select>
           </div>
+
           <button type="submit" className="dash-btn">
             Add Exercise
           </button>
@@ -75,47 +122,54 @@ export default function DashboardExerciseSection({
         className="dash-exercises"
         aria-labelledby="dash-library-title"
       >
-
-        {sortedExercises.length ? (
+        {sortedExerciseList.length > 0 ? (
           <div className="dash-rows dash-rows-grid">
-            {sortedExercises.map((exercise) => (
-              <div
-                key={exercise.id}
-                className={`dash-row dash-row-compact activity-row exercise-card ${
-                  exercise.unit === 'km'
-                    ? 'exercise-card--run'
-                    : 'exercise-card--general'
-                }`}
-                data-category={getExerciseCategory(exercise)}
-              >
-                <span className="dash-row-tile" aria-hidden="true">
-                  <ExerciseCategoryIcon
-                    category={getExerciseCategory(exercise)}
-                  />
-                </span>
-                <Link
-                  to={`/progress/${exercise.id}`}
-                  className="dash-row-title dash-row-link"
+            {sortedExerciseList.map((exercise) => {
+              const category = getSafeCategory(exercise)
+
+              return (
+                <div
+                  key={exercise.id ?? exercise.name}
+                  className={`dash-row dash-row-compact activity-row exercise-card ${
+                    exercise.unit === 'km'
+                      ? 'exercise-card--run'
+                      : 'exercise-card--general'
+                  }`}
+                  data-category={category}
                 >
-                  {exercise.name}
-                </Link>
-                {exercise.created_by === user?.id && (
-                  <button
-                    type="button"
-                    className="dash-remove-btn"
-                    onClick={(event) => handleDeleteExercise(event, exercise)}
-                    disabled={deletingExerciseId === exercise.id}
-                    aria-label={`Remove ${exercise.name}`}
-                    title="Remove exercise"
+                  <span className="dash-row-tile" aria-hidden="true">
+                    <ExerciseCategoryIcon category={category} />
+                  </span>
+
+                  <Link
+                    to={`/progress/${exercise.id}`}
+                    className="dash-row-title dash-row-link"
                   >
-                    <DashboardIcon>
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
-                    </DashboardIcon>
-                  </button>
-                )}
-              </div>
-            ))}
+                    {exercise.name ?? 'Unnamed exercise'}
+                  </Link>
+
+                  {exercise.created_by &&
+                    user?.id &&
+                    exercise.created_by === user.id && (
+                      <button
+                        type="button"
+                        className="dash-remove-btn"
+                        onClick={(event) =>
+                          handleDeleteExercise?.(event, exercise)
+                        }
+                        disabled={deletingExerciseId === exercise.id}
+                        aria-label={`Remove ${exercise.name ?? 'exercise'}`}
+                        title="Remove exercise"
+                      >
+                        <DashboardIcon>
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
+                        </DashboardIcon>
+                      </button>
+                    )}
+                </div>
+              )
+            })}
           </div>
         ) : (
           <p className="dash-empty-note">
