@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { EXERCISE_CATEGORIES, getExerciseCategory, } from '../utils/exerciseCategory'
-import { ExerciseCategoryIcon } from './components/ExerciseCategoryIcon'
-import DashboardIcon from './components/DashboardIcon'
-import './dashboard.css'
+import {
+  EXERCISE_CATEGORIES,
+  getExerciseCategory,
+} from '../../utils/exerciseCategory'
+import { ExerciseCategoryIcon } from './ExerciseCategoryIcon'
+import DashboardIcon from './DashboardIcon'
 
 const categories = Object.values(EXERCISE_CATEGORIES)
 
@@ -11,32 +13,23 @@ const getCategoryClass = (category) =>
   String(category || 'Other').toLowerCase()
 
 export default function DashboardExerciseSection({
-  exercises = [],
-  sortedExercises = [],
+  exercises,
+  sortedExercises,
   user,
   handleDeleteExercise,
   deletingExerciseId,
-  form = {},
+  form,
   handleChange,
   handleCreateExercise,
 }) {
-    const exerciseList = Array.isArray(exercises) ? exercises : []
-
-  const sortedExerciseList = Array.isArray(sortedExercises)
-    ? sortedExercises.filter(
-        (exercise) => exercise && typeof exercise === 'object'
-      )
-    : []
-
   const [categoryOpen, setCategoryOpen] = useState(false)
   const categorySelectRef = useRef(null)
   const categoryTriggerRef = useRef(null)
   const categoryOptionRefs = useRef([])
 
- const selectedCategory =
-  form && categories.includes(form.category)
+  const selectedCategory = categories.includes(form.category)
     ? form.category
-    : categories[0] ?? 'Other'
+    : EXERCISE_CATEGORIES.OTHER
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -127,7 +120,7 @@ export default function DashboardExerciseSection({
           Your exercises
         </h2>
 
-        <span className="dash-count">{exerciseList.length}</span>
+        <span className="dash-count">{exercises.length}</span>
       </div>
 
       <section
@@ -152,7 +145,7 @@ export default function DashboardExerciseSection({
               id="exercise_name"
               type="text"
               name="exercise_name"
-              value={form?.exercise_name ?? ''}
+              value={form.exercise_name}
               onChange={handleChange}
               placeholder="e.g. Incline Bench Press"
               required
@@ -283,9 +276,9 @@ export default function DashboardExerciseSection({
         className="dash-exercises"
         aria-labelledby="dash-library-title"
       >
-        {sortedExerciseList.length > 0 ? (
+        {sortedExercises.length ? (
           <div className="dash-rows dash-rows-grid">
-            {sortedExerciseList.map((exercise) => (
+            {sortedExercises.map((exercise) => (
               <div
                 key={exercise.id}
                 className={`dash-row dash-row-compact activity-row exercise-card ${
