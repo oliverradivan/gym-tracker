@@ -6,6 +6,7 @@ import { useLocalStorageState } from '../hooks/useLocalStorageState'
 import { parseApiResponse } from '../utils/apiRequest'
 import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle, Sparkles, Eye, EyeOff } from 'lucide-react'
 import './settings.css'
+import AuroraBackground from '../components/AuroraBackground'
 
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
@@ -224,6 +225,7 @@ function SettingsPage() {
   }
 
   return (
+   <AuroraBackground>
     <div className="settings-page">
       <header className="topbar">
         <div>
@@ -524,6 +526,7 @@ function SettingsPage() {
         </div>
       </div>
     </div>
+   </AuroraBackground>
   )
 }
 

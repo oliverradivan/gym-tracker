@@ -6,6 +6,7 @@ import LogWorkoutPage from '../pages/logworkout'
 import ProgressPage from '../pages/progress'
 import SettingsPage from '../pages/settings'
 import { navigateForSwipe } from './swipe-navigation'
+import { AuroraPageActive, AuroraShell } from './AuroraBackground'
 import './SwipeDeck.css'
 
 const PAGES = [
@@ -14,6 +15,14 @@ const PAGES = [
   '/logworkout',
   '/progress',
   '/settings',
+]
+
+const PAGE_COMPONENTS = [
+  DashboardPage,
+  HistoryPage,
+  LogWorkoutPage,
+  ProgressPage,
+  SettingsPage,
 ]
 
 const EDGE_RESISTANCE = 0.3
@@ -404,39 +413,29 @@ function SwipeDeck() {
     baseTranslatePercent + dragPercent
 
   return (
-    <div
-      className="swipe-deck"
-      ref={containerRef}
-    >
+    <AuroraShell>
       <div
-        className={`swipe-deck-track${
-          isDragging ? ' dragging' : ''
-        }`}
-        style={{
-          transform: `translate3d(${finalTranslate}%, 0, 0)`,
-        }}
+        className="swipe-deck"
+        ref={containerRef}
       >
-        <div className="swipe-deck-page">
-          <DashboardPage />
-        </div>
-
-        <div className="swipe-deck-page">
-          <HistoryPage />
-        </div>
-
-        <div className="swipe-deck-page">
-          <LogWorkoutPage />
-        </div>
-
-        <div className="swipe-deck-page">
-          <ProgressPage />
-        </div>
-
-        <div className="swipe-deck-page">
-          <SettingsPage />
+        <div
+          className={`swipe-deck-track${
+            isDragging ? ' dragging' : ''
+          }`}
+          style={{
+            transform: `translate3d(${finalTranslate}%, 0, 0)`,
+          }}
+        >
+          {PAGE_COMPONENTS.map((Page, index) => (
+            <div className="swipe-deck-page" key={PAGES[index]}>
+              <AuroraPageActive.Provider value={index === activeIndex}>
+                <Page />
+              </AuroraPageActive.Provider>
+            </div>
+          ))}
         </div>
       </div>
-    </div>
+    </AuroraShell>
   )
 }
 

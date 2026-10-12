@@ -4,6 +4,7 @@ import RegisterPage from './pages/register'
 import NotFoundPage from './pages/404'
 import Layout from './components/Layout'
 import SwipeDeck from './components/SwipeDeck'
+import { AuroraShell } from './components/AuroraBackground'
 import { AuthProvider, useAuth } from './context/authContext'
 import { WorkoutsProvider } from './context/WorkoutsContext'
 import { ThemeProvider } from './context/themeContext'
@@ -14,31 +15,34 @@ function AppRoutes() {
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path="/login"
-          element={user ? ( <Navigate to="/dashboard" replace />) : (<LoginPage /> )}
-        />
-        <Route
-          path="/register" 
-          element={user ? ( <Navigate to="/dashboard" replace /> ) : ( <RegisterPage /> )}
-        />
+      {/* Mounted once: stays alive across every route change */}
+      <AuroraShell>
+        <Routes>
+          <Route
+            path="/login"
+            element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+          />
+          <Route
+            path="/register"
+            element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />}
+          />
 
-        <Route element={user ? ( <Layout />) : ( <Navigate to="/login" replace /> ) } >
-          <Route path="/dashboard" element={<SwipeDeck />} />
-          <Route path="/history" element={<SwipeDeck />} />
-          <Route path="/logworkout" element={<SwipeDeck />} />
-          <Route path="/progress" element={<SwipeDeck />} />
-          <Route path="/progress/:exerciseId" element={<SwipeDeck />} />
-          <Route path="/settings" element={<SwipeDeck />} />
-        </Route>
+          <Route element={user ? <Layout /> : <Navigate to="/login" replace />}>
+            <Route path="/dashboard" element={<SwipeDeck />} />
+            <Route path="/history" element={<SwipeDeck />} />
+            <Route path="/logworkout" element={<SwipeDeck />} />
+            <Route path="/progress" element={<SwipeDeck />} />
+            <Route path="/progress/:exerciseId" element={<SwipeDeck />} />
+            <Route path="/settings" element={<SwipeDeck />} />
+          </Route>
 
-        <Route
-          path="/"
-          element={ <Navigate to={user ? '/dashboard' : '/login'} replace /> }
-        />
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          <Route
+            path="/"
+            element={<Navigate to={user ? '/dashboard' : '/login'} replace />}
+          />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </AuroraShell>
     </BrowserRouter>
   )
 }

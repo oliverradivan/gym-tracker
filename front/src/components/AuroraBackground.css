@@ -186,3 +186,36 @@
     animation: none;
   }
 }
+
+/* ---------- Shell mode (one aurora behind the whole swipe deck) ---------- */
+
+.aurora {
+  transition: background-color 400ms ease;
+}
+
+.aurora--shell {
+  height: 100%;
+}
+
+.aurora--shell > .aurora__content {
+  height: 100%;
+}
+
+.aurora-proxy {
+  min-height: 100%;
+}
+
+.aurora__canvas {
+  transition: opacity 400ms ease;
+}
+
+/* No aurora page showing (Dashboard, History, Settings): fade out and let
+   the app's normal background show through. */
+.aurora--off {
+  background: transparent;
+}
+
+.aurora--off .aurora__canvas,
+.aurora--off .aurora__glow {
+  opacity: 0;
+}
