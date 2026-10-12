@@ -6,7 +6,7 @@
 
 :root {
   /* -------------------------------------------------------
-     CORE
+     CORE TOKENS
      ------------------------------------------------------- */
 
   --progress-ink: #111214;
@@ -14,24 +14,32 @@
   --progress-muted: #777a80;
   --progress-faint: #a1a4aa;
 
-  --progress-surface: rgba(255, 255, 255, 0.84);
-  --progress-surface-solid: #ffffff;
-  --progress-surface-soft: rgba(248, 248, 249, 0.92);
+  /* -------------------------------------------------------
+     LIQUID GLASS SYSTEM (Light Mode)
+     ------------------------------------------------------- */
 
-  --progress-input: rgba(255, 255, 255, 0.92);
+  --progress-glass-surface: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.70) 0%,
+    rgba(255, 255, 255, 0.40) 100%
+  );
+  --progress-glass-surface-hover: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.82) 0%,
+    rgba(255, 255, 255, 0.52) 100%
+  );
+  --progress-glass-edge: rgba(255, 255, 255, 0.75);
+  --progress-glass-edge-soft: rgba(255, 255, 255, 0.45);
+  --progress-glass-blur: blur(28px) saturate(190%);
+  --progress-glass-shadow:
+    0 20px 48px -12px rgba(17, 18, 20, 0.08),
+    0 4px 16px -2px rgba(17, 18, 20, 0.03);
+  --progress-glass-specular:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.25);
 
-  --progress-border: rgba(17, 18, 20, 0.075);
-  --progress-border-strong: rgba(17, 18, 20, 0.13);
-
-  --progress-shadow:
-    0 30px 90px rgba(17, 18, 20, 0.075),
-    0 8px 24px rgba(17, 18, 20, 0.035);
-
-  --progress-shadow-soft:
-    0 12px 32px rgba(17, 18, 20, 0.055);
-
-  --progress-radius-xl: 30px;
-  --progress-radius-lg: 22px;
+  --progress-radius-xl: 28px;
+  --progress-radius-lg: 20px;
   --progress-radius-md: 16px;
   --progress-radius-sm: 12px;
 
@@ -42,20 +50,24 @@
      ------------------------------------------------------- */
 
   --push-color: #d94848;
-  --push-soft: rgba(217, 72, 72, 0.10);
-  --push-border: rgba(217, 72, 72, 0.22);
+  --push-soft: rgba(217, 72, 72, 0.12);
+  --push-border: rgba(217, 72, 72, 0.30);
+  --push-glow: rgba(217, 72, 72, 0.35);
 
   --pull-color: #3976d8;
-  --pull-soft: rgba(57, 118, 216, 0.10);
-  --pull-border: rgba(57, 118, 216, 0.22);
+  --pull-soft: rgba(57, 118, 216, 0.12);
+  --pull-border: rgba(57, 118, 216, 0.30);
+  --pull-glow: rgba(57, 118, 216, 0.35);
 
   --leg-color: #b98520;
-  --leg-soft: rgba(185, 133, 32, 0.11);
-  --leg-border: rgba(185, 133, 32, 0.24);
+  --leg-soft: rgba(185, 133, 32, 0.14);
+  --leg-border: rgba(185, 133, 32, 0.32);
+  --leg-glow: rgba(185, 133, 32, 0.35);
 
   --cardio-color: #4d9560;
-  --cardio-soft: rgba(77, 149, 96, 0.10);
-  --cardio-border: rgba(77, 149, 96, 0.22);
+  --cardio-soft: rgba(77, 149, 96, 0.12);
+  --cardio-border: rgba(77, 149, 96, 0.30);
+  --cardio-glow: rgba(77, 149, 96, 0.35);
 
   /* -------------------------------------------------------
      CHART
@@ -68,14 +80,16 @@
 
   --chart-3: #7a8492;
 
-  --tooltip-bg: rgba(255, 255, 255, 0.97);
+  --tooltip-bg: rgba(255, 255, 255, 0.85);
 
   --chart-tooltip-foreground: #111214;
   --chart-tooltip-muted: #777a80;
+
+  --progress-category-glow: transparent;
 }
 
 /* =========================================================
-   DARK THEME
+   DARK THEME (Liquid Glass Dark Mode)
    ========================================================= */
 
 .dark {
@@ -84,23 +98,26 @@
   --progress-muted: #9499a2;
   --progress-faint: #696e77;
 
-  --progress-surface: rgba(23, 26, 31, 0.90);
-  --progress-surface-solid: #181b20;
-  --progress-surface-soft: rgba(28, 31, 36, 0.92);
+  --progress-glass-surface: linear-gradient(
+    135deg,
+    rgba(28, 32, 40, 0.72) 0%,
+    rgba(18, 21, 27, 0.52) 100%
+  );
+  --progress-glass-surface-hover: linear-gradient(
+    135deg,
+    rgba(34, 39, 48, 0.80) 0%,
+    rgba(22, 26, 33, 0.60) 100%
+  );
+  --progress-glass-edge: rgba(255, 255, 255, 0.14);
+  --progress-glass-edge-soft: rgba(255, 255, 255, 0.08);
+  --progress-glass-shadow:
+    0 24px 56px -12px rgba(0, 0, 0, 0.50),
+    0 4px 16px -2px rgba(0, 0, 0, 0.30);
+  --progress-glass-specular:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.05);
 
-  --progress-input: rgba(18, 21, 25, 0.94);
-
-  --progress-border: rgba(255, 255, 255, 0.075);
-  --progress-border-strong: rgba(255, 255, 255, 0.13);
-
-  --progress-shadow:
-    0 32px 90px rgba(0, 0, 0, 0.34),
-    0 8px 24px rgba(0, 0, 0, 0.20);
-
-  --progress-shadow-soft:
-    0 14px 36px rgba(0, 0, 0, 0.24);
-
-  --tooltip-bg: rgba(25, 28, 33, 0.98);
+  --tooltip-bg: rgba(20, 23, 29, 0.85);
 
   --chart-axis: rgba(255, 255, 255, 0.24);
   --chart-grid: rgba(255, 255, 255, 0.075);
@@ -118,100 +135,38 @@
   --chart-tooltip-muted: #aeb4bd;
 }
 
-.progress-page {
-  min-height: 100vh;
-
-  padding: 34px 20px 56px;
-
-  color: var(--progress-ink);
-
-  transition:
-    color 0.25s ease;
+/* Category Glow States */
+.progress-page.push {
+  --progress-category-glow: var(--push-glow);
+}
+.progress-page.pull {
+  --progress-category-glow: var(--pull-glow);
+}
+.progress-page.leg {
+  --progress-category-glow: var(--leg-glow);
+}
+.progress-page.cardio {
+  --progress-category-glow: var(--cardio-glow);
 }
 
 /* =========================================================
-   MAIN CARD
+   PAGE FRAME & SHELL
    ========================================================= */
 
-.progress-card {
-  position: relative;
+.progress-page {
+  min-height: 100vh;
+  padding: clamp(24px, 4vw, 48px) 20px 64px;
+  color: var(--progress-ink);
+  transition: color 0.25s ease;
+}
 
+.progress-shell {
   width: min(100%, 1080px);
-
-  margin: 0 auto;
-
-  padding: 34px;
-
-  background: var(--progress-surface);
-
-  border: 1px solid var(--progress-border);
-
-  border-radius: var(--progress-radius-xl);
-
-  --card-glow: transparent; /* no glow until an exercise is picked */
-
-  box-shadow:
-    var(--progress-shadow),
-    0 0 40px 4px var(--card-glow);
-
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-
-  overflow: visible;
-
-  animation: progressFloatIn 0.55s var(--progress-ease);
-
-  transition: box-shadow 0.35s ease;
-}
-
-/* Subtle top highlight */
-
-.progress-card::before {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  left: 10%;
-  right: 10%;
-
-  height: 1px;
-
-  background: rgba(255, 255, 255, 0.9);
-
-  opacity: 0.7;
-
-  pointer-events: none;
-}
-
-.dark .progress-card::before {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-/* Category border */
-
-.progress-card.push {
-  border-color: rgba(217, 72, 72, 0.16);
-
-  --card-glow: rgb(217 72 72 / 50%);
-}
-
-.progress-card.pull {
-  border-color: rgba(57, 118, 216, 0.16);
-
-  --card-glow: rgb(57 118 216 / 50%);
-}
-
-.progress-card.leg {
-  border-color: rgba(185, 133, 32, 0.18);
-
-  --card-glow: rgb(185 133 32 / 50%);
-}
-
-.progress-card.cardio {
-  border-color: rgba(77, 149, 96, 0.16);
-
-  --card-glow: rgb(77 149 96 / 50%);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: progressFloatIn 0.4s var(--progress-ease);
 }
 
 /* =========================================================
@@ -220,480 +175,461 @@
 
 .progress-header {
   display: flex;
-
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 20px;
-
-  margin-bottom: 28px;
+  padding: 0 4px;
 }
 
 .progress-header h1 {
   margin: 0;
-
   color: var(--progress-ink);
-
-  font-size: clamp(2rem, 4vw, 2.65rem);
-
-  font-weight: 750;
-
-  line-height: 1.02;
-
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 760;
+  line-height: 1.05;
   letter-spacing: -0.045em;
 }
 
 .eyebrow {
   display: block;
-
   margin: 0 0 9px;
-
   color: var(--progress-muted);
-
   font-size: 0.68rem;
-
   font-weight: 750;
-
   line-height: 1;
-
   text-transform: uppercase;
-
   letter-spacing: 0.16em;
 }
 
 /* =========================================================
-   EXERCISE SELECTOR
+   EXERCISE SELECTOR (Liquid Glass)
    ========================================================= */
 
 .exercise-select-label {
   display: flex;
-
   flex-direction: column;
-
-  gap: 9px;
-
-  margin: 0 0 28px;
-
+  gap: 10px;
+  margin: 0;
   color: var(--progress-muted);
-
-  font-size: 0.70rem;
-
+  font-size: 0.72rem;
   font-weight: 750;
-
   line-height: 1;
-
   text-transform: uppercase;
-
   letter-spacing: 0.11em;
+  padding: 0 4px;
 }
 
 .custom-select {
   position: relative;
-
   width: 100%;
 }
 
 .custom-select-trigger {
   position: relative;
-
   width: 100%;
-
   min-height: 58px;
-
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 16px;
-
-  padding: 15px 18px;
-
+  padding: 15px 20px;
   color: var(--progress-ink);
-
-  background: var(--progress-input);
-
-  border: 1px solid var(--progress-border-strong);
-
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
   border-radius: var(--progress-radius-md);
-
+  backdrop-filter: var(--progress-glass-blur);
+  -webkit-backdrop-filter: var(--progress-glass-blur);
   box-shadow:
-    0 2px 5px rgba(17, 18, 20, 0.025),
-    inset 0 1px 0 rgba(255, 255, 255, 0.65);
-
+    var(--progress-glass-specular),
+    0 8px 24px -6px rgba(0, 0, 0, 0.05);
   font: inherit;
-
-  font-size: 0.98rem;
-
+  font-size: 1rem;
   font-weight: 650;
-
   text-align: left;
-
   cursor: pointer;
-
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
     box-shadow 0.2s ease,
-    transform 0.14s ease;
+    transform 0.15s ease;
 }
 
 .custom-select-trigger:hover {
-  background: var(--progress-surface-solid);
-
+  background: var(--progress-glass-surface-hover);
   box-shadow:
-    0 5px 16px rgba(17, 18, 20, 0.045),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    var(--progress-glass-specular),
+    0 12px 28px -6px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
 }
 
 .custom-select-trigger:active {
-  transform: scale(0.998);
+  transform: scale(0.995);
 }
 
 .custom-select-trigger:focus-visible {
   outline: none;
-
   border-color: var(--progress-ink);
-
   box-shadow:
-    0 0 0 4px rgba(17, 18, 20, 0.065),
-    0 5px 16px rgba(17, 18, 20, 0.045);
+    var(--progress-glass-specular),
+    0 0 0 3px rgba(17, 18, 20, 0.12),
+    0 12px 28px -6px rgba(0, 0, 0, 0.08);
 }
 
 .dark .custom-select-trigger:focus-visible {
-  border-color: rgba(255, 255, 255, 0.36);
-
+  border-color: rgba(255, 255, 255, 0.45);
   box-shadow:
-    0 0 0 4px rgba(255, 255, 255, 0.075),
-    0 6px 18px rgba(0, 0, 0, 0.25);
+    var(--progress-glass-specular),
+    0 0 0 3px rgba(255, 255, 255, 0.12),
+    0 14px 32px -6px rgba(0, 0, 0, 0.35);
 }
 
 .custom-select-arrow {
   flex: 0 0 auto;
-
-  width: 30px;
-  height: 30px;
-
+  width: 32px;
+  height: 32px;
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   color: var(--progress-muted);
-
-  background: rgba(17, 18, 20, 0.045);
-
-  border-radius: 9px;
-
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.60);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.70);
   transition:
     transform 0.25s var(--progress-ease),
     background 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .dark .custom-select-arrow {
-  background: rgba(255, 255, 255, 0.055);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
 }
 
 .custom-select-arrow.open {
   transform: rotate(180deg);
-
   color: var(--progress-ink);
 }
 
-/* =========================================================
-   CATEGORY SELECT ACCENTS
-   ========================================================= */
-
+/* Category Select Accents */
 .select-push {
   border-color: var(--push-border);
-
   color: var(--push-color);
+  box-shadow:
+    var(--progress-glass-specular),
+    0 0 20px -2px rgba(217, 72, 72, 0.25);
 }
 
 .select-pull {
   border-color: var(--pull-border);
-
   color: var(--pull-color);
+  box-shadow:
+    var(--progress-glass-specular),
+    0 0 20px -2px rgba(57, 118, 216, 0.25);
 }
 
 .select-leg {
   border-color: var(--leg-border);
-
   color: var(--leg-color);
+  box-shadow:
+    var(--progress-glass-specular),
+    0 0 20px -2px rgba(185, 133, 32, 0.25);
 }
 
 .select-cardio {
   border-color: var(--cardio-border);
-
   color: var(--cardio-color);
+  box-shadow:
+    var(--progress-glass-specular),
+    0 0 20px -2px rgba(77, 149, 96, 0.25);
 }
 
-/* =========================================================
-   DROPDOWN
-   ========================================================= */
-
+/* Dropdown Menu (Liquid Glass) */
 .custom-select-list {
   position: absolute;
-
   z-index: 50;
-
   top: calc(100% + 8px);
-
   left: 0;
   right: 0;
-
-  max-height: 310px;
-
+  max-height: 320px;
   overflow-y: auto;
-
   margin: 0;
-
-  padding: 7px;
-
+  padding: 8px;
   list-style: none;
-
-  background: var(--progress-surface-solid);
-
-  border: 1px solid var(--progress-border-strong);
-
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
   border-radius: var(--progress-radius-md);
-
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
   box-shadow:
-    0 22px 50px rgba(17, 18, 20, 0.12),
-    0 5px 14px rgba(17, 18, 20, 0.045);
-
-  backdrop-filter: blur(22px);
-  -webkit-backdrop-filter: blur(22px);
-
+    var(--progress-glass-specular),
+    0 24px 60px rgba(0, 0, 0, 0.14),
+    0 8px 20px rgba(0, 0, 0, 0.06);
   animation: dropdownIn 0.18s var(--progress-ease);
 }
 
 .custom-select-option {
-  min-height: 43px;
-
+  min-height: 44px;
   display: flex;
-
   align-items: center;
-
-  padding: 10px 13px;
-
+  padding: 10px 14px;
   border-radius: 10px;
-
   color: var(--progress-ink-soft);
-
-  font-size: 0.9rem;
-
+  font-size: 0.92rem;
   font-weight: 600;
-
   cursor: pointer;
-
+  border: 1px solid transparent;
   transition:
     background-color 0.15s ease,
+    border-color 0.15s ease,
     color 0.15s ease,
     transform 0.12s ease;
 }
 
 .custom-select-option:hover {
-  transform: translateX(2px);
+  transform: translateX(3px);
 }
 
 .custom-select-option.selected {
-  outline: 2px solid rgba(17, 18, 20, 0.14);
-
+  outline: 2px solid rgba(17, 18, 20, 0.18);
   outline-offset: -2px;
-
   font-weight: 700;
 }
 
 .dark .custom-select-option.selected {
-  outline-color: rgba(255, 255, 255, 0.16);
+  outline-color: rgba(255, 255, 255, 0.22);
 }
 
-/* ---------------------------------------------------------
-   DROPDOWN CATEGORY COLORS
-   --------------------------------------------------------- */
-
+/* Category Option Tints */
 .option-push {
   background: var(--push-soft);
-
-  color: #b83d3d;
+  color: #c93636;
 }
-
 .option-pull {
   background: var(--pull-soft);
-
-  color: #3168bd;
+  color: #2b65ba;
 }
-
 .option-leg {
   background: var(--leg-soft);
-
-  color: #9a6e1b;
+  color: #9c6c13;
 }
-
 .option-cardio {
   background: var(--cardio-soft);
-
-  color: #417c50;
+  color: #3b7e4c;
 }
 
 .option-push:hover {
-  background: rgba(217, 72, 72, 0.15);
+  background: rgba(217, 72, 72, 0.20);
+  border-color: rgba(217, 72, 72, 0.35);
 }
-
 .option-pull:hover {
-  background: rgba(57, 118, 216, 0.15);
+  background: rgba(57, 118, 216, 0.20);
+  border-color: rgba(57, 118, 216, 0.35);
 }
-
 .option-leg:hover {
-  background: rgba(185, 133, 32, 0.16);
+  background: rgba(185, 133, 32, 0.22);
+  border-color: rgba(185, 133, 32, 0.38);
+}
+.option-cardio:hover {
+  background: rgba(77, 149, 96, 0.20);
+  border-color: rgba(77, 149, 96, 0.35);
 }
 
-.option-cardio:hover {
-  background: rgba(77, 149, 96, 0.15);
+.dark .option-push {
+  background: rgba(217, 72, 72, 0.16);
+  color: #ff9e9e;
+}
+.dark .option-pull {
+  background: rgba(57, 118, 216, 0.16);
+  color: #9bc2ff;
+}
+.dark .option-leg {
+  background: rgba(185, 133, 32, 0.18);
+  color: #f1cf7c;
+}
+.dark .option-cardio {
+  background: rgba(77, 149, 96, 0.16);
+  color: #98e0a7;
+}
+
+.dark .option-push:hover {
+  background: rgba(217, 72, 72, 0.25);
+  border-color: rgba(217, 72, 72, 0.45);
+}
+.dark .option-pull:hover {
+  background: rgba(57, 118, 216, 0.25);
+  border-color: rgba(57, 118, 216, 0.45);
+}
+.dark .option-leg:hover {
+  background: rgba(185, 133, 32, 0.28);
+  border-color: rgba(185, 133, 32, 0.48);
+}
+.dark .option-cardio:hover {
+  background: rgba(77, 149, 96, 0.25);
+  border-color: rgba(77, 149, 96, 0.45);
 }
 
 /* =========================================================
-   METRIC CONTROL
+   METRIC CONTROL (Liquid Glass Capsule)
    ========================================================= */
 
 .metric-toggle {
   width: fit-content;
-
   display: inline-flex;
-
   align-items: center;
-
-  gap: 2px;
-
-  margin: 0 0 16px;
-
-  padding: 4px;
-
-  background: rgba(17, 18, 20, 0.045);
-
-  border: 1px solid var(--progress-border);
-
-  border-radius: 13px;
-
-  box-shadow: inset 0 1px 2px rgba(17, 18, 20, 0.025);
-
-  overflow: hidden;
-}
-
-.dark .metric-toggle {
-  background: rgba(255, 255, 255, 0.055);
-
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.20);
+  gap: 4px;
+  margin: 0 0 4px;
+  padding: 5px;
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
+  border-radius: 16px;
+  backdrop-filter: var(--progress-glass-blur);
+  -webkit-backdrop-filter: var(--progress-glass-blur);
+  box-shadow:
+    var(--progress-glass-specular),
+    0 8px 24px -4px rgba(0, 0, 0, 0.05);
 }
 
 .metric-toggle button {
-  min-width: 86px;
-
-  min-height: 38px;
-
-  padding: 8px 15px;
-
-  border: 0;
-
-  border-radius: 9px;
-
+  min-width: 90px;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
   background: transparent;
-
   color: var(--progress-muted);
-
   font: inherit;
-
-  font-size: 0.82rem;
-
+  font-size: 0.84rem;
   font-weight: 700;
-
   cursor: pointer;
-
   transition:
     color 0.18s ease,
     background 0.18s ease,
+    border-color 0.18s ease,
     box-shadow 0.18s ease,
     transform 0.12s ease;
 }
 
 .metric-toggle button:hover {
   color: var(--progress-ink);
-
-  background: rgba(17, 18, 20, 0.055);
+  background: rgba(255, 255, 255, 0.50);
+  border-color: rgba(255, 255, 255, 0.60);
 }
 
 .dark .metric-toggle button:hover {
-  background: rgba(255, 255, 255, 0.065);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .metric-toggle button:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .metric-toggle button.active {
   color: #ffffff;
-
-  background: #17181a;
-
+  background: linear-gradient(135deg, rgba(20, 22, 26, 0.94), rgba(38, 42, 50, 0.94));
+  border: 1px solid rgba(255, 255, 255, 0.20);
   box-shadow:
-    0 3px 8px rgba(17, 18, 20, 0.17),
-    0 1px 2px rgba(17, 18, 20, 0.12);
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 4px 14px rgba(0, 0, 0, 0.22);
 }
 
 .dark .metric-toggle button.active {
   color: #111214;
-
-  background: #f2f3f4;
-
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(235, 238, 245, 0.90));
+  border: 1px solid rgba(255, 255, 255, 0.80);
   box-shadow:
-    0 3px 9px rgba(0, 0, 0, 0.30);
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 /* =========================================================
-   CHART CONTAINER
+   CHART CONTAINER (Liquid Glass Panel)
    ========================================================= */
 
 .chart-box {
   position: relative;
-
   width: 100%;
-
-  margin: 0 0 26px;
-
-  padding: 18px 18px 13px;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.92),
-      rgba(250, 250, 251, 0.84)
-    );
-
-  border: 1px solid var(--progress-border);
-
-  border-radius: var(--progress-radius-lg);
-
+  margin: 0;
+  padding: 24px 22px 16px;
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
+  border-radius: var(--progress-radius-xl);
+  backdrop-filter: var(--progress-glass-blur);
+  -webkit-backdrop-filter: var(--progress-glass-blur);
   box-shadow:
-    0 8px 24px rgba(17, 18, 20, 0.025),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
-
+    var(--progress-glass-specular),
+    var(--progress-glass-shadow),
+    0 0 44px -4px var(--progress-category-glow, transparent);
   overflow: hidden;
-
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
   --tooltip-bg: var(--tooltip-bg);
 }
 
+/* Specular diagonal sheen reflection across the liquid glass surface */
+.chart-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.60) 0%,
+    rgba(255, 255, 255, 0.15) 30%,
+    transparent 55%
+  );
+  opacity: 0.65;
+}
+
+.dark .chart-box::before {
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.03) 30%,
+    transparent 55%
+  );
+  opacity: 0.50;
+}
+
+.progress-page.push .chart-box {
+  border-color: rgba(217, 72, 72, 0.32);
+}
+.progress-page.pull .chart-box {
+  border-color: rgba(57, 118, 216, 0.32);
+}
+.progress-page.leg .chart-box {
+  border-color: rgba(185, 133, 32, 0.35);
+}
+.progress-page.cardio .chart-box {
+  border-color: rgba(77, 149, 96, 0.32);
+}
+
 .best-time-summary {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
+  display: inline-flex;
+  align-items: center;
   gap: 12px;
-  margin: 0 8px 4px;
+  margin: 0 0 14px;
+  padding: 7px 15px;
+  background: rgba(255, 255, 255, 0.50);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 12px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.80), 0 2px 8px rgba(0, 0, 0, 0.03);
   color: var(--progress-muted);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 650;
+}
+
+.dark .best-time-summary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12), 0 2px 8px rgba(0, 0, 0, 0.20);
 }
 
 .best-time-summary strong {
@@ -702,21 +638,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.dark .chart-box {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(28, 31, 36, 0.94),
-      rgba(20, 23, 28, 0.94)
-    );
-
-  box-shadow:
-    0 10px 28px rgba(0, 0, 0, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
-}
-
-/* Give the chart visual breathing room */
-
 .chart-box > .chart-scroll-wrapper,
 .chart-box > .visx-xychart {
   min-height: 390px;
@@ -724,26 +645,16 @@
 
 .volume-chart {
   height: 390px;
-
   display: block;
 }
 
-/* =========================================================
-   MOBILE CHART SCROLLING
-   ========================================================= */
-
 .chart-scroll-wrapper {
   width: 100%;
-
   overflow-x: auto;
   overflow-y: hidden;
-
   -webkit-overflow-scrolling: touch;
-
   touch-action: pan-x;
-
   overscroll-behavior-x: contain;
-
   scrollbar-width: none;
 }
 
@@ -755,62 +666,40 @@
   pointer-events: none;
 }
 
-/* =========================================================
-   CHART FOOTER
-   ========================================================= */
-
 .chart-footer {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
-
   gap: 14px;
-
   flex-wrap: wrap;
-
-  min-height: 38px;
-
-  padding: 11px 5px 2px;
-
-  border-top: 1px solid var(--progress-border);
+  min-height: 40px;
+  margin-top: 8px;
+  padding: 12px 6px 2px;
+  border-top: 1px solid var(--progress-glass-edge-soft);
 }
 
 .chart-legend {
   display: flex;
-
   align-items: center;
-
   gap: 18px;
-
   flex-wrap: wrap;
-
   color: var(--progress-muted);
-
-  font-size: 0.76rem;
-
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
 .legend-item {
   display: inline-flex;
-
   align-items: center;
-
   gap: 8px;
 }
 
 .legend-line {
   width: 25px;
-
   height: 0;
-
   display: inline-block;
-
   border-top-width: 3px;
-
   border-top-style: solid;
-
   border-radius: 999px;
 }
 
@@ -820,39 +709,29 @@
 
 .forecast-line {
   border-top-color: var(--chart-3);
-
   border-top-style: dashed;
 }
 
-/* =========================================================
-   CHART AXES
-   ========================================================= */
-
 .chart-axis {
   stroke: var(--chart-axis);
-
   stroke-width: 1;
 }
 
 .chart-grid-line {
   stroke: var(--chart-grid);
-
   stroke-width: 1;
-
   stroke-dasharray: 3 6;
 }
 
 .chart-axis-label,
 .chart-axis-title {
   fill: var(--chart-label);
-
   font-family:
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-
   font-size: 9px;
 }
 
@@ -862,116 +741,88 @@
 
 .chart-label {
   fill: var(--chart-label);
-
   font-family:
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-
   font-size: 11px;
 }
 
 .chart-tick {
   stroke: var(--chart-tick);
-
   stroke-width: 1;
 }
 
-/* =========================================================
-   GRAPH SCROLL CONTROL
-   ========================================================= */
-
 .chart-scroll-control {
   width: 100%;
-
   padding: 8px 5px 3px;
-
   touch-action: pan-x;
-
   user-select: none;
-
   -webkit-user-select: none;
 }
 
 .chart-scroll-control input[type="range"] {
   display: block;
-
   width: 100%;
-
   height: 16px;
-
   margin: 0;
-
   padding: 0;
-
   cursor: ew-resize;
-
   accent-color: var(--chart-3);
-
   touch-action: pan-x;
 }
 
 /* =========================================================
-   HISTORY TABLE
+   HISTORY TABLE (Liquid Glass Data Table)
    ========================================================= */
 
 .progress-table {
   width: 100%;
-
   border-collapse: separate;
-
   border-spacing: 0;
-
   color: var(--progress-ink);
-
-  background: var(--progress-surface-soft);
-
-  border: 1px solid var(--progress-border);
-
-  border-radius: var(--progress-radius-lg);
-
-  overflow: hidden;
-
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
+  border-radius: var(--progress-radius-xl);
+  backdrop-filter: var(--progress-glass-blur);
+  -webkit-backdrop-filter: var(--progress-glass-blur);
   box-shadow:
-    0 4px 16px rgba(17, 18, 20, 0.018);
+    var(--progress-glass-specular),
+    var(--progress-glass-shadow);
+  overflow: hidden;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
 }
 
 .progress-table th,
 .progress-table td {
-  padding: 14px 17px;
-
+  padding: 15px 20px;
   text-align: left;
-
-  border-bottom: 1px solid var(--progress-border);
+  border-bottom: 1px solid var(--progress-glass-edge-soft);
 }
 
 .progress-table th {
   color: var(--progress-muted);
-
-  background: rgba(17, 18, 20, 0.022);
-
-  font-size: 0.67rem;
-
+  background: rgba(255, 255, 255, 0.35);
+  font-size: 0.70rem;
   font-weight: 750;
-
   text-transform: uppercase;
-
   letter-spacing: 0.09em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .dark .progress-table th {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .progress-table td {
   color: var(--progress-ink-soft);
-
-  font-size: 0.88rem;
-
-  font-weight: 520;
-
+  font-size: 0.90rem;
+  font-weight: 550;
   font-variant-numeric: tabular-nums;
 }
 
@@ -982,46 +833,41 @@
 }
 
 .progress-table tbody tr:hover {
-  background: rgba(17, 18, 20, 0.028);
+  background: rgba(255, 255, 255, 0.40);
 }
 
 .dark .progress-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .progress-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.dark .progress-table td {
-  color: #d3d7dd;
-}
-
-.dark .progress-table th {
-  color: #9298a2;
-}
-
 /* =========================================================
-   STATUS
+   STATUS, ERROR, LOADING
    ========================================================= */
 
-.status-message {
+.progress-shell .status-message {
   margin: 0;
-
-  padding: 18px 2px;
-
+  padding: 24px 28px;
   color: var(--progress-ink-soft);
-
-  font-size: 0.9rem;
-
+  font-size: 0.95rem;
   line-height: 1.55;
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
+  border-radius: var(--progress-radius-lg);
+  backdrop-filter: var(--progress-glass-blur);
+  -webkit-backdrop-filter: var(--progress-glass-blur);
+  box-shadow:
+    var(--progress-glass-specular),
+    var(--progress-glass-shadow);
+  text-align: center;
 }
 
 .error-message {
   margin-top: 4px;
-
   color: #c93636;
-
   font-size: 0.82rem;
 }
 
@@ -1029,32 +875,33 @@
   color: #ff8d8d;
 }
 
+.progress-shell .loading-spinner-wrap {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 /* =========================================================
-   SECONDARY BUTTON
+   SECONDARY BUTTON & CONTROLS
    ========================================================= */
 
 .secondary-btn {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   min-height: 44px;
-
-  padding: 10px 17px;
-
+  padding: 10px 18px;
   color: var(--progress-ink);
-
-  background: rgba(17, 18, 20, 0.045);
-
-  border: 1px solid var(--progress-border);
-
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
   border-radius: var(--progress-radius-sm);
-
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   text-decoration: none;
-
   font-weight: 650;
-
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.70);
   transition:
     background 0.18s ease,
     transform 0.12s ease,
@@ -1062,55 +909,31 @@
 }
 
 .secondary-btn:hover {
-  background: rgba(17, 18, 20, 0.075);
-
-  box-shadow: var(--progress-shadow-soft);
+  background: var(--progress-glass-surface-hover);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .secondary-btn:active {
   transform: scale(0.98);
 }
 
-.dark .secondary-btn {
-  background: rgba(255, 255, 255, 0.055);
-}
-
-.dark .secondary-btn:hover {
-  background: rgba(255, 255, 255, 0.085);
-}
-
-/* =========================================================
-   PREDICTION TOGGLE
-   ========================================================= */
-
 .predict-toggle {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
   min-height: 42px;
-
   padding: 9px 15px;
-
   margin-left: 8px;
-
   color: var(--progress-ink);
-
-  background: rgba(17, 18, 20, 0.045);
-
-  border: 1px solid var(--progress-border-strong);
-
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
   border-radius: var(--progress-radius-sm);
-
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   font: inherit;
-
   font-size: 0.82rem;
-
   font-weight: 650;
-
   cursor: pointer;
-
   transition:
     background 0.18s ease,
     border-color 0.18s ease,
@@ -1118,7 +941,7 @@
 }
 
 .predict-toggle:hover:not(:disabled) {
-  background: rgba(17, 18, 20, 0.08);
+  background: var(--progress-glass-surface-hover);
 }
 
 .predict-toggle:active:not(:disabled) {
@@ -1127,210 +950,37 @@
 
 .predict-toggle:disabled {
   opacity: 0.45;
-
   cursor: not-allowed;
 }
 
-.dark .predict-toggle {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.dark .predict-toggle:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.085);
-}
-
 /* =========================================================
-   CATEGORY-SPECIFIC CHART ACCENTS
-   ========================================================= */
-
-.progress-page.push .chart-box {
-  box-shadow:
-    0 8px 24px rgba(17, 18, 20, 0.025),
-    0 0 0 1px rgba(217, 72, 72, 0.018);
-}
-
-.progress-page.pull .chart-box {
-  box-shadow:
-    0 8px 24px rgba(17, 18, 20, 0.025),
-    0 0 0 1px rgba(57, 118, 216, 0.018);
-}
-
-.progress-page.leg .chart-box {
-  box-shadow:
-    0 8px 24px rgba(17, 18, 20, 0.025),
-    0 0 0 1px rgba(185, 133, 32, 0.018);
-}
-
-.progress-page.cardio .chart-box {
-  box-shadow:
-    0 8px 24px rgba(17, 18, 20, 0.025),
-    0 0 0 1px rgba(77, 149, 96, 0.018);
-}
-
-/* =========================================================
-   DARK MODE — SELECT
-   ========================================================= */
-
-.dark .custom-select-trigger {
-  background: rgba(18, 21, 25, 0.96);
-
-  border-color: rgba(255, 255, 255, 0.12);
-
-  color: #f4f5f7;
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025);
-}
-
-.dark .custom-select-trigger:hover {
-  background: #1a1d22;
-}
-
-.dark .custom-select-list {
-  background: #181b20;
-
-  border-color: rgba(255, 255, 255, 0.12);
-
-  box-shadow:
-    0 24px 55px rgba(0, 0, 0, 0.42),
-    0 5px 15px rgba(0, 0, 0, 0.22);
-}
-
-.dark .option-push {
-  background: rgba(217, 72, 72, 0.13);
-
-  color: #ff9a9a;
-}
-
-.dark .option-pull {
-  background: rgba(57, 118, 216, 0.14);
-
-  color: #8db8ff;
-}
-
-.dark .option-leg {
-  background: rgba(185, 133, 32, 0.14);
-
-  color: #e7c46b;
-}
-
-.dark .option-cardio {
-  background: rgba(77, 149, 96, 0.14);
-
-  color: #8bd39b;
-}
-
-/* =========================================================
-   DARK MODE — CHART
-   ========================================================= */
-
-.dark .chart-box {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(28, 31, 36, 0.94),
-      rgba(20, 23, 28, 0.94)
-    );
-
-  border-color: rgba(255, 255, 255, 0.075);
-}
-
-.dark .chart-footer {
-  border-top-color: rgba(255, 255, 255, 0.075);
-}
-
-.dark .chart-legend {
-  color: #aeb4bd;
-}
-
-.dark .actual-line {
-  border-top-color: #f4f5f7;
-}
-
-/* =========================================================
-   DARK MODE — TABLE
-   ========================================================= */
-
-.dark .progress-table {
-  background: rgba(23, 26, 31, 0.80);
-
-  border-color: rgba(255, 255, 255, 0.075);
-}
-
-.dark .progress-table th,
-.dark .progress-table td {
-  border-bottom-color: rgba(255, 255, 255, 0.065);
-}
-
-/* =========================================================
-   DARK MODE — TEXT
-   ========================================================= */
-
-.dark .progress-header h1 {
-  color: #f4f5f7;
-}
-
-.dark .eyebrow,
-.dark .exercise-select-label {
-  color: #9499a2;
-}
-
-.dark .status-message {
-  color: #d2d5da;
-}
-
-.dark .chart-axis-label,
-.dark .chart-axis-title,
-.dark .chart-label {
-  fill: #aeb4bd;
-}
-
-/* =========================================================
-   ANIMATIONS
+   ANIMATIONS & ACCESSIBILITY
    ========================================================= */
 
 @keyframes progressFloatIn {
   from {
     opacity: 0;
-
-    transform:
-      translateY(14px)
-      scale(0.992);
+    transform: translateY(14px) scale(0.995);
   }
-
   to {
     opacity: 1;
-
-    transform:
-      translateY(0)
-      scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 
 @keyframes dropdownIn {
   from {
     opacity: 0;
-
-    transform:
-      translateY(-5px)
-      scale(0.985);
+    transform: translateY(-5px) scale(0.985);
   }
-
   to {
     opacity: 1;
-
-    transform:
-      translateY(0)
-      scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 
-/* =========================================================
-   REDUCED MOTION
-   ========================================================= */
-
 @media (prefers-reduced-motion: reduce) {
-  .progress-card,
+  .progress-shell,
   .custom-select-list {
     animation: none;
   }
@@ -1355,8 +1005,8 @@
     padding: 26px 16px 48px;
   }
 
-  .progress-card {
-    padding: 28px;
+  .progress-shell {
+    gap: 20px;
   }
 
   .progress-header h1 {
@@ -1364,7 +1014,7 @@
   }
 
   .chart-box {
-    padding: 14px 14px 11px;
+    padding: 16px 16px 12px;
   }
 
   .volume-chart {
@@ -1378,53 +1028,33 @@
 
 @media (max-width: 640px) {
   .progress-page {
-    padding: 15px 10px 38px;
+    padding: 16px 12px 48px;
   }
 
-  .progress-card {
-    width: 100%;
-
-    padding: 21px 15px 22px;
-
-    border-radius: 23px;
-  }
-
-  .progress-header {
-    margin-bottom: 23px;
+  .progress-shell {
+    gap: 16px;
   }
 
   .progress-header h1 {
-    font-size: 1.82rem;
-
+    font-size: 1.85rem;
     letter-spacing: -0.04em;
   }
 
   .eyebrow {
     margin-bottom: 8px;
-
     font-size: 0.62rem;
   }
 
-  /* -------------------------------------------------------
-     SELECT
-     ------------------------------------------------------- */
-
   .exercise-select-label {
     gap: 8px;
-
-    margin-bottom: 22px;
-
-    font-size: 0.64rem;
+    font-size: 0.65rem;
   }
 
   .custom-select-trigger {
-    min-height: 55px;
-
-    padding: 13px 14px;
-
+    min-height: 54px;
+    padding: 13px 15px;
     border-radius: 14px;
-
-    font-size: 0.92rem;
+    font-size: 0.94rem;
   }
 
   .custom-select-arrow {
@@ -1434,52 +1064,32 @@
 
   .custom-select-list {
     max-height: 260px;
-
     border-radius: 14px;
   }
 
   .custom-select-option {
-    min-height: 45px;
-
+    min-height: 44px;
     padding: 11px 12px;
   }
 
-  /* -------------------------------------------------------
-     METRICS
-     ------------------------------------------------------- */
-
   .metric-toggle {
     width: 100%;
-
     display: flex;
-
-    margin-bottom: 12px;
-
-    border-radius: 13px;
+    margin-bottom: 4px;
+    border-radius: 14px;
   }
 
   .metric-toggle button {
     flex: 1;
-
     min-width: 0;
-
     min-height: 40px;
-
-    padding: 8px 7px;
-
-    font-size: 0.76rem;
+    padding: 8px 6px;
+    font-size: 0.78rem;
   }
 
-  /* -------------------------------------------------------
-     CHART
-     ------------------------------------------------------- */
-
   .chart-box {
-    margin-bottom: 21px;
-
-    padding: 10px 9px 10px;
-
-    border-radius: 17px;
+    padding: 12px 10px 10px;
+    border-radius: 20px;
   }
 
   .chart-box > .chart-scroll-wrapper,
@@ -1493,16 +1103,13 @@
 
   .chart-footer {
     gap: 8px;
-
     min-height: 34px;
-
     padding: 9px 3px 1px;
   }
 
   .chart-legend {
     gap: 12px;
-
-    font-size: 0.69rem;
+    font-size: 0.70rem;
   }
 
   .legend-item {
@@ -1511,7 +1118,6 @@
 
   .legend-line {
     width: 19px;
-
     border-top-width: 2px;
   }
 
@@ -1519,43 +1125,31 @@
     padding: 7px 2px 1px;
   }
 
-  /* -------------------------------------------------------
-     TABLE
-     ------------------------------------------------------- */
-
   .progress-table {
     display: block;
-
     overflow-x: auto;
-
     white-space: nowrap;
-
-    border-radius: 16px;
-
+    border-radius: 18px;
     -webkit-overflow-scrolling: touch;
   }
 
   .progress-table th,
   .progress-table td {
-    padding: 12px 13px;
+    padding: 12px 14px;
   }
 
   .progress-table th {
-    font-size: 0.62rem;
+    font-size: 0.64rem;
   }
 
   .progress-table td {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
   }
 
-  /* -------------------------------------------------------
-     STATUS
-     ------------------------------------------------------- */
-
-  .status-message {
-    padding: 14px 1px 8px;
-
-    font-size: 0.85rem;
+  .progress-shell .status-message {
+    padding: 18px 16px;
+    font-size: 0.88rem;
+    border-radius: 16px;
   }
 }
 
@@ -1565,15 +1159,8 @@
 
 @media (max-width: 390px) {
   .progress-page {
-    padding-left: 7px;
-    padding-right: 7px;
-  }
-
-  .progress-card {
-    padding-left: 13px;
-    padding-right: 13px;
-
-    border-radius: 20px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
 
   .progress-header h1 {

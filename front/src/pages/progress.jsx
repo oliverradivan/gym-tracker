@@ -264,7 +264,7 @@ function ProgressPage() {
   return (
      <AuroraBackground tone={selectedExercise ? category : undefined}>
       <div className={`progress-page ${category.toLowerCase()}`}>
-       <div className={`progress-card ${category.toLowerCase()}`}>
+       <main className={`progress-shell ${category.toLowerCase()}`}>
         <div className="progress-header">
           <div>
             <h1>{selectedExercise ? 'Progress' : 'Pick a workout'}</h1>
@@ -359,9 +359,9 @@ function ProgressPage() {
             />
           </>
         )}
+       </main>
       </div>
-    </div>
-   </AuroraBackground>
+     </AuroraBackground>
   )
 }
 
