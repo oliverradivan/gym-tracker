@@ -24,9 +24,10 @@ export default function DashboardExerciseSection({
   const categoryTriggerRef = useRef(null)
   const categoryOptionRefs = useRef([])
 
-  const selectedCategory = categories.includes(form.category)
+ const selectedCategory =
+  form && categories.includes(form.category)
     ? form.category
-    : EXERCISE_CATEGORIES.OTHER
+    : categories[0] ?? 'Other'
 
   useEffect(() => {
     const handlePointerDown = (event) => {
