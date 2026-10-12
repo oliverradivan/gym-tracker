@@ -5,10 +5,10 @@
 }
 
 .aurora {
-  --aurora-push: #e04f4f;   /* red    */
-  --aurora-pull: #4c82dc;   /* blue   */
-  --aurora-leg: #e0b21f;    /* yellow */
-  --aurora-cardio: #3fae62; /* green  */
+  --aurora-push: #e04f4f;
+  --aurora-pull: #4c82dc;
+  --aurora-leg: #e0b21f;
+  --aurora-cardio: #3fae62;
   --aurora-other: #7a8798;
 
   --aurora-bg: #f7f8f7;
