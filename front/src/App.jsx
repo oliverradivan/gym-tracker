@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from './context/authContext'
 import { WorkoutsProvider } from './context/WorkoutsContext'
 import { ThemeProvider } from './context/themeContext'
 import './App.css'
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 function AppRoutes() {
   const { user } = useAuth()
@@ -15,16 +16,11 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route
-          path="/login"
-          element={user ? ( <Navigate to="/dashboard" replace />) : (<LoginPage /> )}
-        />
-        <Route
-          path="/register" 
-          element={user ? ( <Navigate to="/dashboard" replace /> ) : ( <RegisterPage /> )}
-        />
-
-        <Route element={user ? ( <Layout />) : ( <Navigate to="/login" replace /> ) } >
+        <Route path="/login" element={user ? <Navigate to="/dashboard" replace /> : <LoginPage />} />
+        <Route path="/register" element={user ? <Navigate to="/dashboard" replace /> : <RegisterPage />} />
+        
+        {/* Protected Routes Wrapper */}
+        <Route element={user ? <Layout /> : <Navigate to="/login" replace />}>
           <Route path="/dashboard" element={<SwipeDeck />} />
           <Route path="/history" element={<SwipeDeck />} />
           <Route path="/logworkout" element={<SwipeDeck />} />
@@ -33,10 +29,7 @@ function AppRoutes() {
           <Route path="/settings" element={<SwipeDeck />} />
         </Route>
 
-        <Route
-          path="/"
-          element={ <Navigate to={user ? '/dashboard' : '/login'} replace /> }
-        />
+        <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
@@ -45,13 +38,16 @@ function AppRoutes() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <WorkoutsProvider>
-          <AppRoutes />
-        </WorkoutsProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <>
+      <ThemeProvider>
+        <AuthProvider>
+          <WorkoutsProvider>
+            <AppRoutes />
+          </WorkoutsProvider>
+        </AuthProvider>
+      </ThemeProvider>
+      <SpeedInsights />
+    </>
   )
 }
 
