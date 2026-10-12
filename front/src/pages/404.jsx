@@ -10,7 +10,7 @@ function NotFoundPage() {
       <div className="not-found-page">
         {/* Sits behind the glass so the card has something to bend */}
         <span className="not-found-ghost" aria-hidden="true">
-          OOPS
+          ERROR
         </span>
 
         <div className="not-found-card">

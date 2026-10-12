@@ -1,6 +1,6 @@
 .not-found-page {
-  --nf-ghost-a: #24f000;
-  --nf-ghost-b: #f3f306;
+  --nf-ghost-a: #000000;
+  --nf-ghost-b: #fFfFFF;
 
   position: relative;
   min-height: 100vh;
