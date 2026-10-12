@@ -97,8 +97,13 @@ const CATEGORY_ARTWORK = {
 }
 
 export function ExerciseCategoryIcon({ category, className }) {
-  const artwork =
-    CATEGORY_ARTWORK[category] || CATEGORY_ARTWORK[EXERCISE_CATEGORIES.CARDIO]
+  const safeCategory =
+    typeof category === 'string' &&
+    Object.prototype.hasOwnProperty.call(CATEGORY_ARTWORK, category)
+      ? category
+      : EXERCISE_CATEGORIES.CARDIO
+
+  const artwork = CATEGORY_ARTWORK[safeCategory]
 
   return (
     <svg
@@ -116,7 +121,7 @@ export function ExerciseCategoryIcon({ category, className }) {
         <path key={d} d={d} />
       ))}
 
-      {artwork.fills.map((shape) => (
+      {(artwork.fills ?? []).map((shape) => (
         <ellipse
           key={`${shape.cx}-${shape.cy}`}
           {...shape}
@@ -127,4 +132,3 @@ export function ExerciseCategoryIcon({ category, className }) {
     </svg>
   )
 }
-

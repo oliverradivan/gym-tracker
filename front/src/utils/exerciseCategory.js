@@ -15,14 +15,30 @@ export const CATEGORY_COLORS = {
 }
 
 export function getExerciseCategory(exercise) {
-  const category = exercise?.exercise_category
+  if (!exercise || typeof exercise !== 'object') {
+    return EXERCISE_CATEGORIES.OTHER
+  }
+
+  const rawCategory =
+    exercise.exercise_category ??
+    exercise.category ??
+    exercise.exerciseCategory
+
   const normalized =
-    typeof category === 'string' ? category.trim().toLowerCase() : ''
-  return Object.values(EXERCISE_CATEGORIES).find(
-    (allowed) => allowed.toLowerCase() === normalized
-  ) || EXERCISE_CATEGORIES.OTHER
+    typeof rawCategory === 'string'
+      ? rawCategory.trim().toLowerCase()
+      : ''
+
+  return (
+    Object.values(EXERCISE_CATEGORIES).find(
+      (allowed) => allowed.toLowerCase() === normalized
+    ) ?? EXERCISE_CATEGORIES.OTHER
+  )
 }
 
 export function getExerciseCategoryColor(category) {
-  return CATEGORY_COLORS[category] || CATEGORY_COLORS[EXERCISE_CATEGORIES.OTHER]
+  return (
+    CATEGORY_COLORS[category] ??
+    CATEGORY_COLORS[EXERCISE_CATEGORIES.OTHER]
+  )
 }
