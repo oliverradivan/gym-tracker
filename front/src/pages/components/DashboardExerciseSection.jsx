@@ -18,17 +18,17 @@ export default function DashboardExerciseSection({
 }) {
   return (
     <>
+      <div className="dash-section-head">
+        <h2 id="dash-library-title" className="dash-section-title">
+          Your exercises
+        </h2>
+        <span className="dash-count">{exercises.length}</span>
+      </div>
 
       <section
         className="dash-card dash-create"
         aria-labelledby="dash-create-title"
       >
-        <div className="dash-section-head">
-          <h2 id="dash-library-title" className="dash-section-title">
-            Your exercises
-          </h2>
-          <span className="dash-count">{exercises.length}</span>
-        </div>
         <div>
           <h2 id="dash-create-title" className="dash-section-title">
             Add an exercise

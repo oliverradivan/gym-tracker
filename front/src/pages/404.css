@@ -1,6 +1,6 @@
 .not-found-page {
-  --nf-ghost-a: #ff8a4c;
-  --nf-ghost-b: #6f6bff;
+  --nf-ghost-a: #24f000;
+  --nf-ghost-b: #f3f306;
 
   position: relative;
   min-height: 100vh;
@@ -126,7 +126,7 @@
 
 /* Dark Mode Overrides */
 .dark .not-found-page {
-  --nf-ghost-a: #ffa05c;
+  --nf-ghost-a: #ff5c5c;
   --nf-ghost-b: #6e72e6;
 }
 
