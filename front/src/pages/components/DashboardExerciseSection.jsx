@@ -18,6 +18,53 @@ export default function DashboardExerciseSection({
 }) {
   return (
     <>
+
+            <section
+        className="dash-card dash-create"
+        aria-labelledby="dash-create-title"
+      >
+        <div>
+          <h2 id="dash-create-title" className="dash-section-title">
+            Add an exercise
+          </h2>
+          <p className="dash-create-copy">
+            Can't find what you're looking for? Add it to your exercise library.
+          </p>
+        </div>
+        <form onSubmit={handleCreateExercise} className="dash-create-form">
+          <div className="dash-field">
+            <label htmlFor="exercise_name">Exercise name</label>
+            <input
+              id="exercise_name"
+              type="text"
+              name="exercise_name"
+              value={form.exercise_name}
+              onChange={handleChange}
+              placeholder="e.g. Incline Bench Press"
+              required
+            />
+          </div>
+          <div className="dash-field">
+            <label htmlFor="exercise_category">Category</label>
+            <select
+              id="exercise_category"
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+            >
+              {Object.values(EXERCISE_CATEGORIES).map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button type="submit" className="dash-btn">
+            Add Exercise
+          </button>
+        </form>
+      </section>
+
       <section
         className="dash-exercises"
         aria-labelledby="dash-library-title"
@@ -72,55 +119,9 @@ export default function DashboardExerciseSection({
           </div>
         ) : (
           <p className="dash-empty-note">
-            No exercises yet. Create one below.
+            No exercises yet. Create one above.
           </p>
         )}
-      </section>
-
-      <section
-        className="dash-card dash-create"
-        aria-labelledby="dash-create-title"
-      >
-        <div>
-          <h2 id="dash-create-title" className="dash-section-title">
-            Add an exercise
-          </h2>
-          <p className="dash-create-copy">
-            Can't find what you're looking for? Add it to your exercise library.
-          </p>
-        </div>
-        <form onSubmit={handleCreateExercise} className="dash-create-form">
-          <div className="dash-field">
-            <label htmlFor="exercise_name">Exercise name</label>
-            <input
-              id="exercise_name"
-              type="text"
-              name="exercise_name"
-              value={form.exercise_name}
-              onChange={handleChange}
-              placeholder="e.g. Incline Bench Press"
-              required
-            />
-          </div>
-          <div className="dash-field">
-            <label htmlFor="exercise_category">Category</label>
-            <select
-              id="exercise_category"
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-            >
-              {Object.values(EXERCISE_CATEGORIES).map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button type="submit" className="dash-btn">
-            Add Exercise
-          </button>
-        </form>
       </section>
     </>
   )
