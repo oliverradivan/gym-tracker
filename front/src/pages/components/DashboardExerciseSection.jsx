@@ -6,6 +6,10 @@ import {
 import { ExerciseCategoryIcon } from './ExerciseCategoryIcon'
 import DashboardIcon from './DashboardIcon'
 
+const categories = Object.values(EXERCISE_CATEGORIES || {}).filter(
+  (category) => typeof category === 'string' && category.length > 0
+)
+
 export default function DashboardExerciseSection({
   exercises = [],
   sortedExercises = [],
@@ -16,7 +20,7 @@ export default function DashboardExerciseSection({
   handleChange,
   handleCreateExercise,
 }) {
-  // Protect against missing or invalid data.
+  // Ensure the exercise lists are always arrays.
   const exerciseList = Array.isArray(exercises)
     ? exercises.filter(Boolean)
     : []
@@ -27,24 +31,22 @@ export default function DashboardExerciseSection({
       )
     : []
 
-  // The existing category configuration contains category strings.
-  const categories = Object.values(EXERCISE_CATEGORIES || {}).filter(
-    (category) => typeof category === 'string' && category.length > 0
-  )
-
+  // Provide safe defaults for the form.
   const formName = form?.exercise_name ?? ''
-  const selectedCategory = form?.category ?? categories[0] ?? 'other'
+  const selectedCategory = categories.includes(form?.category)
+    ? form.category
+    : categories[0] ?? 'Other'
 
-  // Resolve the category once and safely provide a fallback.
+  // Safely resolve each exercise's category.
   const getSafeCategory = (exercise) => {
     if (!exercise || typeof exercise !== 'object') {
-      return 'other'
+      return 'Other'
     }
 
     try {
-      return getExerciseCategory(exercise) || 'other'
+      return getExerciseCategory(exercise) || 'Other'
     } catch {
-      return exercise.category || 'other'
+      return exercise.category || 'Other'
     }
   }
 
@@ -73,10 +75,7 @@ export default function DashboardExerciseSection({
           </p>
         </div>
 
-        <form
-          onSubmit={handleCreateExercise}
-          className="dash-create-form"
-        >
+        <form onSubmit={handleCreateExercise} className="dash-create-form">
           <div className="dash-field">
             <label htmlFor="exercise_name">Exercise name</label>
 
@@ -102,12 +101,12 @@ export default function DashboardExerciseSection({
             >
               {categories.map((category) => (
                 <option key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                  {category}
                 </option>
               ))}
 
               {categories.length === 0 && (
-                <option value="other">Other</option>
+                <option value="Other">Other</option>
               )}
             </select>
           </div>
@@ -158,7 +157,9 @@ export default function DashboardExerciseSection({
                           handleDeleteExercise?.(event, exercise)
                         }
                         disabled={deletingExerciseId === exercise.id}
-                        aria-label={`Remove ${exercise.name ?? 'exercise'}`}
+                        aria-label={`Remove ${
+                          exercise.name ?? 'exercise'
+                        }`}
                         title="Remove exercise"
                       >
                         <DashboardIcon>
