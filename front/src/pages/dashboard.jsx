@@ -13,6 +13,7 @@ import DashboardOverviewSection from './components/DashboardOverviewSection'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './dashboard.css'
 import AuroraBackground from '../components/AuroraBackground'
+import LiquidGlassDefs from '../components/LiquidGlassDefs'
 
 const initialForm = {
   exercise_name: '',
@@ -202,6 +203,7 @@ function DashboardPage() {
 
   return (
    <AuroraBackground>
+    <LiquidGlassDefs />
     <div className="dash-page">
       {pageLoading ? (
         <div className="dash-loading">

@@ -1,45 +1,99 @@
 .not-found-page {
+  --nf-ghost-a: #ff8a4c;
+  --nf-ghost-b: #6f6bff;
+
+  position: relative;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   padding: 32px 20px;
+  overflow: hidden;
+}
+
+/* Big colourful numerals behind the card: what the glass refracts */
+.not-found-ghost {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  transform: translate(-50%, -52%);
+  font-size: clamp(10rem, 56vw, 20rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  line-height: 0.8;
+  white-space: nowrap;
+  color: transparent;
+  background: linear-gradient(160deg, var(--nf-ghost-a), var(--nf-ghost-b));
+  -webkit-background-clip: text;
+  background-clip: text;
+  opacity: 0.9;
+  user-select: none;
+  pointer-events: none;
 }
 
 .not-found-card {
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  border-radius: 28px;
-  padding: 40px 30px;
+  position: relative;
+  z-index: 1;
+  width: min(100%, 380px);
+  padding: 40px 30px 32px;
+  border: 1px solid var(--lg-edge);
+  border-radius: 40px;
   text-align: center;
   color: #111111;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(18px);
+  background:
+    var(--lg-sheen),
+    var(--lg-fill),
+    var(--lg-base);
+  box-shadow: var(--lg-rim), var(--lg-drop);
+  -webkit-backdrop-filter: var(--lg-refract-panel) blur(var(--lg-blur-panel))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+  backdrop-filter: var(--lg-refract-panel) blur(var(--lg-blur-panel))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
   animation: floatIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .not-found-card h1 {
-  font-size: 4rem;
-  margin: 0;
-}
-
-.not-found-card h2 {
-  margin: 8px 0;
+  margin: 0 0 8px;
+  font-size: 1.9rem;
+  font-weight: 760;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
 }
 
 .not-found-card p {
-  color: #4d4d4f;
-  margin-bottom: 18px;
+  margin: 0 0 24px;
+  color: #2f2f33;
 }
 
+/* Capsule button, tinted glass */
 .not-found-card .primary-btn {
   display: inline-block;
-  background: linear-gradient(180deg, #1d1d1d, #0d0d0d);
-  color: white;
-  border-radius: 12px;
-  padding: 12px 18px;
+  border-radius: 999px;
+  padding: 13px 24px;
+  color: #ffffff;
+  font-weight: 650;
   text-decoration: none;
-  box-shadow: 0 8px 18px rgba(17, 17, 17, 0.08);
+  background: rgb(17 17 17 / 84%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 30%),
+    inset 0 0 0 1px rgb(255 255 255 / 10%),
+    0 8px 20px rgb(0 0 0 / 20%);
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease;
+}
+
+.not-found-card .primary-btn:hover {
+  background: rgb(17 17 17 / 94%);
+}
+
+.not-found-card .primary-btn:active {
+  transform: scale(0.97);
+}
+
+.not-found-card .primary-btn:focus-visible {
+  outline: 3px solid #297e62;
+  outline-offset: 3px;
 }
 
 @keyframes floatIn {
@@ -60,12 +114,8 @@
   }
 
   .not-found-card {
-    padding: 28px 18px;
-    border-radius: 18px;
-  }
-
-  .not-found-card h1 {
-    font-size: 3rem;
+    padding: 32px 20px 24px;
+    border-radius: 32px;
   }
 
   .not-found-card .primary-btn {
@@ -75,24 +125,33 @@
 }
 
 /* Dark Mode Overrides */
-.dark .not-found-card {
-  background: rgba(0, 0, 0, 0.7);
-  border-color: rgba(238, 238, 238, 0.08);
-  box-shadow: 0 24px 80px rgba(255, 255, 255, 0.08);
-  color: #eeeeee;
+.dark .not-found-page {
+  --nf-ghost-a: #ffa05c;
+  --nf-ghost-b: #6e72e6;
 }
 
-.dark .not-found-card h1,
-.dark .not-found-card h2 {
+.dark .not-found-card {
   color: #eeeeee;
 }
 
 .dark .not-found-card p {
-  color: #b2b2b0;
+  color: #c4c4c2;
 }
 
 .dark .not-found-card .primary-btn {
-  background: linear-gradient(180deg, #e2e2e2, #d2d2d2);
   color: #000000;
-  box-shadow: 0 8px 18px rgba(238, 238, 238, 0.08);
+  background: rgb(238 238 238 / 88%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 70%),
+    0 8px 20px rgb(0 0 0 / 40%);
+}
+
+.dark .not-found-card .primary-btn:hover {
+  background: rgb(255 255 255 / 96%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-card {
+    animation: none;
+  }
 }

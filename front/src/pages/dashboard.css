@@ -1,11 +1,23 @@
+/* =====================================================================
+   Dashboard: liquid glass
+   Glass tokens (--lg-*) live in components/liquidGlass.css.
+   Rules of thumb used below:
+   - Big surfaces (stat cards, calendar panel, add-exercise panel) and
+     free-standing controls get backdrop-filter, which is what blurs and
+     (in Chromium) bends the background.
+   - Anything that sits INSIDE a glass panel (calendar tiles, inputs,
+     icon tiles) is only translucent + highlighted. A backdrop-filter
+     nested in another one has nothing left to bend.
+   ===================================================================== */
+
 /* ---------- Theme and page frame ---------- */
 
 .dash-page {
   --dash-ink: #172321;
-  --dash-muted: #52645d;
-  --dash-soft: #667770;
-  --dash-line: #dce6e1;
-  --dash-surface: #ffffff;
+  --dash-muted: #3c514a;
+  --dash-soft: #4d6159;
+  --dash-line: rgb(23 35 33 / 14%);
+  --dash-surface: rgb(255 255 255 / 60%);
   --dash-green: #176b52;
   --dash-green-dark: #10523f;
   --dash-green-wash: #e7f3ed;
@@ -15,25 +27,15 @@
   --dash-teal-wash: #e1f3f1;
   --dash-indigo: #5255ae;
   --dash-indigo-wash: #ececff;
-  --dash-shadow: 0 8px 24px rgb(26 51 42 / 6%);
-  --dash-shadow-hover: 0 12px 28px rgb(26 51 42 / 10%);
-  --dash-glass: rgb(255 255 255 / 78%);
-  --dash-glass-edge: rgb(255 255 255 / 90%);
 
-  /* Primary action: black on off-white (reversed in dark mode) */
+  /* Primary action: black on glass (reversed in dark mode) */
   --dash-action-bg: #0a0a0a;
-  --dash-action-bg-hover: #2a2a2a;
   --dash-action-ink: #ffffff;
-  --dash-offwhite: #f6f6f3;
-  --dash-offwhite-edge: #e6e6e1;
 
   /* Calendar tokens */
   --cal-gap: 6px;
-  --cal-radius: 14px;
-  --cal-edge: rgb(23 35 33 / 8%);
-  --cal-gloss-top: rgb(255 255 255 / 96%);
-  --cal-gloss-bottom: rgb(246 248 247 / 82%);
-  --cal-hover: rgb(23 35 33 / 4%);
+  --cal-radius: 16px;
+  --cal-hover: rgb(255 255 255 / 30%);
   --cal-ring: var(--dash-ink);
 
   min-height: 100%;
@@ -68,6 +70,28 @@
   color: var(--dash-muted);
 }
 
+/* ---------- The glass itself ---------- */
+
+/* Large surfaces: wider, thinner bend band */
+.dash-stat,
+.dash-card,
+.dash-create {
+  -webkit-backdrop-filter: var(--lg-refract-panel) blur(var(--lg-blur-panel))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+  backdrop-filter: var(--lg-refract-panel) blur(var(--lg-blur-panel))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+}
+
+/* Small free-standing controls: tighter, stronger bend */
+.dash-row,
+.dash-avatar,
+.dash-calendar-toggle {
+  -webkit-backdrop-filter: var(--lg-refract-control) blur(var(--lg-blur-control))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+  backdrop-filter: var(--lg-refract-control) blur(var(--lg-blur-control))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+}
+
 /* ---------- Header ---------- */
 
 .dash-header {
@@ -96,7 +120,7 @@
   margin: 10px 0 0;
   color: var(--dash-muted);
   font-size: 0.96rem;
-  font-weight: 530;
+  font-weight: 560;
   letter-spacing: 0.005em;
 }
 
@@ -106,10 +130,10 @@
   width: 66px;
   height: 66px;
   padding: 5px;
-  border: 1px solid rgb(23 107 82 / 16%);
-  border-radius: 19px;
-  background: var(--dash-surface);
-  box-shadow: 0 5px 16px rgb(26 51 42 / 9%);
+  border: 1px solid var(--lg-edge);
+  border-radius: 50%;
+  background: var(--lg-fill), var(--lg-base);
+  box-shadow: var(--lg-rim-soft), var(--lg-drop);
   object-fit: cover;
 }
 
@@ -123,7 +147,6 @@
 
 .dash-stat {
   --stat-accent: var(--dash-green);
-  --stat-wash: var(--dash-green-wash);
 
   position: relative;
   min-width: 0;
@@ -136,47 +159,37 @@
   column-gap: 8px;
   row-gap: 4px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  border-radius: 22px;
+  border: 1px solid var(--lg-edge);
+  border-radius: 30px;
   background:
+    var(--lg-sheen),
     linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--stat-accent) 12%, rgba(255, 255, 255, 0.20)),
-      rgba(255, 255, 255, 0.05)
-    );
-  box-shadow:
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.15),
-    inset 1px 0 1px 0 rgba(255, 255, 255, 0.30),
-    inset -1px 0 1px 0 rgba(255, 255, 255, 0.15),
-    var(--dash-shadow);
-  -webkit-backdrop-filter: blur(28px) saturate(220%) contrast(112%) brightness(106%);
-  backdrop-filter: blur(28px) saturate(220%) contrast(112%) brightness(106%);
+      145deg,
+      color-mix(in srgb, var(--stat-accent) 16%, var(--lg-fill-hi)),
+      var(--lg-fill) 72%
+    ),
+    var(--lg-base);
+  box-shadow: var(--lg-rim), var(--lg-drop);
   transition:
     transform 180ms ease,
-    box-shadow 180ms ease,
-    border-color 180ms ease;
+    box-shadow 180ms ease;
 }
 
 .dash-stat[data-tone="orange"] {
   --stat-accent: var(--dash-orange);
-  --stat-wash: var(--dash-orange-wash);
 }
 
 .dash-stat[data-tone="teal"] {
   --stat-accent: var(--dash-teal);
-  --stat-wash: var(--dash-teal-wash);
 }
 
 .dash-stat[data-tone="indigo"] {
   --stat-accent: var(--dash-indigo);
-  --stat-wash: var(--dash-indigo-wash);
 }
 
 .dash-stat:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in srgb, var(--stat-accent) 28%, var(--dash-line));
-  box-shadow: var(--dash-shadow-hover);
+  box-shadow: var(--lg-rim), var(--lg-drop-hover);
 }
 
 .dash-stat-icon {
@@ -186,13 +199,10 @@
   height: 32px;
   display: grid;
   place-items: center;
-  border: 1px solid rgb(255 255 255 / 72%);
-  border-radius: 11px;
+  border-radius: 50%;
   color: var(--stat-accent);
-  background: color-mix(in srgb, var(--stat-wash) 78%, white);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 85%),
-    0 3px 9px rgb(26 51 42 / 7%);
+  background: color-mix(in srgb, var(--stat-accent) 18%, var(--lg-fill-hi));
+  box-shadow: var(--lg-rim-soft), 0 3px 9px rgb(26 51 42 / 8%);
 }
 
 .dash-stat-icon svg {
@@ -205,7 +215,7 @@
   min-width: 0;
   color: var(--dash-muted);
   font-size: 0.84rem;
-  font-weight: 620;
+  font-weight: 640;
   line-height: 1.3;
 }
 
@@ -245,7 +255,7 @@
 }
 
 .dash-section-head {
-  min-height: 34px;
+  min-height: 44px;
   margin-bottom: 13px;
   display: flex;
   align-items: center;
@@ -257,59 +267,61 @@
   margin: 0;
   color: var(--dash-ink);
   font-size: 1.16rem;
-  font-weight: 730;
+  font-weight: 740;
   letter-spacing: -0.025em;
   line-height: 1.3;
 }
 
 .dash-section-link {
   flex: 0 0 auto;
-  padding: 7px 11px;
-  border-radius: 9px;
+  padding: 8px 14px;
+  border-radius: 999px;
   color: var(--dash-green-dark);
   font-size: 0.84rem;
   font-weight: 700;
   text-decoration: none;
   transition:
     background-color 150ms ease,
-    color 150ms ease;
+    box-shadow 150ms ease;
 }
 
 .dash-section-link:hover {
-  color: #0a4635;
-  background: var(--dash-green-wash);
+  background: var(--lg-fill);
+  box-shadow: var(--lg-rim-soft);
   text-decoration: none;
 }
 
-/* Calendar toggle: quiet pill, neutral ink */
+/* Calendar toggle: glass capsule */
 .dash-calendar-toggle {
   min-height: 44px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
-  border: 0;
+  padding: 7px 16px;
+  border: 1px solid var(--lg-edge);
   border-radius: 999px;
   color: var(--dash-ink);
-  background: transparent;
+  background: var(--lg-fill-lo), var(--lg-base);
+  box-shadow: var(--lg-rim-soft), var(--lg-drop);
   font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
 }
 
 .dash-calendar-toggle:hover {
-  background: var(--cal-hover);
+  background: var(--lg-fill), var(--lg-base);
 }
 
-.dash-calendar-toggle:focus-visible {
-  outline: 2px solid var(--dash-ink);
-  outline-offset: 2px;
+.dash-calendar-toggle:active {
+  transform: scale(0.97);
 }
 
-/* ---------- Cards (glossy panel) ---------- */
+/* ---------- Cards (calendar panel) ---------- */
 
 .dash-week-cards {
   display: block;
@@ -325,37 +337,13 @@
   position: relative;
   min-width: 0;
   padding: 20px 22px;
-  border: 1px solid rgba(255, 255, 255, 0.42);
-  border-radius: 22px;
+  border: 1px solid var(--lg-edge);
+  border-radius: 32px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 100%);
-  box-shadow:
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.15),
-    inset 1px 0 1px 0 rgba(255, 255, 255, 0.30),
-    inset -1px 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 1px 2px rgb(16 24 20 / 4%),
-    0 16px 40px rgb(16 24 20 / 6%);
-  -webkit-backdrop-filter: blur(28px) saturate(220%) contrast(112%) brightness(106%);
-  backdrop-filter: blur(28px) saturate(220%) contrast(112%) brightness(106%);
-  overflow: hidden;
-}
-
-.dash-card::before,
-.dash-stat::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: radial-gradient(
-    120% 100% at 15% 0%,
-    rgba(255, 255, 255, 0.38) 0%,
-    rgba(255, 255, 255, 0.08) 28%,
-    rgba(255, 255, 255, 0.01) 50%,
-    transparent 75%
-  );
-  opacity: 0.85;
+    var(--lg-sheen),
+    var(--lg-fill),
+    var(--lg-base);
+  box-shadow: var(--lg-rim), var(--lg-drop);
 }
 
 .dash-card-label {
@@ -400,7 +388,6 @@
 .dash-calendar-dot[data-category="Push"],
 .dash-calendar-legend-dot[data-category="Push"] {
   --week-accent: #e04f4f;
-  --week-wash: #fff0f0;
 }
 
 .dash-week-day[data-category="Pull"],
@@ -408,7 +395,6 @@
 .dash-calendar-dot[data-category="Pull"],
 .dash-calendar-legend-dot[data-category="Pull"] {
   --week-accent: #4c82dc;
-  --week-wash: #eef5ff;
 }
 
 .dash-week-day[data-category="Leg"],
@@ -416,7 +402,6 @@
 .dash-calendar-dot[data-category="Leg"],
 .dash-calendar-legend-dot[data-category="Leg"] {
   --week-accent: #e0b21f;
-  --week-wash: #fff9df;
 }
 
 .dash-week-day[data-category="Cardio"],
@@ -424,7 +409,6 @@
 .dash-calendar-dot[data-category="Cardio"],
 .dash-calendar-legend-dot[data-category="Cardio"] {
   --week-accent: #3fae62;
-  --week-wash: #edf8ef;
 }
 
 .dash-week-day[data-category="Other"],
@@ -432,7 +416,6 @@
 .dash-calendar-dot[data-category="Other"],
 .dash-calendar-legend-dot[data-category="Other"] {
   --week-accent: #7a8798;
-  --week-wash: #f1f5f9;
 }
 
 /* ---------- Calendar: week strip ---------- */
@@ -469,7 +452,7 @@
   min-width: 0;
 }
 
-/* One shared "glass tile" look for week days and month days */
+/* Day tiles: glass-on-glass (translucent + rim, no second backdrop) */
 .dash-week-day,
 .dash-calendar-day {
   position: relative;
@@ -479,12 +462,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid var(--cal-edge);
+  border: 1px solid var(--lg-edge);
   border-radius: var(--cal-radius);
-  background: linear-gradient(180deg, var(--cal-gloss-top), var(--cal-gloss-bottom));
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 100%),
-    0 1px 2px rgb(16 24 20 / 4%);
+  background: var(--lg-fill-lo);
+  box-shadow: var(--lg-rim-soft);
   color: inherit;
   text-decoration: none;
   transition:
@@ -505,10 +486,8 @@
 .dash-week-day:not([data-disabled="true"]):hover,
 a.dash-calendar-day:hover {
   transform: translateY(-1px);
-  border-color: rgb(23 35 33 / 16%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 100%),
-    0 6px 16px rgb(16 24 20 / 8%);
+  background: var(--lg-fill);
+  box-shadow: var(--lg-rim-soft), 0 6px 16px rgb(16 24 20 / 10%);
 }
 
 .dash-week-day[data-disabled="true"] {
@@ -517,13 +496,13 @@ a.dash-calendar-day:hover {
 
 .dash-week-day[data-future="true"],
 .dash-calendar-day[data-future="true"] {
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
 .dash-week-date {
   color: var(--dash-soft);
   font-size: 0.66rem;
-  font-weight: 650;
+  font-weight: 660;
   letter-spacing: 0.01em;
   line-height: 1;
   white-space: nowrap;
@@ -537,12 +516,12 @@ a.dash-calendar-day:hover {
   display: none;
 }
 
-/* Dot: hollow whisper when empty, glossy jewel when trained */
+/* Dot: hollow when empty, glossy jewel when trained */
 .dash-week-dot,
 .dash-calendar-dot {
   display: block;
   aspect-ratio: 1;
-  border: 1.5px solid rgb(23 35 33 / 14%);
+  border: 1.5px solid rgb(23 35 33 / 18%);
   border-radius: 50%;
   background: transparent;
   box-shadow: none;
@@ -561,12 +540,12 @@ a.dash-calendar-day:hover {
 
 .dash-week-day[data-trained="true"],
 .dash-calendar-day[data-trained="true"] {
-  border-color: color-mix(in srgb, var(--week-accent, var(--dash-green)) 22%, transparent);
+  border-color: color-mix(in srgb, var(--week-accent, var(--dash-green)) 38%, var(--lg-edge));
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--week-accent, var(--dash-green)) 6%, #fff),
-      color-mix(in srgb, var(--week-accent, var(--dash-green)) 14%, #fff)
+      color-mix(in srgb, var(--week-accent, var(--dash-green)) 16%, var(--lg-fill-lo)),
+      color-mix(in srgb, var(--week-accent, var(--dash-green)) 28%, var(--lg-fill-lo))
     );
 }
 
@@ -574,20 +553,18 @@ a.dash-calendar-day:hover {
 .dash-calendar-day[data-trained="true"] .dash-calendar-dot {
   border-color: transparent;
   background:
-    radial-gradient(circle at 32% 26%, rgb(255 255 255 / 62%) 0%, rgb(255 255 255 / 0%) 52%),
+    radial-gradient(circle at 32% 26%, rgb(255 255 255 / 70%) 0%, rgb(255 255 255 / 0%) 52%),
     var(--week-accent, var(--dash-green));
   box-shadow:
-    inset 0 -3px 5px rgb(0 0 0 / 12%),
-    0 4px 10px color-mix(in srgb, var(--week-accent, var(--dash-green)) 38%, transparent);
+    inset 0 -3px 5px rgb(0 0 0 / 14%),
+    0 4px 10px color-mix(in srgb, var(--week-accent, var(--dash-green)) 40%, transparent);
 }
 
-/* Today: crisp ink ring, no colour clash with categories */
+/* Today: crisp ink ring */
 .dash-week-day[data-today="true"],
 .dash-calendar-day[data-today="true"] {
   border-color: var(--cal-ring);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 100%),
-    0 0 0 1px var(--cal-ring);
+  box-shadow: var(--lg-rim-soft), 0 0 0 1px var(--cal-ring);
 }
 
 .dash-week-day[data-today="true"] .dash-week-date,
@@ -646,7 +623,7 @@ a.dash-calendar-day:hover {
   place-items: center;
   color: var(--dash-soft);
   font-size: 0.7rem;
-  font-weight: 650;
+  font-weight: 660;
   text-align: center;
   letter-spacing: 0.02em;
 }
@@ -749,9 +726,9 @@ a.dash-calendar-day:hover {
   list-style: none;
 }
 
+/* Rows are tinted glass; the category sets --row-accent */
 .dash-row {
   --row-accent: #57a567;
-  --row-wash: #edf8ef;
 
   min-width: 0;
   min-height: 70px;
@@ -759,63 +736,50 @@ a.dash-calendar-day:hover {
   display: flex;
   align-items: center;
   gap: 13px;
-  border: 1px solid rgba(57, 144, 77, 0.16);
-  border-radius: 14px;
-  background: linear-gradient(135deg, #edf8ef 0%, #e3f3e6 100%);
-  box-shadow: 0 4px 14px rgb(26 51 42 / 4%);
+  border: 1px solid color-mix(in srgb, var(--row-accent) 30%, var(--lg-edge));
+  border-radius: 24px;
+  background:
+    var(--lg-sheen),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--row-accent) 22%, var(--lg-fill-hi)),
+      color-mix(in srgb, var(--row-accent) 9%, var(--lg-fill))
+    ),
+    var(--lg-base);
+  box-shadow: var(--lg-rim-soft), 0 6px 18px rgb(26 51 42 / 7%);
   transition:
     transform 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease;
+    box-shadow 160ms ease;
 }
 
 .dash-row:hover {
   transform: translateY(-1px);
-  box-shadow: 0 9px 22px rgb(26 51 42 / 8%);
+  box-shadow: var(--lg-rim-soft), 0 12px 26px rgb(26 51 42 / 12%);
 }
 
 .dash-row[data-category="Push"] {
   --row-accent: #d94a4a;
-  --row-wash: #fff0f0;
-  border-color: rgba(185, 28, 28, 0.16);
-  background: linear-gradient(135deg, #fff0f0 0%, #ffe5e5 100%);
 }
 
 .dash-row[data-category="Pull"] {
   --row-accent: #4c82dc;
-  --row-wash: #eef5ff;
-  border-color: rgba(29, 78, 216, 0.15);
-  background: linear-gradient(135deg, #eef5ff 0%, #e3efff 100%);
 }
 
 .dash-row[data-category="Leg"] {
   --row-accent: #d3a62a;
-  --row-wash: #fff9df;
-  border-color: rgba(180, 132, 0, 0.17);
-  background: linear-gradient(135deg, #fff9df 0%, #fff3c4 100%);
 }
 
 .dash-row[data-category="Cardio"] {
   --row-accent: #57a567;
-  --row-wash: #edf8ef;
-  border-color: rgba(57, 144, 77, 0.16);
-  background: linear-gradient(135deg, #edf8ef 0%, #e3f3e6 100%);
 }
 
 .dash-row[data-category="Other"] {
   --row-accent: #64748b;
-  --row-wash: #f1f5f9;
-  border-color: rgba(100, 116, 139, 0.2);
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
 }
 
 .dash-row\.exercise-card--run,
 .dash-row\.exercise-card--run[data-category] {
-  border-color: #86efac;
-  color: #14532d;
-  background: #dcfce7;
-  background-image: none;
+  --row-accent: #3fae62;
 }
 
 .exercise-card .dash-row-title {
@@ -828,9 +792,10 @@ a.dash-calendar-day:hover {
   height: 42px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
+  border-radius: 50%;
   color: var(--row-accent);
-  background: rgb(255 255 255 / 65%);
+  background: color-mix(in srgb, var(--row-accent) 14%, var(--lg-fill-hi));
+  box-shadow: var(--lg-rim-soft);
 }
 
 .dash-row-tile svg {
@@ -860,7 +825,7 @@ a.dash-calendar-day:hover {
 .dash-row-meta {
   color: var(--dash-muted);
   font-size: 0.8rem;
-  font-weight: 540;
+  font-weight: 560;
   font-variant-numeric: tabular-nums;
 }
 
@@ -878,7 +843,7 @@ a.dash-calendar-day:hover {
   flex: 0 0 auto;
   width: 19px;
   height: 19px;
-  color: #687b73;
+  color: var(--dash-soft);
 }
 
 .dash-rows-grid {
@@ -918,8 +883,8 @@ a.dash-calendar-day:hover {
   display: grid;
   place-items: center;
   border: 1px solid transparent;
-  border-radius: 10px;
-  color: #596b64;
+  border-radius: 50%;
+  color: var(--dash-soft);
   background: transparent;
   cursor: pointer;
   transition:
@@ -935,10 +900,10 @@ a.dash-calendar-day:hover {
 }
 
 .dash-remove-btn:hover:not(:disabled) {
-  transform: scale(1.04);
-  border-color: #f0c9c3;
+  transform: scale(1.06);
+  border-color: rgb(224 79 79 / 35%);
   color: #a83327;
-  background: #fff0ed;
+  background: rgb(255 120 105 / 18%);
 }
 
 .dash-remove-btn:disabled {
@@ -959,34 +924,35 @@ a.dash-calendar-day:hover {
 .dash-empty p {
   margin: 0;
   color: var(--dash-muted);
-  font-weight: 550;
+  font-weight: 560;
 }
 
 .dash-empty-note {
   margin: 0;
   padding: 17px 19px;
-  border: 1px dashed #c7d5ce;
-  border-radius: 14px;
+  border: 1px dashed rgb(23 35 33 / 28%);
+  border-radius: 22px;
   color: var(--dash-muted);
-  background: rgb(255 255 255 / 66%);
+  background: var(--lg-fill-lo);
   font-size: 0.9rem;
 }
 
-/* Primary button: black (light) / off-white (dark) */
+/* Primary button: dark glass capsule (light glass in dark mode) */
 .dash-btn {
   min-height: 44px;
-  padding: 0 20px;
+  padding: 0 22px;
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--dash-action-bg);
-  border-radius: 12px;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 999px;
   color: var(--dash-action-ink);
-  background: var(--dash-action-bg);
+  background: color-mix(in srgb, var(--dash-action-bg) 86%, transparent);
   box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 14%),
-    0 2px 6px rgb(0 0 0 / 14%);
+    inset 0 1px 0 rgb(255 255 255 / 34%),
+    inset 0 -6px 10px -6px rgb(255 255 255 / 14%),
+    0 8px 20px rgb(0 0 0 / 18%);
   font: inherit;
   font-size: 0.88rem;
   font-weight: 650;
@@ -999,23 +965,17 @@ a.dash-calendar-day:hover {
   transition:
     transform 150ms ease,
     background-color 150ms ease,
-    border-color 150ms ease,
     box-shadow 150ms ease;
 }
 
 .dash-btn:hover {
-  transform: translateY(-1px);
-  border-color: var(--dash-action-bg-hover);
   color: var(--dash-action-ink);
-  background: var(--dash-action-bg-hover);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 14%),
-    0 6px 14px rgb(0 0 0 / 18%);
+  background: color-mix(in srgb, var(--dash-action-bg) 95%, transparent);
   text-decoration: none;
 }
 
 .dash-btn:active {
-  transform: translateY(0);
+  transform: scale(0.97);
 }
 
 /* ---------- Add exercise form ---------- */
@@ -1026,14 +986,13 @@ a.dash-calendar-day:hover {
   align-items: center;
   gap: 24px;
   padding: 20px 22px;
-  border: 1px solid var(--dash-offwhite-edge);
-  border-radius: 22px;
+  border: 1px solid var(--lg-edge);
+  border-radius: 32px;
   background:
-    linear-gradient(180deg, #fbfbf9 0%, var(--dash-offwhite) 100%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 100%),
-    0 1px 2px rgb(16 24 20 / 4%),
-    0 10px 28px rgb(16 24 20 / 5%);
+    var(--lg-sheen),
+    var(--lg-fill),
+    var(--lg-base);
+  box-shadow: var(--lg-rim), var(--lg-drop);
 }
 
 .dash-create-copy {
@@ -1051,6 +1010,8 @@ a.dash-calendar-day:hover {
 }
 
 .dash-field {
+  --sel: #7a8798; /* category colour used by the select below */
+
   min-width: 0;
   flex: 1 1 auto;
   display: grid;
@@ -1058,22 +1019,24 @@ a.dash-calendar-day:hover {
 }
 
 .dash-field label {
-  color: #3d4744;
+  color: var(--dash-ink);
   font-size: 0.78rem;
   font-weight: 700;
 }
 
+/* Inputs: recessed glass */
 .dash-field input,
 .dash-field select {
   width: 100%;
   min-width: 0;
   min-height: 44px;
-  padding: 10px 12px;
-  border: 1px solid #d6d6d0;
-  border-radius: 12px;
+  padding: 10px 14px;
+  border: 1px solid rgb(23 35 33 / 14%);
+  border-radius: 16px;
   outline: none;
   color: var(--dash-ink);
-  background: #fff;
+  background-color: var(--lg-field);
+  box-shadow: inset 0 1px 3px rgb(23 35 33 / 10%), 0 1px 0 rgb(255 255 255 / 50%);
   font: inherit;
   font-size: 0.88rem;
   transition:
@@ -1084,31 +1047,31 @@ a.dash-calendar-day:hover {
 }
 
 .dash-field input::placeholder {
-  color: #77807c;
+  color: var(--dash-soft);
 }
 
 .dash-field input:hover,
 .dash-field select:hover {
-  border-color: #a9a9a2;
+  border-color: rgb(23 35 33 / 30%);
 }
 
 .dash-field input:focus-visible,
 .dash-field select:focus-visible {
   border-color: var(--dash-ink);
-  box-shadow: 0 0 0 3px rgb(10 10 10 / 10%);
+  box-shadow: 0 0 0 3px rgb(10 10 10 / 12%);
 }
 
 /* Category dropdown: custom arrow + colour-coded options */
 .dash-field select {
   appearance: none;
   -webkit-appearance: none;
-  padding-right: 34px;
+  padding-right: 36px;
   font-weight: 600;
   cursor: pointer;
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http\://www\.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%23172321' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 14px center;
   background-size: 11px;
 }
 
@@ -1143,34 +1106,30 @@ a.dash-calendar-day:hover {
 }
 
 /* The closed select takes on the colour of the chosen category */
-.dash-field:has(select option[value="Push"]:checked) select {
-  color: #c83d3d;
-  border-color: rgb(224 79 79 / 42%);
-  background-color: #fff0f0;
+.dash-field:has(select option[value="Push"]:checked) {
+  --sel: #e04f4f;
 }
 
-.dash-field:has(select option[value="Cardio"]:checked) select {
-  color: #2f8a4d;
-  border-color: rgb(63 174 98 / 42%);
-  background-color: #edf8ef;
+.dash-field:has(select option[value="Cardio"]:checked) {
+  --sel: #3fae62;
 }
 
-.dash-field:has(select option[value="Pull"]:checked) select {
-  color: #356fc8;
-  border-color: rgb(76 130 220 / 42%);
-  background-color: #eef5ff;
+.dash-field:has(select option[value="Pull"]:checked) {
+  --sel: #4c82dc;
 }
 
-.dash-field:has(select option[value="Leg"]:checked) select {
-  color: #92720a;
-  border-color: rgb(224 178 31 / 45%);
-  background-color: #fff9df;
+.dash-field:has(select option[value="Leg"]:checked) {
+  --sel: #e0b21f;
 }
 
-.dash-field:has(select option[value="Other"]:checked) select {
-  color: #5f6d7e;
-  border-color: rgb(122 135 152 / 40%);
-  background-color: #f1f5f9;
+.dash-field:has(select option[value="Other"]:checked) {
+  --sel: #7a8798;
+}
+
+.dash-field select {
+  color: color-mix(in srgb, var(--sel) 72%, var(--dash-ink));
+  border-color: color-mix(in srgb, var(--sel) 45%, transparent);
+  background-color: color-mix(in srgb, var(--sel) 16%, var(--lg-field));
 }
 
 /* ---------- Accessibility ---------- */
@@ -1228,7 +1187,7 @@ a.dash-calendar-day:hover {
 @media (max-width: 640px) {
   .dash-page {
     --cal-gap: 4px;
-    --cal-radius: 12px;
+    --cal-radius: 14px;
   }
 
   .dash-week {
@@ -1339,7 +1298,6 @@ a.dash-calendar-day:hover {
   .dash-avatar {
     width: 56px;
     height: 56px;
-    border-radius: 18px;
   }
 
   .dash-stats {
@@ -1354,13 +1312,12 @@ a.dash-calendar-day:hover {
     grid-template-rows: auto 1fr auto;
     column-gap: 3px;
     row-gap: 3px;
-    border-radius: 18px;
+    border-radius: 24px;
   }
 
   .dash-stat-icon {
     width: 26px;
     height: 26px;
-    border-radius: 9px;
   }
 
   .dash-stat-icon svg {
@@ -1393,7 +1350,7 @@ a.dash-calendar-day:hover {
   /* Calendar panel gets tighter padding so cells have room */
   .dash-card {
     padding: 14px 12px;
-    border-radius: 18px;
+    border-radius: 26px;
   }
 
   .dash-week {
@@ -1411,6 +1368,7 @@ a.dash-calendar-day:hover {
   .dash-row {
     min-height: 64px;
     padding: 9px 11px;
+    border-radius: 22px;
   }
 
   .dash-empty {
@@ -1421,7 +1379,7 @@ a.dash-calendar-day:hover {
 
   .dash-create {
     padding: 18px 16px;
-    border-radius: 18px;
+    border-radius: 26px;
   }
 
   .dash-create-form {
@@ -1460,7 +1418,7 @@ a.dash-calendar-day:hover {
   }
 
   .dash-section-link {
-    padding-inline: 7px;
+    padding-inline: 9px;
     font-size: 0.78rem;
   }
 
@@ -1471,142 +1429,40 @@ a.dash-calendar-day:hover {
 
 /* =====================================================================
    DARK MODE
-   Same colour language as light mode (green / orange / teal / indigo,
-   plus the Push / Pull / Leg / Cardio / Other category colours), just
-   re-tuned for dark surfaces.
-
-   FIX NOTE: the old file wrote layered backgrounds as `\#15171c`
-   (escaped hash). That is not a valid colour, so the browser threw away
-   the whole `background` declaration and the cards, stat tiles, rows and
-   the add-exercise panel kept their LIGHT backgrounds with LIGHT text.
-   Every layered background below uses a normal `#15171c` now.
+   The glass tokens switch automatically (see .dark in liquidGlass.css).
+   Only text colours, accents and glows need re-tuning here.
    ===================================================================== */
 
 .dark .dash-page {
-  --dash-ink: #e5ece8;
-  --dash-muted: #b4c3bc;
-  --dash-soft: #9fb0a8;
-  --dash-line: #343f39;
+  --dash-ink: #e8efeb;
+  --dash-muted: #bccac3;
+  --dash-soft: #a4b4ac;
+  --dash-line: rgb(255 255 255 / 12%);
   --dash-surface: #15171c;
 
-  /* Brighter accents so text and icons read clearly on dark surfaces */
+  /* Brighter accents so text and icons read on dark glass */
   --dash-green: #5fd3a1;
   --dash-orange: #ffa05c;
   --dash-teal: #4fd8d3;
   --dash-indigo: #a5a8ff;
-
-  --dash-green-wash: #1b3529;
-  --dash-orange-wash: #3a281c;
-  --dash-teal-wash: #173432;
-  --dash-indigo-wash: #292943;
   --dash-green-dark: #92d5b3;
-
-  --dash-shadow: 0 8px 24px rgb(0 0 0 / 24%);
-  --dash-shadow-hover: 0 12px 28px rgb(0 0 0 / 32%);
-  --dash-glass: rgb(30 36 40 / 76%);
-  --dash-glass-edge: rgb(255 255 255 / 18%);
 
   /* Reversed action colours */
   --dash-action-bg: #f4f4f1;
-  --dash-action-bg-hover: #ffffff;
   --dash-action-ink: #0a0a0a;
-  --dash-offwhite: #0f1012;
-  --dash-offwhite-edge: #25272c;
 
-  /* Calendar */
-  --cal-edge: rgb(255 255 255 / 10%);
-  --cal-gloss-top: rgb(255 255 255 / 7%);
-  --cal-gloss-bottom: rgb(255 255 255 / 2.5%);
   --cal-hover: rgb(255 255 255 / 8%);
-  --cal-ring: #e5ece8;
+  --cal-ring: #e8efeb;
 
   background:
     radial-gradient(60% 38% at 12% 0%, rgb(63 190 140 / 11%), transparent 70%),
     radial-gradient(50% 36% at 100% 6%, rgb(110 114 230 / 13%), transparent 70%);
 }
 
-/* ----- Header ----- */
-
-.dark .dash-greeting {
+.dark .dash-greeting,
+.dark .dash-section-title,
+.dark .dash-card-value {
   color: #f6f9f7;
-}
-
-.dark .dash-date {
-  color: #b9c7c0;
-}
-
-.dark .dash-avatar {
-  border-color: rgb(255 255 255 / 14%);
-  background: #1a1e23;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 10%),
-    0 8px 22px rgb(0 0 0 / 40%);
-}
-
-/* ----- Stat cards: tinted glass with a coloured glow in the corner ----- */
-
-.dark .dash-stat {
-  border-color: rgb(255 255 255 / 10%);
-  background:
-    radial-gradient(
-      120% 90% at 100% 0%,
-      color-mix(in srgb, var(--stat-accent) 20%, transparent),
-      transparent 62%
-    ),
-    linear-gradient(160deg, rgb(255 255 255 / 7%), rgb(255 255 255 / 2%)),
-    #14161a;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 13%),
-    inset 0 -1px 0 rgb(0 0 0 / 30%),
-    0 18px 40px rgb(0 0 0 / 42%);
-}
-
-.dark .dash-stat[data-tone="orange"] {
-  --stat-accent: #ffa05c;
-}
-
-.dark .dash-stat[data-tone="teal"] {
-  --stat-accent: #4fd8d3;
-}
-
-.dark .dash-stat[data-tone="indigo"] {
-  --stat-accent: #a5a8ff;
-}
-
-.dark .dash-stat:not([data-tone]) {
-  --stat-accent: #5fd3a1;
-}
-
-.dark .dash-stat:hover {
-  border-color: color-mix(in srgb, var(--stat-accent) 45%, transparent);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 16%),
-    0 0 0 1px color-mix(in srgb, var(--stat-accent) 18%, transparent),
-    0 22px 46px rgb(0 0 0 / 50%);
-}
-
-.dark .dash-stat-icon {
-  border-color: color-mix(in srgb, var(--stat-accent) 42%, transparent);
-  color: var(--stat-accent);
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--stat-accent) 28%, transparent),
-      color-mix(in srgb, var(--stat-accent) 10%, transparent)
-    ),
-    #14161a;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 18%),
-    0 0 18px color-mix(in srgb, var(--stat-accent) 32%, transparent);
-}
-
-.dark .dash-stat-icon svg {
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--stat-accent) 55%, transparent));
-}
-
-.dark .dash-stat-label {
-  color: #c9d6d0;
-  font-weight: 650;
 }
 
 .dark .dash-stat-value {
@@ -1614,46 +1470,15 @@ a.dash-calendar-day:hover {
   text-shadow: 0 2px 18px color-mix(in srgb, var(--stat-accent) 28%, transparent);
 }
 
-.dark .dash-stat-unit {
-  color: var(--stat-accent);
-  font-weight: 700;
-}
-
-/* ----- Section chrome ----- */
-
-.dark .dash-section-title {
-  color: #f1f5f3;
+.dark .dash-stat-icon svg {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--stat-accent) 55%, transparent));
 }
 
 .dark .dash-section-link:hover {
   color: #b6ebd0;
 }
 
-.dark .dash-calendar-toggle:hover {
-  background: rgb(255 255 255 / 8%);
-}
-
-/* ----- Calendar panel ----- */
-
-.dark .dash-card {
-  border-color: rgb(255 255 255 / 10%);
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 6%) 0%, rgb(255 255 255 / 2%) 100%),
-    #15171c;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 8%),
-    0 14px 34px rgb(0 0 0 / 34%);
-}
-
-.dark .dash-card-label {
-  color: #b9c7c0;
-}
-
-.dark .dash-card-value {
-  color: #f6f9f7;
-}
-
-/* Category colours, brightened for dark surfaces (calendar tiles, dots, legend) */
+/* Category colours, brightened for dark glass */
 .dark .dash-week-day[data-category="Push"],
 .dark .dash-calendar-day[data-category="Push"],
 .dark .dash-calendar-dot[data-category="Push"],
@@ -1689,53 +1514,18 @@ a.dash-calendar-day:hover {
   --week-accent: #9aa8bb;
 }
 
-.dark .dash-week-day,
-.dark .dash-calendar-day {
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 7%),
-    0 1px 2px rgb(0 0 0 / 30%);
+.dark .dash-week-dot,
+.dark .dash-calendar-dot {
+  border-color: rgb(255 255 255 / 24%);
 }
 
 .dark .dash-week-day:not([data-disabled="true"]):hover,
 .dark a.dash-calendar-day:hover {
-  border-color: rgb(255 255 255 / 22%);
-  background: linear-gradient(180deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 5%));
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 10%),
-    0 8px 18px rgb(0 0 0 / 36%);
-}
-
-.dark .dash-week-dot,
-.dark .dash-calendar-dot {
-  border-color: rgb(255 255 255 / 22%);
-}
-
-.dark .dash-week-day[data-trained="true"],
-.dark .dash-calendar-day[data-trained="true"] {
-  border-color: color-mix(in srgb, var(--week-accent, var(--dash-green)) 42%, transparent);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--week-accent, var(--dash-green)) 14%, #15171c),
-      color-mix(in srgb, var(--week-accent, var(--dash-green)) 26%, #15171c)
-    );
-}
-
-/* Keep the category tint while hovering a trained day */
-.dark .dash-week-day[data-trained="true"]:not([data-disabled="true"]):hover,
-.dark a.dash-calendar-day[data-trained="true"]:hover {
-  border-color: color-mix(in srgb, var(--week-accent, var(--dash-green)) 60%, transparent);
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--week-accent, var(--dash-green)) 20%, #15171c),
-      color-mix(in srgb, var(--week-accent, var(--dash-green)) 34%, #15171c)
-    );
+  box-shadow: var(--lg-rim-soft), 0 8px 18px rgb(0 0 0 / 36%);
 }
 
 .dark .dash-week-day[data-trained="true"] .dash-week-dot,
 .dark .dash-calendar-day[data-trained="true"] .dash-calendar-dot {
-  border-color: transparent;
   background:
     radial-gradient(circle at 32% 26%, rgb(255 255 255 / 48%) 0%, rgb(255 255 255 / 0%) 52%),
     color-mix(in srgb, var(--week-accent, var(--dash-green)) 92%, #15171c);
@@ -1744,125 +1534,48 @@ a.dash-calendar-day:hover {
     0 0 14px color-mix(in srgb, var(--week-accent, var(--dash-green)) 42%, transparent);
 }
 
-.dark .dash-week-day[data-today="true"],
-.dark .dash-calendar-day[data-today="true"] {
-  border-color: var(--cal-ring);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 10%),
-    0 0 0 1px var(--cal-ring);
-}
-
 .dark .dash-week-day[data-today="true"] .dash-week-date,
 .dark .dash-calendar-day[data-today="true"] .dash-calendar-date {
   color: #ffffff;
-}
-
-.dark .dash-calendar-weekday,
-.dark .dash-week-date {
-  color: #adbcb5;
 }
 
 .dark .dash-calendar-date {
   color: #e8efeb;
 }
 
-.dark .dash-calendar-day[data-disabled="true"] {
-  color: #9fb0a8;
-}
-
-.dark .dash-calendar-legend {
-  color: #b9c7c0;
-}
-
-/* ----- Exercise rows: tinted glass, bright accent, readable text ----- */
-
+/* Exercise rows */
 .dark .dash-row {
-  color: #e5ece8;
-  box-shadow: 0 4px 14px rgb(0 0 0 / 22%);
+  --row-accent: #74d68e;
+
+  box-shadow: var(--lg-rim-soft), 0 6px 18px rgb(0 0 0 / 28%);
 }
 
 .dark .dash-row:hover {
-  box-shadow: 0 9px 22px rgb(0 0 0 / 38%);
+  box-shadow: var(--lg-rim-soft), 0 12px 26px rgb(0 0 0 / 40%);
 }
 
 .dark .dash-row[data-category="Push"] {
   --row-accent: #ff8585;
-  border-color: rgb(217 74 74 / 40%);
-  background:
-    linear-gradient(135deg, rgb(217 74 74 / 22%), rgb(217 74 74 / 9%)),
-    #15171c;
 }
 
 .dark .dash-row[data-category="Pull"] {
   --row-accent: #86adff;
-  border-color: rgb(76 130 220 / 40%);
-  background:
-    linear-gradient(135deg, rgb(76 130 220 / 22%), rgb(76 130 220 / 9%)),
-    #15171c;
 }
 
 .dark .dash-row[data-category="Leg"] {
   --row-accent: #f5ce55;
-  border-color: rgb(211 166 42 / 40%);
-  background:
-    linear-gradient(135deg, rgb(211 166 42 / 22%), rgb(211 166 42 / 9%)),
-    #15171c;
 }
 
 .dark .dash-row[data-category="Cardio"] {
   --row-accent: #74d68e;
-  border-color: rgb(87 165 103 / 40%);
-  background:
-    linear-gradient(135deg, rgb(87 165 103 / 22%), rgb(87 165 103 / 9%)),
-    #15171c;
 }
 
 .dark .dash-row[data-category="Other"] {
   --row-accent: #d3dce8;
-  border-color: rgb(148 163 184 / 34%);
-  background:
-    linear-gradient(135deg, rgb(148 163 184 / 22%), rgb(148 163 184 / 9%)),
-    #15171c;
-}
-
-.dark .dash-row-tile {
-  border: 1px solid color-mix(in srgb, var(--row-accent) 34%, transparent);
-  background:
-    linear-gradient(
-      160deg,
-      color-mix(in srgb, var(--row-accent) 24%, transparent),
-      color-mix(in srgb, var(--row-accent) 8%, transparent)
-    ),
-    #14161a;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%);
-}
-
-.dark .dash-row\.exercise-card--run,
-.dark .dash-row\.exercise-card--run[data-category] {
-  border-color: #3d8156;
-  color: #bbf7d0;
-  background: #183725;
-  background-image: none;
 }
 
 .dark .dash-row-title {
   color: #f1f5f3;
-}
-
-.dark .dash-row-meta {
-  color: #b9c7c0;
-}
-
-.dark .dash-row-link:hover {
-  color: var(--row-accent);
-}
-
-.dark .dash-row-chevron {
-  color: #a9b8b1;
-}
-
-.dark .dash-remove-btn {
-  color: #b4c3bc;
 }
 
 .dark .dash-remove-btn:hover:not(:disabled) {
@@ -1871,50 +1584,23 @@ a.dash-calendar-day:hover {
   background: rgb(255 120 105 / 14%);
 }
 
-/* ----- Empty state ----- */
-
 .dark .dash-empty-note {
-  border-color: #46544c;
-  background: #1a1e23;
+  border-color: rgb(255 255 255 / 22%);
 }
 
-/* ----- Add-exercise form: near-black panel, off-white button ----- */
-
-.dark .dash-create {
-  border-color: #2a2d33;
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 5%) 0%, rgb(255 255 255 / 1.5%) 100%),
-    #0f1012;
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 7%),
-    0 14px 34px rgb(0 0 0 / 34%);
-}
-
-.dark .dash-create-copy {
-  color: #b9c7c0;
-}
-
+/* Primary button: light glass on dark surfaces */
 .dark .dash-btn {
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 60%),
-    0 2px 8px rgb(0 0 0 / 40%);
-}
-
-.dark .dash-btn:hover {
+  border-color: rgb(255 255 255 / 40%);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 70%),
-    0 6px 16px rgb(0 0 0 / 50%);
+    0 8px 20px rgb(0 0 0 / 40%);
 }
 
-.dark .dash-field label {
-  color: #c9d6d0;
-}
-
+/* Inputs */
 .dark .dash-field input,
 .dark .dash-field select {
-  border-color: #3a3f46;
-  color: var(--dash-ink);
-  background-color: #1a1e23;
+  border-color: rgb(255 255 255 / 16%);
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 40%), 0 1px 0 rgb(255 255 255 / 6%);
 }
 
 .dark .dash-field input::placeholder {
@@ -1923,18 +1609,38 @@ a.dash-calendar-day:hover {
 
 .dark .dash-field input:hover,
 .dark .dash-field select:hover {
-  border-color: #5a6169;
+  border-color: rgb(255 255 255 / 34%);
 }
 
 .dark .dash-field input:focus-visible,
 .dark .dash-field select:focus-visible {
-  border-color: #e5ece8;
+  border-color: #e8efeb;
   box-shadow: 0 0 0 3px rgb(229 236 232 / 16%);
 }
 
 .dark .dash-field select {
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http\://www\.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%23e5ece8' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.dark .dash-field:has(select option[value="Push"]:checked) {
+  --sel: #ff7b7b;
+}
+
+.dark .dash-field:has(select option[value="Cardio"]:checked) {
+  --sel: #5cc47c;
+}
+
+.dark .dash-field:has(select option[value="Pull"]:checked) {
+  --sel: #6f9cf0;
+}
+
+.dark .dash-field:has(select option[value="Leg"]:checked) {
+  --sel: #f0c43c;
+}
+
+.dark .dash-field:has(select option[value="Other"]:checked) {
+  --sel: #9aa8bb;
 }
 
 .dark .dash-field select option[value="Push"] {
@@ -1962,38 +1668,7 @@ a.dash-calendar-day:hover {
   background: #2b3340;
 }
 
-.dark .dash-field:has(select option[value="Push"]:checked) select {
-  color: #ff9b9b;
-  border-color: rgb(224 79 79 / 52%);
-  background-color: #492629;
-}
-
-.dark .dash-field:has(select option[value="Cardio"]:checked) select {
-  color: #74d68e;
-  border-color: rgb(63 174 98 / 52%);
-  background-color: #173a24;
-}
-
-.dark .dash-field:has(select option[value="Pull"]:checked) select {
-  color: #86adff;
-  border-color: rgb(76 130 220 / 55%);
-  background-color: #1a2a47;
-}
-
-.dark .dash-field:has(select option[value="Leg"]:checked) select {
-  color: #f5ce55;
-  border-color: rgb(224 178 31 / 55%);
-  background-color: #3a3010;
-}
-
-.dark .dash-field:has(select option[value="Other"]:checked) select {
-  color: #d3dce8;
-  border-color: rgb(122 135 152 / 50%);
-  background-color: #2b3340;
-}
-
-/* ----- Focus rings: the light-mode dark green is too dim on dark surfaces ----- */
-
+/* Focus rings: the light-mode dark green is too dim on dark glass */
 .dark .dash-page a:focus-visible,
 .dark .dash-page button:focus-visible,
 .dark .dash-page input:focus-visible,
@@ -2005,7 +1680,7 @@ a.dash-calendar-day:hover {
 .dark .dash-week-day:focus-visible,
 .dark .dash-calendar-day:focus-visible,
 .dark .dash-calendar-scroll:focus-visible {
-  outline-color: #e5ece8;
+  outline-color: #e8efeb;
 }
 
 /* ---------- Motion preferences ---------- */

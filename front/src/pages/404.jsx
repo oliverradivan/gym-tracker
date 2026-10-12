@@ -1,21 +1,27 @@
 import { Link } from 'react-router-dom'
 import './404.css'
 import AuroraBackground from '../components/AuroraBackground'
+import LiquidGlassDefs from '../components/LiquidGlassDefs'
 
 function NotFoundPage() {
   return (
-   <AuroraBackground>
-    <div className="not-found-page">
-      <div className="not-found-card">
-        <h1>404</h1>
-        <h2>Page not found</h2>
-        <p>The page you are looking for does not exist.</p>
-        <Link to="/login" className="primary-btn">
-          Back to login
-        </Link>
+    <AuroraBackground>
+      <LiquidGlassDefs />
+      <div className="not-found-page">
+        {/* Sits behind the glass so the card has something to bend */}
+        <span className="not-found-ghost" aria-hidden="true">
+          404
+        </span>
+
+        <div className="not-found-card">
+          <h1>Page not found</h1>
+          <p>The page you are looking for does not exist.</p>
+          <Link to="/login" className="primary-btn">
+            Back to login
+          </Link>
+        </div>
       </div>
-    </div>
-   </AuroraBackground>
+    </AuroraBackground>
   )
 }
 
