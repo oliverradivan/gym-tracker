@@ -118,7 +118,7 @@ export default function DashboardExerciseSection({
           Your exercises
         </h2>
 
-        <span className="dash-count">{exercises.length}</span>
+        <span className="dash-count">{exerciseList.length}</span>
       </div>
 
       <section
@@ -143,7 +143,7 @@ export default function DashboardExerciseSection({
               id="exercise_name"
               type="text"
               name="exercise_name"
-              value={form.exercise_name}
+              value={form?.exercise_name ?? ''}
               onChange={handleChange}
               placeholder="e.g. Incline Bench Press"
               required
@@ -274,9 +274,9 @@ export default function DashboardExerciseSection({
         className="dash-exercises"
         aria-labelledby="dash-library-title"
       >
-        {sortedExercises.length ? (
+        {sortedExerciseList.length > 0 ? (
           <div className="dash-rows dash-rows-grid">
-            {sortedExercises.map((exercise) => (
+            {sortedExerciseList.map((exercise) => (
               <div
                 key={exercise.id}
                 className={`dash-row dash-row-compact activity-row exercise-card ${

@@ -16,15 +16,11 @@ export default function DashboardExerciseSection({
   user,
   handleDeleteExercise,
   deletingExerciseId,
-  form,
+  form = {},
   handleChange,
   handleCreateExercise,
 }) {
-  // Ensure the exercise lists are always arrays.
-  const exerciseList = Array.isArray(exercises)
-    ? exercises.filter(Boolean)
-    : []
-
+  const exerciseList = Array.isArray(exercises) ? exercises : []
   const sortedExerciseList = Array.isArray(sortedExercises)
     ? sortedExercises.filter(
         (exercise) => exercise && typeof exercise === 'object'
