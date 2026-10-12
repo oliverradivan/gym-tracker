@@ -404,6 +404,26 @@
   outline-color: rgba(255, 255, 255, 0.22);
 }
 
+/* Solid dropdown: the glass surface was see-through over the aurora and the
+   chart. Scoped to this page so other pages' dropdowns are untouched. */
+.progress-shell .custom-select-list {
+  background: #ffffff;
+  border-color: rgba(17, 18, 20, 0.10);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.18),
+    0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dark .progress-shell .custom-select-list {
+  background: #171a1f;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.55),
+    0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
 /* Category Option Tints */
 .option-push {
   background: var(--push-soft);
