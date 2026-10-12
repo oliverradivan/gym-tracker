@@ -1,0 +1,83 @@
+ /* =====================================================================
+   Liquid glass tokens, shared by every page that uses the glass look.
+   Pages read these variables; they never hard-code glass values.
+   ===================================================================== */
+
+:root {
+  --lg-blur-panel: 8px;
+  --lg-blur-control: 5px;
+  --lg-sat: 170%;
+  --lg-bright: 1.06;
+
+  /* Swapped to url(#...) filters in Chromium (see LiquidGlassDefs.jsx) */
+  --lg-refract-panel: brightness(1);
+  --lg-refract-control: brightness(1);
+
+  /* Fills: translucent white, three strengths */
+  --lg-fill-hi: rgb(255 255 255 / 48%);
+  --lg-fill: rgb(255 255 255 / 34%);
+  --lg-fill-lo: rgb(255 255 255 / 22%);
+  --lg-field: rgb(255 255 255 / 52%);
+  --lg-base: transparent;
+  --lg-edge: rgb(255 255 255 / 45%);
+
+  /* Bright top-left rim, softer bottom-right rim, faint inner glow */
+  --lg-rim:
+    inset 1.5px 1.5px 1px -1px rgb(255 255 255 / 95%),
+    inset -1.5px -1.5px 1px -1px rgb(255 255 255 / 60%),
+    inset 0 0 0 1px rgb(255 255 255 / 26%),
+    inset 0 0 24px rgb(255 255 255 / 22%);
+  --lg-rim-soft:
+    inset 1px 1px 0.5px -0.5px rgb(255 255 255 / 90%),
+    inset 0 0 0 1px rgb(255 255 255 / 24%),
+    inset 0 -6px 10px -6px rgb(255 255 255 / 30%);
+  --lg-drop: 0 1px 2px rgb(20 30 40 / 8%), 0 14px 36px rgb(20 30 40 / 14%);
+  --lg-drop-hover: 0 2px 4px rgb(20 30 40 / 10%), 0 22px 46px rgb(20 30 40 / 20%);
+  --lg-sheen: linear-gradient(115deg, rgb(255 255 255 / 34%) 0%, rgb(255 255 255 / 0%) 38%);
+}
+
+html[data-lg-refract="true"] {
+  --lg-refract-panel: url(#lg-refract-panel);
+  --lg-refract-control: url(#lg-refract-control);
+}
+
+.dark {
+  --lg-bright: 1;
+
+  --lg-fill-hi: rgb(255 255 255 / 11%);
+  --lg-fill: rgb(255 255 255 / 7%);
+  --lg-fill-lo: rgb(255 255 255 / 4%);
+  --lg-field: rgb(0 0 0 / 28%);
+  --lg-base: rgb(12 14 18 / 34%);
+  --lg-edge: rgb(255 255 255 / 16%);
+
+  --lg-rim:
+    inset 1.5px 1.5px 1px -1px rgb(255 255 255 / 42%),
+    inset -1.5px -1.5px 1px -1px rgb(255 255 255 / 20%),
+    inset 0 0 0 1px rgb(255 255 255 / 8%),
+    inset 0 0 22px rgb(255 255 255 / 5%);
+  --lg-rim-soft:
+    inset 1px 1px 0.5px -0.5px rgb(255 255 255 / 38%),
+    inset 0 0 0 1px rgb(255 255 255 / 9%),
+    inset 0 -6px 10px -6px rgb(255 255 255 / 8%);
+  --lg-drop: 0 1px 2px rgb(0 0 0 / 30%), 0 16px 40px rgb(0 0 0 / 38%);
+  --lg-drop-hover: 0 2px 4px rgb(0 0 0 / 36%), 0 24px 50px rgb(0 0 0 / 48%);
+  --lg-sheen: linear-gradient(115deg, rgb(255 255 255 / 12%) 0%, rgb(255 255 255 / 0%) 38%);
+}
+
+/* People who ask for less transparency get nearly solid surfaces */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --lg-fill-hi: rgb(255 255 255 / 92%);
+    --lg-fill: rgb(255 255 255 / 86%);
+    --lg-fill-lo: rgb(255 255 255 / 78%);
+    --lg-field: rgb(255 255 255 / 96%);
+  }
+
+  .dark {
+    --lg-fill-hi: rgb(40 44 50 / 96%);
+    --lg-fill: rgb(30 34 40 / 94%);
+    --lg-fill-lo: rgb(26 30 36 / 90%);
+    --lg-field: rgb(12 14 18 / 90%);
+  }
+}

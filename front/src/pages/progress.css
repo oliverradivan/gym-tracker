@@ -20,23 +20,25 @@
 
   --progress-glass-surface: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.70) 0%,
-    rgba(255, 255, 255, 0.40) 100%
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.04) 100%
   );
   --progress-glass-surface-hover: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.82) 0%,
-    rgba(255, 255, 255, 0.52) 100%
+    rgba(255, 255, 255, 0.28) 0%,
+    rgba(255, 255, 255, 0.08) 100%
   );
-  --progress-glass-edge: rgba(255, 255, 255, 0.75);
-  --progress-glass-edge-soft: rgba(255, 255, 255, 0.45);
-  --progress-glass-blur: blur(28px) saturate(190%);
+  --progress-glass-edge: rgba(255, 255, 255, 0.45);
+  --progress-glass-edge-soft: rgba(255, 255, 255, 0.20);
+  --progress-glass-blur: blur(28px) saturate(220%) contrast(112%) brightness(106%);
   --progress-glass-shadow:
     0 20px 48px -12px rgba(17, 18, 20, 0.08),
     0 4px 16px -2px rgba(17, 18, 20, 0.03);
   --progress-glass-specular:
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.25);
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.15),
+    inset 1px 0 1px 0 rgba(255, 255, 255, 0.30),
+    inset -1px 0 1px 0 rgba(255, 255, 255, 0.15);
 
   --progress-radius-xl: 28px;
   --progress-radius-lg: 20px;
@@ -80,7 +82,7 @@
 
   --chart-3: #7a8492;
 
-  --tooltip-bg: rgba(255, 255, 255, 0.85);
+  --tooltip-bg: rgba(255, 255, 255, 0.35);
 
   --chart-tooltip-foreground: #111214;
   --chart-tooltip-muted: #777a80;
@@ -100,24 +102,24 @@
 
   --progress-glass-surface: linear-gradient(
     135deg,
-    rgba(28, 32, 40, 0.72) 0%,
-    rgba(18, 21, 27, 0.52) 100%
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.015) 100%
   );
   --progress-glass-surface-hover: linear-gradient(
     135deg,
-    rgba(34, 39, 48, 0.80) 0%,
-    rgba(22, 26, 33, 0.60) 100%
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.03) 100%
   );
-  --progress-glass-edge: rgba(255, 255, 255, 0.14);
-  --progress-glass-edge-soft: rgba(255, 255, 255, 0.08);
+  --progress-glass-edge: rgba(255, 255, 255, 0.12);
+  --progress-glass-edge-soft: rgba(255, 255, 255, 0.06);
   --progress-glass-shadow:
     0 24px 56px -12px rgba(0, 0, 0, 0.50),
     0 4px 16px -2px rgba(0, 0, 0, 0.30);
   --progress-glass-specular:
-    inset 0 1px 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px 0 rgba(255, 255, 255, 0.04);
 
-  --tooltip-bg: rgba(20, 23, 29, 0.85);
+  --tooltip-bg: rgba(20, 23, 29, 0.45);
 
   --chart-axis: rgba(255, 255, 255, 0.24);
   --chart-grid: rgba(255, 255, 255, 0.075);
@@ -577,23 +579,24 @@
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: linear-gradient(
-    125deg,
-    rgba(255, 255, 255, 0.60) 0%,
-    rgba(255, 255, 255, 0.15) 30%,
-    transparent 55%
+  background: radial-gradient(
+    120% 100% at 15% 0%,
+    rgba(255, 255, 255, 0.40) 0%,
+    rgba(255, 255, 255, 0.08) 28%,
+    rgba(255, 255, 255, 0.01) 50%,
+    transparent 75%
   );
-  opacity: 0.65;
+  opacity: 0.85;
 }
 
 .dark .chart-box::before {
-  background: linear-gradient(
-    125deg,
+  background: radial-gradient(
+    120% 100% at 15% 0%,
     rgba(255, 255, 255, 0.14) 0%,
-    rgba(255, 255, 255, 0.03) 30%,
-    transparent 55%
+    rgba(255, 255, 255, 0.03) 28%,
+    transparent 60%
   );
-  opacity: 0.50;
+  opacity: 0.60;
 }
 
 .progress-page.push .chart-box {
