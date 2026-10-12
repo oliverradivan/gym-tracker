@@ -1,329 +1,257 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { EXERCISE_CATEGORIES, getExerciseCategory, } from '../utils/exerciseCategory'
-import { ExerciseCategoryIcon } from './components/ExerciseCategoryIcon'
-import DashboardIcon from './components/DashboardIcon'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useAuth } from '../context/authContext'
+import { useWorkouts } from '../context/WorkoutsContext'
+import { toLocalDateKey } from '../lib/dashboardCalendar'
+import { EXERCISE_CATEGORIES } from '../utils/exerciseCategory'
+import { sortExercisesByCategory } from '../utils/exerciseSorting'
+import { useDashboardCalendar } from '../hooks/useDashboardCalendar'
+import { useDashboardWeekScroll } from '../hooks/useDashboardWeekScroll'
+import DashboardCalendarSection from './components/DashboardCalendarSection'
+import DashboardExerciseSection from './components/DashboardExerciseSection'
+import DashboardHeaderSection from './components/DashboardHeaderSection'
+import DashboardOverviewSection from './components/DashboardOverviewSection'
+import LoadingSpinner from '@/components/LoadingSpinner'
+import './dashboard.css'
+import AuroraBackground from '../components/AuroraBackground'
+import LiquidGlassDefs from '../components/LiquidGlassDefs'
 
-const categories = Object.values(EXERCISE_CATEGORIES)
+const initialForm = {
+  exercise_name: '',
+  category: EXERCISE_CATEGORIES.OTHER,
+}
 
-const getCategoryClass = (category) =>
-  String(category || 'Other').toLowerCase()
-
-export default function DashboardExerciseSection({
-  exercises,
-  sortedExercises,
-  user,
-  handleDeleteExercise,
-  deletingExerciseId,
-  form,
-  handleChange,
-  handleCreateExercise,
-}) {
-  const [categoryOpen, setCategoryOpen] = useState(false)
-  const categorySelectRef = useRef(null)
-  const categoryTriggerRef = useRef(null)
-  const categoryOptionRefs = useRef([])
-
-  const selectedCategory = categories.includes(form.category)
-    ? form.category
-    : EXERCISE_CATEGORIES.OTHER
+function DashboardPage() {
+  const [form, setForm] = useState(initialForm)
+  const [daysBeforeWeek, setDaysBeforeWeek] = useState(28)
+  const [calendarExpanded, setCalendarExpanded] = useState(false)
+  const { user, session, authFetch } = useAuth()
+  const authFetchRef = useRef(authFetch)
 
   useEffect(() => {
-    const handlePointerDown = (event) => {
-      if (
-        categorySelectRef.current &&
-        !categorySelectRef.current.contains(event.target)
-      ) {
-        setCategoryOpen(false)
-      }
-    }
+    authFetchRef.current = authFetch
+  }, [authFetch])
 
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        setCategoryOpen(false)
-        categoryTriggerRef.current?.focus()
-      }
-    }
+  /*
+   * Workout sessions live in the shared store, so logging or deleting a
+   * workout elsewhere updates this page without a reload. Only the exercise
+   * library is still fetched here.
+   */
+  const {
+    sessions: allSessions,
+    loading: sessionsLoading,
+    notifyExerciseChange,
+  } = useWorkouts()
+  const [exercises, setExercises] = useState([])
+  const [exercisesLoading, setExercisesLoading] = useState(true)
 
-    document.addEventListener('pointerdown', handlePointerDown)
-    document.addEventListener('keydown', handleKeyDown)
+  const pageLoading = exercisesLoading || sessionsLoading
 
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [])
+  const username =
+    user?.user_metadata?.username ||
+    user?.user_metadata?.full_name ||
+    'Athlete'
 
-  const handleSelectCategory = (category) => {
-    handleChange({
-      target: {
-        name: 'category',
-        value: category,
-      },
-    })
-
-    setCategoryOpen(false)
-    categoryTriggerRef.current?.focus()
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleCategoryKeyDown = (event, index) => {
-    if (event.key === 'ArrowDown') {
-      event.preventDefault()
+  const handleCreateExercise = async (e) => {
+    e.preventDefault()
 
-      if (!categoryOpen) {
-        setCategoryOpen(true)
-        requestAnimationFrame(() => {
-          categoryOptionRefs.current[0]?.focus()
-        })
+    if (!form.exercise_name.trim() || !session?.access_token) return
+
+    try {
+      const response = await authFetchRef.current('/exercises', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          name: form.exercise_name.trim(),
+          category: form.category,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+
+        setExercises((prev) => [
+          ...prev,
+          data.exercise || data,
+        ])
+        notifyExerciseChange()
+
+        setForm(initialForm)
+      }
+    } catch (err) {
+      console.error('Failed to create exercise:', err)
+    }
+  }
+
+  const [deletingExerciseId, setDeletingExerciseId] = useState(null)
+
+  const handleDeleteExercise = async (e, exercise) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!session?.access_token || deletingExerciseId) return
+
+    const confirmed = window.confirm(
+      `Remove "${exercise.name}"? Its workout logs will also be permanently deleted. This can't be undone.`
+    )
+
+    if (!confirmed) return
+
+    setDeletingExerciseId(exercise.id)
+
+    try {
+      const response = await authFetch(
+        `/exercises/${exercise.id}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
+      )
+
+      if (response.ok) {
+        setExercises((prev) =>
+          prev.filter((item) => item.id !== exercise.id)
+        )
+        notifyExerciseChange()
+      } else {
+        const data = await response.json().catch(() => null)
+
+        window.alert(
+          data?.detail || 'Failed to remove exercise.'
+        )
+      }
+    } catch (err) {
+      console.error('Failed to delete exercise:', err)
+      window.alert('Failed to remove exercise.')
+    } finally {
+      setDeletingExerciseId(null)
+    }
+  }
+
+  useEffect(() => {
+    const loadExercises = async () => {
+      if (!session?.access_token) {
+        setExercisesLoading(false)
         return
       }
 
-      categoryOptionRefs.current[
-        (index + 1) % categories.length
-      ]?.focus()
-    }
-
-    if (event.key === 'ArrowUp') {
-      event.preventDefault()
-
-      if (!categoryOpen) {
-        setCategoryOpen(true)
-        requestAnimationFrame(() => {
-          categoryOptionRefs.current[categories.length - 1]?.focus()
+      try {
+        const response = await authFetch('/exercises', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         })
-        return
+
+        if (response.ok) {
+          const result = await response.json()
+          setExercises(result.exercises || [])
+        }
+      } catch {
+        // Exercise load error handled silently
+      } finally {
+        setExercisesLoading(false)
       }
-
-      categoryOptionRefs.current[
-        (index - 1 + categories.length) % categories.length
-      ]?.focus()
     }
 
-    if (event.key === 'Home') {
-      event.preventDefault()
-      categoryOptionRefs.current[0]?.focus()
-    }
+    loadExercises()
+  }, [session])
 
-    if (event.key === 'End') {
-      event.preventDefault()
-      categoryOptionRefs.current[categories.length - 1]?.focus()
-    }
-  }
+  /*
+   * Today's session and the total number of training days, derived from the
+   * shared sessions. They recompute whenever a workout is logged or deleted.
+   */
+  const todaySession = useMemo(() => {
+    const todayKey = toLocalDateKey(new Date())
+
+    return (
+      allSessions.find((sessionItem) => sessionItem.date === todayKey) || null
+    )
+  }, [allSessions])
+
+  const totalDaysExercised = useMemo(
+    () => new Set(allSessions.map((sessionItem) => sessionItem.date)).size,
+    [allSessions]
+  )
+
+  const sortedExercises = useMemo(
+    () => sortExercisesByCategory(exercises),
+    [exercises]
+  )
+
+  /*
+   * This week's summary, derived from the sessions the page already loads
+   * (no extra request). The week starts on Sunday.
+   */
+  const { weekStats, calendarDays, calendarTrained } = useDashboardCalendar(
+    allSessions,
+    daysBeforeWeek
+  )
+  const { weekScrollRef, loadEarlierDays } = useDashboardWeekScroll(
+    weekStats,
+    calendarExpanded,
+    setDaysBeforeWeek
+  )
 
   return (
-    <>
-      <div className="dash-section-head">
-        <h2 id="dash-library-title" className="dash-section-title">
-          Your exercises
-        </h2>
-
-        <span className="dash-count">{exercises.length}</span>
-      </div>
-
-      <section
-        className="dash-card dash-create"
-        aria-labelledby="dash-create-title"
-      >
-        <div>
-          <h2 id="dash-create-title" className="dash-section-title">
-            Add an exercise
-          </h2>
-
-          <p className="dash-create-copy">
-            Can't find what you're looking for? Add it to your exercise library.
-          </p>
+   <AuroraBackground>
+    <LiquidGlassDefs />
+    <div className="dash-page">
+      {pageLoading ? (
+        <div className="dash-loading">
+          <LoadingSpinner
+            size={64}
+            label="Loading your dashboard..."
+            showLabel
+          />
         </div>
+      ) : (
+        <main className="dash-shell">
 
-        <form onSubmit={handleCreateExercise} className="dash-create-form">
-          <div className="dash-field">
-            <label htmlFor="exercise_name">Exercise name</label>
+          <DashboardHeaderSection username={username} />
 
-            <input
-              id="exercise_name"
-              type="text"
-              name="exercise_name"
-              value={form.exercise_name}
-              onChange={handleChange}
-              placeholder="e.g. Incline Bench Press"
-              required
-            />
-          </div>
+          <DashboardOverviewSection
+            todaySession={todaySession}
+            totalDaysExercised={totalDaysExercised}
+            exerciseCount={exercises.length}
+          />
 
-          <div className="dash-field dash-category-field">
-            <label id="exercise_category_label">
-              Category
-            </label>
 
-            <div
-              className="dash-category-select"
-              ref={categorySelectRef}
-            >
-              <button
-                ref={categoryTriggerRef}
-                id="exercise_category"
-                type="button"
-                className={`dash-category-trigger category-${getCategoryClass(
-                  selectedCategory
-                )}${categoryOpen ? ' is-open' : ''}`}
-                aria-labelledby="exercise_category_label exercise_category_value"
-                aria-haspopup="listbox"
-                aria-expanded={categoryOpen}
-                aria-controls="exercise-category-listbox"
-                onClick={() => setCategoryOpen((previous) => !previous)}
-                onKeyDown={(event) => handleCategoryKeyDown(event, -1)}
-              >
-                <span className="dash-category-trigger-content">
-                  <span
-                    className="dash-category-dot"
-                    aria-hidden="true"
-                  />
+          <DashboardCalendarSection
+            calendarDays={calendarDays}
+            calendarExpanded={calendarExpanded}
+            calendarTrained={calendarTrained}
+            loadEarlierDays={loadEarlierDays}
+            setCalendarExpanded={setCalendarExpanded}
+            weekScrollRef={weekScrollRef}
+            weekStats={weekStats}
+          />
 
-                  <span id="exercise_category_value">
-                    {selectedCategory}
-                  </span>
-                </span>
 
-                <span
-                  className={`dash-category-arrow${categoryOpen ? ' open' : ''}`}
-                  aria-hidden="true"
-                >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </span>
-              </button>
+          <DashboardExerciseSection
+            exercises={exercises}
+            sortedExercises={sortedExercises}
+            user={user}
+            handleDeleteExercise={handleDeleteExercise}
+            deletingExerciseId={deletingExerciseId}
+            form={form}
+            handleChange={handleChange}
+            handleCreateExercise={handleCreateExercise}
+          />
 
-              {categoryOpen && (
-                <ul
-                  id="exercise-category-listbox"
-                  className="dash-category-list"
-                  role="listbox"
-                  aria-labelledby="exercise_category_label"
-                >
-                  {categories.map((category, index) => {
-                    const categoryClass = getCategoryClass(category)
-                    const isSelected = category === selectedCategory
-
-                    return (
-                      <li
-                        key={category}
-                        className="dash-category-option-wrap"
-                        role="presentation"
-                      >
-                        <button
-                          ref={(element) => {
-                            categoryOptionRefs.current[index] = element
-                          }}
-                          type="button"
-                          role="option"
-                          aria-selected={isSelected}
-                          tabIndex={isSelected ? 0 : -1}
-                          className={`dash-category-option option-${categoryClass}${
-                            isSelected ? ' selected' : ''
-                          }`}
-                          onClick={() => handleSelectCategory(category)}
-                          onKeyDown={(event) =>
-                            handleCategoryKeyDown(event, index)
-                          }
-                        >
-                          <span
-                            className="dash-category-option-dot"
-                            aria-hidden="true"
-                          />
-
-                          <span>{category}</span>
-
-                          {isSelected && (
-                            <svg
-                              className="dash-category-check"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2.5"
-                              aria-hidden="true"
-                            >
-                              <path d="m5 12 4 4L19 6" />
-                            </svg>
-                          )}
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
-              )}
-            </div>
-          </div>
-
-          <button type="submit" className="dash-btn">
-            Add Exercise
-          </button>
-        </form>
-      </section>
-
-      <section
-        className="dash-exercises"
-        aria-labelledby="dash-library-title"
-      >
-        {sortedExercises.length ? (
-          <div className="dash-rows dash-rows-grid">
-            {sortedExercises.map((exercise) => (
-              <div
-                key={exercise.id}
-                className={`dash-row dash-row-compact activity-row exercise-card ${
-                  exercise.unit === 'km'
-                    ? 'exercise-card--run'
-                    : 'exercise-card--general'
-                }`}
-                data-category={getExerciseCategory(exercise)}
-              >
-                <span className="dash-row-tile" aria-hidden="true">
-                  <ExerciseCategoryIcon
-                    category={getExerciseCategory(exercise)}
-                  />
-                </span>
-
-                <Link
-                  to={`/progress/${exercise.id}`}
-                  className="dash-row-title dash-row-link"
-                >
-                  {exercise.name}
-                </Link>
-
-                {exercise.created_by === user?.id && (
-                  <button
-                    type="button"
-                    className="dash-remove-btn"
-                    onClick={(event) =>
-                      handleDeleteExercise(event, exercise)
-                    }
-                    disabled={deletingExerciseId === exercise.id}
-                    aria-label={`Remove ${exercise.name}`}
-                    title="Remove exercise"
-                  >
-                    <DashboardIcon>
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
-                    </DashboardIcon>
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="dash-empty-note">
-            No exercises yet. Create one above.
-          </p>
-        )}
-      </section>
-    </>
+        </main>
+      )}
+    </div>
+   </AuroraBackground>
   )
 }
+
+export default DashboardPage
