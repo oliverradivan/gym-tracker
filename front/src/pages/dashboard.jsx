@@ -10,15 +10,23 @@ const getCategoryClass = (category) =>
   String(category || 'Other').toLowerCase()
 
 export default function DashboardExerciseSection({
-  exercises,
-  sortedExercises,
+  exercises = [],
+  sortedExercises = [],
   user,
   handleDeleteExercise,
   deletingExerciseId,
-  form,
+  form = {},
   handleChange,
   handleCreateExercise,
 }) {
+    const exerciseList = Array.isArray(exercises) ? exercises : []
+
+  const sortedExerciseList = Array.isArray(sortedExercises)
+    ? sortedExercises.filter(
+        (exercise) => exercise && typeof exercise === 'object'
+      )
+    : []
+
   const [categoryOpen, setCategoryOpen] = useState(false)
   const categorySelectRef = useRef(null)
   const categoryTriggerRef = useRef(null)
