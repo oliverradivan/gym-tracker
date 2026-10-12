@@ -267,7 +267,6 @@ function ProgressPage() {
        <div className={`progress-card ${category.toLowerCase()}`}>
         <div className="progress-header">
           <div>
-            <p className="eyebrow">Workout Tracker</p>
             <h1>{selectedExercise ? 'Progress' : 'Pick a workout'}</h1>
           </div>
         </div>

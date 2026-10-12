@@ -1,11 +1,8 @@
-/* Lets the browser smoothly fade between colours (instead of snapping) */
 @property --blob-color {
   syntax: "<color>";
   inherits: false;
   initial-value: transparent;
 }
-
-/* ---------- Colours (your exercise categories) ---------- */
 
 .aurora {
   --aurora-push: #e04f4f;
@@ -15,21 +12,25 @@
   --aurora-other: #7a8798;
 
   --aurora-bg: #f7f8f7;
-  --aurora-blob-opacity: 0.6;
-  --aurora-speed: 1; /* lower = faster */
+  --aurora-blob-opacity: 0.55;
+  --aurora-speed: 1;
+  --aurora-blur: 72px;
 }
 
 .dark .aurora {
   --aurora-bg: #0c0e11;
-  --aurora-blob-opacity: 0.65;
+  --aurora-blob-opacity: 0.9;
+  --aurora-blur: 80px;
 }
 
-/* "Thinking" mode: same paths, just quicker */
 .aurora--active {
-  --aurora-speed: 0.45;
+  --aurora-speed: 0.42;
+  --aurora-blob-opacity: 0.78;
 }
 
-/* ---------- Single-colour mode (when a tone is chosen) ---------- */
+.dark .aurora--active {
+  --aurora-blob-opacity: 1;
+}
 
 .aurora[data-tone="push"]   { --aurora-tone: var(--aurora-push); }
 .aurora[data-tone="pull"]   { --aurora-tone: var(--aurora-pull); }
@@ -37,7 +38,6 @@
 .aurora[data-tone="cardio"] { --aurora-tone: var(--aurora-cardio); }
 .aurora[data-tone="other"]  { --aurora-tone: var(--aurora-other); }
 
-/* Two blobs in the pure colour, two in a lighter shade of it */
 .aurora[data-tone] .aurora__blob--push,
 .aurora[data-tone] .aurora__blob--leg {
   --blob-color: var(--aurora-tone);
@@ -45,10 +45,8 @@
 
 .aurora[data-tone] .aurora__blob--pull,
 .aurora[data-tone] .aurora__blob--cardio {
-  --blob-color: color-mix(in srgb, var(--aurora-tone) 70%, white);
+  --blob-color: color-mix(in srgb, var(--aurora-tone) 72%, white);
 }
-
-/* ---------- Frame ---------- */
 
 .aurora {
   position: relative;
@@ -60,10 +58,26 @@
 
 .aurora__content {
   position: relative;
-  z-index: 1; /* real page content sits above the glow */
+  z-index: 1;
 }
 
-/* ---------- Glow layer: edges only ---------- */
+.aurora__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .aurora--gpu .aurora__canvas {
+  mix-blend-mode: plus-lighter;
+}
+
+.aurora--gpu .aurora__glow {
+  opacity: 0;
+}
 
 .aurora__glow {
   position: absolute;
@@ -71,112 +85,115 @@
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  container-type: size; /* lets blobs use cqw / cqh (percent of this layer) */
-
-  -webkit-mask-image: radial-gradient(
-    ellipse 62% 60% at 50% 50%,
-    transparent 25%,
-    #000 80%
+  container-type: size;
+  transition: opacity 280ms ease;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 42%,
+    rgba(0, 0, 0, 0.55) 68%,
+    transparent 100%
   );
-  mask-image: radial-gradient(
-    ellipse 62% 60% at 50% 50%,
-    transparent 25%,
-    #000 80%
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 42%,
+    rgba(0, 0, 0, 0.55) 68%,
+    transparent 100%
   );
 }
 
-/* ---------- Blobs ---------- */
+.aurora__blobs {
+  position: absolute;
+  inset: -18% -12% 28%;
+  filter: blur(var(--aurora-blur));
+  transform: translateZ(0);
+}
+
+.dark .aurora__blobs {
+  mix-blend-mode: plus-lighter;
+}
 
 .aurora__blob {
-  --size: clamp(300px, 90cqmin, 900px);
-
   position: absolute;
-  top: 0;
-  left: 0;
-  width: var(--size);
-  height: var(--size);
-  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
-  border-radius: 50%;
-  background: radial-gradient(closest-side, var(--blob-color), transparent);
+  width: 72%;
+  height: 78%;
+  background: var(--blob-color);
   opacity: var(--aurora-blob-opacity);
-  will-change: transform;
-  transition: --blob-color 700ms ease; /* the colour fade */
+  will-change: transform, border-radius;
+  transition: --blob-color 700ms ease, background-color 700ms ease;
   animation-duration: calc(var(--dur) * var(--aurora-speed));
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  /* path starts right away; the fade is shifted so the four blobs take turns */
-  animation-delay: 0s, calc(var(--dur) * var(--aurora-speed) * var(--fade-phase, 0));
+  animation-direction: alternate;
+  mix-blend-mode: plus-lighter;
 }
 
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
-  --dur: 11s;
-  --fade-phase: 0;
-  animation-name: aurora-push, aurora-fade;
+  --dur: 16s;
+  top: -18%;
+  left: -12%;
+  animation-name: aurora-drift-a, aurora-morph;
 }
 
 .aurora__blob--pull {
   --blob-color: var(--aurora-pull);
-  --dur: 13s;
-  --fade-phase: -0.25;
-  animation-name: aurora-pull, aurora-fade;
+  --dur: 19s;
+  top: -22%;
+  right: -16%;
+  left: auto;
+  width: 68%;
+  animation-name: aurora-drift-b, aurora-morph;
 }
 
 .aurora__blob--leg {
   --blob-color: var(--aurora-leg);
-  --dur: 15s;
-  --fade-phase: -0.5;
-  animation-name: aurora-leg, aurora-fade;
+  --dur: 22s;
+  top: 4%;
+  left: 18%;
+  width: 64%;
+  height: 70%;
+  animation-name: aurora-drift-c, aurora-morph;
 }
 
 .aurora__blob--cardio {
   --blob-color: var(--aurora-cardio);
-  --dur: 12s;
-  --fade-phase: -0.75;
-  animation-name: aurora-cardio, aurora-fade;
+  --dur: 18s;
+  top: -8%;
+  left: 32%;
+  width: 58%;
+  height: 62%;
+  animation-name: aurora-drift-d, aurora-morph;
 }
 
-/* Each colour loops around the edges on its own route.
-   Numbers are x / y as a % of the screen, so (0,0) is the top-left corner. */
-
-@keyframes aurora-push {
-  0%, 100% { transform: translate(10cqw, 0cqh) scale(1); }
-  25%      { transform: translate(85cqw, 6cqh) scale(1.25); }
-  50%      { transform: translate(100cqw, 38cqh) scale(0.9); }
-  75%      { transform: translate(40cqw, 2cqh) scale(1.15); }
+@keyframes aurora-drift-a {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(8%, 6%) scale(1.12); }
 }
 
-@keyframes aurora-pull {
-  0%, 100% { transform: translate(100cqw, 20cqh) scale(1); }
-  25%      { transform: translate(92cqw, 62cqh) scale(1.2); }
-  50%      { transform: translate(55cqw, 100cqh) scale(0.9); }
-  75%      { transform: translate(100cqw, 78cqh) scale(1.1); }
+@keyframes aurora-drift-b {
+  0%   { transform: translate(0, 0) scale(1.05); }
+  100% { transform: translate(-10%, 8%) scale(0.92); }
 }
 
-@keyframes aurora-leg {
-  0%, 100% { transform: translate(0cqw, 62cqh) scale(1); }
-  25%      { transform: translate(12cqw, 18cqh) scale(1.2); }
-  50%      { transform: translate(48cqw, 0cqh) scale(0.9); }
-  75%      { transform: translate(0cqw, 92cqh) scale(1.15); }
+@keyframes aurora-drift-c {
+  0%   { transform: translate(0, 0) scale(0.96); }
+  100% { transform: translate(-6%, -7%) scale(1.14); }
 }
 
-@keyframes aurora-cardio {
-  0%, 100% { transform: translate(0cqw, 100cqh) scale(1); }
-  25%      { transform: translate(50cqw, 100cqh) scale(1.2); }
-  50%      { transform: translate(100cqw, 88cqh) scale(0.9); }
-  75%      { transform: translate(30cqw, 100cqh) scale(1.1); }
+@keyframes aurora-drift-d {
+  0%   { transform: translate(0, 0) scale(1.08); }
+  100% { transform: translate(7%, 5%) scale(0.9); }
 }
 
-/* Presence: each blob is invisible for roughly half of its loop.
-   Gone 0-12%, fades in to 32%, fully there 32-48%, fades out by 68%, gone again.
-   Want them around even less? Shorten the 32%/48% hold. More? Widen it. */
-@keyframes aurora-fade {
-  0%, 12%  { opacity: 0; }
-  32%, 48% { opacity: var(--aurora-blob-opacity); }
-  68%, 100% { opacity: 0; }
+@keyframes aurora-morph {
+  0%   { border-radius: 62% 38% 46% 54% / 48% 42% 58% 52%; }
+  33%  { border-radius: 42% 58% 38% 62% / 62% 32% 68% 38%; }
+  66%  { border-radius: 58% 42% 64% 36% / 36% 64% 36% 64%; }
+  100% { border-radius: 38% 62% 52% 48% / 54% 46% 42% 58%; }
 }
 
-/* People who turn on "Reduce motion" in their OS get a still glow */
 @media (prefers-reduced-motion: reduce) {
   .aurora__blob {
     animation: none;
