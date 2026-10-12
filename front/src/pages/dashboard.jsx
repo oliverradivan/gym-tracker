@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { EXERCISE_CATEGORIES, getExerciseCategory, } from '../utils/exerciseCategory'
 import { ExerciseCategoryIcon } from './components/ExerciseCategoryIcon'
 import DashboardIcon from './components/DashboardIcon'
+import './dashboard.css'
 
 const categories = Object.values(EXERCISE_CATEGORIES)
 
