@@ -464,7 +464,7 @@
   transform: scale(0.97);
 }
 
-.theme-toggle.dark {
+.theme-toggle.is-on {
   background: var(--settings-accent);
   box-shadow: 0 5px 14px rgba(50, 116, 238, 0.22);
 }
@@ -499,7 +499,7 @@
     box-shadow 0.25s ease;
 }
 
-.theme-toggle.dark .toggle-thumb {
+.theme-toggle.is-on .toggle-thumb {
   left: 25px;
 }
 
@@ -902,10 +902,11 @@
 .ghost-btn:focus-visible,
 .danger-btn:focus-visible,
 .password-visibility-btn:focus-visible {
-  outline: none;
+  outline: 2px solid var(--settings-accent);
+  outline-offset: 2px;
 
   box-shadow:
-    0 0 0 3px var(--settings-accent-ring);
+    0 0 0 5px var(--settings-accent-ring);
 }
 
 
@@ -1108,5 +1109,69 @@
   .settings-container,
   .settings-page .topbar {
     width: calc(100% - 24px);
+  }
+}
+
+/* =========================================================
+   UX POLISH LAYER
+   ========================================================= */
+
+/* Toggle: 30px visual, 44px tap area */
+.theme-toggle::after {
+  content: "";
+  position: absolute;
+  inset: -7px -4px;
+}
+
+/* Password field: eye button lives inside the input */
+.password-field {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+}
+
+.password-field input {
+  max-width: none;
+  padding-right: 52px;
+}
+
+.password-field .password-visibility-btn {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  transform: translateY(-50%);
+}
+
+/* Delete account: outlined until the final, confirmed step */
+.danger-btn.danger-btn--outline {
+  background: transparent;
+  color: var(--danger-color);
+}
+
+.danger-btn.danger-btn--outline:hover:not(:disabled) {
+  background: var(--danger-tint-strong);
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+  box-shadow: none;
+}
+
+.field-hint {
+  margin: 10px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+@media (max-width: 768px) {
+  .password-field {
+    max-width: none;
+  }
+
+  /* Five tabs in two columns leaves the last one orphaned: let it span. */
+  .settings-sidebar .settings-tab:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
 }

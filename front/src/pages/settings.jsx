@@ -19,6 +19,46 @@ const TABS = [
   { id: 'danger', label: 'Danger Zone', icon: ShieldAlert, danger: true },
 ]
 
+function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  placeholder,
+  disabled,
+  autoComplete,
+  hint,
+}) {
+  const [visible, setVisible] = useState(false)
+
+  return (
+    <div className="form-group">
+      <label htmlFor={id}>{label}</label>
+      <div className="password-field">
+        <input
+          id={id}
+          type={visible ? 'text' : 'password'}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          autoComplete={autoComplete}
+        />
+        <button
+          type="button"
+          className="password-visibility-btn"
+          onClick={() => setVisible((prev) => !prev)}
+          aria-label={`${visible ? 'Hide' : 'Show'} ${label.toLowerCase()}`}
+          aria-pressed={visible}
+        >
+          {visible ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+        </button>
+      </div>
+      {hint && <small>{hint}</small>}
+    </div>
+  )
+}
+
 function SettingsPage() {
   const navigate = useNavigate()
   const { user, session, setUser, handleLogout, authFetch } = useAuth()
@@ -28,11 +68,6 @@ function SettingsPage() {
   const [activeTab, setActiveTab] = useState('appearance')
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-
-  // Password visibility state
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   // Username form
   const [newUsername, setNewUsername] = useState('')
@@ -277,13 +312,16 @@ function SettingsPage() {
               <h3>Appearance</h3>
               <div className="setting-item">
                 <div className="setting-label">
-                  <label>Dark Mode</label>
+                  <label htmlFor="dark-mode-toggle">Dark Mode</label>
                   <p className="setting-description">Toggle between light and dark theme</p>
                 </div>
                 <button
-                  className={`theme-toggle ${theme === 'dark' ? 'dark' : ''}`}
+                  id="dark-mode-toggle"
+                  type="button"
+                  role="switch"
+                  aria-checked={theme === 'dark'}
+                  className={`theme-toggle ${theme === 'dark' ? 'is-on' : ''}`}
                   onClick={toggleTheme}
-                  aria-label="Toggle dark mode"
                 >
                   <span className="toggle-track" />
                   <span className="toggle-thumb" />
@@ -298,15 +336,18 @@ function SettingsPage() {
               <h3>Graph settings</h3>
               <div className="setting-item">
                 <div className="setting-label">
-                  <label>Enable prediction overlays</label>
+                  <label htmlFor="prediction-toggle">Enable prediction overlays</label>
                   <p className="setting-description">
                     Show forecasted volume on the progress graph.
                   </p>
                 </div>
                 <button
-                  className={`theme-toggle ${predictionEnabled ? 'dark' : ''}`}
+                  id="prediction-toggle"
+                  type="button"
+                  role="switch"
+                  aria-checked={predictionEnabled}
+                  className={`theme-toggle ${predictionEnabled ? 'is-on' : ''}`}
                   onClick={() => setPredictionEnabled((prev) => !prev)}
-                  aria-label="Toggle prediction overlays"
                 >
                   <span className="toggle-track" />
                   <span className="toggle-thumb" />
@@ -314,13 +355,7 @@ function SettingsPage() {
               </div>
               <div className="setting-item">
                 <div className="setting-label">
-                  <label>Current state</label>
-                </div>
-                <p className="current-value">{predictionEnabled ? 'Enabled' : 'Disabled'}</p>
-              </div>
-              <div className="setting-item">
-                <div className="setting-label">
-                  <label>Use scrollable graph</label>
+                  <label htmlFor="graph-scroll-toggle">Use scrollable graph</label>
                   <p className="setting-description">
                     Enable horizontal scrolling to allow for a smoother viewing experience. (for mobile only)
                   </p>
@@ -329,19 +364,16 @@ function SettingsPage() {
                   </p>
                 </div>
                 <button
-                  className={`theme-toggle ${graphScrollable ? 'dark' : ''}`}
+                  id="graph-scroll-toggle"
+                  type="button"
+                  role="switch"
+                  aria-checked={graphScrollable}
+                  className={`theme-toggle ${graphScrollable ? 'is-on' : ''}`}
                   onClick={() => setGraphScrollable((prev) => !prev)}
-                  aria-label="Toggle scrollable graph"
                 >
                   <span className="toggle-track" />
                   <span className="toggle-thumb" />
                 </button>
-              </div>
-              <div className="setting-item">
-                <div className="setting-label">
-                  <label>Graph view</label>
-                </div>
-                <p className="current-value">{graphScrollable ? 'Scrollable' : 'Compressed'}</p>
               </div>
             </section>
           )}
@@ -383,66 +415,34 @@ function SettingsPage() {
             <section className="settings-section">
               <form onSubmit={handleUpdatePassword} className="settings-form">
                 <h3>Change Password</h3>
-                <div className="form-group">
-                  <label htmlFor="current-password">Current Password</label>
-                  <input
-                    id="current-password"
-                    type={showCurrentPassword ? 'text' : 'password'}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Enter your current password"
-                    disabled={passwordLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowCurrentPassword((prev) => !prev)}
-                    className="password-visibility-btn"
-                    aria-label="Show current password"
-                    style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280', marginLeft: 8 }}
-                  >
-                    {showCurrentPassword ? <EyeOff size={12} /> : <Eye size={12} />}
-                  </button>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="new-password">New Password</label>
-                  <input
-                    id="new-password"
-                    type={showNewPassword ? 'text' : 'password'}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Enter new password"
-                    disabled={passwordLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword((prev) => !prev)}
-                    className="password-visibility-btn"
-                    aria-label="Show new password"
-                    style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280', marginLeft: 8 }}
-                  >
-                    {showNewPassword ? <EyeOff size={12} /> : <Eye size={12} />}
-                  </button>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="confirm-password">Confirm New Password</label>
-                  <input
-                    id="confirm-password"
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirm new password"
-                    disabled={passwordLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    className="password-visibility-btn"
-                    aria-label="Show confirm password"
-                    style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280', marginLeft: 8 }}
-                  >
-                    {showConfirmPassword ? <EyeOff size={12} /> : <Eye size={12} />}
-                  </button>
-                </div>
+                <PasswordField
+                  id="current-password"
+                  label="Current Password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter your current password"
+                  disabled={passwordLoading}
+                  autoComplete="current-password"
+                />
+                <PasswordField
+                  id="new-password"
+                  label="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                  disabled={passwordLoading}
+                  autoComplete="new-password"
+                  hint="At least 10 characters."
+                />
+                <PasswordField
+                  id="confirm-password"
+                  label="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm new password"
+                  disabled={passwordLoading}
+                  autoComplete="new-password"
+                />
                 <button type="submit" className="primary-btn" disabled={passwordLoading}>
                   {passwordLoading ? 'Updating...' : 'Update Password'}
                 </button>
@@ -465,7 +465,9 @@ function SettingsPage() {
                   </p>
                 </div>
                 <button
-                  className="danger-btn"
+                  type="button"
+                  className="danger-btn danger-btn--outline"
+                  aria-expanded={showDeleteConfirm}
                   onClick={() => (showDeleteConfirm ? resetDeleteForm() : setShowDeleteConfirm(true))}
                   disabled={deleteLoading}
                 >
@@ -487,6 +489,7 @@ function SettingsPage() {
                     <input
                       id="delete-password"
                       type="password"
+                      autoComplete="current-password"
                       value={deletePassword}
                       onChange={(e) => setDeletePassword(e.target.value)}
                       placeholder="Enter your password"
@@ -495,14 +498,15 @@ function SettingsPage() {
                   </div>
                   <div className="form-group">
                     <label htmlFor="delete-confirm">
-                      Type <strong>DELETE TO CONFIRM</strong> to confirm
+                      Type <strong>DELETE</strong> to confirm
                     </label>
                     <input
                       id="delete-confirm"
                       type="text"
+                      autoComplete="off"
                       value={deleteConfirm}
                       onChange={(e) => setDeleteConfirm(e.target.value.toUpperCase())}
-                      placeholder="TYPE DELETE TO CONFIRM"
+                      placeholder="DELETE"
                       disabled={deleteLoading}
                     />
                   </div>
@@ -515,7 +519,11 @@ function SettingsPage() {
                     >
                       Cancel
                     </button>
-                    <button type="submit" className="danger-btn" disabled={deleteLoading}>
+                    <button
+                      type="submit"
+                      className="danger-btn"
+                      disabled={deleteLoading || !deletePassword || deleteConfirm !== 'DELETE'}
+                    >
                       {deleteLoading ? 'Deleting...' : 'Permanently Delete Account'}
                     </button>
                   </div>

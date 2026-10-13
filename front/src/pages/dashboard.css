@@ -807,11 +807,6 @@ a.dash-calendar-day:hover {
   --row-accent: #64748b;
 }
 
-.dash-row\.exercise-card--run,
-.dash-row\.exercise-card--run[data-category] {
-  --row-accent: #3fae62;
-}
-
 .exercise-card .dash-row-title {
   color: inherit;
 }
@@ -2383,7 +2378,7 @@ a.dash-calendar-day:hover {
     transform 0.12s ease;
 }
 
-custom-select-option:hover {
+.custom-select-option:hover {
   transform: translateX(3px);
 }
 
@@ -2663,4 +2658,305 @@ custom-select-option:hover {
 .dark .dash-create-form .dash-category-option:hover,
 .dark .dash-create-form .dash-category-option:focus {
   background: #35353c !important;
+}
+
+/* =====================================================================
+   UX POLISH LAYER
+   Appended after the original rules so it wins ties.
+   ===================================================================== */
+
+.dash-page {
+  --dash-danger: #b3413a;
+  --dash-danger-ink: #ffffff;
+}
+
+.dark .dash-page {
+  --dash-danger: #e0847c;
+  --dash-danger-ink: #1a0b09;
+}
+
+/* 1. Stat cards are not clickable, so they should not lift on hover. */
+.dash-stat:hover {
+  transform: none;
+  box-shadow: var(--lg-rim), var(--lg-drop);
+}
+
+/* 2. "Nothing logged today" nudge: one clear next action. */
+.dash-nudge {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px 14px 22px;
+  border: 1px solid color-mix(in srgb, var(--dash-orange) 30%, var(--lg-edge));
+  border-radius: 24px;
+  background:
+    var(--lg-sheen),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--dash-orange) 16%, var(--lg-fill-hi)),
+      var(--lg-fill) 80%
+    ),
+    var(--lg-base);
+  box-shadow: var(--lg-rim-soft), var(--lg-drop);
+  -webkit-backdrop-filter: var(--lg-refract-bar) blur(var(--lg-blur-control))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+  backdrop-filter: var(--lg-refract-bar) blur(var(--lg-blur-control))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+}
+
+.dash-nudge-title {
+  margin: 0;
+  color: var(--dash-ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.dash-nudge-sub {
+  margin: 2px 0 0;
+  color: var(--dash-muted);
+  font-size: 0.82rem;
+  font-weight: 560;
+}
+
+/* 3. Weekly progress bar */
+.dash-progress {
+  height: 8px;
+  margin: 10px 0 2px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dash-ink) 12%, transparent);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 8%);
+}
+
+.dash-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--dash-green),
+    color-mix(in srgb, var(--dash-green) 65%, #ffffff)
+  );
+  transition: width 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 4. Exercise library: grouped by category, optional search */
+.dash-group {
+  display: grid;
+  gap: 10px;
+}
+
+.dash-group + .dash-group {
+  margin-top: 20px;
+}
+
+.dash-group-title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--dash-muted);
+  font-size: 0.78rem;
+  font-weight: 720;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dash-group-title .dash-calendar-legend-dot {
+  width: 10px;
+  height: 10px;
+  flex-basis: 10px;
+}
+
+.dash-group-count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  color: var(--dash-ink);
+  background: var(--lg-fill-lo);
+  box-shadow: var(--lg-rim-soft);
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-search {
+  max-width: 420px;
+  margin-bottom: 16px;
+}
+
+.dash-search input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* 5. Whole row is the tap target (the title link stretches over the card). */
+.dash-row {
+  position: relative;
+}
+
+.dash-row-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.dash-row .dash-remove-btn {
+  position: relative;
+  z-index: 1;
+}
+
+.dash-row-link:focus-visible {
+  outline: none;
+}
+
+.dash-row:has(.dash-row-link:focus-visible) {
+  outline: 3px solid #297e62;
+  outline-offset: 3px;
+}
+
+.dark .dash-row:has(.dash-row-link:focus-visible) {
+  outline-color: #5fd3a1;
+}
+
+/* 6. 44px remove button */
+.dash-remove-btn {
+  width: 44px;
+  height: 44px;
+  padding: 13px;
+  margin-right: -6px;
+}
+
+/* 7. Inline delete confirmation (replaces window.confirm) */
+.dash-row.is-confirming {
+  --row-accent: var(--dash-danger);
+}
+
+.dash-row-confirm {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.dash-row-confirm-text {
+  flex: 1 1 150px;
+  min-width: 0;
+  margin: 0;
+  color: var(--dash-ink);
+  font-size: 0.84rem;
+  font-weight: 650;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.dash-row-confirm-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.dash-btn--sm {
+  min-height: 44px;
+  padding: 0 16px;
+  font-size: 0.82rem;
+}
+
+.dash-page .dash-btn.dash-btn--ghost {
+  color: var(--dash-ink);
+  background: var(--lg-fill-lo);
+  border-color: var(--lg-edge);
+  box-shadow: var(--lg-rim-soft);
+}
+
+.dash-page .dash-btn.dash-btn--ghost:hover {
+  color: var(--dash-ink);
+  background: var(--lg-fill);
+}
+
+.dash-page .dash-btn.dash-btn--danger {
+  color: var(--dash-danger-ink);
+  background: var(--dash-danger);
+  border-color: transparent;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 26%),
+    0 6px 16px color-mix(in srgb, var(--dash-danger) 35%, transparent);
+}
+
+.dash-page .dash-btn.dash-btn--danger:hover {
+  color: var(--dash-danger-ink);
+  background: color-mix(in srgb, var(--dash-danger) 88%, #000000);
+}
+
+.dash-page .dash-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+/* 8. Legibility: raise the smallest calendar and stat text. */
+.dash-week-date {
+  font-size: 0.72rem;
+}
+
+.dash-calendar-date {
+  font-size: 0.72rem;
+}
+
+.dash-calendar-weekday {
+  font-size: 0.74rem;
+}
+
+@media (max-width: 640px) {
+  .dash-week-date {
+    font-size: 0.68rem;
+  }
+
+  .dash-calendar-date {
+    font-size: 0.66rem;
+  }
+
+  .dash-calendar-weekday {
+    font-size: 0.68rem;
+  }
+
+  .dash-calendar-legend {
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 560px) {
+  .dash-stat-unit {
+    font-size: 0.7rem;
+  }
+
+  .dash-nudge {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+    border-radius: 22px;
+  }
+
+  .dash-nudge .dash-btn {
+    width: 100%;
+  }
+
+  .dash-row-confirm-actions {
+    width: 100%;
+  }
+
+  .dash-row-confirm-actions .dash-btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 360px) {
+  .dash-stat-unit {
+    font-size: 0.66rem;
+  }
 }

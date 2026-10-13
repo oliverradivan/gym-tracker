@@ -50,12 +50,16 @@ export default function ProgressChartPanel({
   progressLength,
   showForecast,
 }) {
+  const prefersReducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
   const renderChart = () => (
     <LineChart
       data={chartData}
       xDataKey="date"
-      animationDuration={1800}
-      animationEasing="cubic-bezier(0.42, 0, 1, 1)"
+      animationDuration={prefersReducedMotion ? 0 : 600}
+      animationEasing="cubic-bezier(0.22, 1, 0.36, 1)"
       key={chartMetric}
       style={{ touchAction: isMobile && graphScrollable && !showForecast ? 'pan-x' : 'none' }}
     >

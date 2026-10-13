@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import DashboardIcon from './DashboardIcon'
 
 const decimalFormatter = new Intl.NumberFormat('en-US', {
@@ -17,7 +18,11 @@ export default function DashboardOverviewSection({
   todaySession,
   totalDaysExercised,
   exerciseCount,
+  // Set this to your real "Log workout" route.
+  logHref = '/log',
 }) {
+  const hasToday = Boolean(todaySession)
+
   return (
     <section className="dash-stats" aria-label="Overview">
       <article className="dash-stat" data-tone="orange">
@@ -28,9 +33,11 @@ export default function DashboardOverviewSection({
         </span>
         <span className="dash-stat-label">Today</span>
         <strong className="dash-stat-value">
-          {todaySession ? formatVolume(todaySession.total_volume) : '0'}
+          {hasToday ? formatVolume(todaySession.total_volume) : '–'}
         </strong>
-        <span className="dash-stat-unit">kg lifted</span>
+        <span className="dash-stat-unit">
+          {hasToday ? 'kg lifted' : 'not logged yet'}
+        </span>
       </article>
 
       <article className="dash-stat" data-tone="teal">
@@ -42,7 +49,9 @@ export default function DashboardOverviewSection({
         </span>
         <span className="dash-stat-label">Trained</span>
         <strong className="dash-stat-value">{totalDaysExercised}</strong>
-        <span className="dash-stat-unit">days logged</span>
+        <span className="dash-stat-unit">
+          {totalDaysExercised === 1 ? 'day logged' : 'days logged'}
+        </span>
       </article>
 
       <article className="dash-stat" data-tone="indigo">
@@ -56,8 +65,22 @@ export default function DashboardOverviewSection({
         </span>
         <span className="dash-stat-label">Library</span>
         <strong className="dash-stat-value">{exerciseCount}</strong>
-        <span className="dash-stat-unit">exercises</span>
+        <span className="dash-stat-unit">
+          {exerciseCount === 1 ? 'exercise' : 'exercises'}
+        </span>
       </article>
+
+      {!hasToday && (
+        <aside className="dash-nudge" aria-label="Log today's workout">
+          <div>
+            <p className="dash-nudge-title">Nothing logged yet today</p>
+            <p className="dash-nudge-sub">A short session still counts.</p>
+          </div>
+          <Link to={logHref} className="dash-btn">
+            Log a workout
+          </Link>
+        </aside>
+      )}
     </section>
   )
 }

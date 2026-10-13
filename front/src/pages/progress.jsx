@@ -14,6 +14,7 @@ import { useLocalStorageState } from '../hooks/useLocalStorageState'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ProgressChartPanel from './components/ProgressChartPanel'
 import ProgressHistoryTable from './components/ProgressHistoryTable'
+import ProgressSummary from './components/ProgressSummary'
 import './progress.css'
 import AuroraBackground from '../components/AuroraBackground'
 
@@ -45,6 +46,7 @@ function ProgressPage() {
   const [isMobile, setIsMobile] = useState(() => (typeof window === 'undefined' ? false : window.matchMedia('(max-width: 640px)').matches))
   const [selectOpen, setSelectOpen] = useState(false)
   const selectRef = useRef(null)
+  const triggerRef = useRef(null)
   const chartScrollRef = useRef(null)
   // Remembers which exercise's progress is on screen, so a background refetch
   // (after logging a workout) updates the chart without a spinner flash.
@@ -188,7 +190,22 @@ function ProgressPage() {
     event.stopPropagation()
     setSelectedExerciseId(exerciseId)
     setSelectOpen(false)
+    triggerRef.current?.focus()
   }
+
+  // One starter exercise per category, so an empty page is one tap from a chart.
+  const quickPicks = useMemo(() => {
+    const seen = new Set()
+    const picks = []
+    for (const exercise of sortedExercises) {
+      const pickCategory = getExerciseCategory(exercise)
+      if (seen.has(pickCategory)) continue
+      seen.add(pickCategory)
+      picks.push({ exercise, category: pickCategory })
+      if (picks.length === 4) break
+    }
+    return picks
+  }, [sortedExercises])
 
   const chartMetric = category === EXERCISE_CATEGORIES.CARDIO ? 'duration_seconds' : selectedMetric
   const metricLabel = category === EXERCISE_CATEGORIES.CARDIO ? 'Time' : METRICS[chartMetric]?.label || 'Unknown'
@@ -267,7 +284,7 @@ function ProgressPage() {
        <main className={`progress-shell ${category.toLowerCase()}`}>
         <div className="progress-header">
           <div>
-            <h1>{selectedExercise ? 'Progress' : 'Pick a workout'}</h1>
+            <h1>Progress</h1>
           </div>
         </div>
 
@@ -276,6 +293,9 @@ function ProgressPage() {
           <div className="custom-select" ref={selectRef}>
             <button
               type="button"
+              ref={triggerRef}
+              aria-haspopup="listbox"
+              aria-expanded={selectOpen}
               className={`custom-select-trigger ${category ? `select-${category.toLowerCase()}` : ''}`}
               onClick={() => setSelectOpen((prev) => !prev)}
             >
@@ -287,14 +307,32 @@ function ProgressPage() {
               </span>
             </button>
             {selectOpen && (
-              <ul className="custom-select-list">
+              <ul
+                className="custom-select-list"
+                role="listbox"
+                aria-label="Exercises"
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') {
+                    setSelectOpen(false)
+                    triggerRef.current?.focus()
+                  }
+                }}
+              >
                 {sortedExercises.map((exercise) => {
                   const optionCategory = getExerciseCategory(exercise)
                   return (
                     <li
                       key={exercise.id}
                       className={`custom-select-option option-${optionCategory.toLowerCase()}${exercise.id === selectedExerciseId ? ' selected' : ''}`}
+                      role="option"
+                      aria-selected={exercise.id === selectedExerciseId}
+                      tabIndex={0}
                       onMouseDown={(event) => handleSelectExercise(event, exercise.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          handleSelectExercise(event, exercise.id)
+                        }
+                      }}
                     >
                       {exercise.name}
                     </li>
@@ -307,10 +345,30 @@ function ProgressPage() {
 
         {loading ? (
           <LoadingSpinner label="Loading your progress..." showLabel />
-        ) : !selectedExercise ? null : progress.length === 0 ? (
+        ) : !selectedExercise ? (
+          <div className="progress-empty">
+            <p className="status-message">Choose an exercise to see your trend.</p>
+            {quickPicks.length > 0 && (
+              <div className="progress-chips" role="group" aria-label="Quick picks">
+                {quickPicks.map(({ exercise, category: pickCategory }) => (
+                  <button
+                    key={exercise.id}
+                    type="button"
+                    className={`progress-chip option-${pickCategory.toLowerCase()}`}
+                    onClick={() => setSelectedExerciseId(exercise.id)}
+                  >
+                    {exercise.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : progress.length === 0 ? (
           <p className="status-message">No progress data yet for {selectedExercise.name}.</p>
         ) : (
           <>
+            <ProgressSummary progress={progress} category={category} />
+
             {category !== EXERCISE_CATEGORIES.CARDIO && (
               <div className="metric-toggle" role="group" aria-label="Chart metric">
                 {Object.entries(METRICS).map(([value, details]) => (
@@ -327,6 +385,8 @@ function ProgressPage() {
                 ))}
               </div>
             )}
+
+            <ProgressSummary progress={progress} category={category} />
 
             <ProgressChartPanel
               bestTimeChartPoint={bestTimeChartPoint}

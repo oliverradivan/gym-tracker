@@ -98,12 +98,6 @@ function DashboardPage() {
 
     if (!session?.access_token || deletingExerciseId) return
 
-    const confirmed = window.confirm(
-      `Remove "${exercise.name}"? Its workout logs will also be permanently deleted. This can't be undone.`
-    )
-
-    if (!confirmed) return
-
     setDeletingExerciseId(exercise.id)
 
     try {

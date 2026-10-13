@@ -9,7 +9,12 @@ export default function DashboardCalendarSection({
   setCalendarExpanded,
   weekScrollRef,
   weekStats,
+  weeklyGoal = 7,
 }) {
+  const trainedCount = calendarExpanded ? calendarTrained : weekStats.trained
+  const target = calendarExpanded ? 30 : weeklyGoal
+  const percent = Math.min(100, Math.max(0, (trainedCount / target) * 100))
+
   return (
     <section aria-labelledby="dash-week-title">
       <div className="dash-section-head">
@@ -45,9 +50,20 @@ export default function DashboardCalendarSection({
           </span>
 
           <strong className="dash-card-value dash-week-value">
-            {calendarExpanded ? calendarTrained : weekStats.trained}
-            <small className="dash-week-count">/{calendarExpanded ? 30 : 7}</small>
+            {trainedCount}
+            <small className="dash-week-count">/{target}</small>
           </strong>
+
+          <div
+            className="dash-progress"
+            role="progressbar"
+            aria-label="Days trained"
+            aria-valuemin={0}
+            aria-valuemax={target}
+            aria-valuenow={Math.min(trainedCount, target)}
+          >
+            <span className="dash-progress-fill" style={{ width: `${percent}%` }} />
+          </div>
 
           <div id="dash-week-view">
             {calendarExpanded ? (
@@ -85,7 +101,7 @@ export default function DashboardCalendarSection({
                             data-today={day.isToday}
                             data-outside-month={day.isOutsideMonth}
                             data-future={day.key > weekStats.todayKey}
-                            aria-label={`${day.short} ${day.dayNumber}: workout`}
+                            aria-label={`${day.short} ${day.dayNumber}: ${day.category} workout`}
                           >
                             <span className="dash-calendar-date">
                               {day.key.slice(8, 10)}/{day.key.slice(5, 7)}
@@ -142,6 +158,7 @@ export default function DashboardCalendarSection({
                 ref={weekScrollRef}
                 data-swipe-ignore
                 role="region"
+                tabIndex={0}
                 onScroll={() => {
                   if (weekScrollRef.current?.scrollLeft < 70) {
                     loadEarlierDays()
@@ -149,7 +166,7 @@ export default function DashboardCalendarSection({
                 }}
                 aria-label="Workout days"
               >
-                <ol className="dash-week" aria-label="Workout days">
+                <ol className="dash-week">
                   {weekStats.days.map((day) => (
                     <li key={day.key}>
                       {day.clickable ? (
@@ -160,7 +177,7 @@ export default function DashboardCalendarSection({
                           data-category={day.category}
                           data-today={day.isToday}
                           data-future={day.key > weekStats.todayKey}
-                          aria-label={`${day.short} ${day.dayNumber}: workout`}
+                          aria-label={`${day.short} ${day.dayNumber}: ${day.category} workout`}
                         >
                           <span className="dash-week-date dash-week-date-full" aria-hidden="true">
                             {day.short} {day.dayNumber}

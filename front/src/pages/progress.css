@@ -755,7 +755,7 @@
     BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .chart-axis-title {
@@ -888,13 +888,13 @@
   text-align: center;
 }
 
-.error-message {
+.progress-shell .error-message {
   margin-top: 4px;
   color: #c93636;
   font-size: 0.82rem;
 }
 
-.dark .error-message {
+.dark .progress-shell .error-message {
   color: #ff8d8d;
 }
 
@@ -1197,5 +1197,185 @@
   .chart-box {
     padding-left: 6px;
     padding-right: 6px;
+  }
+}
+
+/* =====================================================================
+   UX POLISH LAYER
+   ===================================================================== */
+
+.progress-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.progress-page {
+  --delta-up: #2a7343;
+  --delta-down: #b3413a;
+  --pr-ink: #7a5410;
+  --pr-bg: rgba(185, 133, 32, 0.16);
+  --pr-edge: rgba(185, 133, 32, 0.38);
+}
+
+.dark .progress-page {
+  --delta-up: #7fdc9a;
+  --delta-down: #ff9e9e;
+  --pr-ink: #f1cf7c;
+  --pr-bg: rgba(185, 133, 32, 0.24);
+  --pr-edge: rgba(241, 207, 124, 0.35);
+}
+
+/* Summary strip */
+.progress-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.progress-summary > div {
+  min-width: 0;
+  padding: 14px 16px;
+  background: var(--progress-glass-surface);
+  border: 1px solid var(--progress-glass-edge);
+  border-radius: var(--progress-radius-md);
+  backdrop-filter: var(--progress-glass-blur);
+  -webkit-backdrop-filter: var(--progress-glass-blur);
+  box-shadow: var(--progress-glass-specular), var(--progress-glass-shadow);
+}
+
+.progress-summary dt {
+  margin: 0 0 6px;
+  color: var(--progress-muted);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.progress-summary dd {
+  margin: 0;
+  color: var(--progress-ink);
+  font-size: 1.4rem;
+  font-weight: 760;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-summary dd.delta--up {
+  color: var(--delta-up);
+}
+
+.progress-summary dd.delta--down {
+  color: var(--delta-down);
+}
+
+/* Change vs previous session + personal-record marker */
+.delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta--up {
+  color: var(--delta-up);
+}
+
+.delta--down {
+  color: var(--delta-down);
+}
+
+.delta--flat {
+  color: var(--progress-faint);
+}
+
+.delta-arrow {
+  font-size: 0.6rem;
+}
+
+.pr-badge {
+  margin-left: 10px;
+  padding: 2px 8px;
+  border: 1px solid var(--pr-edge);
+  border-radius: 999px;
+  color: var(--pr-ink);
+  background: var(--pr-bg);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.progress-table tr.is-best td {
+  background: color-mix(in srgb, var(--pr-bg) 55%, transparent);
+}
+
+/* Empty state with quick picks */
+.progress-empty {
+  display: grid;
+  gap: 14px;
+}
+
+.progress-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.progress-chip {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--progress-glass-edge);
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 650;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    background-color 0.15s ease;
+}
+
+.progress-chip:active {
+  transform: scale(0.97);
+}
+
+.progress-chip:focus-visible,
+.progress-shell .custom-select-option:focus-visible {
+  outline: 2px solid var(--progress-ink);
+  outline-offset: 2px;
+}
+
+.progress-shell .custom-select-option:focus-visible {
+  outline-offset: -2px;
+}
+
+@media (max-width: 640px) {
+  .progress-summary {
+    gap: 8px;
+  }
+
+  .progress-summary > div {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .progress-summary dt {
+    font-size: 0.66rem;
+    letter-spacing: 0.05em;
+  }
+
+  .progress-summary dd {
+    font-size: 1.15rem;
   }
 }

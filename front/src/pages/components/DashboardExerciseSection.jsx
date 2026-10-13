@@ -9,6 +9,9 @@ const categories = Object.values(EXERCISE_CATEGORIES || {}).filter(
   (category) => typeof category === 'string' && category.length > 0
 )
 
+const CATEGORY_LABELS = { Leg: 'Legs' }
+const SEARCH_THRESHOLD = 12
+
 export default function DashboardExerciseSection({
   exercises = [],
   sortedExercises = [],
@@ -36,6 +39,16 @@ export default function DashboardExerciseSection({
   const [categorySelectOpen, setCategorySelectOpen] = useState(false)
   const categorySelectRef = useRef(null)
   const [focusedOptionIndex, setFocusedOptionIndex] = useState(-1)
+
+  // Library search and inline delete confirmation.
+  const [query, setQuery] = useState('')
+  const [confirmingId, setConfirmingId] = useState(null)
+  const removeButtonRefs = useRef(new Map())
+
+  const closeConfirm = (id) => {
+    setConfirmingId(null)
+    requestAnimationFrame(() => removeButtonRefs.current.get(id)?.focus())
+  }
 
   useClickOutside(categorySelectRef, () => setCategorySelectOpen(false))
 
@@ -97,6 +110,25 @@ export default function DashboardExerciseSection({
     }
   }
 
+  // Group the (already category-sorted) list, keeping the sort order.
+  const normalizedQuery = query.trim().toLowerCase()
+  const exerciseGroups = []
+  sortedExerciseList
+    .filter(
+      (exercise) =>
+        !normalizedQuery ||
+        String(exercise.name ?? '').toLowerCase().includes(normalizedQuery)
+    )
+    .forEach((exercise) => {
+      const category = getSafeCategory(exercise)
+      let group = exerciseGroups.find((item) => item.category === category)
+      if (!group) {
+        group = { category, items: [] }
+        exerciseGroups.push(group)
+      }
+      group.items.push(exercise)
+    })
+
   return (
     <>
       <div className="dash-section-head">
@@ -111,60 +143,147 @@ export default function DashboardExerciseSection({
         className="dash-exercises"
         aria-labelledby="dash-library-title"
       >
-        {sortedExerciseList.length > 0 ? (
-          <div className="dash-rows dash-rows-grid">
-            {sortedExerciseList.map((exercise) => {
-              const category = getSafeCategory(exercise)
-
-              return (
-                <div
-                  key={exercise.id ?? exercise.name}
-                  className={`dash-row dash-row-compact activity-row exercise-card ${
-                    exercise.unit === 'km'
-                      ? 'exercise-card--run'
-                      : 'exercise-card--general'
-                  }`}
-                  data-category={category}
-                >
-                  <span className="dash-row-tile" aria-hidden="true">
-                    <ExerciseCategoryIcon category={category} />
-                  </span>
-
-                  <Link
-                    to={`/progress/${exercise.id}`}
-                    className="dash-row-title dash-row-link"
-                  >
-                    {exercise.name ?? 'Unnamed exercise'}
-                  </Link>
-
-                  {exercise.created_by &&
-                    user?.id &&
-                    exercise.created_by === user.id && (
-                      <button
-                        type="button"
-                        className="dash-remove-btn"
-                        onClick={(event) =>
-                          handleDeleteExercise?.(event, exercise)
-                        }
-                        disabled={deletingExerciseId === exercise.id}
-                        aria-label={`Remove ${
-                          exercise.name ?? 'exercise'
-                        }`}
-                        title="Remove exercise"
-                      >
-                        <DashboardIcon>
-                          <circle cx="12" cy="12" r="10" />
-                          <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
-                        </DashboardIcon>
-                      </button>
-                    )}
-                </div>
-              )
-            })}
+        {exerciseList.length > SEARCH_THRESHOLD && (
+          <div className="dash-field dash-search">
+            <label htmlFor="exercise_search" className="dash-sr-only">
+              Search exercises
+            </label>
+            <input
+              id="exercise_search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search your exercises"
+              autoComplete="off"
+            />
           </div>
+        )}
+
+        {exerciseGroups.length > 0 ? (
+          exerciseGroups.map(({ category, items }) => (
+            <div
+              key={category}
+              className="dash-group"
+              role="group"
+              aria-labelledby={`dash-group-${category}`}
+            >
+              <h3 id={`dash-group-${category}`} className="dash-group-title">
+                <span
+                  className="dash-calendar-legend-dot"
+                  data-category={category}
+                  aria-hidden="true"
+                />
+                {CATEGORY_LABELS[category] ?? category}
+                <span className="dash-group-count">{items.length}</span>
+              </h3>
+
+              <div className="dash-rows dash-rows-grid">
+                {items.map((exercise) => {
+                  const name = exercise.name ?? 'Unnamed exercise'
+                  const isConfirming = confirmingId === exercise.id
+                  const canRemove =
+                    exercise.created_by &&
+                    user?.id &&
+                    exercise.created_by === user.id
+
+                  return (
+                    <div
+                      key={exercise.id ?? exercise.name}
+                      className={`dash-row dash-row-compact activity-row exercise-card ${
+                        exercise.unit === 'km'
+                          ? 'exercise-card--run'
+                          : 'exercise-card--general'
+                      }${isConfirming ? ' is-confirming' : ''}`}
+                      data-category={category}
+                    >
+                      <span className="dash-row-tile" aria-hidden="true">
+                        <ExerciseCategoryIcon category={category} />
+                      </span>
+
+                      {isConfirming ? (
+                        <div
+                          className="dash-row-confirm"
+                          role="group"
+                          aria-label={`Confirm removing ${name}`}
+                          onKeyDown={(event) => {
+                            if (event.key === 'Escape') {
+                              event.stopPropagation()
+                              closeConfirm(exercise.id)
+                            }
+                          }}
+                        >
+                          <p className="dash-row-confirm-text">
+                            Delete “{name}” and all its logs? This can’t be
+                            undone.
+                          </p>
+                          <div className="dash-row-confirm-actions">
+                            {/* Safe default: focus lands on Keep, not Delete. */}
+                            <button
+                              type="button"
+                              className="dash-btn dash-btn--sm dash-btn--ghost"
+                              autoFocus
+                              onClick={() => closeConfirm(exercise.id)}
+                            >
+                              Keep
+                            </button>
+                            <button
+                              type="button"
+                              className="dash-btn dash-btn--sm dash-btn--danger"
+                              disabled={deletingExerciseId === exercise.id}
+                              onClick={(event) => {
+                                setConfirmingId(null)
+                                handleDeleteExercise?.(event, exercise)
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <Link
+                            to={`/progress/${exercise.id}`}
+                            className="dash-row-title dash-row-link"
+                          >
+                            {name}
+                          </Link>
+
+                          {canRemove && (
+                            <button
+                              type="button"
+                              className="dash-remove-btn"
+                              ref={(node) => {
+                                if (node) removeButtonRefs.current.set(exercise.id, node)
+                                else removeButtonRefs.current.delete(exercise.id)
+                              }}
+                              onClick={(event) => {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                setConfirmingId(exercise.id)
+                              }}
+                              disabled={deletingExerciseId === exercise.id}
+                              aria-label={`Remove ${name}`}
+                              title="Remove exercise"
+                            >
+                              <DashboardIcon>
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
+                              </DashboardIcon>
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))
         ) : (
           <p className="dash-empty-note">
-            No exercises yet. Create one above.
+            {exerciseList.length === 0
+              ? 'No exercises yet. Add one below.'
+              : `No exercises match “${query.trim()}”.`}
           </p>
         )}
       </section>
