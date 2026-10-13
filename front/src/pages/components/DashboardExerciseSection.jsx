@@ -345,7 +345,7 @@ export default function DashboardExerciseSection({
                 </span>
               </button>
               {categorySelectOpen && (
-                <ul className="custom-select-list">
+                <ul className="custom-select-list" style={{ bottom: '100%', top: 'auto', marginBottom: '4px' }}>
                   {categories.map((category, index) => (
                     <li
                       key={category}
