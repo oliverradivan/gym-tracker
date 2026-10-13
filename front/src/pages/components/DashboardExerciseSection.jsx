@@ -135,7 +135,7 @@ export default function DashboardExerciseSection({
       <div className="dash-section-head dash-library-head">
         <div className="dash-library-title">
           <h2 id="dash-library-title" className="dash-section-title">
-            Your exercises
+            Your exercises:
           </h2>
 
           <span className="dash-count">{exerciseList.length}</span>
