@@ -210,6 +210,7 @@ export default function DashboardExerciseSection({
             <div
               key={category}
               className="dash-group"
+              data-aurora-category={category}
               role="group"
               aria-labelledby={`dash-group-${category}`}
             >

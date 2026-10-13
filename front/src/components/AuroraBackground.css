@@ -13,18 +13,16 @@
 
   --aurora-bg: #f7f8f7;
   --aurora-blob-opacity: 0.6;
-  --aurora-speed: 1;
-  --aurora-blur: 60px;
+  --aurora-blur: 70px;
 }
 
 .dark .aurora {
   --aurora-bg: #0c0e11;
   --aurora-blob-opacity: 0.85;
-  --aurora-blur: 70px;
+  --aurora-blur: 80px;
 }
 
 .aurora--active {
-  --aurora-speed: 0.55;
   --aurora-blob-opacity: 0.8;
 }
 
@@ -37,16 +35,6 @@
 .aurora[data-tone="leg"]    { --aurora-tone: var(--aurora-leg); }
 .aurora[data-tone="cardio"] { --aurora-tone: var(--aurora-cardio); }
 .aurora[data-tone="other"]  { --aurora-tone: var(--aurora-other); }
-
-.aurora[data-tone] .aurora__blob--push,
-.aurora[data-tone] .aurora__blob--leg {
-  --blob-color: var(--aurora-tone);
-}
-
-.aurora[data-tone] .aurora__blob--pull,
-.aurora[data-tone] .aurora__blob--cardio {
-  --blob-color: color-mix(in srgb, var(--aurora-tone) 72%, white);
-}
 
 .aurora {
   position: relative;
@@ -81,7 +69,7 @@
   opacity: 0;
 }
 
-/* ---------- CSS fallback (no WebGL): one blob per corner ---------- */
+/* ---------- CSS fallback (no WebGL): a single drifting blob ---------- */
 
 .aurora__glow {
   position: absolute;
@@ -104,87 +92,54 @@
 }
 
 .aurora__blob {
-  --size: clamp(160px, 26vw, 360px);
   position: absolute;
-  /* wider than tall = a soft flowing shape, not a circle */
-  width: calc(var(--size) * 1.5);
-  height: calc(var(--size) * 0.9);
+  top: 18%;
+  left: 12%;
+  /* sized relative to the page, wider than tall = soft flowing shape */
+  width: 70%;
+  height: 55%;
   background: var(--blob-color);
   opacity: var(--aurora-blob-opacity);
   will-change: transform, border-radius;
-  transition: --blob-color 700ms ease, background-color 700ms ease;
-  /* drift, then morph (morph runs a bit quicker so they never sync up) */
-  animation-duration:
-    calc(var(--dur) * var(--aurora-speed)),
-    calc(var(--dur) * var(--aurora-speed) * 0.8);
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
+  transition: --blob-color 1200ms ease;
+  /* three slow, out-of-sync animations: wander, change shape, change colour */
+  animation:
+    aurora-drift 50s ease-in-out infinite alternate,
+    aurora-morph 34s ease-in-out infinite alternate,
+    aurora-hue 40s ease-in-out infinite;
 }
 
-/* top-left: red */
-.aurora__blob--push {
-  --blob-color: var(--aurora-push);
-  --dur: 15s;
-  top: calc(var(--size) * -0.3);
-  left: calc(var(--size) * -0.3);
-  animation-name: aurora-drift-a, aurora-morph;
+/* A tone is chosen (exercise picked, or category scrolled into view):
+   stop cycling colours and hold that one. */
+.aurora[data-tone] .aurora__blob {
+  --blob-color: var(--aurora-tone);
+  animation:
+    aurora-drift 50s ease-in-out infinite alternate,
+    aurora-morph 34s ease-in-out infinite alternate;
 }
 
-/* top-right: blue */
-.aurora__blob--pull {
-  --blob-color: var(--aurora-pull);
-  --dur: 17s;
-  top: calc(var(--size) * -0.3);
-  right: calc(var(--size) * -0.3);
-  animation-name: aurora-drift-b, aurora-morph;
+/* Wanders around the page while growing, shrinking and turning. */
+@keyframes aurora-drift {
+  0%   { transform: translate(-18%, -25%) rotate(-12deg) scale(0.85); }
+  35%  { transform: translate(30%, -10%) rotate(10deg) scale(1.15); }
+  70%  { transform: translate(18%, 40%) rotate(-6deg) scale(0.95); }
+  100% { transform: translate(-25%, 30%) rotate(14deg) scale(1.2); }
 }
 
-/* bottom-right: yellow */
-.aurora__blob--leg {
-  --blob-color: var(--aurora-leg);
-  --dur: 19s;
-  bottom: calc(var(--size) * -0.3);
-  right: calc(var(--size) * -0.3);
-  animation-name: aurora-drift-c, aurora-morph;
-}
-
-/* bottom-left: green */
-.aurora__blob--cardio {
-  --blob-color: var(--aurora-cardio);
-  --dur: 16s;
-  bottom: calc(var(--size) * -0.3);
-  left: calc(var(--size) * -0.3);
-  animation-name: aurora-drift-d, aurora-morph;
-}
-
-/* Each blob wanders further around its own corner, turning as it goes. */
-@keyframes aurora-drift-a {
-  0%   { transform: translate(0, 0) rotate(-20deg) scale(1); }
-  100% { transform: translate(28%, 30%) rotate(25deg) scale(1.15); }
-}
-
-@keyframes aurora-drift-b {
-  0%   { transform: translate(0, 0) rotate(15deg) scale(1.05); }
-  100% { transform: translate(-28%, 30%) rotate(-30deg) scale(0.9); }
-}
-
-@keyframes aurora-drift-c {
-  0%   { transform: translate(0, 0) rotate(-25deg) scale(0.95); }
-  100% { transform: translate(-30%, -28%) rotate(20deg) scale(1.15); }
-}
-
-@keyframes aurora-drift-d {
-  0%   { transform: translate(0, 0) rotate(20deg) scale(1.1); }
-  100% { transform: translate(30%, -30%) rotate(-25deg) scale(0.9); }
-}
-
-/* Lopsided radii so the outline keeps flowing between uneven, stretched shapes. */
+/* Lopsided radii so the outline keeps flowing between uneven shapes. */
 @keyframes aurora-morph {
   0%   { border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%; }
   33%  { border-radius: 45% 55% 40% 60% / 58% 40% 60% 42%; }
   66%  { border-radius: 55% 45% 62% 38% / 42% 58% 38% 62%; }
   100% { border-radius: 40% 60% 50% 50% / 55% 45% 50% 50%; }
+}
+
+/* Slowly melts through red -> blue -> yellow -> green -> red. */
+@keyframes aurora-hue {
+  0%, 100% { --blob-color: var(--aurora-push); }
+  25%      { --blob-color: var(--aurora-pull); }
+  50%      { --blob-color: var(--aurora-leg); }
+  75%      { --blob-color: var(--aurora-cardio); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -215,7 +170,7 @@
   transition: opacity 400ms ease;
 }
 
-/* No aurora page showing (Dashboard, History, Settings): fade out and let
+/* No aurora page showing (e.g. History, Settings): fade out and let
    the app's normal background show through. */
 .aurora--off {
   background: transparent;

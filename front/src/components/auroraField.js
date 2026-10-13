@@ -5,27 +5,21 @@ void main() {
 }
 `
 
-// Four soft blobs, one per corner. Each one drifts around its own corner and
-// keeps its own colour (no big shared noise cloud mixing them together).
-//   c0 = top-left     (red,    push)
-//   c1 = top-right    (blue,   pull)
-//   c2 = bottom-right (yellow, leg)
-//   c3 = bottom-left  (green,  cardio)
+// ONE soft blob that slowly drifts around the whole page.
+// Its position, size, stretch and outline all change over time, and its colour
+// is passed in from JavaScript (which cycles through the four category colours,
+// or holds a single tone when an exercise / scrolled category is chosen).
 const FRAG = `
 precision highp float;
 
 uniform vec2 u_res;
 uniform float u_time;
-uniform float u_speed;
 uniform float u_intensity;
 uniform float u_warp;
 uniform float u_spread;
 uniform float u_roam;
 uniform float u_dark;
-uniform vec3 u_c0;
-uniform vec3 u_c1;
-uniform vec3 u_c2;
-uniform vec3 u_c3;
+uniform vec3 u_color;
 
 float hash(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -44,22 +38,29 @@ float noise(vec2 p) {
   );
 }
 
-// One soft, ribbon-like blob anchored near a corner.
-// "inward" points from the corner toward the middle of the page.
-float blob(vec2 p, vec2 corner, vec2 inward, float seed, float t) {
-  // wander around the corner (two layered motions so the path isn't a loop)
-  vec2 orbit = vec2(
-    sin(t * 0.9 + seed * 6.1) + 0.5 * sin(t * 1.7 + seed * 2.3),
-    cos(t * 0.7 + seed * 3.7) + 0.5 * cos(t * 1.3 + seed * 5.1)
-  ) * u_roam * 0.8;
+void main() {
+  float s = min(u_res.x, u_res.y);
+  vec2 p = gl_FragCoord.xy / s;   // units of the shorter side, origin bottom-left
+  vec2 size = u_res / s;          // canvas size in those same units
+  float t = u_time;
 
-  // sits slightly inside the corner, and breathes in/out a little
-  float inset = 0.05 + 0.07 * (0.5 + 0.5 * sin(t * 0.5 + seed * 4.0));
-  vec2 c = corner + inward * inset + orbit;
+  // ---- where the blob is ----
+  // Several slow waves with different speeds added together, so the path
+  // wanders around the page instead of repeating a simple loop.
+  vec2 wander = vec2(
+    sin(t * 0.31) + 0.35 * sin(t * 0.73 + 1.3),
+    cos(t * 0.23 + 0.8) + 0.35 * cos(t * 0.59 + 2.1)
+  ) / 1.35;
+  vec2 c = size * 0.5 + wander * size * 0.5 * u_roam;
 
-  // two-layer flowing warp: the second layer is pushed around by the first,
-  // which gives the swirly, liquid look instead of a clean circle
-  vec2 q = p * 1.1 + seed;
+  // ---- how big it is ----
+  // "breathe" swells and shrinks the blob. Bigger breathe = smaller spread value.
+  float breathe = 1.0 + 0.30 * sin(t * 0.41) + 0.15 * sin(t * 0.97 + 2.0);
+  float spread = u_spread / (breathe * breathe);
+
+  // ---- its shape ----
+  // Two layers of noise push the pixels around, so the edge looks liquid.
+  vec2 q = p * 0.9;
   vec2 w1 = vec2(
     noise(q + t * 0.30),
     noise(q + 7.3 - t * 0.25)
@@ -70,43 +71,22 @@ float blob(vec2 p, vec2 corner, vec2 inward, float seed, float t) {
   ) - 0.5;
   vec2 d = (p + (w1 * 0.9 + w2 * 0.35) * u_warp) - c;
 
-  // stretch the blob into a ribbon along a slowly rotating axis
-  float ang = t * 0.25 + seed * 6.28;
+  // Slowly rotate the blob, and slowly change how stretched it is
+  // (long ribbon <-> roundish blob).
+  float ang = t * 0.2;
   float ca = cos(ang);
   float sa = sin(ang);
   d = vec2(ca * d.x + sa * d.y, -sa * d.x + ca * d.y);
-  d.x *= 0.6;    // long axis (smaller = longer)
-  d.y *= 0.95;   // short axis (bigger = thinner)
+  d.x *= mix(0.6, 1.0, 0.5 + 0.5 * sin(t * 0.33 + 1.0));
+  d.y *= mix(1.0, 0.8, 0.5 + 0.5 * sin(t * 0.27 + 4.0));
 
-  // ripple along the ribbon so it snakes instead of staying straight
-  d.y += sin(d.x * 2.5 + t * 0.8 + seed * 10.0) * 0.06 * u_warp;
+  // A gentle ripple along the long side so it snakes a little.
+  d.y += sin(d.x * 2.5 + t * 0.8) * 0.06 * u_warp;
 
-  return exp(-dot(d, d) * u_spread);
-}
+  float a = exp(-dot(d, d) * spread);
+  float alpha = clamp(a * u_intensity, 0.0, 1.0);
 
-void main() {
-  float s = min(u_res.x, u_res.y);
-  vec2 p = gl_FragCoord.xy / s;     // units of the shorter side, origin bottom-left
-  vec2 size = u_res / s;            // canvas size in those same units
-  float t = u_time * u_speed;
-
-  float a0 = blob(p, vec2(0.0, size.y),    vec2( 1.0, -1.0), 0.13, t);
-  float a1 = blob(p, vec2(size.x, size.y), vec2(-1.0, -1.0), 0.47, t);
-  float a2 = blob(p, vec2(size.x, 0.0),    vec2(-1.0,  1.0), 0.71, t);
-  float a3 = blob(p, vec2(0.0, 0.0),       vec2( 1.0,  1.0), 0.93, t);
-
-  a0 = clamp(a0 * u_intensity, 0.0, 1.0);
-  a1 = clamp(a1 * u_intensity, 0.0, 1.0);
-  a2 = clamp(a2 * u_intensity, 0.0, 1.0);
-  a3 = clamp(a3 * u_intensity, 0.0, 1.0);
-
-  float alpha = 1.0 - (1.0 - a0) * (1.0 - a1) * (1.0 - a2) * (1.0 - a3);
-
-  // Colour = weighted average, so each blob keeps its own colour and only
-  // blends where two of them actually overlap.
-  float wsum = max(a0 + a1 + a2 + a3, 0.0001);
-  vec3 col = (u_c0 * a0 + u_c1 * a1 + u_c2 * a2 + u_c3 * a3) / wsum;
-  col *= mix(1.0, 1.12, u_dark);
+  vec3 col = min(u_color * mix(1.0, 1.12, u_dark), vec3(1.0));
 
   // tiny dither to avoid banding in the soft falloff
   alpha = clamp(alpha + (hash(gl_FragCoord.xy) - 0.5) / 255.0, 0.0, 1.0);
@@ -158,38 +138,58 @@ function mixRgb(a, b, t) {
   return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]
 }
 
-// Order matters: [top-left, top-right, bottom-right, bottom-left]
-function readPalette(root, toneKey) {
-  const styles = getComputedStyle(root)
-  const push = cssColorToRgb(styles.getPropertyValue("--aurora-push"))     // red
-  const pull = cssColorToRgb(styles.getPropertyValue("--aurora-pull"))     // blue
-  const leg = cssColorToRgb(styles.getPropertyValue("--aurora-leg"))       // yellow
-  const cardio = cssColorToRgb(styles.getPropertyValue("--aurora-cardio")) // green
-  const white = [1, 1, 1]
-  const ink = [0.08, 0.09, 0.1]
-
-  if (!toneKey) return [push, pull, leg, cardio]
-
-  const tone = cssColorToRgb(
-    styles.getPropertyValue(`--aurora-${toneKey}`) ||
-      styles.getPropertyValue("--aurora-other")
-  )
-  return [
-    tone,
-    mixRgb(tone, white, 0.28),
-    mixRgb(tone, ink, 0.18),
-    mixRgb(tone, mixRgb(pull, push, 0.5), 0.35),
-  ]
+function smoothstep(a, b, x) {
+  const t = Math.min(1, Math.max(0, (x - a) / (b - a)))
+  return t * t * (3 - 2 * t)
 }
 
-function lerpRgb(a, b, t) {
-  return mixRgb(a, b, t)
+// ---- tweak these to taste ----
+// How long the blob spends on each colour before melting into the next one
+// (only used when no exercise / category colour is chosen).
+const SECONDS_PER_COLOUR = 10
+// How fast the colour glides to a new target. Lower = slower, softer change.
+const COLOUR_RATE = 2.2
+// Overall animation speed. Lower = calmer.
+const SPEED_IDLE = 0.5
+const SPEED_ACTIVE = 0.7
+// Blob size: higher spread = smaller blob, lower = bigger, more coverage.
+const SPREAD = 3.2
+// How much of the page the blob roams over (1 = edge to edge).
+const ROAM = 0.85
+// ------------------------------
+
+// The colour the blob should be heading towards right now.
+// - With a tone (exercise chosen, or category scrolled into view): that colour.
+// - Without one: slowly cycle push -> pull -> leg -> cardio -> push ...
+function readTarget(root, toneKey, cycleSeconds) {
+  const styles = getComputedStyle(root)
+
+  if (toneKey) {
+    return cssColorToRgb(
+      styles.getPropertyValue(`--aurora-${toneKey}`) ||
+        styles.getPropertyValue("--aurora-other")
+    )
+  }
+
+  const palette = [
+    cssColorToRgb(styles.getPropertyValue("--aurora-push")), // red
+    cssColorToRgb(styles.getPropertyValue("--aurora-pull")), // blue
+    cssColorToRgb(styles.getPropertyValue("--aurora-leg")), // yellow
+    cssColorToRgb(styles.getPropertyValue("--aurora-cardio")), // green
+  ]
+  const pos = (cycleSeconds / SECONDS_PER_COLOUR) % palette.length
+  const i = Math.floor(pos)
+  const frac = pos - i
+  // hold each colour for a moment, then melt into the next
+  return mixRgb(palette[i], palette[(i + 1) % palette.length], smoothstep(0.35, 1, frac))
 }
 
 // Shared across mounts: if the component is ever remounted (page change),
-// the animation continues from the same moment and colours don't snap back.
+// the animation continues from the same moment and the colour doesn't snap back.
 const shared = {
-  start: typeof performance !== "undefined" ? performance.now() : 0,
+  time: 0, // animation time (speeds up / slows down smoothly)
+  cycle: 0, // real seconds, drives the idle colour cycle
+  speed: null,
   colors: null,
 }
 
@@ -198,11 +198,11 @@ export function startAuroraField(canvas, root, getParams) {
 
   let gl = null
   let loc = null
-  let colors = shared.colors || readPalette(root, getParams().toneKey)
+  let colors = shared.colors
   let raf = 0
   let running = false
   let visible = false
-  const start = shared.start
+  let last = 0
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)")
 
   const initGl = () => {
@@ -239,16 +239,12 @@ export function startAuroraField(canvas, root, getParams) {
       pos: gl.getAttribLocation(program, "a_pos"),
       res: gl.getUniformLocation(program, "u_res"),
       time: gl.getUniformLocation(program, "u_time"),
-      speed: gl.getUniformLocation(program, "u_speed"),
       intensity: gl.getUniformLocation(program, "u_intensity"),
       warp: gl.getUniformLocation(program, "u_warp"),
       spread: gl.getUniformLocation(program, "u_spread"),
       roam: gl.getUniformLocation(program, "u_roam"),
       dark: gl.getUniformLocation(program, "u_dark"),
-      c0: gl.getUniformLocation(program, "u_c0"),
-      c1: gl.getUniformLocation(program, "u_c1"),
-      c2: gl.getUniformLocation(program, "u_c2"),
-      c3: gl.getUniformLocation(program, "u_c3"),
+      color: gl.getUniformLocation(program, "u_color"),
     }
 
     gl.useProgram(program)
@@ -274,44 +270,46 @@ export function startAuroraField(canvas, root, getParams) {
 
   const draw = (now) => {
     if (!initGl()) return
+
+    // Seconds since the last frame (capped so a hidden tab doesn't cause a jump).
+    const dt = last ? Math.min((now - last) / 1000, 0.1) : 0.016
+    last = now
+
     const params = getParams()
     if (params.off) return
-    const target = readPalette(root, params.toneKey)
-    const mix = params.toneKey ? 0.08 : 0.045
-    colors = colors.map((c, i) => lerpRgb(c, target[i], mix))
-    shared.colors = colors
 
     const active = params.active
     const dark = params.dark ? 1 : 0
 
-    // ---- tweak these to taste ----
-    const speed = reduced.matches ? 0 : active ? 2.0 : 1.4
-    const intensity = Math.min((dark ? 0.85 : 0.65) * (active ? 1.15 : 1), 1)
-    // higher = more swirly / stretched-out shapes
-    const warp = active ? 1.2 : 0.9
-    // higher = smaller blobs (lower = bigger, more coverage)
-    const spread = active ? 10 : 9
-    // how far each colour wanders around its corner
-    const roam = active ? 0.3 : 0.24
-    // ------------------------------
+    // Ease the speed between idle and active instead of snapping.
+    const targetSpeed = reduced.matches ? 0 : active ? SPEED_ACTIVE : SPEED_IDLE
+    if (shared.speed === null) shared.speed = targetSpeed
+    shared.speed += (targetSpeed - shared.speed) * (1 - Math.exp(-dt * 1.5))
+    shared.time += dt * shared.speed
+    if (!reduced.matches) shared.cycle += dt
 
-    const time = (now - start) / 1000
+    // Glide the colour towards its target (works the same for the idle
+    // colour cycle, a chosen exercise, or a category scrolled into view).
+    const target = readTarget(root, params.toneKey, shared.cycle)
+    if (!colors) colors = target
+    colors = mixRgb(colors, target, 1 - Math.exp(-dt * COLOUR_RATE))
+    shared.colors = colors
+
+    const intensity = Math.min((dark ? 0.8 : 0.6) * (active ? 1.15 : 1), 1)
+    // higher = more swirly / stretched-out shapes
+    const warp = active ? 1.1 : 0.9
 
     resize()
     gl.viewport(0, 0, canvas.width, canvas.height)
     gl.clear(gl.COLOR_BUFFER_BIT)
     gl.uniform2f(loc.res, canvas.width, canvas.height)
-    gl.uniform1f(loc.time, time)
-    gl.uniform1f(loc.speed, speed)
+    gl.uniform1f(loc.time, shared.time)
     gl.uniform1f(loc.intensity, intensity)
     gl.uniform1f(loc.warp, warp)
-    gl.uniform1f(loc.spread, spread)
-    gl.uniform1f(loc.roam, roam)
+    gl.uniform1f(loc.spread, SPREAD)
+    gl.uniform1f(loc.roam, ROAM)
     gl.uniform1f(loc.dark, dark)
-    gl.uniform3fv(loc.c0, colors[0])
-    gl.uniform3fv(loc.c1, colors[1])
-    gl.uniform3fv(loc.c2, colors[2])
-    gl.uniform3fv(loc.c3, colors[3])
+    gl.uniform3fv(loc.color, colors)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
@@ -324,6 +322,7 @@ export function startAuroraField(canvas, root, getParams) {
     if (running || !visible) return
     if (!initGl()) return
     running = true
+    last = 0
     root.classList.add("aurora--gpu")
     if (reduced.matches) {
       draw(performance.now())
