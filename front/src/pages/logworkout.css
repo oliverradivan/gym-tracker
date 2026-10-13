@@ -25,16 +25,16 @@
   --lw-accent: #176b52;
   --lw-glow: transparent; /* no glow until an exercise is picked */
 
-  /* Glass */
-  --lw-glass-top: var(--lg-fill-hi);
-  --lw-glass-bottom: var(--lg-fill-lo);
-  --lw-glass-edge: var(--lg-edge);
-  --lw-field-bg: var(--lg-field);
-  --lw-field-bg-hover: var(--lg-fill);
-  --lw-field-edge: var(--lg-rim-soft);
-  --lw-field-edge-hover: var(--lg-rim);
-  --lw-list-bg: var(--lg-fill);
-  --lw-shadow: var(--lg-drop);
+  /* Solid surfaces — no liquid glass */
+  --lw-glass-top: #ffffff;
+  --lw-glass-bottom: #ffffff;
+  --lw-glass-edge: #dedfe3;
+  --lw-field-bg: #ffffff;
+  --lw-field-bg-hover: #f5f6f8;
+  --lw-field-edge: #d9dce2;
+  --lw-field-edge-hover: #b9bec8;
+  --lw-list-bg: #ffffff;
+  --lw-shadow: 0 12px 32px rgb(0 0 0 / 8%);
 
   /* Primary action: glossy black (reversed in dark mode) */
   --lw-action-top: #3a3a3a;
@@ -1154,4 +1154,68 @@
   .logworkout-page .save-action {
     border-radius: 18px;
   }
+}
+
+/* ================================================================
+   LOG WORKOUT — SOLID EXERCISE DROPDOWN
+   Remove liquid glass from the dropdown menu and its options only.
+   ================================================================ */
+
+/* Dropdown menu */
+.logworkout-page .custom-select-list {
+  background: #ffffff !important;
+  opacity: 1;
+
+  /* Remove liquid-glass effects */
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  border: 1px solid #dedfe3;
+  box-shadow:
+    0 4px 10px rgb(16 24 20 / 6%),
+    0 12px 28px rgb(16 24 20 / 14%);
+
+  isolation: isolate;
+}
+
+/* Individual options */
+.logworkout-page .custom-select-option {
+  opacity: 1;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Solid hover and selected backgrounds, retaining category colours */
+.logworkout-page .custom-select-option:hover {
+  background: color-mix(in srgb, var(--opt) 13%, #ffffff) !important;
+}
+
+.logworkout-page .custom-select-option.selected {
+  background: color-mix(in srgb, var(--opt) 22%, #ffffff) !important;
+}
+
+/* ================================================================
+   DARK MODE
+   ================================================================ */
+
+.dark .logworkout-page .custom-select-list {
+  background: #22252a !important;
+  border-color: #3d4249;
+  box-shadow: 0 16px 36px rgb(0 0 0 / 45%);
+
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.dark .logworkout-page .custom-select-option {
+  color: var(--lw-ink);
+  opacity: 1;
+}
+
+.dark .logworkout-page .custom-select-option:hover {
+  background: color-mix(in srgb, var(--opt) 24%, #22252a) !important;
+}
+
+.dark .logworkout-page .custom-select-option.selected {
+  background: color-mix(in srgb, var(--opt) 32%, #22252a) !important;
 }

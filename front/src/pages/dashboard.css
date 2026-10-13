@@ -2572,3 +2572,57 @@ custom-select-option:hover {
   z-index: 1;
   cursor: pointer;
 }
+
+/* ==========================================================
+   ADD EXERCISE — SOLID CATEGORY DROPDOWN
+   Remove liquid-glass effects from the dropdown only
+   ========================================================== */
+
+.dash-create-form .custom-select-list,
+.dash-create-form .dash-category-list {
+  background: #ffffff !important;
+  opacity: 1 !important;
+
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  border: 1px solid #e2e2e7;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+
+  isolation: isolate;
+  z-index: 1000;
+}
+
+/* Make every option fully opaque */
+.dash-create-form .custom-select-option,
+.dash-create-form .dash-category-option {
+  background: #ffffff !important;
+  opacity: 1 !important;
+
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Solid background when hovering or focusing an option */
+.dash-create-form .custom-select-option:hover,
+.dash-create-form .custom-select-option:focus,
+.dash-create-form .dash-category-option:hover,
+.dash-create-form .dash-category-option:focus {
+  background: #f1f1f5 !important;
+}
+
+/* Dark mode */
+.dark .dash-create-form .custom-select-list,
+.dark .dash-create-form .dash-category-list,
+.dark .dash-create-form .custom-select-option,
+.dark .dash-create-form .dash-category-option {
+  background: #242428 !important;
+  border-color: #3b3b42;
+}
+
+.dark .dash-create-form .custom-select-option:hover,
+.dark .dash-create-form .custom-select-option:focus,
+.dark .dash-create-form .dash-category-option:hover,
+.dark .dash-create-form .dash-category-option:focus {
+  background: #35353c !important;
+}
