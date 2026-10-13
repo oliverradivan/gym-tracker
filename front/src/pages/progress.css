@@ -157,7 +157,7 @@
 
 .progress-page {
   min-height: 100vh;
-  padding: clamp(24px, 4vw, 48px) 20px 64px;
+  padding: 0 20px 64px;
   color: var(--progress-ink);
   transition: color 0.25s ease;
 }

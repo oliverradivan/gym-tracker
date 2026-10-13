@@ -47,7 +47,7 @@
   position: relative;
   isolation: isolate;
   min-height: 100%;
-  padding: clamp(24px, 5vw, 56px) 20px 64px;
+  padding: 0 20px 64px;
   display: grid;
   justify-items: center;
   align-content: start;

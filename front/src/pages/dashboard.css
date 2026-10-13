@@ -43,7 +43,7 @@
   --bell-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Cg transform='rotate(45 12 12)'%3E%3Cline x1='6' y1='12' x2='18' y2='12'/%3E%3Cline x1='6' y1='9' x2='6' y2='15'/%3E%3Cline x1='18' y1='9' x2='18' y2='15'/%3E%3Cline x1='4' y1='10.5' x2='4' y2='13.5'/%3E%3Cline x1='20' y1='10.5' x2='20' y2='13.5'/%3E%3C/g%3E%3C/svg%3E");
 
   min-height: 100%;
-  padding: clamp(24px, 4vw, 48px) 24px 64px;
+  padding: 0 24px 64px;
   color: var(--dash-ink);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
