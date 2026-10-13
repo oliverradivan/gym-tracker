@@ -342,16 +342,10 @@ export default function DashboardExerciseSection({
           <h2 id="dash-create-title" className="dash-section-title">
             Add an exercise
           </h2>
-
-          <p className="dash-create-copy">
-            Can't find what you're looking for? Add it to your exercise
-            library.
-          </p>
         </div>
 
         <form onSubmit={handleCreateExercise} className="dash-create-form">
           <div className="dash-field">
-            <label htmlFor="exercise_name">Exercise name</label>
 
             <input
               id="exercise_name"
@@ -359,13 +353,12 @@ export default function DashboardExerciseSection({
               name="exercise_name"
               value={formName}
               onChange={handleChange}
-              placeholder="e.g. Incline Bench Press"
+              placeholder="Exercise name"
               required
             />
           </div>
 
           <div className="dash-field">
-            <label htmlFor="exercise_category">Category</label>
 
             <div
               className="custom-select"
@@ -416,7 +409,7 @@ export default function DashboardExerciseSection({
                   ))}
                   {categories.length === 0 && (
                     <li>
-                      <span>Other</span>
+                      <span>Category</span>
                     </li>
                   )}
                 </ul>

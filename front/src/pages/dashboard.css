@@ -1020,14 +1020,6 @@ a.dash-calendar-day:hover {
   box-shadow: var(--lg-rim), var(--lg-drop);
 }
 
-.dash-create-copy {
-  max-width: 38ch;
-  margin: 6px 0 0;
-  color: var(--dash-muted);
-  font-size: 0.86rem;
-  line-height: 1.55;
-}
-
 .dash-create-form {
   display: flex;
   align-items: flex-end;
