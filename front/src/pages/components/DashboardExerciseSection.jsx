@@ -373,7 +373,7 @@ export default function DashboardExerciseSection({
                   setCategorySelectOpen((prev) => !prev)
                 }}
               >
-                <span>{selectedCategory}</span>
+                <span>{selectedCategory || 'Category'}</span>
                 <span
                   className={`custom-select-arrow ${categorySelectOpen ? 'open' : ''}`}
                   aria-hidden="true"
@@ -409,7 +409,7 @@ export default function DashboardExerciseSection({
                   ))}
                   {categories.length === 0 && (
                     <li>
-                      <span>Category</span>
+                      <span>other</span>
                     </li>
                   )}
                 </ul>
