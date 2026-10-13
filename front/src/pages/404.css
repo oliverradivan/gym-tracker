@@ -110,7 +110,9 @@
 
 @media (max-width: 480px) {
   .not-found-page {
-    padding: 20px 12px;
+    /* Aligns content to the top horizontally centered, with breathing room */
+    place-items: start center;
+    padding: 60px 16px 20px; /* Increased top padding to control how high it sits */
   }
 
   .not-found-card {
