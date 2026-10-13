@@ -138,7 +138,7 @@ function HistoryPage() {
   const isSuccessMessage = message.toLowerCase().includes('successfully')
 
   return (
-   <AuroraBackground>
+   <AuroraBackground scrollTone>
     <div className="history-page">
       <main className="history-shell" ref={historyShellRef}>
         <header className="history-header">
@@ -246,6 +246,7 @@ function HistoryPage() {
                           }
                           className={`history-entry${isDeleting ? ' is-deleting' : ''}`}
                           data-category={category}
+                          data-aurora-category={category}
                         >
                           <div className="entry-main">
                             <Link
