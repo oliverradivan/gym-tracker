@@ -319,10 +319,6 @@
 
 
 /* =========================================================
-   DARK BODY
-   ========================================================= */
-
-/* =========================================================
    GLOBAL RESET
    ========================================================= */
 
@@ -332,13 +328,15 @@
 
 html {
   background: var(--bg);
+  min-height: 100%;
 }
 
 body {
   margin: 0;
 
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100vh;  /* fallback for older browsers */
+  min-height: 100dvh; /* real visible height on mobile */
 
   padding: 0;
 
@@ -385,6 +383,37 @@ a:hover {
 
 #root {
   min-height: 100vh;
+  min-height: 100dvh;
+}
+
+
+/* =========================================================
+   SAFE AREA HELPERS (full-screen on iPhone)
+   =========================================================
+   Put these classes on the element that has your gradient
+   background (the page wrapper), NOT on body. That way the
+   gradient paints under the status bar, and the content
+   still stays clear of the notch / Dynamic Island.
+   ========================================================= */
+
+.safe-top {
+  padding-top: var(--safe-top);
+}
+
+.safe-bottom {
+  padding-bottom: var(--safe-bottom);
+}
+
+.safe-x {
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+}
+
+.safe-all {
+  padding-top: var(--safe-top);
+  padding-right: var(--safe-right);
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
 }
 
 
@@ -438,11 +467,14 @@ a {
    ========================================================= */
 
 @media (max-width: 480px) {
+  /*
+    The old body padding-top / padding-bottom rules were removed.
+    They pushed the whole app down and left a blank white strip
+    above your gradient. Safe-area spacing now lives on the page
+    wrapper via .safe-top / .safe-bottom instead.
+  */
   body {
     min-width: 280px;
-
-    padding-top: calc(12px + var(--safe-top));
-    padding-bottom: calc(12px + var(--safe-bottom));
   }
 
   button,

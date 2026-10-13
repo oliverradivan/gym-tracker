@@ -83,12 +83,19 @@
 }
 
 /* Small free-standing controls: tighter, stronger bend */
-.dash-row,
 .dash-avatar,
 .dash-calendar-toggle {
   -webkit-backdrop-filter: var(--lg-refract-control) blur(var(--lg-blur-control))
     saturate(var(--lg-sat)) brightness(var(--lg-bright));
   backdrop-filter: var(--lg-refract-control) blur(var(--lg-blur-control))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+}
+
+/* Rows: wide and short, so they use the bar-shaped bend */
+.dash-row {
+  -webkit-backdrop-filter: var(--lg-refract-bar) blur(var(--lg-blur-control))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+  backdrop-filter: var(--lg-refract-bar) blur(var(--lg-blur-control))
     saturate(var(--lg-sat)) brightness(var(--lg-bright));
 }
 
@@ -1706,6 +1713,14 @@ a.dash-calendar-day:hover {
   --dash-category-leg: #b98520;
   --dash-category-cardio: #3fae62;
   --dash-category-other: #7a8798;
+
+  /* Border colour for the select controls below (a plain colour, so it
+     can be used in `border` and `border-color`) */
+  --dash-field-edge: rgb(23 35 33 / 14%);
+}
+
+.dark .dash-page {
+  --dash-field-edge: rgb(255 255 255 / 16%);
 }
 
 /* Dropdown wrapper */
@@ -1730,7 +1745,7 @@ a.dash-calendar-day:hover {
 
   color: var(--dash-category-other);
   background: var(--lg-field);
-  border: 1px solid var(--lg-rim-soft);
+  border: 1px solid var(--dash-field-edge);
   border-radius: 16px;
 
   -webkit-backdrop-filter: blur(18px) saturate(170%);
@@ -1773,7 +1788,7 @@ a.dash-calendar-day:hover {
 }
 
 .dash-category-trigger.is-open {
-  border-color: var(--lg-rim-soft);
+  border-color: var(--dash-field-edge);
 }
 
 /* Trigger content */
@@ -2146,7 +2161,7 @@ a.dash-calendar-day:hover {
   padding: 15px 20px;
   color: var(--dash-ink);
   background: var(--lg-field);
-  border: 1px solid var(--lg-rim-soft);
+  border: 1px solid var(--dash-field-edge);
   border-radius: 16px;
   font: inherit;
   font-size: 1rem;
@@ -2162,7 +2177,7 @@ a.dash-calendar-day:hover {
 .custom-select-trigger:hover {
   background: var(--lg-field);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 5px 15px rgba(0, 0, 0, 0.05);
-  border-color: var(--lg-rim-soft);
+  border-color: var(--dash-field-edge);
 }
 
 .custom-select-trigger:active {
@@ -2288,7 +2303,7 @@ a.dash-calendar-day:hover {
   padding: 8px;
   list-style: none;
   background: var(--lg-field);
-  border: 1px solid var(--lg-rim-soft);
+  border: 1px solid var(--dash-field-edge);
   border-radius: 16px;
   backdrop-filter: blur(32px) saturate(200%);
   -webkit-backdrop-filter: blur(32px) saturate(200%);
