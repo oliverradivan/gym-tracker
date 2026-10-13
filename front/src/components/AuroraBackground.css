@@ -125,7 +125,7 @@
 /* top-left: red */
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
-  --dur: 12s;
+  --dur: 15s;
   top: calc(var(--size) * -0.3);
   left: calc(var(--size) * -0.3);
   animation-name: aurora-drift-a, aurora-morph;
@@ -134,7 +134,7 @@
 /* top-right: blue */
 .aurora__blob--pull {
   --blob-color: var(--aurora-pull);
-  --dur: 14s;
+  --dur: 17s;
   top: calc(var(--size) * -0.3);
   right: calc(var(--size) * -0.3);
   animation-name: aurora-drift-b, aurora-morph;
@@ -143,7 +143,7 @@
 /* bottom-right: yellow */
 .aurora__blob--leg {
   --blob-color: var(--aurora-leg);
-  --dur: 16s;
+  --dur: 19s;
   bottom: calc(var(--size) * -0.3);
   right: calc(var(--size) * -0.3);
   animation-name: aurora-drift-c, aurora-morph;
@@ -152,7 +152,7 @@
 /* bottom-left: green */
 .aurora__blob--cardio {
   --blob-color: var(--aurora-cardio);
-  --dur: 13s;
+  --dur: 16s;
   bottom: calc(var(--size) * -0.3);
   left: calc(var(--size) * -0.3);
   animation-name: aurora-drift-d, aurora-morph;
