@@ -6,7 +6,8 @@ import LogWorkoutPage from '../pages/logworkout'
 import ProgressPage from '../pages/progress'
 import SettingsPage from '../pages/settings'
 import { navigateForSwipe } from './swipe-navigation'
-import { AuroraPageActive, AuroraShell } from './AuroraBackground'
+import { AuroraShell } from "./AuroraBackground";
+import { AuroraPageActive } from "../context/AuroraContext";
 import './SwipeDeck.css'
 
 const PAGES = [
