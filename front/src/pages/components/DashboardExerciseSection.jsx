@@ -1,8 +1,7 @@
 import { Link } from 'react-router-dom'
-import {
-  EXERCISE_CATEGORIES,
-  getExerciseCategory,
-} from '../../utils/exerciseCategory'
+import { useEffect, useRef, useState } from 'react'
+import { EXERCISE_CATEGORIES, getExerciseCategory, } from '../../utils/exerciseCategory'
+import { useClickOutside } from '../../hooks/useClickOutside'
 import { ExerciseCategoryIcon } from './ExerciseCategoryIcon'
 import DashboardIcon from './DashboardIcon'
 
