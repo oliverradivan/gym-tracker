@@ -4,6 +4,7 @@ import { useAuth } from '../context/authContext'
 import './register.css'
 import { Eye, EyeOff } from 'lucide-react'
 import AuroraBackground from '@/components/AuroraBackground'
+import LiquidGlassDefs from '@/components/LiquidGlassDefs'
 
 const initialForm = {
   username: '',
@@ -35,6 +36,7 @@ function RegisterPage() {
 
   return (
    <AuroraBackground>
+    <LiquidGlassDefs />
     <main className="register-container">
       <div className="register-shell">
         <div className="register-card">

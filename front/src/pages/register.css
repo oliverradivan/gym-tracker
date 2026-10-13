@@ -1,7 +1,43 @@
 /* ==========================================================
-   REGISTER PAGE
-   Completely isolated from login.css
+   REGISTER PAGE: liquid glass
+   Glass tokens (--lg-*) live in components/liquidGlass.css.
+   Isolated from login.css. The card bends the Aurora behind it;
+   the inputs inside it are translucent and highlighted only.
    ========================================================== */
+
+.register-container {
+  --reg-text: #121212;
+  --reg-muted: rgba(17, 17, 17, 0.62);
+
+  --reg-input-border: rgba(17, 17, 17, 0.12);
+  --reg-input-border-hover: rgba(17, 17, 17, 0.26);
+  --reg-input-bg-hover: rgba(255, 255, 255, 0.68);
+  --reg-input-bg-focus: rgba(255, 255, 255, 0.8);
+
+  --reg-focus: #111111;
+  --reg-ring: rgba(17, 17, 17, 0.12);
+
+  --reg-btn-bg: rgba(17, 17, 17, 0.88);
+  --reg-btn-bg-hover: rgba(17, 17, 17, 0.96);
+  --reg-btn-text: #ffffff;
+}
+
+.dark .register-container {
+  --reg-text: #f5f5f7;
+  --reg-muted: rgba(245, 245, 247, 0.66);
+
+  --reg-input-border: rgba(255, 255, 255, 0.14);
+  --reg-input-border-hover: rgba(255, 255, 255, 0.28);
+  --reg-input-bg-hover: rgba(255, 255, 255, 0.08);
+  --reg-input-bg-focus: rgba(255, 255, 255, 0.12);
+
+  --reg-focus: #ffffff;
+  --reg-ring: rgba(255, 255, 255, 0.16);
+
+  --reg-btn-bg: rgba(245, 245, 247, 0.9);
+  --reg-btn-bg-hover: rgba(255, 255, 255, 0.97);
+  --reg-btn-text: #111111;
+}
 
 
 /* ==========================================================
@@ -19,11 +55,6 @@
   padding: 12px 20px 32px;
 }
 
-
-/* ==========================================================
-   Register Shell
-   ========================================================== */
-
 .register-shell {
   width: 100%;
 
@@ -37,7 +68,7 @@
 
 
 /* ==========================================================
-   Register Card
+   Register Card: the glass
    ========================================================== */
 
 .register-card {
@@ -45,23 +76,24 @@
 
   width: min(100%, 440px);
 
-  background: rgba(255, 255, 255, 0.7);
+  padding: 34px 28px 30px;
 
-  border: 1px solid rgba(17, 17, 17, 0.08);
-  border-radius: 28px;
+  border: 1px solid var(--lg-edge);
+  border-radius: 40px;
 
-  padding: 32px 28px;
+  background:
+    var(--lg-sheen),
+    var(--lg-fill),
+    var(--lg-base);
 
-  box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--lg-rim), var(--lg-drop);
 
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: var(--lg-refract-panel) blur(var(--lg-blur-panel))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+  backdrop-filter: var(--lg-refract-panel) blur(var(--lg-blur-panel))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
 
-  animation:
-    register-float-in
-    0.5s
-    cubic-bezier(0.22, 1, 0.36, 1);
+  animation: register-float-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 
@@ -72,47 +104,42 @@
 .register-header {
   text-align: center;
 
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
-
-/* ==========================================================
-   Brand Badge
-   ========================================================== */
-
+/* Brand badge: dark glass disc with a jewel-like highlight */
 .register-brand-badge {
-  width: 56px;
-  height: 56px;
+  width: 58px;
+  height: 58px;
 
   margin: 0 auto 16px;
 
-  border-radius: 18px;
+  border-radius: 50%;
 
   background:
-    linear-gradient(
-      145deg,
-      #111111,
-      #474747
-    );
+    radial-gradient(
+      circle at 32% 24%,
+      rgba(255, 255, 255, 0.34),
+      rgba(255, 255, 255, 0) 55%
+    ),
+    var(--reg-btn-bg);
 
-  color: #ffffff;
+  color: var(--reg-btn-text);
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
 
   display: grid;
   place-items: center;
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 14px 32px rgba(17, 17, 17, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -6px 10px -6px rgba(255, 255, 255, 0.16),
+    0 12px 26px rgba(0, 0, 0, 0.2);
 }
 
-
-/* ==========================================================
-   Brand SVG
-   ========================================================== */
-
 .register-brand-badge svg {
-  width: 90%;
-  height: 90%;
+  width: 86%;
+  height: 86%;
 
   display: block;
 
@@ -125,58 +152,52 @@
   flex-shrink: 0;
 }
 
-
-/* ==========================================================
-   Heading
-   ========================================================== */
-
 .register-header h1 {
   margin: 0;
 
-  color: #121212;
+  color: var(--reg-text);
 
   font-size: 2rem;
   font-weight: 800;
 
   line-height: 1.15;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
 
 /* ==========================================================
-   Form
+   Form + inputs: recessed glass capsules
    ========================================================== */
 
 .register-form {
   display: flex;
   flex-direction: column;
 
-  gap: 18px;
+  gap: 16px;
 }
-
-
-/* ==========================================================
-   Inputs
-   ========================================================== */
 
 .register-form input {
   width: 100%;
-  min-height: 47px;
+  min-height: 52px;
 
   box-sizing: border-box;
 
-  padding: 12px 14px;
+  padding: 12px 20px;
 
-  border: 1px solid rgba(17, 17, 17, 0.14);
-  border-radius: 12px;
+  border: 1px solid var(--reg-input-border);
+  border-radius: 999px;
 
-  background: rgba(255, 255, 255, 0.7);
+  background-color: var(--lg-field);
 
-  color: #111111;
+  color: var(--reg-text);
 
   font: inherit;
   font-size: 1rem;
   font-weight: 400;
+
+  box-shadow:
+    var(--lg-rim-soft),
+    inset 0 2px 5px rgba(17, 17, 17, 0.06);
 
   transition:
     border-color 0.15s ease,
@@ -184,32 +205,47 @@
     background-color 0.15s ease;
 }
 
-
-/* ==========================================================
-   Input Placeholder
-   ========================================================== */
-
 .register-form input::placeholder {
-  color: #6b7280;
+  color: var(--reg-muted);
 }
 
+.register-form input:hover {
+  background-color: var(--reg-input-bg-hover);
 
-/* ==========================================================
-   Input Focus
-   ========================================================== */
+  border-color: var(--reg-input-border-hover);
+}
 
 .register-form input:focus {
   outline: none;
 
-  border-color: rgba(17, 17, 17, 0.2);
+  background-color: var(--reg-input-bg-focus);
+
+  border-color: var(--reg-focus);
 
   box-shadow:
-    0 0 0 4px rgba(17, 17, 17, 0.06);
+    var(--lg-rim-soft),
+    0 0 0 4px var(--reg-ring);
+}
+
+/* Keep browser autofill from painting over the glass */
+.register-form input:-webkit-autofill,
+.register-form input:-webkit-autofill:hover,
+.register-form input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--reg-text);
+  caret-color: var(--reg-text);
+  -webkit-box-shadow: 0 0 0 100px rgba(255, 255, 255, 0.7) inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
+.dark .register-form input:-webkit-autofill,
+.dark .register-form input:-webkit-autofill:hover,
+.dark .register-form input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px rgba(40, 42, 48, 0.9) inset;
 }
 
 
 /* ==========================================================
-   Password Field
+   Password Field + Toggle
    ========================================================== */
 
 .register-password-field {
@@ -220,24 +256,19 @@
 }
 
 .register-password-field input {
-  padding-right: 48px;
+  padding-right: 54px;
 }
-
-
-/* ==========================================================
-   Password Toggle
-   ========================================================== */
 
 .register-password-toggle {
   position: absolute;
 
-  top: 3px;
-  right: 3px;
+  top: 0;
+  right: 5px;
   bottom: 0;
   margin: auto 0;
 
-  width: 43px;
-  height: 43px;
+  width: 42px;
+  height: 42px;
 
   display: grid;
   place-items: center;
@@ -245,11 +276,11 @@
   padding: 0;
 
   border: none;
-  border-radius: 9px;
+  border-radius: 50%;
 
   background: transparent;
 
-  color: #6b7280;
+  color: var(--reg-muted);
 
   cursor: pointer;
 
@@ -258,41 +289,48 @@
 
   transition:
     color 0.15s ease,
-    background-color 0.15s ease;
+    background-color 0.15s ease,
+    transform 0.15s ease;
 }
 
 .register-password-toggle:hover {
-  color: #111111;
-  background: rgba(17, 17, 17, 0.04);
+  color: var(--reg-text);
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.register-password-toggle:active {
+  transform: scale(0.94);
 }
 
 .register-password-toggle:focus-visible {
-  outline: 2px solid #111111;
+  outline: 2px solid var(--reg-focus);
   outline-offset: 0;
+}
+
+.dark .register-password-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 
 /* ==========================================================
-   Register Button
+   Register Button: tinted glass capsule
    ========================================================== */
 
 .register-primary-btn {
+  position: relative;
+
   width: 100%;
-  min-height: 47px;
+  min-height: 52px;
 
-  padding: 13px 18px;
+  margin-top: 4px;
+  padding: 13px 20px;
 
-  border: none;
-  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
 
-  background:
-    linear-gradient(
-      180deg,
-      #1d1d1d,
-      #0d0d0d
-    );
+  background: var(--reg-btn-bg);
 
-  color: #ffffff;
+  color: var(--reg-btn-text);
 
   font: inherit;
   font-size: 1rem;
@@ -300,30 +338,29 @@
 
   cursor: pointer;
 
+  touch-action: manipulation;
+
   box-shadow:
-    0 8px 18px rgba(17, 17, 17, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -6px 10px -6px rgba(255, 255, 255, 0.14),
+    0 10px 24px rgba(0, 0, 0, 0.2);
 
   transition:
-    background 0.15s ease,
-    transform 0.1s ease,
+    background-color 0.15s ease,
+    transform 0.15s ease,
     box-shadow 0.15s ease;
 }
 
 .register-primary-btn:hover:not(:disabled) {
-  background:
-    linear-gradient(
-      180deg,
-      #2b2b2b,
-      #111111
-    );
+  background: var(--reg-btn-bg-hover);
 }
 
 .register-primary-btn:active:not(:disabled) {
-  transform: scale(0.985);
+  transform: scale(0.97);
 }
 
 .register-primary-btn:focus-visible {
-  outline: 2px solid #111111;
+  outline: 2px solid var(--reg-focus);
   outline-offset: 3px;
 }
 
@@ -332,51 +369,54 @@
   cursor: not-allowed;
 }
 
+.dark .register-primary-btn {
+  border-color: rgba(255, 255, 255, 0.45);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 12px 28px rgba(0, 0, 0, 0.34);
+}
+
 
 /* ==========================================================
-   Login Link
+   Login Link + Status Message
    ========================================================== */
 
 .register-auth-switch {
-  margin: 18px 0 0;
+  margin: 20px 0 0;
 
   text-align: center;
 
-  color: #4d4d4f;
+  color: var(--reg-muted);
 
   font-size: 0.9rem;
   line-height: 1.4;
 }
 
 .register-auth-switch a {
-  color: #111111;
+  color: var(--reg-text);
 
-  font-weight: 600;
+  font-weight: 650;
 
-  text-decoration: none;
-}
-
-.register-auth-switch a:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
+.register-auth-switch a:hover {
+  opacity: 0.68;
+}
+
 .register-auth-switch a:focus-visible {
-  outline: 2px solid #111111;
+  outline: 2px solid var(--reg-focus);
   outline-offset: 2px;
 
   border-radius: 4px;
 }
 
-
-/* ==========================================================
-   Status Message
-   ========================================================== */
-
 .register-status-message {
   margin: 18px 0 0;
 
-  color: #4d4d4f;
+  color: var(--reg-muted);
 
   text-align: center;
 
@@ -386,7 +426,7 @@
 
 
 /* ==========================================================
-   Animation
+   Animation + Reduced Motion
    ========================================================== */
 
 @keyframes register-float-in {
@@ -400,11 +440,6 @@
     transform: translateY(0);
   }
 }
-
-
-/* ==========================================================
-   Reduced Motion
-   ========================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   .register-card {
@@ -431,18 +466,16 @@
   .register-card {
     width: 100%;
 
-    padding: 22px 16px;
+    padding: 26px 18px 22px;
 
-    border-radius: 18px;
+    border-radius: 32px;
   }
 
   .register-brand-badge {
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
 
     margin-bottom: 12px;
-
-    border-radius: 15px;
   }
 
   .register-header h1 {
@@ -454,11 +487,6 @@
   }
 }
 
-
-/* ==========================================================
-   Very Small Phones
-   ========================================================== */
-
 @media (max-width: 360px) {
   .register-container {
     padding-left: 10px;
@@ -466,139 +494,9 @@
   }
 
   .register-card {
-    padding-left: 17px;
-    padding-right: 17px;
+    padding-left: 16px;
+    padding-right: 16px;
+
+    border-radius: 28px;
   }
-}
-
-
-/* ==========================================================
-   Dark Mode
-   ========================================================== */
-
-.dark .register-card {
-  background: rgba(0, 0, 0, 0.7);
-
-  border-color: rgba(238, 238, 238, 0.08);
-
-  box-shadow:
-    0 24px 80px rgba(255, 255, 255, 0.08);
-}
-
-
-/* Dark badge */
-
-.dark .register-brand-badge {
-  background:
-    linear-gradient(
-      145deg,
-      #eeeeee,
-      #b8b8b8
-    );
-
-  color: #000000;
-
-  box-shadow:
-    inset 0 1px 0 rgba(0, 0, 0, 0.18),
-    0 14px 32px rgba(238, 238, 238, 0.18);
-}
-
-
-/* Dark heading */
-
-.dark .register-header h1 {
-  color: #eeeeee;
-}
-
-
-/* Dark inputs */
-
-.dark .register-form input {
-  background: rgba(0, 0, 0, 0.7);
-
-  border-color: rgba(238, 238, 238, 0.14);
-
-  color: #eeeeee;
-}
-
-.dark .register-form input::placeholder {
-  color: #8f8f8f;
-}
-
-.dark .register-form input:focus {
-  background: rgba(0, 0, 0, 0.9);
-
-  border-color: rgba(238, 238, 238, 0.2);
-
-  box-shadow:
-    0 0 0 4px rgba(238, 238, 238, 0.06);
-}
-
-
-/* Dark password toggle */
-
-.dark .register-password-toggle {
-  color: #8f8f8f;
-}
-
-.dark .register-password-toggle:hover {
-  color: #eeeeee;
-
-  background: rgba(238, 238, 238, 0.06);
-}
-
-.dark .register-password-toggle:focus-visible {
-  outline-color: #eeeeee;
-}
-
-
-/* Dark button */
-
-.dark .register-primary-btn {
-  background:
-    linear-gradient(
-      180deg,
-      #e2e2e2,
-      #d2d2d2
-    );
-
-  color: #000000;
-
-  box-shadow:
-    0 8px 18px rgba(238, 238, 238, 0.08);
-}
-
-.dark .register-primary-btn:hover:not(:disabled) {
-  background:
-    linear-gradient(
-      180deg,
-      #ffffff,
-      #dddddd
-    );
-}
-
-.dark .register-primary-btn:focus-visible {
-  outline-color: #eeeeee;
-}
-
-
-/* Dark login link */
-
-.dark .register-auth-switch {
-  color: #b2b2b0;
-}
-
-.dark .register-auth-switch a {
-  color: #eeeeee;
-}
-
-.dark .register-auth-switch a:focus-visible {
-  outline-color: #eeeeee;
-}
-
-
-/* Dark status message */
-
-.dark .register-status-message {
-  color: #b2b2b0;
 }

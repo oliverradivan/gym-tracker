@@ -1,4 +1,4 @@
- /* =====================================================================
+/* =====================================================================
    Liquid glass tokens, shared by every page that uses the glass look.
    Pages read these variables; they never hard-code glass values.
    ===================================================================== */
@@ -12,6 +12,7 @@
   /* Swapped to url(#...) filters in Chromium (see LiquidGlassDefs.jsx) */
   --lg-refract-panel: brightness(1);
   --lg-refract-control: brightness(1);
+  --lg-refract-bar: brightness(1);
 
   /* Fills: translucent white, three strengths */
   --lg-fill-hi: rgb(255 255 255 / 48%);
@@ -39,6 +40,7 @@
 html[data-lg-refract="true"] {
   --lg-refract-panel: url(#lg-refract-panel);
   --lg-refract-control: url(#lg-refract-control);
+  --lg-refract-bar: url(#lg-refract-bar);
 }
 
 .dark {

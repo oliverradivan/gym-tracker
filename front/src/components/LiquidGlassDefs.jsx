@@ -7,23 +7,26 @@ import './liquidGlass.css'
  * Red channel  = horizontal push, green channel = vertical push.
  * 128 (mid grey) means "no push"; the values ramp away from it near the
  * edges, so only the rim of the glass bends the background, like a lens.
- * `edge` is how far in from each side the bend reaches (in %).
+ * `edgeX` / `edgeY` are how far in from the left/right and top/bottom
+ * edges the bend reaches (in % of the element's width / height).
  */
-function buildMap(edge) {
-  const near = edge
-  const far = 100 - edge
+function buildMap(edgeX, edgeY = edgeX) {
+  const nearX = edgeX
+  const farX = 100 - edgeX
+  const nearY = edgeY
+  const farY = 100 - edgeY
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none">
 <defs>
 <linearGradient id="x" x1="0" y1="0" x2="1" y2="0">
 <stop offset="0%" stop-color="rgb(255,0,0)"/>
-<stop offset="${near}%" stop-color="rgb(128,0,0)"/>
-<stop offset="${far}%" stop-color="rgb(128,0,0)"/>
+<stop offset="${nearX}%" stop-color="rgb(128,0,0)"/>
+<stop offset="${farX}%" stop-color="rgb(128,0,0)"/>
 <stop offset="100%" stop-color="rgb(0,0,0)"/>
 </linearGradient>
 <linearGradient id="y" x1="0" y1="0" x2="0" y2="1">
 <stop offset="0%" stop-color="rgb(0,255,0)"/>
-<stop offset="${near}%" stop-color="rgb(0,128,0)"/>
-<stop offset="${far}%" stop-color="rgb(0,128,0)"/>
+<stop offset="${nearY}%" stop-color="rgb(0,128,0)"/>
+<stop offset="${farY}%" stop-color="rgb(0,128,0)"/>
 <stop offset="100%" stop-color="rgb(0,0,0)"/>
 </linearGradient>
 </defs>
@@ -34,9 +37,12 @@ function buildMap(edge) {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
-// Big surfaces need a thin bend band, small ones (buttons) need a wide one.
+// Big surfaces need a thin bend band, small round ones (icon buttons) need a
+// wide one, and wide-but-short bars (tab bar, rows, fields) need a thin band
+// along their long sides and a wide one along their short sides.
 const PANEL_MAP = buildMap(5)
 const CONTROL_MAP = buildMap(24)
+const BAR_MAP = buildMap(6, 28)
 
 /*
  * Mount once per page. It renders the (invisible) SVG filters and turns on
@@ -97,6 +103,24 @@ function LiquidGlassDefs() {
             in="SourceGraphic"
             in2="map"
             scale="34"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+
+        <filter
+          id="lg-refract-bar"
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          colorInterpolationFilters="sRGB"
+        >
+          <feImage href={BAR_MAP} preserveAspectRatio="none" result="map" />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="map"
+            scale="36"
             xChannelSelector="R"
             yChannelSelector="G"
           />

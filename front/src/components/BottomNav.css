@@ -1,62 +1,62 @@
 /* ==========================================================================
-   Bottom Navigation Container
+   Bottom navigation: floating liquid glass tab bar
+   Glass tokens (--lg-*) live in components/liquidGlass.css.
+   The bar floats over scrolling content, which is exactly where the
+   glass shows off: whatever slides underneath is blurred (and, in
+   Chromium, bent along the edges).
    ========================================================================== */
 
 .bottom-nav {
+  --bn-ink: #55585c;
+  --bn-ink-hover: #171717;
+  --bn-ink-active: #000000;
+  --bn-pill: rgb(255 255 255 / 62%);
+  --bn-pill-edge: rgb(255 255 255 / 70%);
+  --bn-badge-ring: rgb(255 255 255 / 90%);
+
   position: fixed;
   left: 12px;
   right: 12px;
-  bottom: 12px;
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
   z-index: 900;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  /* Account for safe area inset within the total element height */
-  height: calc(64px + env(safe-area-inset-bottom, 0px));
-  border-radius: 24px;
+  /* A true capsule, floating above the home indicator */
+  height: 64px;
+  border-radius: 999px;
 
-  /* iOS Frosted Glass */
-  background: rgba(255, 255, 255, 0.68);
-  backdrop-filter: blur(32px) saturate(200%);
-  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid var(--lg-edge);
+  background:
+    var(--lg-sheen),
+    var(--lg-fill-hi),
+    var(--lg-base);
+  box-shadow: var(--lg-rim), var(--lg-drop);
 
-  /* iOS Surface Highlight & Boundary Ring */
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  -webkit-backdrop-filter: var(--lg-refract-bar) blur(var(--lg-blur-control))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
+  backdrop-filter: var(--lg-refract-bar) blur(var(--lg-blur-control))
+    saturate(var(--lg-sat)) brightness(var(--lg-bright));
 
-  /* Deep multi-layered glass shadows */
-  box-shadow:
-    0 12px 32px -4px rgba(0, 0, 0, 0.08),
-    0 4px 12px rgba(0, 0, 0, 0.03),
-    inset 0 1px 1px rgba(255, 255, 255, 0.9);
-
-  padding-top: 0;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: calc(env(safe-area-inset-left, 0px) + 6px);
-  padding-right: calc(env(safe-area-inset-right, 0px) + 6px);
+  padding: 0 calc(env(safe-area-inset-right, 0px) + 6px) 0
+    calc(env(safe-area-inset-left, 0px) + 6px);
 
   isolation: isolate;
-
-  transition:
-    background 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
 }
 
-/* Dark Mode iOS Glass */
 .dark .bottom-nav {
-  background: rgba(18, 18, 20, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-
-  box-shadow:
-    0 16px 40px -4px rgba(0, 0, 0, 0.55),
-    0 4px 16px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --bn-ink: #b4b8bd;
+  --bn-ink-hover: #f5f5f5;
+  --bn-ink-active: #ffffff;
+  --bn-pill: rgb(255 255 255 / 14%);
+  --bn-pill-edge: rgb(255 255 255 / 16%);
+  --bn-badge-ring: rgb(18 18 20 / 90%);
 }
 
 /* --------------------------------------------------------------------------
-   Indicator Pill
+   Selected-tab lens: a lighter glass capsule that slides between tabs
    -------------------------------------------------------------------------- */
 
 .bottom-nav-indicator {
@@ -64,15 +64,12 @@
   top: 8px;
   left: 0;
   height: 48px;
-  border-radius: 18px;
+  border-radius: 999px;
 
-  /* Glassy highlight pill */
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--bn-pill);
+  border: 1px solid var(--bn-pill-edge);
 
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.6),
-    0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--lg-rim-soft), 0 3px 10px rgb(20 30 40 / 10%);
 
   transition:
     transform 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275),
@@ -82,17 +79,8 @@
   pointer-events: none;
 }
 
-.dark .bottom-nav-indicator {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.25);
-}
-
 /* --------------------------------------------------------------------------
-   Nav Link Items
+   Nav link items
    -------------------------------------------------------------------------- */
 
 .bottom-nav-link {
@@ -108,22 +96,20 @@
 
   height: 48px;
   padding: 0 4px;
-  border-radius: 18px;
+  border-radius: 999px;
 
-  color: #737373;
+  color: var(--bn-ink);
   text-decoration: none;
 
   font-size: 0.65rem;
   font-weight: 600;
   letter-spacing: -0.01em;
 
+  -webkit-tap-highlight-color: transparent;
+
   transition:
     color 0.2s ease,
     transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.dark .bottom-nav-link {
-  color: #a3a3a3;
 }
 
 .bottom-nav-link svg {
@@ -136,21 +122,12 @@
 }
 
 .bottom-nav-link:hover {
-  color: #171717;
+  color: var(--bn-ink-hover);
 }
 
-.dark .bottom-nav-link:hover {
-  color: #f5f5f5;
-}
-
-/* Active Icon Dynamics */
 .bottom-nav-link.active {
-  color: #000000;
+  color: var(--bn-ink-active);
   font-weight: 700;
-}
-
-.dark .bottom-nav-link.active {
-  color: #ffffff;
 }
 
 .bottom-nav-link.active svg {
@@ -161,7 +138,13 @@
   transform: scale(0.92);
 }
 
-/* Badge Dot */
+.bottom-nav-link:focus-visible,
+.bottom-nav-center-btn:focus-visible {
+  outline: 2px solid var(--bn-ink-active);
+  outline-offset: 2px;
+}
+
+/* Badge dot */
 .bottom-nav-link.has-badge::after {
   content: '';
   position: absolute;
@@ -174,17 +157,11 @@
 
   background: #25d366;
 
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.9);
-}
-
-.dark .bottom-nav-link.has-badge::after {
-  box-shadow:
-    0 0 0 2px rgba(18, 18, 20, 0.9);
+  box-shadow: 0 0 0 2px var(--bn-badge-ring);
 }
 
 /* --------------------------------------------------------------------------
-   Center Action Floating FAB Button
+   Centre action: dark glass button that rises out of the bar
    -------------------------------------------------------------------------- */
 
 .bottom-nav-center {
@@ -200,15 +177,7 @@
   z-index: 2;
 }
 
-/* --------------------------------------------------------------------------
-   Center Action Active Indicator
-   -------------------------------------------------------------------------- */
-
-/*
- * Small glass circle around the Log Workout icon.
- * This appears only when .active is added to .bottom-nav-center.
- */
-
+/* Glass halo shown while the Log Workout page is open */
 .bottom-nav-center.active::before {
   content: '';
 
@@ -222,24 +191,13 @@
   transform: translateX(-50%);
   border-radius: 50%;
 
-  background: rgba(0, 0, 0, 0.06);
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--bn-pill);
+  border: 1px solid var(--bn-pill-edge);
 
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.7),
-    0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--lg-rim-soft), 0 3px 10px rgb(20 30 40 / 10%);
 
   pointer-events: none;
   z-index: -1;
-}
-
-.dark .bottom-nav-center.active::before {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.08);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .bottom-nav-center-btn {
@@ -251,43 +209,49 @@
   align-items: center;
   justify-content: center;
 
-  background: linear-gradient(
-    180deg,
-    rgba(40, 40, 40, 0.96),
-    rgba(12, 12, 12, 0.96)
-  );
+  background:
+    radial-gradient(
+      circle at 32% 22%,
+      rgb(255 255 255 / 30%),
+      rgb(255 255 255 / 0%) 55%
+    ),
+    rgb(14 14 16 / 90%);
 
   color: #ffffff;
 
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgb(255 255 255 / 20%);
 
+  /* The outer ring is a glass collar between the button and the bar */
   box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.20),
-    0 2px 6px rgba(0, 0, 0, 0.15),
-    0 0 0 4px rgba(255, 255, 255, 0.75);
+    inset 0 1px 0 rgb(255 255 255 / 34%),
+    inset 0 -6px 10px -6px rgb(255 255 255 / 14%),
+    0 8px 20px rgb(0 0 0 / 22%),
+    0 0 0 4px var(--lg-fill-hi);
+
+  -webkit-tap-highlight-color: transparent;
 
   transition:
     transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    box-shadow 0.2s ease;
 }
 
-/* Dark Mode Button */
 .dark .bottom-nav-center-btn {
-  background: linear-gradient(
-    180deg,
-    rgba(235, 235, 235, 0.96),
-    rgba(205, 205, 205, 0.96)
-  );
+  background:
+    radial-gradient(
+      circle at 32% 22%,
+      rgb(255 255 255 / 70%),
+      rgb(255 255 255 / 0%) 55%
+    ),
+    rgb(240 240 242 / 92%);
 
   color: #000000;
 
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgb(255 255 255 / 45%);
 
   box-shadow:
-    0 8px 20px rgba(0, 0, 0, 0.35),
-    0 2px 6px rgba(0, 0, 0, 0.25),
-    0 0 0 4px rgba(18, 18, 20, 0.75);
+    inset 0 1px 0 rgb(255 255 255 / 85%),
+    0 8px 20px rgb(0 0 0 / 40%),
+    0 0 0 4px var(--lg-fill-hi);
 }
 
 .bottom-nav-center-btn svg {
@@ -299,9 +263,9 @@
   transform: translateY(-3px) scale(1.05);
 
   box-shadow:
-    0 12px 24px rgba(0, 0, 0, 0.30),
-    0 4px 10px rgba(0, 0, 0, 0.20),
-    0 0 0 4px rgba(255, 255, 255, 0.85);
+    inset 0 1px 0 rgb(255 255 255 / 34%),
+    0 12px 26px rgb(0 0 0 / 30%),
+    0 0 0 4px var(--lg-fill-hi);
 }
 
 .bottom-nav-center-btn:active {
@@ -309,7 +273,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Reduced Motion Guard
+   Reduced motion
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
