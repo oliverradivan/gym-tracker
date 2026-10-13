@@ -2129,6 +2129,7 @@ a.dash-calendar-day:hover {
 
 /* Wrapper */
 .custom-select {
+  z-index: 100; /* ensure dropdown sits above exercise cards */
   position: relative;
   width: 100%;
 }
@@ -2137,7 +2138,7 @@ a.dash-calendar-day:hover {
 .custom-select-trigger {
   position: relative;
   width: 100%;
-  min-height: 58px;
+  min-height: 44px; /* match .dash-field input height */
   display: flex;
   align-items: center;
   justify-content: space-between;
