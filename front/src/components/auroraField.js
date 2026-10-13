@@ -285,7 +285,7 @@ export function startAuroraField(canvas, root, getParams) {
     const dark = params.dark ? 1 : 0
 
     // ---- tweak these to taste ----
-    const speed = reduced.matches ? 0 : active ? 2.4 : 1.7
+    const speed = reduced.matches ? 0 : active ? 2.0 : 1.4
     const intensity = Math.min((dark ? 0.85 : 0.65) * (active ? 1.15 : 1), 1)
     // higher = more swirly / stretched-out shapes
     const warp = active ? 1.2 : 0.9
