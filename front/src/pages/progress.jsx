@@ -386,8 +386,6 @@ function ProgressPage() {
               </div>
             )}
 
-            <ProgressSummary progress={progress} category={category} />
-
             <ProgressChartPanel
               bestTimeChartPoint={bestTimeChartPoint}
               bestTimePoint={bestTimePoint}
