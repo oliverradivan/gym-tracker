@@ -31,5 +31,5 @@
   /* Room so content can scroll up above the floating nav bar.
      The aurora now lives behind the whole deck, so this padding no longer
      leaves an unpainted strip and the old :has() rules are gone. */
-  padding-bottom: calc(96px + var(--safe-bottom));
+  padding-bottom: calc(80px + var(--safe-bottom));
 }
