@@ -28,8 +28,11 @@
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
 
-  /* Room so content can scroll up above the floating nav bar.
-     The aurora now lives behind the whole deck, so this padding no longer
-     leaves an unpainted strip and the old :has() rules are gone. */
-  padding-bottom: calc(30px + var(--safe-bottom));
+  /* Full-screen: the app draws under the status bar / notch, so each page
+     starts below it. Content scrolls under the translucent bar. */
+  padding-top: var(--safe-top);
+
+  /* Room so content can scroll up above the floating nav bar:
+     10px gap + 64px bar + breathing room + home indicator. */
+  padding-bottom: calc(96px + var(--safe-bottom));
 }

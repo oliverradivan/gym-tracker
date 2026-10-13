@@ -329,6 +329,11 @@
 html {
   background: var(--bg);
   min-height: 100%;
+
+  /* No pull-to-refresh / rubber-band, no font inflation on rotate */
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -344,6 +349,9 @@ body {
 
   font-size: 16px;
   letter-spacing: -0.01em;
+
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 
@@ -742,8 +750,9 @@ a {
   color: var(--muted-text-soft);
 }
 
-/* Full screen overrides */
-html, body, #root, .app-shell, .swipe-deck {
+/* Full screen overrides
+   (.app-shell / .swipe-deck sizing lives in App.css / SwipeDeck.css) */
+html, body, #root {
   height: 100%;
   width: 100%;
   margin: 0;
