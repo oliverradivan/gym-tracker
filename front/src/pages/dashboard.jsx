@@ -17,7 +17,7 @@ import LiquidGlassDefs from '../components/LiquidGlassDefs'
 
 const initialForm = {
   exercise_name: '',
-  category: EXERCISE_CATEGORIES.OTHER,
+  category: '',
 }
 
 function DashboardPage() {

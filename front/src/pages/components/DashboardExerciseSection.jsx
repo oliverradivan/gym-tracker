@@ -367,7 +367,7 @@ export default function DashboardExerciseSection({
             >
               <button
                 type="button"
-                className={`custom-select-trigger select-${form?.category?.toLowerCase() || 'category'}`}
+                className={`custom-select-trigger select-${selectedCategory.toLowerCase()}`}
                 onClick={(event) => {
                   event.stopPropagation()
                   setCategorySelectOpen((prev) => !prev)
@@ -389,7 +389,7 @@ export default function DashboardExerciseSection({
                     <li
                       key={category}
                       className={
-                        `custom-select-option option-${category.toLowerCase()}${form?.category === category ? ' selected' : ''}${focusedOptionIndex === index ? ' focused' : ''}`
+                        `custom-select-option option-${category.toLowerCase()}${selectedCategory === category ? ' selected' : ''}${focusedOptionIndex === index ? ' focused' : ''}`
                       }
                       onMouseDown={(event) => {
                         event.preventDefault()
