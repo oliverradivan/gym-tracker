@@ -165,7 +165,7 @@ function HistoryPage() {
 
         {loading ? (
           <div className="history-loading">
-            <LoadingSpinner label="Loading workouts..." showLabel />
+            <LoadingSpinner label="Loading your history..." showLabel />
           </div>
         ) : sessionsError ? (
           <div className="history-empty" role="alert">

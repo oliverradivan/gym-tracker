@@ -306,7 +306,7 @@ function ProgressPage() {
         </label>
 
         {loading ? (
-          <LoadingSpinner label="Loading workouts..." showLabel />
+          <LoadingSpinner label="Loading your progress..." showLabel />
         ) : !selectedExercise ? null : progress.length === 0 ? (
           <p className="status-message">No progress data yet for {selectedExercise.name}.</p>
         ) : (
