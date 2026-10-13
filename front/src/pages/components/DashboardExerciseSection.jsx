@@ -33,6 +33,58 @@ export default function DashboardExerciseSection({
     ? form.category
     : categories[0] ?? 'Other'
 
+  // Custom dropdown state for category selection.
+  const [categorySelectOpen, setCategorySelectOpen] = useState(false)
+  const categorySelectRef = useRef(null)
+  const [focusedOptionIndex, setFocusedOptionIndex] = useState(-1)
+
+  useClickOutside(categorySelectRef, () => setCategorySelectOpen(false))
+
+  // Keyboard navigation for category dropdown.
+  useEffect(() => {
+    const keydownHandler = (event) => {
+      if (!categorySelectOpen) return
+
+      switch (event.key) {
+        case 'ArrowDown':
+          event.preventDefault()
+          setFocusedOptionIndex((i) =>
+            i >= categories.length - 1 ? 0 : i + 1
+          )
+          break
+        case 'ArrowUp':
+          event.preventDefault()
+          setFocusedOptionIndex((i) => (i <= 0 ? categories.length - 1 : i - 1))
+          break
+        case 'Enter':
+          event.preventDefault()
+          if (focusedOptionIndex >= 0 && categories.length > 0) {
+            const category = categories[focusedOptionIndex]
+            setCategorySelectOpen(false)
+            handleChange({
+              target: {
+                name: 'category',
+                value: category,
+              },
+            })
+          }
+          break
+        case 'Escape':
+          event.preventDefault()
+          setCategorySelectOpen(false)
+          setFocusedOptionIndex(-1)
+          break
+        default:
+          break
+      }
+    }
+
+    document.addEventListener('keydown', keydownHandler)
+    return () => {
+      document.removeEventListener('keydown', keydownHandler)
+    }
+  }, [categorySelectOpen, categories, focusedOptionIndex, handleChange])
+
   // Safely resolve each exercise's category.
   const getSafeCategory = (exercise) => {
     if (!exercise || typeof exercise !== 'object') {
@@ -89,22 +141,61 @@ export default function DashboardExerciseSection({
           <div className="dash-field">
             <label htmlFor="exercise_category">Category</label>
 
-            <select
-              id="exercise_category"
-              name="category"
-              value={selectedCategory}
-              onChange={handleChange}
+            <div
+              className="custom-select"
+              ref={categorySelectRef}
+              onClick={() => setCategorySelectOpen((prev) => !prev)}
             >
-              {categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-
-              {categories.length === 0 && (
-                <option value="Other">Other</option>
+              <button
+                type="button"
+                className={`custom-select-trigger select-${selectedCategory.toLowerCase()}`}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  setCategorySelectOpen((prev) => !prev)
+                }}
+              >
+                <span>{selectedCategory}</span>
+                <span
+                  className={`custom-select-arrow ${categorySelectOpen ? 'open' : ''}`}
+                  aria-hidden="true"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                </span>
+              </button>
+              {categorySelectOpen && (
+                <ul className="custom-select-list">
+                  {categories.map((category, index) => (
+                    <li
+                      key={category}
+                      className={
+                        `custom-select-option option-${category.toLowerCase()}${selectedCategory === category ? ' selected' : ''}${focusedOptionIndex === index ? ' focused' : ''}`
+                      }
+                      onMouseDown={(event) => {
+                        event.preventDefault()
+                        event.stopPropagation()
+                        setCategorySelectOpen(false)
+                        handleChange({
+                          target: {
+                            name: 'category',
+                            value: category,
+                          },
+                        })
+                      }}
+                      onMouseOver={() => setFocusedOptionIndex(index)}
+                    >
+                      {category}
+                    </li>
+                  ))}
+                  {categories.length === 0 && (
+                    <li>
+                      <span>Other</span>
+                    </li>
+                  )}
+                </ul>
               )}
-            </select>
+            </div>
           </div>
 
           <button type="submit" className="dash-btn">
