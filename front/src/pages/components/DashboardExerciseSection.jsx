@@ -108,6 +108,68 @@ export default function DashboardExerciseSection({
       </div>
 
       <section
+        className="dash-exercises"
+        aria-labelledby="dash-library-title"
+      >
+        {sortedExerciseList.length > 0 ? (
+          <div className="dash-rows dash-rows-grid">
+            {sortedExerciseList.map((exercise) => {
+              const category = getSafeCategory(exercise)
+
+              return (
+                <div
+                  key={exercise.id ?? exercise.name}
+                  className={`dash-row dash-row-compact activity-row exercise-card ${
+                    exercise.unit === 'km'
+                      ? 'exercise-card--run'
+                      : 'exercise-card--general'
+                  }`}
+                  data-category={category}
+                >
+                  <span className="dash-row-tile" aria-hidden="true">
+                    <ExerciseCategoryIcon category={category} />
+                  </span>
+
+                  <Link
+                    to={`/progress/${exercise.id}`}
+                    className="dash-row-title dash-row-link"
+                  >
+                    {exercise.name ?? 'Unnamed exercise'}
+                  </Link>
+
+                  {exercise.created_by &&
+                    user?.id &&
+                    exercise.created_by === user.id && (
+                      <button
+                        type="button"
+                        className="dash-remove-btn"
+                        onClick={(event) =>
+                          handleDeleteExercise?.(event, exercise)
+                        }
+                        disabled={deletingExerciseId === exercise.id}
+                        aria-label={`Remove ${
+                          exercise.name ?? 'exercise'
+                        }`}
+                        title="Remove exercise"
+                      >
+                        <DashboardIcon>
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
+                        </DashboardIcon>
+                      </button>
+                    )}
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <p className="dash-empty-note">
+            No exercises yet. Create one above.
+          </p>
+        )}
+      </section>
+
+       <section
         className="dash-card dash-create"
         aria-labelledby="dash-create-title"
       >
@@ -201,68 +263,6 @@ export default function DashboardExerciseSection({
             Add Exercise
           </button>
         </form>
-      </section>
-
-      <section
-        className="dash-exercises"
-        aria-labelledby="dash-library-title"
-      >
-        {sortedExerciseList.length > 0 ? (
-          <div className="dash-rows dash-rows-grid">
-            {sortedExerciseList.map((exercise) => {
-              const category = getSafeCategory(exercise)
-
-              return (
-                <div
-                  key={exercise.id ?? exercise.name}
-                  className={`dash-row dash-row-compact activity-row exercise-card ${
-                    exercise.unit === 'km'
-                      ? 'exercise-card--run'
-                      : 'exercise-card--general'
-                  }`}
-                  data-category={category}
-                >
-                  <span className="dash-row-tile" aria-hidden="true">
-                    <ExerciseCategoryIcon category={category} />
-                  </span>
-
-                  <Link
-                    to={`/progress/${exercise.id}`}
-                    className="dash-row-title dash-row-link"
-                  >
-                    {exercise.name ?? 'Unnamed exercise'}
-                  </Link>
-
-                  {exercise.created_by &&
-                    user?.id &&
-                    exercise.created_by === user.id && (
-                      <button
-                        type="button"
-                        className="dash-remove-btn"
-                        onClick={(event) =>
-                          handleDeleteExercise?.(event, exercise)
-                        }
-                        disabled={deletingExerciseId === exercise.id}
-                        aria-label={`Remove ${
-                          exercise.name ?? 'exercise'
-                        }`}
-                        title="Remove exercise"
-                      >
-                        <DashboardIcon>
-                          <circle cx="12" cy="12" r="10" />
-                          <path d="M14.5 9.5l-5 5M9.5 9.5l5 5" />
-                        </DashboardIcon>
-                      </button>
-                    )}
-                </div>
-              )
-            })}
-          </div>
-        ) : (
-          <p className="dash-empty-note">
-            No exercises yet. Create one above.
-          </p>
-        )}
       </section>
     </>
   )

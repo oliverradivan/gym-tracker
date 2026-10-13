@@ -741,3 +741,43 @@ body:has(.app-shell) {
 .swipe-deck-page .auth-shell {
   min-height: 100%;
 }
+
+
+/* =========================================================
+   STANDALONE (HOME SCREEN) AUTH PAGES
+   When the login/register screen sits outside the swipe deck,
+   pin it to the real screen edges and keep it clear of the
+   notch and home indicator. Safari and desktop are unaffected
+   because their safe-area insets are 0.
+   ========================================================= */
+
+.auth-shell:not(.swipe-deck-page .auth-shell) {
+  position: fixed;
+  inset: 0;
+
+  display: flex;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  padding:
+    calc(32px + var(--safe-top))
+    calc(20px + var(--safe-right))
+    calc(32px + var(--safe-bottom))
+    calc(20px + var(--safe-left));
+}
+
+/* margin: auto centres the card but never clips it on short screens */
+.auth-shell:not(.swipe-deck-page .auth-shell) > .auth-card {
+  margin: auto;
+}
+
+@media (max-width: 480px) {
+  .auth-shell:not(.swipe-deck-page .auth-shell) {
+    padding:
+      calc(20px + var(--safe-top))
+      calc(12px + var(--safe-right))
+      calc(20px + var(--safe-bottom))
+      calc(12px + var(--safe-left));
+  }
+}

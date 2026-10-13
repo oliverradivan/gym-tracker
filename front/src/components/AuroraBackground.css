@@ -104,15 +104,19 @@
 }
 
 .aurora__blob {
-  --size: clamp(240px, 38vw, 520px);
+  --size: clamp(160px, 26vw, 360px);
   position: absolute;
-  width: var(--size);
-  height: var(--size);
+  /* wide and short = ribbon, not circle */
+  width: calc(var(--size) * 1.6);
+  height: calc(var(--size) * 0.65);
   background: var(--blob-color);
   opacity: var(--aurora-blob-opacity);
   will-change: transform, border-radius;
   transition: --blob-color 700ms ease, background-color 700ms ease;
-  animation-duration: calc(var(--dur) * var(--aurora-speed));
+  /* drift, then morph (morph runs a bit quicker so they never sync up) */
+  animation-duration:
+    calc(var(--dur) * var(--aurora-speed)),
+    calc(var(--dur) * var(--aurora-speed) * 0.6);
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-direction: alternate;
@@ -121,7 +125,7 @@
 /* top-left: red */
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
-  --dur: 14s;
+  --dur: 8s;
   top: calc(var(--size) * -0.3);
   left: calc(var(--size) * -0.3);
   animation-name: aurora-drift-a, aurora-morph;
@@ -130,7 +134,7 @@
 /* top-right: blue */
 .aurora__blob--pull {
   --blob-color: var(--aurora-pull);
-  --dur: 17s;
+  --dur: 10s;
   top: calc(var(--size) * -0.3);
   right: calc(var(--size) * -0.3);
   animation-name: aurora-drift-b, aurora-morph;
@@ -139,7 +143,7 @@
 /* bottom-right: yellow */
 .aurora__blob--leg {
   --blob-color: var(--aurora-leg);
-  --dur: 19s;
+  --dur: 11s;
   bottom: calc(var(--size) * -0.3);
   right: calc(var(--size) * -0.3);
   animation-name: aurora-drift-c, aurora-morph;
@@ -148,38 +152,40 @@
 /* bottom-left: green */
 .aurora__blob--cardio {
   --blob-color: var(--aurora-cardio);
-  --dur: 16s;
+  --dur: 9s;
   bottom: calc(var(--size) * -0.3);
   left: calc(var(--size) * -0.3);
   animation-name: aurora-drift-d, aurora-morph;
 }
 
-/* Each blob wanders a short way around its own corner. */
+/* Each blob wanders further around its own corner, turning as it goes. */
 @keyframes aurora-drift-a {
-  0%   { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(14%, 12%) scale(1.1); }
+  0%   { transform: translate(0, 0) rotate(-20deg) scale(1); }
+  100% { transform: translate(28%, 30%) rotate(25deg) scale(1.15); }
 }
 
 @keyframes aurora-drift-b {
-  0%   { transform: translate(0, 0) scale(1.05); }
-  100% { transform: translate(-14%, 12%) scale(0.92); }
+  0%   { transform: translate(0, 0) rotate(15deg) scale(1.05); }
+  100% { transform: translate(-28%, 30%) rotate(-30deg) scale(0.9); }
 }
 
 @keyframes aurora-drift-c {
-  0%   { transform: translate(0, 0) scale(0.96); }
-  100% { transform: translate(-12%, -14%) scale(1.1); }
+  0%   { transform: translate(0, 0) rotate(-25deg) scale(0.95); }
+  100% { transform: translate(-30%, -28%) rotate(20deg) scale(1.15); }
 }
 
 @keyframes aurora-drift-d {
-  0%   { transform: translate(0, 0) scale(1.08); }
-  100% { transform: translate(14%, -12%) scale(0.92); }
+  0%   { transform: translate(0, 0) rotate(20deg) scale(1.1); }
+  100% { transform: translate(30%, -30%) rotate(-25deg) scale(0.9); }
 }
 
+/* Lopsided radii so the outline keeps flowing between uneven, stretched shapes. */
 @keyframes aurora-morph {
-  0%   { border-radius: 62% 38% 46% 54% / 48% 42% 58% 52%; }
-  33%  { border-radius: 42% 58% 38% 62% / 62% 32% 68% 38%; }
-  66%  { border-radius: 58% 42% 64% 36% / 36% 64% 36% 64%; }
-  100% { border-radius: 38% 62% 52% 48% / 54% 46% 42% 58%; }
+  0%   { border-radius: 70% 30% 55% 45% / 35% 65% 35% 65%; }
+  25%  { border-radius: 30% 70% 35% 65% / 60% 30% 70% 40%; }
+  50%  { border-radius: 60% 40% 75% 25% / 30% 70% 40% 60%; }
+  75%  { border-radius: 35% 65% 30% 70% / 70% 35% 65% 30%; }
+  100% { border-radius: 65% 35% 45% 55% / 40% 60% 30% 70%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

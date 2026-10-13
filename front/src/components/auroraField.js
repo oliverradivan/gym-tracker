@@ -44,26 +44,42 @@ float noise(vec2 p) {
   );
 }
 
-// One soft blob anchored near a corner.
+// One soft, ribbon-like blob anchored near a corner.
 // "inward" points from the corner toward the middle of the page.
 float blob(vec2 p, vec2 corner, vec2 inward, float seed, float t) {
-  // wander around the corner
+  // wander around the corner (two layered motions so the path isn't a loop)
   vec2 orbit = vec2(
-    sin(t * 0.9 + seed * 6.1),
-    cos(t * 0.7 + seed * 3.7)
-  ) * u_roam;
+    sin(t * 0.9 + seed * 6.1) + 0.5 * sin(t * 1.7 + seed * 2.3),
+    cos(t * 0.7 + seed * 3.7) + 0.5 * cos(t * 1.3 + seed * 5.1)
+  ) * u_roam * 0.8;
 
   // sits slightly inside the corner, and breathes in/out a little
   float inset = 0.05 + 0.07 * (0.5 + 0.5 * sin(t * 0.5 + seed * 4.0));
   vec2 c = corner + inward * inset + orbit;
 
-  // gentle warp so the shape is organic, not a perfect circle
-  vec2 w = vec2(
-    noise(p * 2.2 + seed + t * 0.15),
-    noise(p * 2.2 + seed + 7.3 - t * 0.12)
+  // two-layer flowing warp: the second layer is pushed around by the first,
+  // which gives the swirly, liquid look instead of a clean circle
+  vec2 q = p * 1.8 + seed;
+  vec2 w1 = vec2(
+    noise(q + t * 0.35),
+    noise(q + 7.3 - t * 0.30)
   ) - 0.5;
-  vec2 d = (p + w * u_warp * 0.35) - c;
-  d.y *= 1.15;
+  vec2 w2 = vec2(
+    noise(q * 2.1 + w1 * 2.0 + t * 0.50 + 3.1),
+    noise(q * 2.1 + w1 * 2.0 - t * 0.45 + 9.7)
+  ) - 0.5;
+  vec2 d = (p + (w1 * 0.9 + w2 * 0.6) * u_warp) - c;
+
+  // stretch the blob into a ribbon along a slowly rotating axis
+  float ang = t * 0.25 + seed * 6.28;
+  float ca = cos(ang);
+  float sa = sin(ang);
+  d = vec2(ca * d.x + sa * d.y, -sa * d.x + ca * d.y);
+  d.x *= 0.45;   // long axis (smaller = longer)
+  d.y *= 1.3;    // short axis (bigger = thinner)
+
+  // ripple along the ribbon so it snakes instead of staying straight
+  d.y += sin(d.x * 6.0 + t * 1.2 + seed * 10.0) * 0.05 * u_warp;
 
   return exp(-dot(d, d) * u_spread);
 }
@@ -269,13 +285,14 @@ export function startAuroraField(canvas, root, getParams) {
     const dark = params.dark ? 1 : 0
 
     // ---- tweak these to taste ----
-    const speed = reduced.matches ? 0 : active ? 2.2 : 1.4
+    const speed = reduced.matches ? 0 : active ? 3.4 : 2.4
     const intensity = Math.min((dark ? 0.85 : 0.65) * (active ? 1.15 : 1), 1)
-    const warp = active ? 1.2 : 0.8
+    // higher = more swirly / stretched-out shapes
+    const warp = active ? 1.5 : 1.1
     // higher = smaller blobs (lower = bigger, more coverage)
-    const spread = active ? 5.5 : 6.5
+    const spread = active ? 16 : 14
     // how far each colour wanders around its corner
-    const roam = active ? 0.25 : 0.2
+    const roam = active ? 0.32 : 0.26
     // ------------------------------
 
     const time = (now - start) / 1000
