@@ -59,27 +59,27 @@ float blob(vec2 p, vec2 corner, vec2 inward, float seed, float t) {
 
   // two-layer flowing warp: the second layer is pushed around by the first,
   // which gives the swirly, liquid look instead of a clean circle
-  vec2 q = p * 1.8 + seed;
+  vec2 q = p * 1.1 + seed;
   vec2 w1 = vec2(
-    noise(q + t * 0.35),
-    noise(q + 7.3 - t * 0.30)
+    noise(q + t * 0.30),
+    noise(q + 7.3 - t * 0.25)
   ) - 0.5;
   vec2 w2 = vec2(
-    noise(q * 2.1 + w1 * 2.0 + t * 0.50 + 3.1),
-    noise(q * 2.1 + w1 * 2.0 - t * 0.45 + 9.7)
+    noise(q * 1.5 + w1 * 1.2 + t * 0.35 + 3.1),
+    noise(q * 1.5 + w1 * 1.2 - t * 0.30 + 9.7)
   ) - 0.5;
-  vec2 d = (p + (w1 * 0.9 + w2 * 0.6) * u_warp) - c;
+  vec2 d = (p + (w1 * 0.9 + w2 * 0.35) * u_warp) - c;
 
   // stretch the blob into a ribbon along a slowly rotating axis
   float ang = t * 0.25 + seed * 6.28;
   float ca = cos(ang);
   float sa = sin(ang);
   d = vec2(ca * d.x + sa * d.y, -sa * d.x + ca * d.y);
-  d.x *= 0.45;   // long axis (smaller = longer)
-  d.y *= 1.3;    // short axis (bigger = thinner)
+  d.x *= 0.6;    // long axis (smaller = longer)
+  d.y *= 0.95;   // short axis (bigger = thinner)
 
   // ripple along the ribbon so it snakes instead of staying straight
-  d.y += sin(d.x * 6.0 + t * 1.2 + seed * 10.0) * 0.05 * u_warp;
+  d.y += sin(d.x * 2.5 + t * 0.8 + seed * 10.0) * 0.06 * u_warp;
 
   return exp(-dot(d, d) * u_spread);
 }
@@ -285,14 +285,14 @@ export function startAuroraField(canvas, root, getParams) {
     const dark = params.dark ? 1 : 0
 
     // ---- tweak these to taste ----
-    const speed = reduced.matches ? 0 : active ? 3.4 : 2.4
+    const speed = reduced.matches ? 0 : active ? 2.4 : 1.7
     const intensity = Math.min((dark ? 0.85 : 0.65) * (active ? 1.15 : 1), 1)
     // higher = more swirly / stretched-out shapes
-    const warp = active ? 1.5 : 1.1
+    const warp = active ? 1.2 : 0.9
     // higher = smaller blobs (lower = bigger, more coverage)
-    const spread = active ? 16 : 14
+    const spread = active ? 10 : 9
     // how far each colour wanders around its corner
-    const roam = active ? 0.32 : 0.26
+    const roam = active ? 0.3 : 0.24
     // ------------------------------
 
     const time = (now - start) / 1000

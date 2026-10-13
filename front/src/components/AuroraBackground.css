@@ -106,9 +106,9 @@
 .aurora__blob {
   --size: clamp(160px, 26vw, 360px);
   position: absolute;
-  /* wide and short = ribbon, not circle */
-  width: calc(var(--size) * 1.6);
-  height: calc(var(--size) * 0.65);
+  /* wider than tall = a soft flowing shape, not a circle */
+  width: calc(var(--size) * 1.5);
+  height: calc(var(--size) * 0.9);
   background: var(--blob-color);
   opacity: var(--aurora-blob-opacity);
   will-change: transform, border-radius;
@@ -116,7 +116,7 @@
   /* drift, then morph (morph runs a bit quicker so they never sync up) */
   animation-duration:
     calc(var(--dur) * var(--aurora-speed)),
-    calc(var(--dur) * var(--aurora-speed) * 0.6);
+    calc(var(--dur) * var(--aurora-speed) * 0.8);
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-direction: alternate;
@@ -125,7 +125,7 @@
 /* top-left: red */
 .aurora__blob--push {
   --blob-color: var(--aurora-push);
-  --dur: 8s;
+  --dur: 12s;
   top: calc(var(--size) * -0.3);
   left: calc(var(--size) * -0.3);
   animation-name: aurora-drift-a, aurora-morph;
@@ -134,7 +134,7 @@
 /* top-right: blue */
 .aurora__blob--pull {
   --blob-color: var(--aurora-pull);
-  --dur: 10s;
+  --dur: 14s;
   top: calc(var(--size) * -0.3);
   right: calc(var(--size) * -0.3);
   animation-name: aurora-drift-b, aurora-morph;
@@ -143,7 +143,7 @@
 /* bottom-right: yellow */
 .aurora__blob--leg {
   --blob-color: var(--aurora-leg);
-  --dur: 11s;
+  --dur: 16s;
   bottom: calc(var(--size) * -0.3);
   right: calc(var(--size) * -0.3);
   animation-name: aurora-drift-c, aurora-morph;
@@ -152,7 +152,7 @@
 /* bottom-left: green */
 .aurora__blob--cardio {
   --blob-color: var(--aurora-cardio);
-  --dur: 9s;
+  --dur: 13s;
   bottom: calc(var(--size) * -0.3);
   left: calc(var(--size) * -0.3);
   animation-name: aurora-drift-d, aurora-morph;
@@ -181,11 +181,10 @@
 
 /* Lopsided radii so the outline keeps flowing between uneven, stretched shapes. */
 @keyframes aurora-morph {
-  0%   { border-radius: 70% 30% 55% 45% / 35% 65% 35% 65%; }
-  25%  { border-radius: 30% 70% 35% 65% / 60% 30% 70% 40%; }
-  50%  { border-radius: 60% 40% 75% 25% / 30% 70% 40% 60%; }
-  75%  { border-radius: 35% 65% 30% 70% / 70% 35% 65% 30%; }
-  100% { border-radius: 65% 35% 45% 55% / 40% 60% 30% 70%; }
+  0%   { border-radius: 60% 40% 55% 45% / 45% 55% 45% 55%; }
+  33%  { border-radius: 45% 55% 40% 60% / 58% 40% 60% 42%; }
+  66%  { border-radius: 55% 45% 62% 38% / 42% 58% 38% 62%; }
+  100% { border-radius: 40% 60% 50% 50% / 55% 45% 50% 50%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
