@@ -162,16 +162,16 @@
   margin-bottom: 28px;
 }
 
-/* Brand badge: dark glass disc with a jewel-like highlight */
+/* Brand badge: dark glass squircle with a soft highlight */
 .login-card .brand-badge {
   position: relative;
 
-  width: 58px;
-  height: 58px;
+  width: 56px;
+  height: 56px;
 
   margin: 0 auto 16px;
 
-  border-radius: 50%;
+  border-radius: 18px;
 
   display: grid;
   place-items: center;
@@ -197,8 +197,8 @@
 .login-card .brand-badge svg {
   position: relative;
 
-  width: 86%;
-  height: 86%;
+  width: 90%;
+  height: 90%;
 
   display: block;
 
@@ -649,10 +649,12 @@
   }
 
   .login-card .brand-badge {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
 
     margin-bottom: 12px;
+
+    border-radius: 15px;
   }
 
   .login-card .auth-header h1 {

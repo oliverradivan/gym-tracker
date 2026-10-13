@@ -38,6 +38,10 @@
   --cal-hover: rgb(255 255 255 / 30%);
   --cal-ring: var(--dash-ink);
 
+  /* Dumbbell drawn inside a trained day's tile (same shape as the login badge) */
+  --bell: #ffffff;
+  --bell-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Cg transform='rotate(45 12 12)'%3E%3Cline x1='6' y1='12' x2='18' y2='12'/%3E%3Cline x1='6' y1='9' x2='6' y2='15'/%3E%3Cline x1='18' y1='9' x2='18' y2='15'/%3E%3Cline x1='4' y1='10.5' x2='4' y2='13.5'/%3E%3Cline x1='20' y1='10.5' x2='20' y2='13.5'/%3E%3C/g%3E%3C/svg%3E");
+
   min-height: 100%;
   padding: clamp(24px, 4vw, 48px) 24px 64px;
   color: var(--dash-ink);
@@ -523,13 +527,14 @@ a.dash-calendar-day:hover {
   display: none;
 }
 
-/* Dot: hollow when empty, glossy jewel when trained */
+/* Dot: hollow squircle when empty, glossy squircle with a dumbbell when trained */
 .dash-week-dot,
 .dash-calendar-dot {
+  position: relative;
   display: block;
   aspect-ratio: 1;
   border: 1.5px solid rgb(23 35 33 / 18%);
-  border-radius: 50%;
+  border-radius: 32%;
   background: transparent;
   box-shadow: none;
   transition:
@@ -565,6 +570,24 @@ a.dash-calendar-day:hover {
   box-shadow:
     inset 0 -3px 5px rgb(0 0 0 / 14%),
     0 4px 10px color-mix(in srgb, var(--week-accent, var(--dash-green)) 40%, transparent);
+}
+
+/* Dumbbell: a white icon cut out with a mask, so it needs no extra markup */
+.dash-week-day[data-trained="true"] .dash-week-dot::after,
+.dash-calendar-day[data-trained="true"] .dash-calendar-dot::after {
+  content: "";
+  position: absolute;
+  inset: 6%;
+  background-color: var(--bell);
+  -webkit-mask: var(--bell-mask) center / contain no-repeat;
+  mask: var(--bell-mask) center / contain no-repeat;
+  pointer-events: none;
+}
+
+.dash-week-day[data-category="Leg"],
+.dash-calendar-day[data-category="Leg"],
+.dash-calendar-dot[data-category="Leg"] {
+  --bell: #3a2c00;
 }
 
 /* Today: crisp ink ring */
@@ -711,7 +734,7 @@ a.dash-calendar-day:hover {
   width: 8px;
   height: 8px;
   flex: 0 0 8px;
-  border-radius: 50%;
+  border-radius: 30%;
   background:
     radial-gradient(circle at 32% 26%, rgb(255 255 255 / 60%), rgb(255 255 255 / 0%) 55%),
     var(--week-accent, var(--dash-green));
