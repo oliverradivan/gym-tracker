@@ -2782,14 +2782,118 @@ a.dash-calendar-day:hover {
   font-variant-numeric: tabular-nums;
 }
 
-.dash-search {
-  max-width: 420px;
-  margin-bottom: 16px;
+/* Library header: title + count on the left, search on the right. */
+.dash-library-head {
+  flex-wrap: wrap;
+  row-gap: 10px;
 }
 
-.dash-search input {
+.dash-library-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dash-count {
+  min-width: 28px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  color: var(--dash-ink);
+  background: var(--lg-fill-lo);
+  box-shadow: var(--lg-rim-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-searchbar {
+  position: relative;
+  flex: 0 1 340px;
+  min-width: 0;
+}
+
+.dash-searchbar-icon {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  color: var(--dash-soft);
+  pointer-events: none;
+}
+
+.dash-searchbar input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 44px;
+  border: 1px solid var(--dash-field-edge);
+  border-radius: 999px;
+  outline: none;
+  color: var(--dash-ink);
+  background-color: var(--lg-field);
+  box-shadow: var(--lg-rim-soft);
+  font: inherit;
+  font-size: 0.9rem;
   -webkit-appearance: none;
   appearance: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.dash-searchbar input::placeholder {
+  color: var(--dash-soft);
+}
+
+.dash-searchbar input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.dash-searchbar input:focus-visible {
+  border-color: var(--dash-ink);
+  box-shadow: var(--lg-rim-soft), 0 0 0 3px rgb(10 10 10 / 12%);
+}
+
+.dark .dash-searchbar input:focus-visible {
+  box-shadow: var(--lg-rim-soft), 0 0 0 3px rgb(229 236 232 / 16%);
+}
+
+.dash-searchbar-clear {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--dash-soft);
+  background: transparent;
+  transform: translateY(-50%);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.dash-searchbar-clear:hover {
+  color: var(--dash-ink);
+  background: var(--lg-fill);
+}
+
+.dash-searchbar-clear svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 640px) {
+  .dash-searchbar {
+    flex: 1 1 100%;
+  }
 }
 
 /* 5. Whole row is the tap target (the title link stretches over the card). */
@@ -2958,5 +3062,15 @@ a.dash-calendar-day:hover {
 @media (max-width: 360px) {
   .dash-stat-unit {
     font-size: 0.66rem;
+  }
+}
+
+/* iOS Safari zooms the page when a focused input is under 16px.
+   Keep inputs at 16px on touch devices instead of blocking pinch-zoom. */
+@media (pointer: coarse) {
+  .dash-page input,
+  .dash-page select,
+  .dash-page textarea {
+    font-size: 16px;
   }
 }

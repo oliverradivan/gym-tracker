@@ -42,6 +42,7 @@ export default function DashboardExerciseSection({
 
   // Library search and inline delete confirmation.
   const [query, setQuery] = useState('')
+  const searchRef = useRef(null)
   const [confirmingId, setConfirmingId] = useState(null)
   const removeButtonRefs = useRef(new Map())
 
@@ -131,33 +132,78 @@ export default function DashboardExerciseSection({
 
   return (
     <>
-      <div className="dash-section-head">
-        <h2 id="dash-library-title" className="dash-section-title">
-          Your exercises
-        </h2>
+      <div className="dash-section-head dash-library-head">
+        <div className="dash-library-title">
+          <h2 id="dash-library-title" className="dash-section-title">
+            Your exercises
+          </h2>
 
-        <span className="dash-count">{exerciseList.length}</span>
+          <span className="dash-count">{exerciseList.length}</span>
+        </div>
+
+        {exerciseList.length > SEARCH_THRESHOLD && (
+          <div className="dash-searchbar" role="search">
+            <svg
+              className="dash-searchbar-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="6.5" />
+              <path d="m16 16 4 4" />
+            </svg>
+            <label htmlFor="exercise_search" className="dash-sr-only">
+              Search exercises
+            </label>
+            <input
+              id="exercise_search"
+              ref={searchRef}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search exercises"
+              autoComplete="off"
+              enterKeyHint="search"
+            />
+            {query && (
+              <button
+                type="button"
+                className="dash-searchbar-clear"
+                aria-label="Clear search"
+                onClick={() => {
+                  setQuery('')
+                  searchRef.current?.focus()
+                }}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <path d="M6 6l12 12M18 6 6 18" />
+                </svg>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <section
         className="dash-exercises"
         aria-labelledby="dash-library-title"
       >
-        {exerciseList.length > SEARCH_THRESHOLD && (
-          <div className="dash-field dash-search">
-            <label htmlFor="exercise_search" className="dash-sr-only">
-              Search exercises
-            </label>
-            <input
-              id="exercise_search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search your exercises"
-              autoComplete="off"
-            />
-          </div>
-        )}
+        <p className="dash-sr-only" role="status">
+          {normalizedQuery
+            ? `${exerciseGroups.reduce((n, g) => n + g.items.length, 0)} exercises found`
+            : ''}
+        </p>
 
         {exerciseGroups.length > 0 ? (
           exerciseGroups.map(({ category, items }) => (

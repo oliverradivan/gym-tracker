@@ -74,9 +74,9 @@ export default function DashboardOverviewSection({
         <aside className="dash-nudge" aria-label="Log today's workout">
           <div>
             <p className="dash-nudge-title">Nothing logged yet today</p>
-            <p className="dash-nudge-sub">A short session still counts.</p>
+            <p className="dash-nudge-sub">It's never too late to start!</p>
           </div>
-          <Link to={logHref} className="dash-btn">
+          <Link to="/logworkout" className="dash-btn">
             Log a workout
           </Link>
         </aside>

@@ -19,7 +19,7 @@ export default function DashboardCalendarSection({
     <section aria-labelledby="dash-week-title">
       <div className="dash-section-head">
         <h2 id="dash-week-title" className="dash-section-title">
-          This week
+          Your week at a glance
         </h2>
         <button
           type="button"
@@ -28,7 +28,7 @@ export default function DashboardCalendarSection({
           aria-controls="dash-week-view"
           onClick={() => setCalendarExpanded((expanded) => !expanded)}
         >
-          {calendarExpanded ? 'Collapse calendar' : 'Expand calendar'}
+          {calendarExpanded ? '30 days' : '7 days'}
           <svg
             viewBox="0 0 20 20"
             width="16"
@@ -46,7 +46,7 @@ export default function DashboardCalendarSection({
       <div className="dash-week-cards">
         <article className="dash-card">
           <span className="dash-card-label">
-            {calendarExpanded ? 'Days trained in the past 30 days' : 'Days trained'}
+            {calendarExpanded ? 'Days trained in the past 30 days' : 'Days trained this week'}
           </span>
 
           <strong className="dash-card-value dash-week-value">
