@@ -17,22 +17,17 @@ export function TooltipContent({
         )}
         <div className="space-y-1.5">
           {rows.map((row) => {
-            const rowClassName = row.isForecast
-              ? "text-chart-tooltip-muted"
-              : "text-chart-tooltip-foreground";
-
             return (
               <div
                 className="flex items-center justify-between gap-4"
                 key={`${row.label}-${row.color}`}
-                style={row.isForecast ? { opacity: 0.7 } : undefined}
               >
                 <div className="flex items-center gap-2">
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: row.color }}
                   />
-                  <span className={rowClassName}>
+                  <span className="text-chart-tooltip-foreground">
                     {row.label}
                   </span>
                 </div>

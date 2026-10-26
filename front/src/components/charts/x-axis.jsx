@@ -6,7 +6,7 @@ import { useChart, useChartStable } from "./chart-context";
 import { shortDateFmt } from "./chart-formatters";
 import { DEFAULT_Y_DOMAIN_TWEEN_MS } from "./chart-phase";
 import { buildIntervalTicks } from "./interval-ticks";
-import { appendProjectionTailTicks, buildDataAlignedTicks, buildDomainTicks, domainExtendsPastData } from "./x-axis-layout";
+import { buildDataAlignedTicks, buildDomainTicks } from "./x-axis-layout";
 import { LINE_LOADING_PULSE_EASE } from "./line-loading-timing";
 
 const X_AXIS_POSITION_TWEEN_MS = DEFAULT_Y_DOMAIN_TWEEN_MS;
@@ -100,19 +100,7 @@ const XAxisInner = memo(function XAxisInner({
       });
     }
 
-    const projectionExtendsScale =
-      tickMode === "data" && domainExtendsPastData(data, xAccessor, xScale);
-
     if (tickMode === "domain") {
-      return buildDomainTicks({
-        marginLeft: margin.left,
-        numTicks,
-        xScale,
-      });
-    }
-
-    // No brush: evenly spaced ticks across the full domain (data + projection).
-    if (projectionExtendsScale && xDomain == null) {
       return buildDomainTicks({
         marginLeft: margin.left,
         numTicks,
@@ -128,18 +116,6 @@ const XAxisInner = memo(function XAxisInner({
       xAccessor,
       xScale,
     });
-
-    // Brush: keep data-aligned ticks, add labels only in the projection tail.
-    if (projectionExtendsScale && xDomain != null) {
-      return appendProjectionTailTicks(
-        dataTicks,
-        data,
-        xAccessor,
-        xScale,
-        margin.left,
-        Math.max(1, numTicks - dataTicks.length + 1)
-      );
-    }
 
     return dataTicks;
   }, [

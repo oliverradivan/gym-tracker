@@ -3,14 +3,6 @@ from pydantic import BaseModel, Field, field_validator
 from .exercise_categories import EXERCISE_CATEGORIES, OTHER_CATEGORY
 
 
-class PredictionsPayload(BaseModel):
-    points: list[dict[str, str | float | int]]
-    periods: int = 7
-    interval_days: int = 1
-    exercise_id: str | None = None
-    category: str | None = None
-
-
 class RegisterPayload(BaseModel):
     username: str
     email: str

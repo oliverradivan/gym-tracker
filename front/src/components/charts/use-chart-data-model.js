@@ -13,11 +13,6 @@ import {
   generateChartSkeletonData,
   generateChartSkeletonFromTarget,
 } from "./generate-chart-skeleton-data";
-import {
-  extractProjectionLineConfigs,
-  mergeProjectionXDomainMax,
-  mergeProjectionYDomain,
-} from "./projection-config";
 import { useAnimatedYDomains } from "./use-animated-y-domains";
 import { useChartPhaseOrchestrator } from "./use-chart-phase-orchestrator";
 import {
@@ -27,7 +22,6 @@ import {
   groupLinesByYAxisId,
 } from "./y-axis-scales";
 import { computeYDomainsByAxis } from "./y-domain-utils";
-import { buildCombinedData } from "./use-chart-interaction";
 
 function collectNumericExtents(data, dataKeys) {
   let minValue = Number.POSITIVE_INFINITY;
@@ -133,10 +127,6 @@ export function useChartDataModel({
     if (!xDomain) return phase.plotData;
     return filterDataByXDomain(phase.plotData, xDomain, xAccessor);
   }, [phase.plotData, xDomain, xAccessor]);
-  const projectionConfigs = useMemo(
-    () => extractProjectionLineConfigs(children),
-    [children]
-  );
   const xScale = useMemo(() => {
     const minTime = xDomain
       ? xDomain[0].getTime()
@@ -145,13 +135,8 @@ export function useChartDataModel({
       ? xDomain[1].getTime()
       : (extent(phase.plotData, (datum) => xAccessor(datum).getTime())[1] ??
         minTime);
-    // Brush defines the viewport; projection horizon is included via its track.
-    if (!xDomain) {
-      maxTime = mergeProjectionXDomainMax(maxTime, projectionConfigs);
-    }
-
     return scaleTime({ range: [0, innerWidth], domain: [minTime, maxTime] });
-  }, [innerWidth, phase.plotData, projectionConfigs, xAccessor, xDomain]);
+  }, [innerWidth, phase.plotData, xAccessor, xDomain]);
 
   // Preserve edge fades while brushing; interaction and domains use visible data.
   const seriesSourceData = xDomain ? phase.plotData : visiblePlotData;
@@ -187,27 +172,8 @@ export function useChartDataModel({
       resolveDomain: (dataKeys) =>
         resolveYDomain(xDomain ? visiblePlotData : data, dataKeys),
     });
-    if (projectionConfigs.length === 0) return base;
-
-    const merged = { ...base };
-    for (const axisId of Object.keys(base)) {
-      merged[axisId] = mergeProjectionYDomain(
-        base[axisId] ?? [0, 100],
-        projectionConfigs,
-        axisId
-      );
-    }
-    for (const config of projectionConfigs) {
-      if (!merged[config.yAxisId]) {
-        merged[config.yAxisId] = mergeProjectionYDomain(
-          [0, 100],
-          projectionConfigs,
-          config.yAxisId
-        );
-      }
-    }
-    return merged;
-  }, [data, lines, projectionConfigs, resolveYDomain, visiblePlotData, xDomain]);
+    return base;
+  }, [data, lines, resolveYDomain, visiblePlotData, xDomain]);
 
   const animatedYDomainsByAxis = useAnimatedYDomains({
     chartPhase: phase.chartPhase,
@@ -232,17 +198,10 @@ export function useChartDataModel({
     yScales,
     scaleLinear({ range: [innerHeight, 0], domain: [0, 100], nice: true })
   );
-  const dateLabels = useMemo(() => {
-    // Keep labels aligned with tooltip hit-testing, including projected points.
-    const combined = buildCombinedData(
-      visiblePlotData,
-      projectionConfigs,
-      xAccessor
-    );
-    return (combined ?? visiblePlotData).map((datum) =>
-      shortDateFmt.format(xAccessor(datum))
-    );
-  }, [visiblePlotData, projectionConfigs, xAccessor]);
+  const dateLabels = useMemo(
+    () => visiblePlotData.map((datum) => shortDateFmt.format(xAccessor(datum))),
+    [visiblePlotData, xAccessor]
+  );
 
   return {
     ...phase,
@@ -250,7 +209,6 @@ export function useChartDataModel({
     columnWidth,
     dateLabels,
     isInteractionPhase: isChartInteractionPhase(phase.chartPhase),
-    projectionConfigs,
     renderData,
     visiblePlotData,
     xAccessor,

@@ -78,9 +78,7 @@ const YAxisInner = memo(function YAxisInner({
   const isLeft = orientation === "left";
   const axisId = normalizeYAxisId(yAxisId);
 
-  // Lines registered on this axis, so we know which field(s) on the hovered
-  // point hold this axis's value (e.g. "actualValue" for the real series,
-  // "value" for a forecast/projection point).
+  // Lines registered on this axis identify the hovered value fields.
   const axisLines = useMemo(
     () => lines.filter((line) => normalizeYAxisId(line.yAxisId) === axisId),
     [lines, axisId]
@@ -100,14 +98,6 @@ const YAxisInner = memo(function YAxisInner({
       if (y != null && Number.isFinite(y) && rawValue != null) {
         return { y, label: formatLabel(rawValue, formatLargeNumbers, formatValue) };
       }
-    }
-
-    // Fallback for point shapes that don't match any registered dataKey
-    // (e.g. a forecast point exposing a bare `.value`).
-    const fallbackY = Object.values(tooltipData.yPositions ?? {})[0];
-    const fallbackValue = tooltipData.point?.value;
-    if (fallbackY != null && Number.isFinite(fallbackY) && fallbackValue != null) {
-      return { y: fallbackY, label: formatLabel(fallbackValue, formatLargeNumbers, formatValue) };
     }
 
     return null;

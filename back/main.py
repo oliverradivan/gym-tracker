@@ -11,7 +11,6 @@ from .exception_handlers import (
 )
 from .routers.auth import router as auth_router
 from .routers.exercises import router as exercises_router
-from .routers.forecast import router as forecast_router
 from .routers.sessions import router as sessions_router
 from .routers.workouts import router as workouts_router
 
@@ -51,7 +50,6 @@ for feature_router in (
     exercises_router,
     workouts_router,
     sessions_router,
-    forecast_router,
 ):
     app.include_router(feature_router)
 

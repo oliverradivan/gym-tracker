@@ -81,7 +81,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     columnWidth,
     dateLabels,
     isInteractionPhase,
-    projectionConfigs,
     renderData,
     visiblePlotData,
     xAccessor,
@@ -131,7 +130,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
     svgRef,
     yScale,
     yScales,
-    projectionConfigs,
   });
 
   const {
@@ -309,9 +307,7 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
 
           <g
             {...interactionHandlers}
-            {...(projectionConfigs.length === 0
-              ? touchInteractionHandlers
-              : undefined)}
+            {...touchInteractionHandlers}
             style={interactionStyle}
             transform={`translate(${margin.left},${margin.top})`}
           >
@@ -331,17 +327,6 @@ const TimeSeriesChartCore = memo(function TimeSeriesChartCore({
               preOverlayChildren
             )}
             {postOverlayChildren}
-            {projectionConfigs.length > 0 ? (
-              <rect
-                {...touchInteractionHandlers}
-                fill="transparent"
-                height={innerHeight}
-                pointerEvents="all"
-                width={innerWidth}
-                x={0}
-                y={0}
-              />
-            ) : null}
           </g>
         </svg>
       </ChartProvider>

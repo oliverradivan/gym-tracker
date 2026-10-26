@@ -18,7 +18,6 @@ import ProgressSummary from './components/ProgressSummary'
 import './progress.css'
 import PageBackground from '../components/PageBackground'
 
-const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 const FLIP_CARDIO_Y_AXIS = false
 
@@ -40,9 +39,6 @@ function ProgressPage() {
   const [progress, setProgress] = useState([])
   const [selectedMetric, setSelectedMetric] = useState('volume')
   const [loading, setLoading] = useState(true)
-  const [predictions, setPredictions] = useState([])
-  const [isPredicting, setIsPredicting] = useState(false)
-  const [predictionError, setPredictionError] = useState('')
   const [isMobile, setIsMobile] = useState(() => (typeof window === 'undefined' ? false : window.matchMedia('(max-width: 640px)').matches))
   const [selectOpen, setSelectOpen] = useState(false)
   const selectRef = useRef(null)
@@ -63,10 +59,6 @@ function ProgressPage() {
     return () => mediaQuery.removeEventListener('change', handler)
   }, [])
 
-  const [predictionEnabled] = useLocalStorageState(
-    PREDICTION_SETTING_KEY,
-    true
-  )
   const [graphScrollable] = useLocalStorageState(
     GRAPH_SCROLL_SETTING_KEY,
     () => window.matchMedia('(max-width: 640px)').matches
@@ -91,7 +83,6 @@ function ProgressPage() {
         } else {
           setSelectedExerciseId('')
           setProgress([])
-          setPredictions([])
         }
       } catch (error) {
         console.error(error)
@@ -137,48 +128,6 @@ function ProgressPage() {
   const category = getExerciseCategory(selectedExercise)
   const chartStroke = getExerciseCategoryColor(category)
 
-  // Load predictions.
-  useEffect(() => {
-    let mounted = true
-    const loadPredictions = async () => {
-      if (category === EXERCISE_CATEGORIES.CARDIO || !predictionEnabled || !selectedExerciseId || progress.length < 2) {
-        if (mounted) {
-          setPredictions([])
-          setPredictionError('')
-          setIsPredicting(false)
-        }
-        return
-      }
-      setIsPredicting(true)
-      setPredictionError('')
-      try {
-        const response = await authFetch('/predictions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            exercise_id: selectedExerciseId,
-            points: progress.map((point) => ({ date: point.date, volume: point.volume })),
-            periods: 5,
-            interval_days: 7,
-          }),
-        })
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
-          throw new Error(errorData.detail || 'Failed to generate predictions.')
-        }
-        const result = await response.json()
-        if (mounted) setPredictions(result.predictions || [])
-      } catch (error) {
-        console.error(error)
-        if (mounted) setPredictionError(error.message || 'Failed to generate predictions.')
-      } finally {
-        if (mounted) setIsPredicting(false)
-      }
-    }
-    loadPredictions()
-    return () => { mounted = false }
-  }, [category, predictionEnabled, selectedExerciseId, progress, session, authFetch])
-
   // Sort dropdown options by category.
   const sortedExercises = useMemo(
     () => sortExercisesByCategory(exercises),
@@ -209,7 +158,6 @@ function ProgressPage() {
 
   const chartMetric = category === EXERCISE_CATEGORIES.CARDIO ? 'duration_seconds' : selectedMetric
   const metricLabel = category === EXERCISE_CATEGORIES.CARDIO ? 'Time' : METRICS[chartMetric]?.label || 'Unknown'
-  const showForecast = category !== EXERCISE_CATEGORIES.CARDIO && chartMetric === 'volume' && predictionEnabled && predictions.length > 0
 
   const bestTimePoint = useMemo(
     () => getBestTimePoint(progress, category === EXERCISE_CATEGORIES.CARDIO),
@@ -229,19 +177,6 @@ function ProgressPage() {
   }, [progress, chartMetric, category])
 
   const bestTimeChartPoint = bestTimePoint ? chartData[bestTimePoint.index] : null
-
-  const forecastData = useMemo(() => {
-    if (!showForecast || predictions.length === 0) return []
-    const lastActual = chartData.at(-1)
-    if (!lastActual) return []
-    return [
-      { date: lastActual.date, value: lastActual.actualValue },
-      ...predictions.map((point) => ({
-        date: point.date ? new Date(`${point.date}T00:00:00Z`) : null,
-        value: Number(point.value || 0),
-      })),
-    ]
-  }, [showForecast, predictions, chartData])
 
   useEffect(() => {
     const node = chartScrollRef.current
@@ -270,7 +205,7 @@ function ProgressPage() {
       if (resizeObserver) resizeObserver.disconnect()
       cancelAnimationFrame(frame)
     }
-  }, [isMobile, graphScrollable, progress.length, chartMetric, predictions.length, showForecast])
+  }, [isMobile, graphScrollable, progress.length, chartMetric])
 
   const handleChartSliderChange = (event) => {
     const value = Number(event.target.value)
@@ -396,16 +331,11 @@ function ProgressPage() {
               chartScrollPosition={chartScrollPosition}
               chartScrollRef={chartScrollRef}
               chartStroke={chartStroke}
-              forecastData={forecastData}
               graphScrollable={graphScrollable}
               handleChartSliderChange={handleChartSliderChange}
               isMobile={isMobile}
-              isPredicting={isPredicting}
               metricLabel={metricLabel}
-              predictionError={predictionError}
-              predictions={predictions}
               progressLength={progress.length}
-              showForecast={showForecast}
             />
 
             <ProgressHistoryTable

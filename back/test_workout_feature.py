@@ -14,7 +14,6 @@ from back.exercise_categories import (
 from back.main import app
 from back.routers import exercises, sessions, workouts
 from back.schemas import ExercisePayload, WorkoutLogPayload
-from back.services.forecast import build_forecast
 
 build_progress_series = sessions.build_progress_series
 build_session_summary = sessions.build_session_summary
@@ -393,30 +392,3 @@ def test_create_workout_log_inserts_type_specific_values(
     assert {key: result["log"][key] for key in expected_values} == expected_values
 
 
-def test_build_forecast_projects_a_simple_trend():
-    points = [
-        {"date": "2026-01-01", "volume": 100},
-        {"date": "2026-01-02", "volume": 130},
-        {"date": "2026-01-03", "volume": 160},
-    ]
-
-    result = build_forecast(points, periods=2, interval_days=7)
-
-    assert len(result) == 2
-    assert result[0]["date"] == "2026-01-10"
-    assert result[0]["value"] > 0
-    assert result[1]["date"] == "2026-01-17"
-
-
-def test_build_forecast_avoids_overreacting_to_a_single_big_jump():
-    points = [
-        {"date": "2026-01-01", "volume": 100},
-        {"date": "2026-01-02", "volume": 100},
-        {"date": "2026-01-03", "volume": 100},
-        {"date": "2026-01-04", "volume": 160},
-    ]
-
-    result = build_forecast(points, periods=2)
-
-    assert result[0]["value"] <= 175
-    assert result[1]["value"] <= 190

@@ -2,7 +2,6 @@ import { curveLinear } from '@visx/curve'
 import { formatDuration } from '../../utils/duration'
 import { EXERCISE_CATEGORIES } from '../../utils/exerciseCategory'
 import { useChartStable, useYScale } from '@/components/charts/chart-context'
-import ProjectionLine from '@/components/charts/projection-line'
 import LineChart from '@/components/charts/line-chart'
 import Line from '@/components/charts/line'
 import Grid from '@/components/charts/grid'
@@ -39,16 +38,11 @@ export default function ProgressChartPanel({
   chartScrollPosition,
   chartScrollRef,
   chartStroke,
-  forecastData,
   graphScrollable,
   handleChartSliderChange,
   isMobile,
-  isPredicting,
   metricLabel,
-  predictionError,
-  predictions,
   progressLength,
-  showForecast,
 }) {
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
@@ -61,15 +55,12 @@ export default function ProgressChartPanel({
       animationDuration={prefersReducedMotion ? 0 : 600}
       animationEasing="cubic-bezier(0.22, 1, 0.36, 1)"
       key={chartMetric}
-      style={{ touchAction: isMobile && graphScrollable && !showForecast ? 'pan-x' : 'none' }}
+      style={{ touchAction: isMobile && graphScrollable ? 'pan-x' : 'none' }}
     >
       <Grid horizontal vertical intervalDays={4} />
       <Line dataKey="actualValue" stroke={chartStroke} curve={curveLinear} fadeEdges showHighlight={true} showMarkers />
       {category === EXERCISE_CATEGORIES.CARDIO && (
         <BestTimeMarker point={bestTimeChartPoint} color={chartStroke} />
-      )}
-      {showForecast && predictions.length > 0 && (
-        <ProjectionLine data={forecastData} dataKey="value" curveKind="linear" showEndMarker={false} stroke="var(--chart-3)" strokeWidth={2} strokeDasharray="6,4" showMarkers={true} />
       )}
       <YAxis
         formatLargeNumbers={false}
@@ -131,15 +122,7 @@ export default function ProgressChartPanel({
             <span className="legend-line actual-line" />
             Actual {metricLabel.toLowerCase()}
           </span>
-          {showForecast && (
-            <span className="legend-item">
-              <span className="legend-line forecast-line" />
-              Forecast
-            </span>
-          )}
         </div>
-        {isPredicting && <p className="status-message">Generating forecast...</p>}
-        {predictionError && <p className="status-message error-message">{predictionError}</p>}
       </div>
     </div>
   )

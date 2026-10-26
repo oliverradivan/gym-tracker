@@ -5,7 +5,6 @@ vi.mock('@/components/charts/chart-context', () => ({
   useChartStable: () => ({ xScale: () => 0, xAccessor: () => 0 }),
   useYScale: () => () => 0,
 }))
-vi.mock('@/components/charts/projection-line', () => ({ default: () => null }))
 vi.mock('@/components/charts/line-chart', () => ({
   default: ({ children }) => <div>{children}</div>,
 }))
@@ -32,16 +31,11 @@ describe('ProgressChartPanel render', () => {
         chartScrollPosition={0}
         chartScrollRef={{ current: null }}
         chartStroke="#000"
-        forecastData={[]}
         graphScrollable={false}
         handleChartSliderChange={vi.fn()}
         isMobile={false}
-        isPredicting={false}
         metricLabel="Volume"
-        predictionError=""
-        predictions={[]}
         progressLength={0}
-        showForecast={false}
       />
     )
 

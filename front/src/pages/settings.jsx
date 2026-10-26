@@ -4,16 +4,15 @@ import { useAuth } from '../context/authContext'
 import { useTheme } from '../context/themeContext'
 import { useLocalStorageState } from '../hooks/useLocalStorageState'
 import { parseApiResponse } from '../utils/apiRequest'
-import { Palette, User, Lock, ShieldAlert, CheckCircle2, AlertCircle, Sparkles, Eye, EyeOff } from 'lucide-react'
+import { Palette, Activity, User, Lock, ShieldAlert, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import './settings.css'
 import PageBackground from '../components/PageBackground'
 
-const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
 
 const TABS = [
   { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'forecasting', label: 'Forecasting', icon: Sparkles },
+  { id: 'graph', label: 'Graph', icon: Activity },
   { id: 'account', label: 'Account', icon: User },
   { id: 'security', label: 'Security', icon: Lock },
   { id: 'danger', label: 'Danger Zone', icon: ShieldAlert, danger: true },
@@ -84,12 +83,6 @@ function SettingsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState('')
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  // Backed by localStorage and kept in sync in real time with any other
-  // component (or tab) reading the same key — see hooks/useLocalStorageState.
-  const [predictionEnabled, setPredictionEnabled] = useLocalStorageState(
-    PREDICTION_SETTING_KEY,
-    true
-  )
   const [graphScrollable, setGraphScrollable] = useLocalStorageState(
     GRAPH_SCROLL_SETTING_KEY,
     () => window.matchMedia('(max-width: 640px)').matches
@@ -330,29 +323,10 @@ function SettingsPage() {
             </section>
           )}
 
-          {/* Forecasting Tab */}
-          {activeTab === 'forecasting' && (
+          {/* Graph Tab */}
+          {activeTab === 'graph' && (
             <section className="settings-section">
               <h3>Graph settings</h3>
-              <div className="setting-item">
-                <div className="setting-label">
-                  <label htmlFor="prediction-toggle">Enable prediction overlays</label>
-                  <p className="setting-description">
-                    Show forecasted volume on the progress graph.
-                  </p>
-                </div>
-                <button
-                  id="prediction-toggle"
-                  type="button"
-                  role="switch"
-                  aria-checked={predictionEnabled}
-                  className={`theme-toggle ${predictionEnabled ? 'is-on' : ''}`}
-                  onClick={() => setPredictionEnabled((prev) => !prev)}
-                >
-                  <span className="toggle-track" />
-                  <span className="toggle-thumb" />
-                </button>
-              </div>
               <div className="setting-item">
                 <div className="setting-label">
                   <label htmlFor="graph-scroll-toggle">Use scrollable graph</label>

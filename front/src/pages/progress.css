@@ -731,11 +731,6 @@
   border-top-color: var(--progress-ink);
 }
 
-.forecast-line {
-  border-top-color: var(--chart-3);
-  border-top-style: dashed;
-}
-
 .chart-axis {
   stroke: var(--chart-axis);
   stroke-width: 1;
@@ -941,42 +936,6 @@
   transform: scale(0.98);
 }
 
-.predict-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 9px 15px;
-  margin-left: 8px;
-  color: var(--progress-ink);
-  background: var(--progress-glass-surface);
-  border: 1px solid var(--progress-glass-edge);
-  border-radius: var(--progress-radius-sm);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  font: inherit;
-  font-size: 0.82rem;
-  font-weight: 650;
-  cursor: pointer;
-  transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    transform 0.12s ease;
-}
-
-.predict-toggle:hover:not(:disabled) {
-  background: var(--progress-glass-surface-hover);
-}
-
-.predict-toggle:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.predict-toggle:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
 /* =========================================================
    ANIMATIONS & ACCESSIBILITY
    ========================================================= */
@@ -1013,7 +972,6 @@
   .custom-select-trigger,
   .metric-toggle button,
   .secondary-btn,
-  .predict-toggle,
   .custom-select-option,
   .progress-table tbody tr {
     transition: none;

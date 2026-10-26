@@ -2,7 +2,7 @@
 import { localPoint } from "@visx/event";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useScheduledTooltip } from "./use-scheduled-tooltip";
-import { DEFAULT_Y_AXIS_ID, normalizeYAxisId } from "./y-axis-scales";
+import { normalizeYAxisId } from "./y-axis-scales";
 
 export function useChartInteraction(
   {
@@ -15,7 +15,6 @@ export function useChartInteraction(
     xAccessor,
     bisectDate,
     canInteract,
-    projectionConfigs,
     svgRef
   }
 ) {
@@ -33,145 +32,41 @@ export function useChartInteraction(
   const lastHoveredXRef = useRef(null);
 
   const resolveTooltipFromX = useCallback(
-    pixelX => {
+    (pixelX) => {
       const x0 = xScale.invert(pixelX);
+      const index = bisectDate(data, x0, 1);
+      const d0 = data[index - 1];
+      const d1 = data[index];
+      if (!d0) return null;
 
-      // Build a combined data array that includes both actual points and
-      // forecast/projection points, tagged with their type for hit-testing.
-      // This allows the crosshair to work continuously across both lines.
-      const combinedData = buildCombinedData(data, projectionConfigs, xAccessor);
-
-      // If there's no combined data, fall back to the original behavior.
-      if (!combinedData || combinedData.length === 0) {
-        const index = bisectDate(data, x0, 1);
-        const d0 = data[index - 1];
-        const d1 = data[index];
-
-        if (!d0) {
-          return null;
-        }
-
-        let d = d0;
-        let finalIndex = index - 1;
-        if (d1) {
-          const d0Time = xAccessor(d0).getTime();
-          const d1Time = xAccessor(d1).getTime();
-          if (x0.getTime() - d0Time > d1Time - x0.getTime()) {
-            d = d1;
-            finalIndex = index;
-          }
-        }
-
-        const yPositions = {};
-        for (const line of lines) {
-          const value = d[line.dataKey];
-          if (typeof value === "number") {
-            const axisScale = yScales[normalizeYAxisId(line.yAxisId)] ?? yScale;
-            yPositions[line.dataKey] = axisScale(value) ?? 0;
-          }
-        }
-
-        return {
-          point: d,
-          index: finalIndex,
-          x: xScale(xAccessor(d)) ?? 0,
-          yPositions,
-          pointType: "actual",
-        };
-      }
-
-      // Find the index in the combined data nearest to x0.
-      const index = bisectDate(combinedData, x0, 1);
-      const d0 = combinedData[index - 1];
-      const d1 = combinedData[index];
-
-      if (!d0) {
-        return null;
-      }
-
-      let d = d0;
+      let datum = d0;
       let finalIndex = index - 1;
-
       if (d1) {
         const d0Time = xAccessor(d0).getTime();
         const d1Time = xAccessor(d1).getTime();
         if (x0.getTime() - d0Time > d1Time - x0.getTime()) {
-          d = d1;
+          datum = d1;
           finalIndex = index;
         }
       }
-      const pointType = d.type ?? "actual";
 
-      // Compute yPositions for all lines (actual + forecast)
       const yPositions = {};
-      // First, compute y-positions for actual-line dataKeys using the
-      // existing loop (works because actual data points have dataKey properties).
       for (const line of lines) {
-        const value = d[line.dataKey];
+        const value = datum[line.dataKey];
         if (typeof value === "number") {
           const axisScale = yScales[normalizeYAxisId(line.yAxisId)] ?? yScale;
           yPositions[line.dataKey] = axisScale(value) ?? 0;
         }
       }
 
-      // If this is a forecast point, also compute y-position from the
-      // forecast point's `.value` using the projection's yAxisId (if any),
-      // falling back to the default yScale. This ensures the on-chart marker
-      // dot appears at the correct vertical position when hovering over
-      // the forecast line.
-      if (pointType === "forecast") {
-        // Find the projection config that matches the first line's yAxisId,
-        // or use the default scale.
-        let forecastAxisId = DEFAULT_Y_AXIS_ID;
-        if (lines.length > 0 && lines[0]?.yAxisId) {
-          forecastAxisId = lines[0].yAxisId;
-        } else {
-          // Check if any line has a yAxisId
-          for (const line of lines) {
-            if (line.yAxisId) {
-              forecastAxisId = line.yAxisId;
-              break;
-            }
-          }
-        }
-        const forecastScale = yScales[normalizeYAxisId(forecastAxisId)] ?? yScale;
-        // Set it under the first line's dataKey so marker-rendering code
-        // (which reads yPositions[line.dataKey]) can find it, but only if
-        // that dataKey isn't already set from actual data.
-        if (
-          typeof d.value === "number" &&
-          lines.length > 0 &&
-          yPositions[lines[0].dataKey] == null
-        ) {
-          const forecastY = forecastScale(d.value);
-          if (typeof forecastY === "number" && Number.isFinite(forecastY)) {
-            yPositions[lines[0].dataKey] = forecastY;
-          }
-        }
-      }
-
-      // Fallback: if tooltipData.yPositions doesn't have a specific dataKey,
-      // compute y-position from the scale using the point's value for any
-      // line dataKey that doesn't have a position yet.
-      for (const line of lines) {
-        if (
-          yPositions[line.dataKey] == null &&
-          typeof d[line.dataKey] === "number"
-        ) {
-          const axisScale = yScales[normalizeYAxisId(line.yAxisId)] ?? yScale;
-          yPositions[line.dataKey] = axisScale(d[line.dataKey]) ?? 0;
-        }
-      }
-
       return {
-        point: d,
+        point: datum,
         index: finalIndex,
-        x: xScale(xAccessor(d)) ?? 0,
+        x: xScale(xAccessor(datum)) ?? 0,
         yPositions,
-        pointType,
       };
     },
-    [xScale, yScale, yScales, data, lines, xAccessor, bisectDate, projectionConfigs]
+    [xScale, yScale, yScales, data, lines, xAccessor, bisectDate]
   );
 
   const resolveIndexFromX = useCallback(
@@ -411,66 +306,3 @@ export function useChartInteraction(
   };
 };
 
-/**
- * Build a combined data array that merges actual data points with forecast/projection points.
- * Actual points come first, tagged with type: "actual", and forecast points come after,
- * tagged with type: "forecast". This is used for hit-testing so the crosshair can
- * snap continuously across both the actual line and the projection line.
- *
- * The y-domain is NOT widened by this merge — only the data used for hit-testing.
- */
-export function buildCombinedData(actualData, projectionConfigs, xAccessor) {
-  if (!projectionConfigs || projectionConfigs.length === 0) {
-    // No forecast data — no merge needed, return null to keep original behavior.
-    return null;
-  }
-
-  // Collect actual data points (these are already in actualData)
-  const actualPoints = actualData || [];
-
-  // Collect forecast points from all projection configs.
-  // Each config has a `data` array of { date, value } points and a `yAxisId`.
-  // We map them to the same shape as actual data points: { date, value, ... }.
-  // We tag each forecast point with type: "forecast".
-  const forecastPoints = [];
-  for (const config of projectionConfigs) {
-    const configData = config.data;
-    if (!configData || configData.length === 0) {
-      continue;
-    }
-    for (const point of configData) {
-      // Normalize the point shape — projection data uses { date, value }
-      const date = point.date instanceof Date ? point.date : new Date(point.date);
-      const value = typeof point.value === "number" ? point.value : null;
-      if (date && value != null) {
-        forecastPoints.push({
-          date,
-          value,
-          type: "forecast",
-        });
-      }
-    }
-  }
-
-  if (forecastPoints.length === 0) {
-    return null;
-  }
-
-  // Deduplicate forecast points against actual points by date timestamp
-  const actualDates = new Set(actualPoints.map((d) => xAccessor(d).getTime()));
-  const uniqueForecastPoints = forecastPoints.filter(
-    (fp) => !actualDates.has(fp.date.getTime())
-  );
-
-  if (uniqueForecastPoints.length === 0) {
-    return null;
-  }
-
-  // Sort unique forecast points by date
-  uniqueForecastPoints.sort((a, b) => a.date.getTime() - b.date.getTime());
-
-  // Combine: actual points first, then unique forecast points
-  const combined = [...actualPoints, ...uniqueForecastPoints];
-
-  return combined;
-}

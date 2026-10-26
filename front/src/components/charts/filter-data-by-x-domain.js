@@ -35,14 +35,3 @@ export function resolveDataXExtent(data, xAccessor) {
   return [new Date(minTime), new Date(maxTime)];
 }
 
-/** Brush track extent — optionally extends past the last data row (e.g. projections). */
-export function resolveBrushTrackXExtent(data, xAccessor, xExtentMax) {
-  const extent = resolveDataXExtent(data, xAccessor);
-  if (!extent) {
-    return null;
-  }
-  if (!xExtentMax || xExtentMax.getTime() <= extent[1].getTime()) {
-    return extent;
-  }
-  return [extent[0], xExtentMax];
-}

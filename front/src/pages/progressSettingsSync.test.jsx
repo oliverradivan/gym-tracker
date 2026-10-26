@@ -95,8 +95,8 @@ describe('progress and settings preference synchronization', () => {
       ).toBe('false')
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Forecasting' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Toggle scrollable graph' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Graph' }))
+    fireEvent.click(screen.getByRole('switch', { name: 'Use scrollable graph' }))
 
     await waitFor(() => {
       expect(
