@@ -15,7 +15,7 @@
      Core application palette
      ------------------------------------------------------- */
 
-  --bg: #ffffff;
+  --bg: #ebd7b8;
   --bg-elevated: #ffffff;
   --bg-soft: rgba(255, 255, 255, 0.72);
   --bg-strong: #111111;
@@ -51,7 +51,7 @@
      Settings page
      ------------------------------------------------------- */
 
-  --bg-primary: #ffffff;
+  --bg-primary: #ebd7b8;
   --bg-secondary: #f5f5f7;
 
   --text-primary: #111111;
@@ -65,7 +65,7 @@
      Shadcn / UI system
      ------------------------------------------------------- */
 
-  --background: oklch(1 0 0);
+  --background: #ebd7b8;
   --foreground: oklch(0.145 0 0);
 
   --card: oklch(1 0 0);

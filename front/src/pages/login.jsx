@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '../context/authContext'
 import './login.css'
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from '../components/PageBackground'
 import LiquidGlassDefs from '../components/LiquidGlassDefs'
 
 const initialForm = {
@@ -33,7 +33,7 @@ function LoginPage() {
   }
 
   return (
-   <AuroraBackground>
+   <PageBackground>
     <LiquidGlassDefs />
     <main className="login-container">
       <div className="auth-shell login-page">
@@ -118,7 +118,7 @@ function LoginPage() {
         </div>
       </div>
     </main>
-   </AuroraBackground>
+   </PageBackground>
   )
 }
 

@@ -405,7 +405,7 @@
   outline-color: rgba(255, 255, 255, 0.22);
 }
 
-/* Solid dropdown: the glass surface was see-through over the aurora and the
+/* Solid dropdown: the glass surface was see-through over the page background and the
    chart. Scoped to this page so other pages' dropdowns are untouched. */
 .progress-shell .custom-select-list {
   background: #ffffff;

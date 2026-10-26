@@ -8,7 +8,7 @@ import {
 import { formatDuration } from '../utils/duration'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './history.css'
-import AuroraBackground from "../components/AuroraBackground";
+import PageBackground from '../components/PageBackground'
 
 /* Display names for the exercise categories returned by getExerciseCategory. */
 const CATEGORY_LABELS = {
@@ -138,7 +138,7 @@ function HistoryPage() {
   const isSuccessMessage = message.toLowerCase().includes('successfully')
 
   return (
-   <AuroraBackground scrollTone>
+   <PageBackground scrollTone>
     <div className="history-page">
       <main className="history-shell" ref={historyShellRef}>
         <header className="history-header">
@@ -246,7 +246,7 @@ function HistoryPage() {
                           }
                           className={`history-entry${isDeleting ? ' is-deleting' : ''}`}
                           data-category={category}
-                          data-aurora-category={category}
+                          data-background-category={category}
                         >
                           <div className="entry-main">
                             <Link
@@ -354,7 +354,7 @@ function HistoryPage() {
         )}
       </main>
     </div>
-   </AuroraBackground>
+   </PageBackground>
   )
 }
 

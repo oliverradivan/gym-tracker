@@ -1,7 +1,7 @@
 /* ==========================================================
    LOGIN PAGE: liquid glass
    Glass tokens (--lg-*) live in components/liquidGlass.css.
-   The card is the one glass surface that bends the Aurora behind
+   The card is the one glass surface over the page background
    it. Inputs sit inside the card, so they are only translucent
    and highlighted (a blur nested in a blur has nothing to bend).
    ========================================================== */
@@ -81,7 +81,7 @@
   isolation: isolate;
 }
 
-/* Soft pool of light so the card separates from the Aurora */
+/* Soft pool of light so the card separates from the background */
 .login-container::before {
   content: "";
 

@@ -16,7 +16,7 @@ import ProgressChartPanel from './components/ProgressChartPanel'
 import ProgressHistoryTable from './components/ProgressHistoryTable'
 import ProgressSummary from './components/ProgressSummary'
 import './progress.css'
-import AuroraBackground from '../components/AuroraBackground'
+import PageBackground from '../components/PageBackground'
 
 const PREDICTION_SETTING_KEY = 'workout-tracker-predictions-enabled'
 const GRAPH_SCROLL_SETTING_KEY = 'workout-tracker-graph-scroll-enabled'
@@ -279,7 +279,7 @@ function ProgressPage() {
   }
 
   return (
-     <AuroraBackground tone={selectedExercise ? category : undefined}>
+     <PageBackground tone={selectedExercise ? category : undefined}>
       <div className={`progress-page ${category.toLowerCase()}`}>
        <main className={`progress-shell ${category.toLowerCase()}`}>
         <div className="progress-header">
@@ -417,7 +417,7 @@ function ProgressPage() {
         )}
        </main>
       </div>
-     </AuroraBackground>
+     </PageBackground>
   )
 }
 

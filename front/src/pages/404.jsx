@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom'
 import './404.css'
-import AuroraBackground from '../components/AuroraBackground'
+import PageBackground from '../components/PageBackground'
 import LiquidGlassDefs from '../components/LiquidGlassDefs'
 
 function NotFoundPage() {
   return (
-    <AuroraBackground>
+    <PageBackground>
       <LiquidGlassDefs />
       <div className="not-found-page">
         {/* Sits behind the glass so the card has something to bend */}
@@ -21,7 +21,7 @@ function NotFoundPage() {
           </Link>
         </div>
       </div>
-    </AuroraBackground>
+    </PageBackground>
   )
 }
 

@@ -1,7 +1,7 @@
 /* ==========================================================
    REGISTER PAGE: liquid glass
    Glass tokens (--lg-*) live in components/liquidGlass.css.
-   Isolated from login.css. The card bends the Aurora behind it;
+   Isolated from login.css. The card sits over the page background;
    the inputs inside it are translucent and highlighted only.
    ========================================================== */
 

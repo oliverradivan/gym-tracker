@@ -6,8 +6,8 @@ import LogWorkoutPage from '../pages/logworkout'
 import ProgressPage from '../pages/progress'
 import SettingsPage from '../pages/settings'
 import { navigateForSwipe } from './swipe-navigation'
-import { AuroraShell } from "./AuroraBackground";
-import { AuroraPageActive } from "../context/AuroraContext";
+import { BackgroundShell } from './PageBackground'
+import { BackgroundPageActive } from '../context/BackgroundContext'
 import './SwipeDeck.css'
 
 const PAGES = [
@@ -414,7 +414,7 @@ function SwipeDeck() {
     baseTranslatePercent + dragPercent
 
   return (
-    <AuroraShell>
+    <BackgroundShell>
       <div
         className="swipe-deck"
         ref={containerRef}
@@ -429,14 +429,14 @@ function SwipeDeck() {
         >
           {PAGE_COMPONENTS.map((Page, index) => (
             <div className="swipe-deck-page" key={PAGES[index]}>
-              <AuroraPageActive.Provider value={index === activeIndex}>
+              <BackgroundPageActive.Provider value={index === activeIndex}>
                 <Page />
-              </AuroraPageActive.Provider>
+              </BackgroundPageActive.Provider>
             </div>
           ))}
         </div>
       </div>
-    </AuroraShell>
+    </BackgroundShell>
   )
 }
 

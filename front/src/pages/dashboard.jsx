@@ -12,7 +12,7 @@ import DashboardHeaderSection from './components/DashboardHeaderSection'
 import DashboardOverviewSection from './components/DashboardOverviewSection'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import './dashboard.css'
-import AuroraBackground from '../components/AuroraBackground'
+import PageBackground from '../components/PageBackground'
 import LiquidGlassDefs from '../components/LiquidGlassDefs'
 
 const initialForm = {
@@ -196,7 +196,7 @@ function DashboardPage() {
   )
 
   return (
-   <AuroraBackground>
+   <PageBackground>
     <LiquidGlassDefs />
     <div className="dash-page">
       {pageLoading ? (
@@ -244,7 +244,7 @@ function DashboardPage() {
         </main>
       )}
     </div>
-   </AuroraBackground>
+   </PageBackground>
   )
 }
 

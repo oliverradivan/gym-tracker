@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import './register.css'
 import { Eye, EyeOff } from 'lucide-react'
-import AuroraBackground from '@/components/AuroraBackground'
+import PageBackground from '@/components/PageBackground'
 import LiquidGlassDefs from '@/components/LiquidGlassDefs'
 
 const initialForm = {
@@ -35,7 +35,7 @@ function RegisterPage() {
   }
 
   return (
-   <AuroraBackground>
+   <PageBackground>
     <LiquidGlassDefs />
     <main className="register-container">
       <div className="register-shell">
@@ -143,7 +143,7 @@ function RegisterPage() {
         </div>
       </div>
     </main>
-   </AuroraBackground>
+   </PageBackground>
   )
 }
 
