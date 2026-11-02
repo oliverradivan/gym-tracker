@@ -100,16 +100,8 @@
   --progress-muted: #9499a2;
   --progress-faint: #696e77;
 
-  --progress-glass-surface: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.07) 0%,
-    rgba(255, 255, 255, 0.015) 100%
-  );
-  --progress-glass-surface-hover: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.03) 100%
-  );
+  --progress-glass-surface: var(--bg-elevated);
+  --progress-glass-surface-hover: var(--surface-high);
   --progress-glass-edge: rgba(255, 255, 255, 0.12);
   --progress-glass-edge-soft: rgba(255, 255, 255, 0.06);
   --progress-glass-shadow:
@@ -119,7 +111,7 @@
     inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.25),
     inset 0 -1px 1px 0 rgba(255, 255, 255, 0.04);
 
-  --tooltip-bg: rgba(20, 23, 29, 0.45);
+  --tooltip-bg: var(--surface-high);
 
   --chart-axis: rgba(255, 255, 255, 0.24);
   --chart-grid: rgba(255, 255, 255, 0.075);
@@ -418,7 +410,7 @@
 }
 
 .dark .progress-shell .custom-select-list {
-  background: #171a1f;
+  background: var(--surface-high);
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.55),

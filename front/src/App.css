@@ -580,7 +580,7 @@
    --------------------------------------------------------- */
 
 .dark .page-toggle {
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--bg-elevated);
 
   border-color: var(--border);
 }
@@ -662,7 +662,7 @@
    --------------------------------------------------------- */
 
 .dark .ghost-btn {
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--bg-elevated);
 
   color: var(--text);
 
@@ -670,7 +670,7 @@
 }
 
 .dark .ghost-btn:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--surface-high);
 }
 
 
@@ -695,13 +695,13 @@
 }
 
 .dark .schedule-card li {
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--bg-elevated);
 
   border-color: var(--border);
 }
 
 .dark .schedule-card li:hover {
-  background: rgba(255, 255, 255, 0.055);
+  background: var(--surface-high);
 }
 
 

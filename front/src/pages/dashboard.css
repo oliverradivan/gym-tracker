@@ -17,7 +17,6 @@
   --dash-muted: #3c514a;
   --dash-soft: #4d6159;
   --dash-line: rgb(23 35 33 / 14%);
-  --dash-surface: rgb(255 255 255 / 60%);
   --dash-green: #176b52;
   --dash-green-dark: #10523f;
   --dash-green-wash: #e7f3ed;
@@ -1623,7 +1622,6 @@ a.dash-calendar-day:hover {
   --dash-muted: #bccac3;
   --dash-soft: #a4b4ac;
   --dash-line: rgb(255 255 255 / 12%);
-  --dash-surface: #15171c;
 
   /* Brighter accents so text and icons read on dark glass */
   --dash-green: #5fd3a1;
@@ -1713,7 +1711,7 @@ a.dash-calendar-day:hover {
 .dark .dash-calendar-day[data-trained="true"] .dash-calendar-dot {
   background:
     radial-gradient(circle at 32% 26%, rgb(255 255 255 / 48%) 0%, rgb(255 255 255 / 0%) 52%),
-    color-mix(in srgb, var(--week-accent, var(--dash-green)) 92%, #15171c);
+    color-mix(in srgb, var(--week-accent, var(--dash-green)) 92%, var(--bg-elevated));
   box-shadow:
     inset 0 -3px 5px rgb(0 0 0 / 28%),
     0 0 14px color-mix(in srgb, var(--week-accent, var(--dash-green)) 42%, transparent);
@@ -2492,7 +2490,7 @@ a.dash-calendar-day:hover {
 }
 
 .dark .custom-select-list {
-  background: #171a1f;
+  background: var(--surface-high);
   border-color: rgba(255, 255, 255, 0.12);
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.55),
@@ -2809,7 +2807,7 @@ a.dash-calendar-day:hover {
 .dark .dash-create-form .dash-category-list,
 .dark .dash-create-form .custom-select-option,
 .dark .dash-create-form .dash-category-option {
-  background: #242428 !important;
+  background: var(--surface-high) !important;
   border-color: #3b3b42;
 }
 
@@ -2817,7 +2815,7 @@ a.dash-calendar-day:hover {
 .dark .dash-create-form .custom-select-option:focus,
 .dark .dash-create-form .dash-category-option:hover,
 .dark .dash-create-form .dash-category-option:focus {
-  background: #35353c !important;
+  background: color-mix(in srgb, var(--surface-high) 84%, white) !important;
 }
 
 /* =====================================================================

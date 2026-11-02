@@ -46,11 +46,11 @@ html[data-lg-refract="true"] {
 .dark {
   --lg-bright: 1;
 
-  --lg-fill-hi: rgb(255 255 255 / 11%);
-  --lg-fill: rgb(255 255 255 / 7%);
-  --lg-fill-lo: rgb(255 255 255 / 4%);
-  --lg-field: rgb(0 0 0 / 28%);
-  --lg-base: rgb(12 14 18 / 34%);
+  --lg-fill-hi: var(--bg-elevated);
+  --lg-fill: var(--bg-elevated);
+  --lg-fill-lo: var(--bg-elevated);
+  --lg-field: var(--bg-elevated);
+  --lg-base: transparent;
   --lg-edge: rgb(255 255 255 / 16%);
 
   --lg-rim:
@@ -77,9 +77,9 @@ html[data-lg-refract="true"] {
   }
 
   .dark {
-    --lg-fill-hi: rgb(40 44 50 / 96%);
-    --lg-fill: rgb(30 34 40 / 94%);
-    --lg-fill-lo: rgb(26 30 36 / 90%);
-    --lg-field: rgb(12 14 18 / 90%);
+    --lg-fill-hi: var(--bg-elevated);
+    --lg-fill: var(--bg-elevated);
+    --lg-fill-lo: var(--bg-elevated);
+    --lg-field: var(--bg-elevated);
   }
 }

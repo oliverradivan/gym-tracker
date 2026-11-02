@@ -892,7 +892,7 @@
   --lw-field-edge-hover: rgb(255 255 255 / 28%);
   --lw-field-hover: rgb(255 255 255 / 8%);
   --lw-field-focus: rgb(255 255 255 / 12%);
-  --lw-list-bg: #22252a;
+  --lw-list-bg: var(--surface-high);
   --lw-list-edge: #3d4249;
 
   /* Reversed action colours: off-white gloss */
@@ -955,11 +955,11 @@
 }
 
 .dark .logworkout-page .custom-select-option:hover {
-  background: color-mix(in srgb, var(--opt) 24%, #22252a);
+  background: color-mix(in srgb, var(--opt) 24%, var(--surface-high));
 }
 
 .dark .logworkout-page .custom-select-option.selected {
-  background: color-mix(in srgb, var(--opt) 32%, #22252a);
+  background: color-mix(in srgb, var(--opt) 32%, var(--surface-high));
 }
 
 .dark .logworkout-page .primary-btn {

@@ -14,7 +14,7 @@
 }
 
 .dark .page-background {
-  --page-base: #0c0e11;
+  --page-base: var(--bg);
 }
 
 .page-background[data-tone='push'] {
