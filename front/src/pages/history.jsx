@@ -140,7 +140,7 @@ function HistoryPage() {
   return (
    <PageBackground scrollTone>
     <div className="history-page">
-      <main className="history-shell" ref={historyShellRef}>
+      <main className="history-shell" ref={historyShellRef} aria-busy={loading}>
         <header className="history-header">
           <div>
             <h1 className="history-title">Workout history</h1>
@@ -164,8 +164,43 @@ function HistoryPage() {
         </header>
 
         {loading ? (
-          <div className="history-loading">
-            <LoadingSpinner label="Loading your history..." showLabel />
+          <div
+            className="history-loading"
+            role="status"
+            aria-label="Loading your history"
+          >
+            <div className="history-skeleton-list" aria-hidden="true">
+              {Array.from({ length: 3 }, (_, sessionIndex) => (
+                <section
+                  className="session history-skeleton-session"
+                  key={sessionIndex}
+                >
+                  <div className="session-meta">
+                    <div className="history-skeleton-date">
+                      <span className="history-skeleton" />
+                      <span className="history-skeleton" />
+                      <span className="history-skeleton" />
+                    </div>
+                    <div className="history-skeleton-total">
+                      <span className="history-skeleton" />
+                      <span className="history-skeleton" />
+                    </div>
+                  </div>
+                  <ul className="session-entries history-skeleton-entries">
+                    {Array.from({ length: sessionIndex === 0 ? 3 : 2 }, (_, rowIndex) => (
+                      <li className="history-entry" key={rowIndex}>
+                        <div className="history-skeleton-entry-main">
+                          <span className="history-skeleton history-skeleton-name" />
+                          <span className="history-skeleton history-skeleton-detail" />
+                        </div>
+                        <span className="history-skeleton history-skeleton-volume" />
+                        <span className="history-skeleton history-skeleton-action" />
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
           </div>
         ) : sessionsError ? (
           <div className="history-empty" role="alert">

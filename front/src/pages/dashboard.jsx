@@ -237,6 +237,38 @@ function DashboardPage() {
               </span>
             </article>
           </section>
+
+          <section className="dash-loading-section" aria-hidden="true">
+            <div className="dash-loading-section-head">
+              <span className="dash-skeleton dash-skeleton-section-title" />
+              <span className="dash-skeleton dash-skeleton-toggle" />
+            </div>
+            <div className="dash-card dash-loading-calendar">
+              <span className="dash-skeleton dash-skeleton-label" />
+              <span className="dash-skeleton dash-skeleton-value" />
+              <span className="dash-skeleton dash-skeleton-progress" />
+              <div className="dash-loading-week">
+                {Array.from({ length: 7 }, (_, index) => (
+                  <span className="dash-skeleton" key={index} />
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="dash-loading-section" aria-hidden="true">
+            <div className="dash-loading-section-head">
+              <span className="dash-skeleton dash-skeleton-section-title" />
+              <span className="dash-skeleton dash-skeleton-toggle" />
+            </div>
+            <div className="dash-loading-library">
+              {Array.from({ length: 4 }, (_, index) => (
+                <div className="dash-row dash-loading-exercise" key={index}>
+                  <span className="dash-skeleton dash-skeleton-exercise-icon" />
+                  <span className="dash-skeleton dash-skeleton-exercise-name" />
+                </div>
+              ))}
+            </div>
+          </section>
         </main>
       ) : (
         <main className="dash-shell">

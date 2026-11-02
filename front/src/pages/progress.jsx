@@ -28,6 +28,78 @@ const formatDisplayDate = (date) => {
   return year && month && day ? `${day}/${month}/${year}` : String(date || '')
 }
 
+function ProgressLoadingSkeleton({ category, exerciseName }) {
+  const isCardio = category === EXERCISE_CATEGORIES.CARDIO
+
+  return (
+    <div
+      className="progress-loading-layout"
+      role="status"
+      aria-label={`Loading progress for ${exerciseName}`}
+      aria-busy="true"
+    >
+      <div className="progress-summary" aria-hidden="true">
+        {['summary-best', 'summary-change', 'summary-sessions'].map((item) => (
+          <div key={item}>
+            <span className="progress-skeleton progress-skeleton-label" />
+            <span className="progress-skeleton progress-skeleton-value" />
+          </div>
+        ))}
+      </div>
+
+      {!isCardio && (
+        <div className="metric-toggle progress-loading-metrics" aria-hidden="true">
+          {['metric-volume', 'metric-weight', 'metric-reps'].map((item) => (
+            <span className="progress-skeleton" key={item} />
+          ))}
+        </div>
+      )}
+
+      <div className="chart-box progress-chart-loading" aria-hidden="true">
+        <div className="progress-chart-loading-plot">
+          <div className="progress-chart-loading-grid">
+            {Array.from({ length: 5 }, (_, index) => (
+              <span key={index} />
+            ))}
+          </div>
+          <div className="progress-chart-loading-bars">
+            {[42, 68, 51, 82, 61, 93, 73, 55, 78].map((height, index) => (
+              <span key={index} style={{ height: `${height}%` }} />
+            ))}
+          </div>
+        </div>
+        <div className="chart-footer">
+          <span className="progress-skeleton progress-skeleton-legend" />
+        </div>
+      </div>
+
+      <div
+        className={`progress-table-loading${isCardio ? ' is-cardio' : ''}`}
+        aria-hidden="true"
+      >
+        <div className="progress-table-loading-head">
+          {(isCardio
+            ? ['table-date', 'table-time', 'table-vs']
+            : ['table-date', 'table-weight', 'table-reps', 'table-volume', 'table-vs']
+          ).map((item) => (
+            <span className="progress-skeleton" key={item} />
+          ))}
+        </div>
+        {Array.from({ length: 4 }, (_, row) => (
+          <div className="progress-table-loading-row" key={row}>
+            {(isCardio
+              ? ['table-date', 'table-time', 'table-vs']
+              : ['table-date', 'table-weight', 'table-reps', 'table-volume', 'table-vs']
+            ).map((item, index) => (
+              <span className="progress-skeleton" key={`${item}-${index}`} />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 function ProgressPage() {
   const { session, authFetch } = useAuth()
   // `version` bumps whenever a workout is logged or deleted anywhere in the app.
@@ -278,7 +350,12 @@ function ProgressPage() {
           </div>
         </label>
 
-        {loading ? (
+        {loading && selectedExercise ? (
+          <ProgressLoadingSkeleton
+            category={category}
+            exerciseName={selectedExercise.name}
+          />
+        ) : loading ? (
           <LoadingSpinner label="Loading your progress..." showLabel />
         ) : !selectedExercise ? (
           <div className="progress-empty">

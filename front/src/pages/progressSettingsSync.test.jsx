@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 
-const authFetch = vi.fn(async (path) => {
+const defaultAuthFetch = async (path) => {
   if (path === '/exercises') {
     return {
       ok: true,
@@ -20,7 +20,8 @@ const authFetch = vi.fn(async (path) => {
     }
   }
   throw new Error(`Unexpected request: ${path}`)
-})
+}
+const authFetch = vi.fn(defaultAuthFetch)
 const session = { access_token: 'test-token' }
 
 vi.mock('../context/authContext', () => ({
@@ -65,10 +66,63 @@ import SettingsPage from './settings'
 afterEach(() => {
   cleanup()
   localStorage.clear()
-  authFetch.mockClear()
+  authFetch.mockReset()
+  authFetch.mockImplementation(defaultAuthFetch)
 })
 
 describe('progress and settings preference synchronization', () => {
+  it('shows a progress skeleton while the selected exercise is loading', async () => {
+    let resolveProgress
+    authFetch.mockImplementation(async (path) => {
+      if (path === '/exercises') {
+        return {
+          ok: true,
+          json: async () => ({
+            exercises: [{ id: 'bench', name: 'Bench Press', category: 'Push' }],
+          }),
+        }
+      }
+
+      return new Promise((resolve) => {
+        resolveProgress = resolve
+      })
+    })
+
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: vi.fn().mockImplementation((media) => ({
+        matches: false,
+        media,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })),
+    })
+
+    render(
+      <MemoryRouter initialEntries={['/progress/bench']}>
+        <Routes>
+          <Route path="/progress/:exerciseId" element={<ProgressPage />} />
+        </Routes>
+      </MemoryRouter>
+    )
+
+    expect(
+      await screen.findByRole('status', {
+        name: 'Loading progress for Bench Press',
+      })
+    ).toBeTruthy()
+    expect(screen.queryByTestId('progress-chart-panel')).toBeNull()
+
+    resolveProgress({
+      ok: true,
+      json: async () => ({
+        progress: [{ date: '2025-01-01', volume: 100, weight: 100, reps: 5 }],
+      }),
+    })
+
+    expect(await screen.findByTestId('progress-chart-panel')).toBeTruthy()
+  })
+
   it('updates the progress graph when the setting changes in Settings', async () => {
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,

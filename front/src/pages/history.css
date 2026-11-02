@@ -292,13 +292,103 @@
    ========================================================= */
 
 .history-loading {
+  width: 100%;
+}
+
+.history-skeleton-list {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: var(--h-space-6);
+}
 
-  min-height: 240px;
+.history-skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--h-ink) 10%, transparent);
+}
 
-  color: var(--h-muted);
+.history-skeleton::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 45%),
+    transparent
+  );
+  content: '';
+  animation: history-skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.history-skeleton-date,
+.history-skeleton-total {
+  display: grid;
+  justify-items: start;
+  gap: var(--h-space-2);
+}
+
+.history-skeleton-date .history-skeleton:first-child {
+  width: 58px;
+  height: 11px;
+}
+
+.history-skeleton-date .history-skeleton:nth-child(2) {
+  width: 44px;
+  height: 30px;
+}
+
+.history-skeleton-date .history-skeleton:last-child {
+  width: 76px;
+  height: 11px;
+}
+
+.history-skeleton-total .history-skeleton:first-child {
+  width: 74px;
+  height: 10px;
+}
+
+.history-skeleton-total .history-skeleton:last-child {
+  width: 58px;
+  height: 15px;
+}
+
+.history-skeleton-entries .history-entry {
+  min-height: 64px;
+  background: var(--h-surface);
+}
+
+.history-skeleton-entry-main {
+  min-width: 0;
+  display: grid;
+  gap: var(--h-space-2);
+}
+
+.history-skeleton-name {
+  width: min(65%, 220px);
+  height: 13px;
+}
+
+.history-skeleton-detail {
+  width: min(44%, 150px);
+  height: 10px;
+}
+
+.history-skeleton-volume {
+  width: 48px;
+  height: 13px;
+}
+
+.history-skeleton-action {
+  width: 28px;
+  height: 28px;
+}
+
+@keyframes history-skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
 }
 
 .history-empty {
@@ -794,6 +884,17 @@
     gap: 0;
   }
 
+  .history-skeleton-date {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .history-skeleton-date .history-skeleton:nth-child(2) {
+    width: 26px;
+    height: 18px;
+  }
+
   .history-empty {
     padding: var(--h-space-6) var(--h-space-4);
   }
@@ -831,6 +932,10 @@
 @media (prefers-reduced-motion: reduce) {
   .history-shell,
   .history-status {
+    animation: none;
+  }
+
+  .history-skeleton::after {
     animation: none;
   }
 
