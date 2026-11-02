@@ -200,13 +200,44 @@ function DashboardPage() {
     <LiquidGlassDefs />
     <div className="dash-page">
       {pageLoading ? (
-        <div className="dash-loading">
-          <LoadingSpinner
-            size={64}
-            label="Loading your dashboard..."
-            showLabel
-          />
-        </div>
+        <main
+          className="dash-shell dash-loading-shell"
+          aria-label="Loading dashboard"
+          aria-busy="true"
+        >
+          <div className="dash-loading-header" aria-hidden="true">
+            <span className="dash-skeleton dash-skeleton-title" />
+            <span className="dash-skeleton dash-skeleton-subtitle" />
+          </div>
+
+          <section className="dash-stats" aria-label="Loading overview">
+            <article
+              className="dash-stat dash-loading-stat"
+              data-tone="orange"
+              aria-hidden="true"
+            >
+              <span className="dash-loading-lines">
+                <span className="dash-skeleton dash-skeleton-label" />
+                <span className="dash-skeleton dash-skeleton-value" />
+                <span className="dash-skeleton dash-skeleton-unit" />
+              </span>
+            </article>
+            <article className="dash-stat dash-loading-stat" data-tone="teal">
+              <LoadingSpinner size={44} label="Loading dashboard..." />
+            </article>
+            <article
+              className="dash-stat dash-loading-stat"
+              data-tone="indigo"
+              aria-hidden="true"
+            >
+              <span className="dash-loading-lines">
+                <span className="dash-skeleton dash-skeleton-label" />
+                <span className="dash-skeleton dash-skeleton-value" />
+                <span className="dash-skeleton dash-skeleton-unit" />
+              </span>
+            </article>
+          </section>
+        </main>
       ) : (
         <main className="dash-shell">
 

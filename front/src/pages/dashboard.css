@@ -67,11 +67,92 @@
   gap: 24px;
 }
 
-.dash-loading {
+.dash-loading-shell {
   min-height: min(70vh, 620px);
+  align-content: start;
+}
+
+.dash-loading-header {
   display: grid;
+  justify-items: start;
+  gap: 12px;
+  padding: 4px 2px 0;
+}
+
+.dash-skeleton {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--dash-muted) 14%, transparent);
+}
+
+.dash-skeleton::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(255 255 255 / 45%),
+    transparent
+  );
+  content: "";
+  animation: dash-skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+.dash-skeleton-title {
+  width: min(260px, 58vw);
+  height: 38px;
+}
+
+.dash-skeleton-subtitle {
+  width: min(170px, 42vw);
+  height: 15px;
+}
+
+.dash-loading-stat {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   place-items: center;
-  color: var(--dash-muted);
+}
+
+.dash-loading-stat .loading-spinner-wrap {
+  padding: 0;
+}
+
+.dash-loading-lines {
+  width: 100%;
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}
+
+.dash-skeleton-label {
+  width: 52%;
+  height: 12px;
+}
+
+.dash-skeleton-value {
+  width: 70%;
+  height: 30px;
+}
+
+.dash-skeleton-unit {
+  width: 42%;
+  height: 11px;
+}
+
+@keyframes dash-skeleton-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-skeleton::after {
+    animation: none;
+  }
 }
 
 /* ---------- The glass itself ---------- */
