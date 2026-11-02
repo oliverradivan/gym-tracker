@@ -61,7 +61,7 @@ function PasswordField({
 function SettingsPage() {
   const navigate = useNavigate()
   const { user, session, setUser, handleLogout, authFetch } = useAuth()
-  const { theme, toggleTheme } = useTheme()
+  const { themePreference, setThemePreference } = useTheme()
 
   // State for forms
   const [activeTab, setActiveTab] = useState('appearance')
@@ -305,20 +305,28 @@ function SettingsPage() {
               <h3>Appearance</h3>
               <div className="setting-item">
                 <div className="setting-label">
-                  <label htmlFor="dark-mode-toggle">Dark Mode</label>
-                  <p className="setting-description">Toggle between light and dark theme</p>
+                  <span className="setting-label-title">Color theme</span>
+                  <p className="setting-description">
+                    Choose a theme or follow your phone&apos;s appearance setting.
+                  </p>
                 </div>
-                <button
-                  id="dark-mode-toggle"
-                  type="button"
-                  role="switch"
-                  aria-checked={theme === 'dark'}
-                  className={`theme-toggle ${theme === 'dark' ? 'is-on' : ''}`}
-                  onClick={toggleTheme}
-                >
-                  <span className="toggle-track" />
-                  <span className="toggle-thumb" />
-                </button>
+                <div className="theme-options" role="group" aria-label="Color theme">
+                  {[
+                    ['light', 'Light'],
+                    ['dark', 'Dark'],
+                    ['system', 'System'],
+                  ].map(([preference, label]) => (
+                    <button
+                      key={preference}
+                      type="button"
+                      aria-pressed={themePreference === preference}
+                      className={`theme-option${themePreference === preference ? ' is-selected' : ''}`}
+                      onClick={() => setThemePreference(preference)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </section>
           )}

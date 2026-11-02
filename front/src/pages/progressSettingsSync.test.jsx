@@ -44,7 +44,12 @@ vi.mock('../context/WorkoutsContext', () => ({
 }))
 
 vi.mock('../context/themeContext', () => ({
-  useTheme: () => ({ theme: 'light', toggleTheme: vi.fn() }),
+  useTheme: () => ({
+    theme: 'light',
+    themePreference: 'light',
+    setThemePreference: vi.fn(),
+    toggleTheme: vi.fn(),
+  }),
 }))
 
 vi.mock('./components/ProgressChartPanel', () => ({
