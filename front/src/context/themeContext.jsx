@@ -1,5 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, useEffect, useState } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react'
 
 const ThemeContext = createContext(null)
 const THEME_STORAGE_KEY = 'theme'
@@ -37,7 +43,7 @@ export function ThemeProvider({ children }) {
   const [systemTheme, setSystemTheme] = useState(getSystemTheme)
   const theme = themePreference === 'system' ? systemTheme : themePreference
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyTheme(theme)
   }, [theme])
 

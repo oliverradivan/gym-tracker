@@ -17,6 +17,25 @@
     <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0b0c0f" media="(prefers-color-scheme: dark)" />
     <title>gym💪</title>
+    <script>
+      (() => {
+        let preference = 'light'
+        try {
+          const savedPreference = localStorage.getItem('theme')
+          if (['light', 'dark', 'system'].includes(savedPreference)) {
+            preference = savedPreference
+          }
+        } catch {
+          // Keep the default theme when browser storage is unavailable.
+        }
+
+        const theme = preference === 'system'
+          ? (window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : preference
+        document.documentElement.classList.toggle('dark', theme === 'dark')
+        document.documentElement.style.colorScheme = theme
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
