@@ -33,7 +33,7 @@ export default function DashboardExerciseSection({
   const formName = form?.exercise_name ?? ''
   const selectedCategory = categories.includes(form?.category)
     ? form.category
-    : categories[0] ?? 'Other'
+    : null
 
   // Custom dropdown state for category selection.
   const [categorySelectOpen, setCategorySelectOpen] = useState(false)
@@ -368,7 +368,7 @@ export default function DashboardExerciseSection({
             >
               <button
                 type="button"
-                className={`custom-select-trigger select-${selectedCategory.toLowerCase()}`}
+                className={`custom-select-trigger${selectedCategory ? ` select-${selectedCategory.toLowerCase()}` : ''}`}
                 onClick={(event) => {
                   event.stopPropagation()
                   setCategorySelectOpen((prev) => !prev)

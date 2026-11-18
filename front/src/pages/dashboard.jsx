@@ -84,9 +84,18 @@ function DashboardPage() {
         notifyExerciseChange()
 
         setForm(initialForm)
+      } else {
+        const data = await response.json().catch(() => null)
+
+        if (response.status === 409) {
+          window.alert('exercise already exists')
+        } else {
+          window.alert(data?.detail || 'Failed to add exercise.')
+        }
       }
     } catch (err) {
       console.error('Failed to create exercise:', err)
+      window.alert('Failed to add exercise.')
     }
   }
 
@@ -223,7 +232,12 @@ function DashboardPage() {
               </span>
             </article>
             <article className="dash-stat dash-loading-stat" data-tone="teal">
-              <LoadingSpinner size={44} label="Loading dashboard..." />
+              <div className="dash-loading-indicator">
+                <LoadingSpinner size={44} label="Loading dashboard..." />
+                <span className="dash-loading-tagline">
+                  Make muscles, not excuses
+                </span>
+              </div>
             </article>
             <article
               className="dash-stat dash-loading-stat"

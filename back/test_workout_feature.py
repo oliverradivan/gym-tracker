@@ -129,6 +129,35 @@ def test_create_exercise_saves_selected_canonical_category(monkeypatch):
     assert result["exercise"]["exercise_category"] == "Cardio"
 
 
+def test_create_exercise_rejects_an_existing_name_case_insensitively(monkeypatch):
+    class FakeTable:
+        def select(self, *_args):
+            return self
+
+        def execute(self):
+            return SimpleNamespace(data=[{"name": "Custom Movement"}])
+
+    class FakeSupabase:
+        def table(self, _table_name):
+            return FakeTable()
+
+    database = FakeSupabase()
+    monkeypatch.setitem(
+        app.dependency_overrides,
+        get_current_user_context,
+        lambda: (database, SimpleNamespace(id="user-1")),
+    )
+    monkeypatch.setattr(exercises, "get_admin_client", lambda: database)
+
+    response = TestClient(app).post(
+        "/api/exercises",
+        json={"name": " custom movement ", "category": "Cardio"},
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "An exercise with this name already exists."
+
+
 def test_serialize_exercise_adds_category_without_replacing_database_category():
     assert serialize_exercise({"name": "Plank", "category": "Leg"}) == {
         "name": "Plank",
@@ -390,5 +419,4 @@ def test_create_workout_log_inserts_type_specific_values(
 
     assert response.status_code == 200
     assert {key: result["log"][key] for key in expected_values} == expected_values
-
 
